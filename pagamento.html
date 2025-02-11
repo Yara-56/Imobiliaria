@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div id="inquilino" class="step">
+        <h2>Selecionar Inquilino</h2>
+        <input type="text" placeholder="Pesquisar inquilino...">
+        <button onclick="nextStep(1)">Próximo</button>
+    </div>
+
+    <div id="pagamento" class="step hidden">
+        <h2>Inserir Detalhes do Pagamento</h2>
+        <input type="text" placeholder="Valor do pagamento">
+        <button onclick="prevStep(0)">Voltar</button>
+        <button onclick="nextStep(2)">Próximo</button>
+    </div>
+
+    <div id="comprovante" class="step hidden">
+        <h2>Comprovante</h2>
+        <p>Pagamento realizado com sucesso!</p>
+        <button onclick="prevStep(1)">Voltar</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
