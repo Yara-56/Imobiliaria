@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+<!DOCTYPE html> <!-- Tipo --> 
+<html lang="pt-BR"> <!-- Elemento -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,16 +10,18 @@
     <h2>Login</h2>
     <p>Insira suas credenciais de acesso nos campos abaixo:</p>
 
-    <form action="#">
+    <form onsubmit="return validarLogin()">
         <label for="email"><strong>E-MAIL</strong></label><br>
-        <input type="text" id="email" name="email" placeholder="Digite seu e-mail..." required>
+        <input type="email" id="email" name="email" placeholder="Digite seu e-mail..." required>
+
         <br><br>
 
         <label for="senha"><strong>SENHA</strong></label><br>
         <input type="password" id="senha" name="senha" placeholder="Digite sua senha..." required>
+        <button type="button" onclick="toggleSenha()">👁️</button>
         <br><br>
 
-        <a href="#">Esqueci minha senha.</a>
+        <a href="recuperar.html">Esqueci minha senha.</a>
         <br><br>
 
         <button type="submit">Acessar</button>
