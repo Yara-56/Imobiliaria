@@ -5,17 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pagamento</title>
-    <script
-			src="http://kit.fontawesome.com/b6a8bf4768.js"
-			crossorigin="anonymous"
-		></script>
-		<link
-			rel="stylesheet"
-			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-			integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
-			crossorigin="anonymous"
-			referrerpolicy="no-referrer"
-		/>
+    <script src="http://kit.fontawesome.com/b6a8bf4768.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -24,6 +17,7 @@
         <div>
             <img src="#" alt="Foto de usuário" />
             <span>Nome de usuário</span>
+            <a href="./login.html">Sair</a>
         </div>
 
         <ul>
@@ -112,19 +106,19 @@
         <input type="text" placeholder="Pesquisar inquilino...">
         <button>Próximo</button>
     </nav>
-    
+
     <nav id="pagamento" class="step hidden">
         <h2>Inserir Detalhes do Pagamento</h2>
         <input type="text" placeholder="Valor do pagamento">
         <button>Voltar</button>
         <button>Próximo</button>
     </nav>
-    
-    <nav id="comprovante" class="step hidden">
+
+    <dialog id="comprovante" class="step hidden" open>
         <h2>Comprovante</h2>
         <p>Pagamento realizado com sucesso!</p>
         <button>Voltar</button>
-    </nav>    
+    </dialog>
 
 </body>
 
