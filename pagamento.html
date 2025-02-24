@@ -107,24 +107,24 @@
         </ul>
     </nav>
 
-    <div id="inquilino" class="step">
+    <nav id="inquilino" class="step">
         <h2>Selecionar Inquilino</h2>
         <input type="text" placeholder="Pesquisar inquilino...">
-        <button onclick="nextStep(1)">Próximo</button>
-    </div>
-
-    <div id="pagamento" class="step hidden">
+        <button>Próximo</button>
+    </nav>
+    
+    <nav id="pagamento" class="step hidden">
         <h2>Inserir Detalhes do Pagamento</h2>
         <input type="text" placeholder="Valor do pagamento">
-        <button onclick="prevStep(0)">Voltar</button>
-        <button onclick="nextStep(2)">Próximo</button>
-    </div>
-
-    <div id="comprovante" class="step hidden">
+        <button>Voltar</button>
+        <button>Próximo</button>
+    </nav>
+    
+    <nav id="comprovante" class="step hidden">
         <h2>Comprovante</h2>
         <p>Pagamento realizado com sucesso!</p>
-        <button onclick="prevStep(1)">Voltar</button>
-    </div> <!-- nav e nao div-->
+        <button>Voltar</button>
+    </nav>    
 
 </body>
 
