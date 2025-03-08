@@ -1,0 +1,24 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+}
+
+table th, table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+table th {
+    background-color: #2c3e50;
+    color: #fff;
+}
+
+table tr:hover {
+    background-color: #f5f5f5;
+}
+
+table input[type="checkbox"] {
+    margin: 0;
+}

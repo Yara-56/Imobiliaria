@@ -1,0 +1,39 @@
+form {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1 green, blue, alpha);
+}
+
+form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+form input[type="email"],
+form input[type="password"] {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+form button {
+    background-color: #34495e;
+}
+
+form a {
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+    color: #2c3e50;
+    text-decoration: nome;
+}
+
+form a:hover {
+    text-decoration: underline;
+}

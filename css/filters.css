@@ -1,0 +1,15 @@
+.filtro {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.filtro input, .filtro select {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.filtro input[type="text"] {
+    flex-grow: 1;
+}

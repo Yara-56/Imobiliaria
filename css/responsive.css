@@ -1,0 +1,15 @@
+@media (max-width: 768px) {
+    nav ul {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .filtro {
+        flex-direction: column;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+}
