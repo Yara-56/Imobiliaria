@@ -1,37 +1,32 @@
-<!DOCTYPE html> <!-- Tipo -->
-<html lang="pt-BR"> <!-- Elemento -->
+<!DOCTYPE html> 
+<html lang="pt-BR"> 
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="../css/layout.css">
-    <link rel="stylesheet" href="../css/forms.css">
-    <link rel="stylesheet" href="../css/tables.css">
-    <link rel="stylesheet" href="../css/buttons.css">
-    <link rel="stylesheet" href="../css/dialogs.css">
-    <link rel="stylesheet" href="../css/filters.css">
-    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="css/login.css">
 </head>
 
 <body>
 
-    <h2>Login</h2>
-    <p>Insira suas credenciais de acesso nos campos abaixo:</p>
+    <div class="login-container">
+        <h2>Login</h2>
+        <p>Insira suas credenciais de acesso nos campos abaixo:</p>
 
-    <form onsubmit="return validarLogin()">
-        <label for="email"><strong>E-MAIL</strong></label>
-        <input type="email" id="email" name="email" placeholder="Digite seu e-mail..." required>
+        <form onsubmit="return validarLogin()">
+            <label for="email"></label>
+            <input type="email" id="email" name="email" placeholder="Digite seu e-mail..." required>
 
-        <label for="senha"><strong>SENHA</strong></label>
-        <input type="password" id="senha" name="senha" placeholder="Digite sua senha..." required>
-        <button type="button" onclick="toggleSenha()">👁️</button>
+            <label for="senha">SENHA</label>
+            <input type="password" id="senha" name="senha" placeholder="Digite sua senha..." required>
+            <button type="button" onclick="toggleSenha()">👁️</button>
 
-        <a href="#">Esqueci minha senha.</a>
+            <a href="#" class="forgot-password">Esqueci minha senha.</a>
 
-        <a href="inicio.html" role="button"> <button type="button">Acessar</button></a>
-    </form>
-
+            <a href="inicio.html" class="button-acess">Acessar</a>
+        </form>
+    </div>
 </body>
 
 </html>
