@@ -1,125 +1,76 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagamento</title>
-    <script src="http://kit.fontawesome.com/b6a8bf4768.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="../css/pagamento.css" />    
+    <title>Sistema de Pagamento</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/pagamento.css">
 </head>
-
 <body>
-    <nav>
-        <div>
-            <img src="#" alt="Foto de usuário" />
-            <span>Nome de usuário</span>
-            <a href="./login.html">Sair</a>
+    <div class="sidebar" id="sidebar">
+        <button class="toggle-btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <ul class="menu">
+            <li class="title">Páginas</li>
+            <li><i class="fas fa-user"></i> <span>Inquilino</span></li>
+            <li><i class="fas fa-user-plus"></i> <span>Novo Inquilino</span></li>
+            <li><i class="fas fa-money-bill"></i> <span>Pagamentos</span></li>
+            <li><i class="fas fa-plus-circle"></i> <span>Novo Pagamento</span></li>
+            <li><i class="fas fa-history"></i> <span>Histórico de Pagamentos</span></li>
+            <li><i class="fas fa-file-contract"></i> <span>Contrato</span></li>
+            <li><i class="fas fa-file-signature"></i> <span>Novo Contrato</span></li>
+            <li><i class="fas fa-building"></i> <span>Imóveis</span></li>
+            <li><i class="fas fa-plus-square"></i> <span>Novo Imóvel</span></li>
+            <li class="title">Relatórios</li>
+            <li><i class="fas fa-chart-line"></i> <span>Pagamentos</span></li>
+            <li><i class="fas fa-address-book"></i> <span>Contatos</span></li>
+            <li><i class="fas fa-users"></i> <span>Inquilinos</span></li>
+            <li class="title">Outros</li>
+            <li><i class="fas fa-cog"></i> <span>Configurações</span></li>
+            <li><i class="fas fa-question-circle"></i> <span>Ajuda</span></li>
+        </ul>
+    </div>
+    
+    <div class="content">
+        <div class="payment-container">
+            <h2>Selecionar Inquilino</h2>
+            <label for="inquilino">Inquilino</label>
+            <select id="inquilino" onchange="preencherDados()">
+                <option value="">Selecione um inquilino</option>
+                <option value="1" data-nome="Carlos Silva" data-cpf="123.456.789-00" data-endereco="Rua A, 123">Carlos Silva</option>
+                <option value="2" data-nome="Mariana Souza" data-cpf="987.654.321-00" data-endereco="Av. B, 456">Mariana Souza</option>
+            </select>
+
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" readonly>
+
+            <label for="cpf">CPF</label>
+            <input type="text" id="cpf" readonly>
+
+            <label for="endereco">Endereço</label>
+            <input type="text" id="endereco" readonly>
+
+            <label for="valor">Valor do Pagamento</label>
+            <input type="text" id="valor" placeholder="Digite o valor" oninput="verificarCampos()">
+
+            <button id="continuar" onclick="exibirComprovante()" disabled>Continuar</button>
         </div>
 
-        <ul>
-            <li>
-                <h1>Dashboards</h1>
-                <ul>
-                    <li>
-                        <i class="fa-solid fa-chart-pie"></i>
-                        <a href="inicio.html" role="button">Início</a>
-                    </li>
-                </ul>
-            </li>
+        <div class="comprovante-container" id="comprovante" style="display:none;">
+            <h3>Comprovante de Pagamento</h3>
+            <p><span class="info">Nome do Inquilino:</span> <span id="comprovante-nome"></span></p>
+            <p><span class="info">CPF:</span> <span id="comprovante-cpf"></span></p>
+            <p><span class="info">Endereço:</span> <span id="comprovante-endereco"></span></p>
+            <p><span class="info">Valor Pago:</span> R$ <span id="comprovante-valor"></span></p>
+            <div class="buttons">
+                <button class="imprimir" onclick="imprimirComprovante()">Imprimir</button>
+                <button class="whatsapp" onclick="enviarWhatsApp()">Enviar via WhatsApp</button>
+            </div>
+        </div>
+    </div>
 
-            <li>
-                <h1>Páginas</h1>
-                <ul>
-                    <li>
-                        <i class="fa-regular fa-id-badge"></i>
-                        <a href="#" role="button">Inquilino</a>
-                        <ul>
-                            <li>
-                                <a href="#">Novo Inquilino</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <i class="fa-solid fa-dollar-sign"></i>
-                        <a href="pagamento.html" role="button">Pagamentos</a>
-                        <ul>
-                            <li>
-                                <a href="#">Histórico</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <i class="fa-solid fa-users"></i>
-                        <a href="#" role="button">Contrato</a>
-                        <ul>
-                            <li>
-                                <a href="#">Novo Contrato</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <i class="fa-solid fa-house-chimney"></i>
-                        <a href="#" role="button">Imóveis</a>
-                        <ul>
-                            <li>
-                                <a href="#">Novo Imóvel</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <i class="fa-regular fa-comments"></i>
-                        <a href="#" role="button">Relatórios</a>
-                        <ul>
-                            <li>
-                                <a href="#">Pagamentos</a>
-                            </li>
-                            <li>
-                                <a href="#">Contratos</a>
-                            </li>
-                            <li>
-                                <a href="#">Inquilinos</a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-
-        <ul>
-            <li>
-                <i class="fa-solid fa-gear"></i>
-                <a href="#" role="button">Configurações</a>
-            </li>
-            <li>
-                <i class="fa-regular fa-circle-question"></i>
-                <a href="#" role="button">Ajuda</a>
-            </li>
-        </ul>
-    </nav>
-
-    <nav id="inquilino" class="step">
-        <h2>Selecionar Inquilino</h2>
-        <input type="text" placeholder="Pesquisar inquilino...">
-        <button>Próximo</button>
-    </nav>
-
-    <nav id="pagamento" class="step hidden">
-        <h2>Inserir Detalhes do Pagamento</h2>
-        <input type="text" placeholder="Valor do pagamento">
-        <button>Voltar</button>
-        <button>Próximo</button>
-    </nav>
-
-    <dialog id="comprovante" class="step hidden" open>
-        <h2>Comprovante</h2>
-        <p>Pagamento realizado com sucesso!</p>
-        <button>Voltar</button>
-    </dialog>
-
+    <script src="../js/scripts.js"></script>
 </body>
-
 </html>
