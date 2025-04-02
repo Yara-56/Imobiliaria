@@ -33,7 +33,7 @@
         </ul>
     </div>
     
-    <div class="content">
+    <div class="content" id="content">
         <div class="payment-container">
             <h2>Selecionar Inquilino</h2>
             <label for="inquilino">Inquilino</label>
@@ -57,20 +57,55 @@
 
             <button id="continuar" onclick="exibirComprovante()" disabled>Continuar</button>
         </div>
-
-        <div class="comprovante-container" id="comprovante" style="display:none;">
-            <h3>Comprovante de Pagamento</h3>
-            <p><span class="info">Nome do Inquilino:</span> <span id="comprovante-nome"></span></p>
-            <p><span class="info">CPF:</span> <span id="comprovante-cpf"></span></p>
-            <p><span class="info">Endereço:</span> <span id="comprovante-endereco"></span></p>
-            <p><span class="info">Valor Pago:</span> R$ <span id="comprovante-valor"></span></p>
-            <div class="buttons">
-                <button class="imprimir" onclick="imprimirComprovante()">Imprimir</button>
-                <button class="whatsapp" onclick="enviarWhatsApp()">Enviar via WhatsApp</button>
-            </div>
-        </div>
     </div>
 
-    <script src="../js/scripts.js"></script>
+    <script>
+        function toggleSidebar() {
+            let sidebar = document.getElementById("sidebar");
+            let content = document.getElementById("content");
+
+            sidebar.classList.toggle("active");
+            content.classList.toggle("collapsed");
+        }
+
+        document.addEventListener("click", function (event) {
+            let sidebar = document.getElementById("sidebar");
+            let toggleBtn = document.querySelector(".toggle-btn");
+            
+            if (sidebar.classList.contains("active") && !sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
+                sidebar.classList.remove("active");
+                document.getElementById("content").classList.remove("collapsed");
+            }
+        });
+    </script>
+
+    <style>
+        .sidebar {
+            width: 240px;
+            background: #1e272e;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: width 0.3s;
+        }
+
+        .sidebar.active {
+            width: 80px;
+        }
+
+        .sidebar.active .menu li span {
+            display: none;
+        }
+
+        .content {
+            margin-left: 240px;
+            transition: margin-left 0.3s;
+        }
+
+        .content.collapsed {
+            margin-left: 80px;
+        }
+    </style>
 </body>
 </html>

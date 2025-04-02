@@ -23,11 +23,7 @@ function verificarCampos() {
     let valor = document.getElementById("valor").value;
     let continuarBtn = document.getElementById("continuar");
 
-    if (nome && valor.trim() !== "") {
-        continuarBtn.disabled = false;
-    } else {
-        continuarBtn.disabled = true;
-    }
+    continuarBtn.disabled = !(nome && valor.trim() !== "");
 }
 
 function exibirComprovante() {
@@ -55,3 +51,19 @@ function enviarWhatsApp() {
     let link = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensagem)}`;
     window.open(link, "_blank");
 }
+
+// Função para abrir e fechar o menu
+function toggleSidebar() {
+    let sidebar = document.getElementById("sidebar");
+    sidebar.classList.toggle("active");
+}
+
+// Fecha o menu ao clicar fora dele
+document.addEventListener("click", function (event) {
+    let sidebar = document.getElementById("sidebar");
+    let toggleBtn = document.querySelector(".toggle-btn");
+    
+    if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
+        sidebar.classList.remove("active");
+    }
+});

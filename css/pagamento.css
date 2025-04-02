@@ -9,16 +9,16 @@
 body {
     display: flex;
     height: 100vh;
-    background-color: #ecf0f3;
+    background-color: #f5f6fa;
     margin: 0;
 }
 
 /* Sidebar */
 .sidebar {
-    width: 260px;
-    background: linear-gradient(135deg, #2c3e50, #34495e);
+    width: 240px;
+    background: #1e272e;
     color: white;
-    padding: 20px;
+    padding: 25px 15px;
     position: fixed;
     left: 0;
     top: 0;
@@ -28,7 +28,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.15);
 }
 
 .sidebar .menu {
@@ -38,41 +38,43 @@ body {
 }
 
 .sidebar .menu .title {
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
     font-size: 14px;
-    margin: 15px 0 5px;
-    color: #ecf0f1;
+    margin: 20px 0 10px;
+    color: #dcdde1;
 }
 
 .sidebar .menu li {
-    padding: 12px;
+    padding: 14px;
     display: flex;
     align-items: center;
     cursor: pointer;
     transition: background 0.3s;
-    border-radius: 8px;
+    border-radius: 10px;
     width: 100%;
 }
 
 .sidebar .menu li i {
-    width: 30px;
+    width: 35px;
     text-align: center;
+    font-size: 18px;
 }
 
 .sidebar .menu li span {
-    margin-left: 15px;
+    margin-left: 18px;
+    font-size: 15px;
 }
 
 .sidebar .menu li:hover {
-    background: #1e2a38;
+    background: #2f3640;
 }
 
 /* Conteúdo principal */
 .content {
     flex: 1;
-    margin-left: 260px;
-    padding: 20px;
+    margin-left: 240px;
+    padding: 30px;
     transition: margin-left 0.3s;
     display: flex;
     flex-direction: column;
@@ -82,98 +84,98 @@ body {
 
 .payment-container, .comprovante-container {
     background-color: #ffffff;
-    padding: 1.8rem 2.5rem;
-    border-radius: 12px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 2rem 3rem;
+    border-radius: 15px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.12);
     text-align: center;
-    width: 380px;
+    width: 420px;
     display: flex;
     flex-direction: column;
-    margin-top: 20px;
+    margin-top: 25px;
 }
 
 h2, h3 {
-    font-size: 22px;
-    font-weight: 600;
-    margin-bottom: 12px;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 14px;
     text-transform: uppercase;
-    color: #2c3e50;
+    color: #1e272e;
 }
 
 h2::after, h3::after {
     content: "";
     display: block;
-    width: 50px;
-    height: 2px;
-    background-color: #8fc98f;
-    margin: 5px auto 15px;
+    width: 60px;
+    height: 3px;
+    background-color: #44bd32;
+    margin: 6px auto 18px;
 }
 
 label {
-    font-weight: 500;
+    font-weight: 600;
     display: block;
     text-align: left;
-    margin-bottom: 6px;
-    font-size: 14px;
+    margin-bottom: 8px;
+    font-size: 15px;
     color: #333;
 }
 
 input, select {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
+    padding: 14px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 15px;
     outline: none;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
     transition: border-color 0.3s;
-    background: #f8f9fa;
+    background: #f1f2f6;
 }
 
 input:focus, select:focus {
-    border-color: #7ab87a;
+    border-color: #44bd32;
 }
 
 button {
     width: 100%;
-    background: #8fc98f;
+    background: #44bd32;
     color: white;
-    padding: 12px;
+    padding: 14px;
     border: none;
-    border-radius: 8px;
-    font-size: 16px;
+    border-radius: 10px;
+    font-size: 18px;
     font-weight: bold;
     cursor: pointer;
     transition: 0.3s;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.12);
 }
 
 button:hover {
-    background: #7ab87a;
+    background: #4cd137;
 }   
 
 .comprovante-container .buttons {
     display: flex;
     justify-content: space-between;
-    margin-top: 15px;
+    margin-top: 18px;
 }
 
 .comprovante-container button {
     flex: 1;
-    margin: 5px;
-    padding: 10px;
+    margin: 6px;
+    padding: 12px;
     border: none;
     cursor: pointer;
-    border-radius: 8px;
+    border-radius: 10px;
 }
 
 .comprovante-container .imprimir {
-    background: #2980b9;
+    background: #0097e6;
     color: white;
 }
 
 .comprovante-container .imprimir:hover {
-    background: #3498db;
+    background: #00a8ff;
 }
 
 .comprovante-container .whatsapp {
@@ -188,8 +190,8 @@ button:hover {
 /* Responsividade */
 @media (max-width: 768px) {
     .sidebar {
-        width: 70px;
-        padding: 10px;
+        width: 80px;
+        padding: 15px;
     }
 
     .sidebar .menu li span {
@@ -197,22 +199,22 @@ button:hover {
     }
 
     .content {
-        margin-left: 70px;
+        margin-left: 80px;
     }
 }
 
 @media (max-width: 480px) {
     .payment-container, .comprovante-container {
-        width: 95%;
-        padding: 1rem;
+        width: 100%;
+        padding: 1.5rem;
     }
 
     h2, h3 {
-        font-size: 18px;
+        font-size: 20px;
     }
 
     input, select, button {
-        font-size: 12px;
-        padding: 10px;
+        font-size: 14px;
+        padding: 12px;
     }
 }
