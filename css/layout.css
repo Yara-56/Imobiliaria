@@ -1,0 +1,94 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    display: flex;
+    height: 100vh;
+    background-color: #f5f6fa;
+    margin: 0;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    background: #ffffff !important;
+    color: #1e272e !important;
+    padding: 25px 15px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    transition: width 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar .menu .title {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 14px;
+    margin: 20px 0 10px;
+    color: #1e272e !important;
+}
+
+.sidebar .menu li {
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.3s;
+    border-radius: 10px;
+    width: 100%;
+    color: #1e272e !important;
+}
+
+.sidebar .menu li i {
+    width: 35px;
+    text-align: center;
+    font-size: 18px;
+    color: #1e272e !important;
+}
+
+.sidebar .menu li span {
+    margin-left: 18px;
+    font-size: 15px;
+    color: #1e272e !important;
+}
+
+.sidebar .menu li:hover {
+    background: #dcdde1 !important;
+}
+
+.menu-toggle, .menu-toggle button {
+    background: transparent !important;
+    color: #1e272e !important;
+    border: none !important;
+    padding: 10px !important;
+    cursor: pointer !important;
+    font-size: 20px !important;
+    box-shadow: none !important;
+}
+
+.menu-toggle:hover, .menu-toggle button:hover {
+    background: #dcdde1 !important;
+}
+
+/* Conteúdo principal */
+.content {
+    flex: 1;
+    margin-left: 240px;
+    padding: 30px;
+    transition: margin-left 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
