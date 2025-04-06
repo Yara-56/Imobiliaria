@@ -1,0 +1,89 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #f5f6fa;
+}
+
+/* Títulos principais */
+h2, h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    color: #1e272e;
+}
+
+h2::after, h3::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 3px;
+    background-color: #44bd32;
+    margin: 6px auto 18px;
+}
+
+/* Labels */
+label {
+    font-weight: 600;
+    display: block;
+    text-align: left;
+    margin-bottom: 8px;
+    font-size: 15px;
+    color: #333;
+}
+
+/* Inputs e selects */
+input, select {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+    margin-bottom: 18px;
+    transition: border-color 0.3s;
+    background: #f1f2f6;
+}
+
+input:focus, select:focus {
+    border-color: #44bd32;
+}
+
+/* Botões padrão */
+button {
+    width: 100%;
+    background: #44bd32;
+    color: white;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.12);
+}
+
+button:hover {
+    background: #4cd137;
+}
+
+/* Containers comuns */
+.payment-container,
+.comprovante-container {
+    background-color: #ffffff;
+    padding: 2rem 3rem;
+    border-radius: 15px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.12);
+    text-align: center;
+    width: 420px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 25px;
+}

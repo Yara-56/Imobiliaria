@@ -1,15 +1,7 @@
-/* Reset básico */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
-}
-
+/* Estrutura da página */
 body {
     display: flex;
     height: 100vh;
-    background-color: #f5f6fa;
     margin: 0;
 }
 
@@ -32,11 +24,11 @@ body {
 }
 
 .sidebar .menu .title {
-    font-weight: 700;
-    text-transform: uppercase;
+    font-weight: 600;
+    text-transform: none; /* Agora fica com letras normais */
     font-size: 14px;
     margin: 20px 0 10px;
-    color: #1e272e !important;
+    color: #a4b0be !important; /* Cor mais clara */
 }
 
 .sidebar .menu li {
@@ -48,6 +40,7 @@ body {
     border-radius: 10px;
     width: 100%;
     color: #1e272e !important;
+    text-transform: none; /* Letras normais nos itens */
 }
 
 .sidebar .menu li i {
@@ -67,7 +60,16 @@ body {
     background: #dcdde1 !important;
 }
 
-.menu-toggle, .menu-toggle button {
+.sidebar .menu li.active {
+    background-color: #f1f2f6;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #1e272e;
+}
+
+/* Botão de menu */
+.menu-toggle,
+.menu-toggle button {
     background: transparent !important;
     color: #1e272e !important;
     border: none !important;
@@ -77,11 +79,38 @@ body {
     box-shadow: none !important;
 }
 
-.menu-toggle:hover, .menu-toggle button:hover {
+.menu-toggle:hover,
+.menu-toggle button:hover {
     background: #dcdde1 !important;
 }
 
-/* Conteúdo principal */
+/* Cabeçalho e conteúdo */
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 10px 20px 10px;
+    border-bottom: 1px solid #dcdde1;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #1e272e;
+}
+
+.user-info i {
+    font-size: 20px;
+    color: #1e272e;
+}
+
+.user-name {
+    font-weight: 500;
+}
+
 .content {
     flex: 1;
     margin-left: 240px;
@@ -92,3 +121,140 @@ body {
     align-items: center;
     justify-content: center;
 }
+
+.toggle-btn {
+    background: transparent;
+    border: none;
+    color: #1e272e;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 10px;
+    margin: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background 0.3s;
+}
+
+.toggle-btn:hover {body {
+    display: flex;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    background: #ffffff !important;
+    color: #1e272e !important;
+    padding: 25px 15px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    transition: width 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.15);
+}
+
+.menu .title {
+    font-weight: 500;
+    font-size: 14px;
+    margin: 20px 0 10px;
+    color: rgba(0, 0, 0, 0.4);
+    text-transform: none;
+}
+
+.menu li,
+.menu-item .menu-main {
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.3s;
+    border-radius: 10px;
+    width: 100%;
+    color: #1e272e !important;
+}
+
+.menu li i,
+.menu-item .menu-main i {
+    width: 35px;
+    text-align: center;
+    font-size: 18px;
+    color: #1e272e !important;
+}
+
+.menu li span,
+.menu-item .menu-main span {
+    margin-left: 18px;
+    font-size: 15px;
+    color: #1e272e !important;
+}
+
+.menu li:hover,
+.menu-item .menu-main:hover {
+    background: #dcdde1 !important;
+}
+
+.menu li.active {
+    background-color: #f1f2f6;
+    border-radius: 8px;
+    font-weight: normal; /* ou remova esta linha */
+    color: #1e272e;
+}
+
+/* Submenu */
+.menu-item {
+    width: 100%;
+}
+
+.menu-item .submenu {
+    display: none;
+    padding-left: 30px;
+    margin-top: 5px;
+    flex-direction: column;
+}
+
+.menu-item .submenu li {
+    padding: 10px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.menu-item .submenu li:hover {
+    background: #eaeaea;
+}
+
+.menu-item.open .submenu {
+    display: flex;
+}
+
+.arrow-icon {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.4);
+    margin-left: auto;
+    transition: transform 0.3s;
+}
+
+.menu-item.open .arrow-icon {
+    transform: rotate(180deg);
+}
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.menu-separator {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.2); /* 40% black */
+    margin: 16px 0;
+  }
+  

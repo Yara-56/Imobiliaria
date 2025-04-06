@@ -1,5 +1,15 @@
-/* Estilos para a página de pagamento */
-.payment-container, .comprovante-container {
+/* Estilos exclusivos da página de pagamento */
+
+.payment-container {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 2rem auto;
+}
+
+.comprovante-container {
     background-color: #ffffff;
     padding: 2rem 3rem;
     border-radius: 15px;
@@ -10,66 +20,6 @@
     flex-direction: column;
     margin-top: 25px;
 }
-
-h2, h3 {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 14px;
-    text-transform: uppercase;
-    color: #1e272e;
-}
-
-h2::after, h3::after {
-    content: "";
-    display: block;
-    width: 60px;
-    height: 3px;
-    background-color: #44bd32;
-    margin: 6px auto 18px;
-}
-
-label {
-    font-weight: 600;
-    display: block;
-    text-align: left;
-    margin-bottom: 8px;
-    font-size: 15px;
-    color: #333;
-}
-
-input, select {
-    width: 100%;
-    padding: 14px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    font-size: 15px;
-    outline: none;
-    margin-bottom: 18px;
-    transition: border-color 0.3s;
-    background: #f1f2f6;
-}
-
-input:focus, select:focus {
-    border-color: #44bd32;
-}
-
-button {
-    width: 100%;
-    background: #44bd32;
-    color: white;
-    padding: 14px;
-    border: none;
-    border-radius: 10px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-    box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.12);
-}
-
-button:hover {
-    background: #4cd137;
-}   
 
 .comprovante-container .buttons {
     display: flex;
@@ -86,6 +36,7 @@ button:hover {
     border-radius: 10px;
 }
 
+/* Botão imprimir */
 .comprovante-container .imprimir {
     background: #0097e6;
     color: white;
@@ -95,6 +46,7 @@ button:hover {
     background: #00a8ff;
 }
 
+/* Botão WhatsApp */
 .comprovante-container .whatsapp {
     background: #25d366;
     color: white;

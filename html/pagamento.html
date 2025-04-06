@@ -1,112 +1,161 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistema de Pagamento</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="../css/pagamento.css">
-    <link rel="stylesheet" href="../css/layout.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <link rel="stylesheet" href="../css/pagamento.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/style.css" />
 </head>
+
 <body>
     <div class="sidebar" id="sidebar">
-        <button class="toggle-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
+        <div class="sidebar-header">
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span class="user-name">Cleia Maria</span>
+            </div>
+            <button class="toggle-btn" onclick="toggleSidebar()" aria-label="Fechar Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
         <ul class="menu">
+            <li class="title">Dashboard</li>
+            <li class="active">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Início</span>
+            </li>
+
             <li class="title">Páginas</li>
-            <li><i class="fas fa-user"></i> <span>Inquilino</span></li>
-            <li><i class="fas fa-user-plus"></i> <span>Novo Inquilino</span></li>
-            <li><i class="fas fa-money-bill"></i> <span>Pagamentos</span></li>
-            <li><i class="fas fa-plus-circle"></i> <span>Novo Pagamento</span></li>
-            <li><i class="fas fa-history"></i> <span>Histórico de Pagamentos</span></li>
-            <li><i class="fas fa-file-contract"></i> <span>Contrato</span></li>
-            <li><i class="fas fa-file-signature"></i> <span>Novo Contrato</span></li>
-            <li><i class="fas fa-building"></i> <span>Imóveis</span></li>
-            <li><i class="fas fa-plus-square"></i> <span>Novo Imóvel</span></li>
-            <li class="title">Relatórios</li>
-            <li><i class="fas fa-chart-line"></i> <span>Pagamentos</span></li>
-            <li><i class="fas fa-address-book"></i> <span>Contatos</span></li>
-            <li><i class="fas fa-users"></i> <span>Inquilinos</span></li>
+
+            <li class="has-submenu" onclick="toggleSubmenu(this)">
+                <div class="menu-item">
+                    <i class="fas fa-user"></i>
+                    <span>Inquilino</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+                <ul class="submenu">
+                    <li>
+                        <i class="fas fa-user-plus"></i>
+                        <span>Novo Inquilino</span>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="has-submenu" onclick="toggleSubmenu(this)">
+                <div class="menu-item">
+                    <i class="fas fa-money-bill"></i>
+                    <span>Pagamentos</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+                <ul class="submenu">
+                    <li>
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Novo Pagamento</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-history"></i>
+                        <span>Histórico de Pagamentos</span>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="has-submenu" onclick="toggleSubmenu(this)">
+                <div class="menu-item">
+                    <i class="fas fa-file-contract"></i>
+                    <span>Contrato</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+                <ul class="submenu">
+                    <li>
+                        <i class="fas fa-file-signature"></i>
+                        <span>Novo Contrato</span>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="has-submenu" onclick="toggleSubmenu(this)">
+                <div class="menu-item">
+                    <i class="fas fa-building"></i>
+                    <span>Imóveis</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+                <ul class="submenu">
+                    <li>
+                        <i class="fas fa-plus-square"></i>
+                        <span>Novo Imóvel</span>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="has-submenu" onclick="toggleSubmenu(this)">
+                <div class="menu-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Relatórios</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+                <ul class="submenu">
+                    <li>
+                        <i class="fas fa-chart-line"></i>
+                        <span>Pagamentos</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-address-book"></i>
+                        <span>Contatos</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-users"></i>
+                        <span>Inquilinos</span>
+                    </li>
+                </ul>
+            </li>
+
+            <li>
+                <hr class="menu-separator" />
+            </li>
+
             <li class="title">Outros</li>
-            <li><i class="fas fa-cog"></i> <span>Configurações</span></li>
-            <li><i class="fas fa-question-circle"></i> <span>Ajuda</span></li>
+            <li>
+                <i class="fas fa-cog"></i>
+                <span>Configurações</span>
+            </li>
+            <li>
+                <i class="fas fa-question-circle"></i>
+                <span>Ajuda</span>
+            </li>
         </ul>
     </div>
-    
+
     <div class="content" id="content">
         <div class="payment-container">
             <h2>Selecionar Inquilino</h2>
             <label for="inquilino">Inquilino</label>
-            <select id="inquilino" onchange="preencherDados()">
+            <select id="inquilino">
                 <option value="">Selecione um inquilino</option>
                 <option value="1" data-nome="Carlos Silva" data-cpf="123.456.789-00" data-endereco="Rua A, 123">Carlos Silva</option>
                 <option value="2" data-nome="Mariana Souza" data-cpf="987.654.321-00" data-endereco="Av. B, 456">Mariana Souza</option>
             </select>
 
             <label for="nome">Nome</label>
-            <input type="text" id="nome" readonly>
+            <input type="text" id="nome" readonly />
 
             <label for="cpf">CPF</label>
-            <input type="text" id="cpf" readonly>
+            <input type="text" id="cpf" readonly />
 
             <label for="endereco">Endereço</label>
-            <input type="text" id="endereco" readonly>
+            <input type="text" id="endereco" readonly />
 
             <label for="valor">Valor do Pagamento</label>
-            <input type="text" id="valor" placeholder="Digite o valor" oninput="verificarCampos()">
+            <input type="text" id="valor" placeholder="Digite o valor" />
 
-            <button id="continuar" onclick="exibirComprovante()" disabled>Continuar</button>
+            <button id="continuar" disabled>Continuar</button>
         </div>
     </div>
-
-    <script>
-        function toggleSidebar() {
-            let sidebar = document.getElementById("sidebar");
-            let content = document.getElementById("content");
-
-            sidebar.classList.toggle("active");
-            content.classList.toggle("collapsed");
-        }
-
-        document.addEventListener("click", function (event) {
-            let sidebar = document.getElementById("sidebar");
-            let toggleBtn = document.querySelector(".toggle-btn");
-            
-            if (sidebar.classList.contains("active") && !sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
-                sidebar.classList.remove("active");
-                document.getElementById("content").classList.remove("collapsed");
-            }
-        });
-    </script>
-
-    <style>
-        .sidebar {
-            width: 240px;
-            background: #1e272e;
-            color: white;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            transition: width 0.3s;
-        }
-
-        .sidebar.active {
-            width: 80px;
-        }
-
-        .sidebar.active .menu li span {
-            display: none;
-        }
-
-        .content {
-            margin-left: 240px;
-            transition: margin-left 0.3s;
-        }
-
-        .content.collapsed {
-            margin-left: 80px;
-        }
-    </style>
 </body>
+
 </html>
