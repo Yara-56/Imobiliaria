@@ -185,12 +185,13 @@ body {
     font-size: 22px;
     cursor: pointer;
     padding: 10px;
-    margin: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 8px;
     transition: background 0.3s;
+    width: 90%;
+    margin: 10px auto;
 }
 
 .toggle-btn:hover {
