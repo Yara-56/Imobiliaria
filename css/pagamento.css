@@ -1,17 +1,14 @@
-/* Estilos exclusivos da página de pagamento */
-
 .payment-container {
     background-color: #fff;
-    padding: 2rem;
+    padding: 2rem 2.5rem;
     border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    width: 60vw;
-    max-width: 600px;
+    max-width: 700px;
+    width: 100%;
     margin: 2rem auto;
-}
-
-/* Container do comprovante de pagamento */
-.comprovante-container {
+  }
+  
+  .comprovante-container {
     background-color: #ffffff;
     padding: 2rem 3rem;
     border-radius: 15px;
@@ -21,17 +18,15 @@
     display: flex;
     flex-direction: column;
     margin: 2rem auto;
-}
-
-/* Agrupamento de botões */
-.comprovante-container .buttons {
+  }
+  
+  .comprovante-container .buttons {
     display: flex;
     justify-content: space-between;
     margin-top: 18px;
-}
-
-/* Estilo base dos botões */
-.comprovante-container button {
+  }
+  
+  .comprovante-container button {
     flex: 1;
     margin: 6px;
     padding: 12px;
@@ -40,40 +35,37 @@
     border-radius: 10px;
     font-size: 15px;
     transition: 0.3s ease;
-}
-
-/* Botão de imprimir */
-.comprovante-container .imprimir {
+  }
+  
+  .comprovante-container .imprimir {
     background: #0097e6;
     color: white;
-}
-
-.comprovante-container .imprimir:hover {
+  }
+  
+  .comprovante-container .imprimir:hover {
     background: #00a8ff;
-}
-
-/* Botão de envio por WhatsApp */
-.comprovante-container .whatsapp {
+  }
+  
+  .comprovante-container .whatsapp {
     background: #25d366;
     color: white;
-}
-
-.comprovante-container .whatsapp:hover {
+  }
+  
+  .comprovante-container .whatsapp:hover {
     background: #2ecc71;
-}
-
-/* Estilos para a barra de progresso de etapas do pagamento */
-
-.progress-container {
+  }
+  
+  .progress-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 30px 0 50px;
+    margin: 30px auto 50px;
     padding: 0 10px;
     position: relative;
-}
-
-.step {
+    max-width: 500px;
+  }
+  
+  .step {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -81,10 +73,9 @@
     position: relative;
     text-align: center;
     z-index: 1;
-}
-
-/* Círculo da etapa */
-.step .circle {
+  }
+  
+  .step .circle {
     width: 40px;
     height: 40px;
     border: 3px solid #ccc;
@@ -97,17 +88,15 @@
     font-size: 16px;
     color: #999;
     transition: all 0.3s ease;
-}
-
-/* Texto abaixo do círculo */
-.step .label {
+  }
+  
+  .step .label {
     margin-top: 8px;
     font-size: 14px;
     color: #555;
-}
-
-/* Linha conectando os círculos */
-.step:not(:last-child)::after {
+  }
+  
+  .step:not(:last-child)::after {
     content: "";
     position: absolute;
     top: 20px;
@@ -116,22 +105,228 @@
     height: 4px;
     background-color: #ccc;
     z-index: -1;
-}
-
-/* Estado de etapa concluída */
-.step.completed .circle {
+  }
+  
+  .step.completed .circle {
     background-color: #1e272e;
     border-color: #1e272e;
     color: #fff;
-}
-
-/* Linha preenchida para etapas concluídas */
-.step.completed:not(:last-child)::after {
+  }
+  
+  .step.completed:not(:last-child)::after {
     background-color: #1e272e;
-}
-
-/* Etapa atual (ativa) */
-.step.active .circle {
+  }
+  
+  .step.active .circle {
     border-color: #1e272e;
     color: #1e272e;
-}
+  }
+  
+  @media only screen and (max-width: 600px) {
+    .payment-container {
+      padding: 1.5rem;
+      margin: 1rem auto;
+    }
+  
+    .comprovante-container {
+      padding: 1.5rem;
+    }
+  
+    .comprovante-container .buttons {
+      flex-direction: column;
+      gap: 10px;
+    }
+  
+    .comprovante-container button {
+      width: 100%;
+    }
+  
+    .progress-container {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  
+    .step:not(:last-child)::after {
+      display: none;
+    }
+  }
+  
+  @media only screen and (min-width: 600px) and (max-width: 991px) {
+    .payment-container {
+      padding: 2rem;
+      margin: 1.5rem auto;
+    }
+  
+    .comprovante-container {
+      padding: 2rem;
+    }
+  }
+  
+  @media only screen and (min-width: 992px) {
+    .payment-container {
+      padding: 2rem 2.5rem;
+      margin: 2rem auto;
+    }
+  
+    .comprovante-container {
+      padding: 2rem 3rem;
+    }
+  }
+  
+  .search-tenant-section {
+    max-width: 500px;
+    margin: 0 auto 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .tenant-search {
+    padding: 12px 16px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f4f4f4;
+  }
+  
+  .tenant-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .tenant-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 15px;
+  }
+  
+  .tenant-item i {
+    color: #444;
+  }
+  
+  .tenant-item span {
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .tenant-item:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .tenant-item.active {
+    background-color: #e5dede;
+  }
+  
+  .tenant-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .payment-summary {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 2rem;
+    border-radius: 12px;
+    background-color: #f5f7fa;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    font-size: 15px;
+    color: #333;
+  }
+  
+  .payment-summary h3 {
+    margin-bottom: 16px;
+    font-size: 18px;
+  }
+  
+  .payment-boxes {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .payment-boxes .box {
+    flex: 1;
+    min-width: 180px;
+    background-color: #dceefc;
+    padding: 12px 16px;
+    border-radius: 10px;
+  }
+  
+  .payment-boxes .box .label {
+    font-size: 13px;
+    color: #555;
+    display: block;
+    margin-bottom: 6px;
+  }
+  
+  .btn-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    gap: 12px;
+  }
+  
+  .btn-receber {
+    background-color: #4cd137;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    flex: 1;
+  }
+  
+  .btn-cancelar {
+    background-color: #e74c3c;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    flex: 1;
+  }
+  
+  .receipt-container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 2rem;
+    border-radius: 12px;
+    background-color: #f5f7fa;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    position: relative;
+  }
+  
+  .receipt-actions {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 16px;
+    font-size: 18px;
+    color: #555;
+    cursor: pointer;
+  }
+  
+  .receipt-content h3 {
+    margin-bottom: 16px;
+    font-size: 18px;
+  }
+  
+  .receipt-content p {
+    margin-bottom: 10px;
+    font-size: 15px;
+    line-height: 1.6;
+  }

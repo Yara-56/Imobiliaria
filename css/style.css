@@ -1,31 +1,26 @@
-/* Reset básico */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-/* Fonte padrão */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f9f9f9;
     color: #1e272e;
 }
 
-/* Títulos */
 h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
     color: #1e272e;
     margin-bottom: 15px;
 }
 
-/* Parágrafos e textos */
 p, span, label {
     font-size: 14px;
     color: #1e272e;
 }
 
-/* Botões */
 button {
     background-color: #1e272e;
     color: #ffffff;
@@ -41,26 +36,23 @@ button:hover {
     background-color: #2f3640;
 }
 
-/* Campos de formulário */
 input, select, textarea {
     width: 100%;
     padding: 10px;
     margin-bottom: 12px;
-    border: 1px solid rgba(0, 0, 0, 0.2); /* 40% black */
+    border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 8px;
     font-size: 14px;
     background-color: #ffffff;
     color: #1e272e;
 }
 
-/* Labels */
 label {
     margin-bottom: 5px;
     display: block;
     font-weight: 500;
 }
 
-/* Cards / caixas */
 .card {
     background-color: #ffffff;
     border-radius: 12px;
@@ -71,7 +63,6 @@ label {
     max-width: 900px;
 }
 
-/* Links */
 a {
     color: #1e272e;
     text-decoration: none;
@@ -82,18 +73,6 @@ a:hover {
     color: #2f3640;
 }
 
-/* Responsivo básico */
-@media (max-width: 768px) {
-    .card {
-        padding: 16px;
-    }
-
-    button {
-        padding: 8px 12px;
-    }
-}
-
-/* Barra de Progresso */
 .progress-bar {
     position: fixed;
     top: 0;
@@ -155,4 +134,34 @@ a:hover {
     width: 40px;
     background: rgba(0, 0, 0, 0.4);
     margin: 0 10px;
+}
+
+@media only screen and (max-width: 600px) {
+    .card {
+        padding: 16px;
+    }
+
+    button {
+        padding: 8px 12px;
+    }
+}
+
+@media only screen and (min-width: 600px) and (max-width: 991px) {
+    .card {
+        padding: 20px;
+    }
+
+    button {
+        padding: 9px 14px;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    .card {
+        padding: 24px;
+    }
+
+    button {
+        padding: 10px 16px;
+    }
 }

@@ -1,0 +1,154 @@
+.sidebar {
+    width: 240px;
+    background: #ffffff !important;
+    color: #1e272e !important;
+    padding: 25px 15px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    transition: width 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 10px 20px 10px;
+    border-bottom: 1px solid #dcdde1;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #1e272e;
+}
+
+.user-info i {
+    font-size: 20px;
+    color: #1e272e;
+}
+
+.user-name {
+    font-weight: 500;
+}
+
+.menu-toggle,
+.menu-toggle button {
+    background: transparent !important;
+    color: #1e272e !important;
+    border: none !important;
+    padding: 10px !important;
+    cursor: pointer !important;
+    font-size: 20px !important;
+    box-shadow: none !important;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.menu-toggle:hover,
+.menu-toggle button:hover {
+    background: #dcdde1 !important;
+}
+
+.menu .title {
+    font-weight: 500;
+    font-size: 14px;
+    margin: 20px 0 10px;
+    color: rgba(0, 0, 0, 0.4);
+    text-transform: none;
+}
+
+.menu li,
+.menu-item .menu-main {
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.3s;
+    border-radius: 10px;
+    width: 100%;
+    color: #1e272e !important;
+}
+
+.menu li i,
+.menu-item .menu-main i {
+    width: 35px;
+    text-align: center;
+    font-size: 18px;
+    color: #1e272e !important;
+}
+
+.menu li span,
+.menu-item .menu-main span {
+    margin-left: 18px;
+    font-size: 15px;
+    color: #1e272e !important;
+}
+
+.menu li:hover,
+.menu-item .menu-main:hover {
+    background-color: #f0f0f0;
+}
+
+@media only screen and (max-width: 600px) {
+    .sidebar {
+        width: 70px;
+        align-items: center;
+        padding: 25px 10px;
+    }
+
+    .menu li span,
+    .menu-item .menu-main span,
+    .user-name {
+        display: none;
+    }
+
+    .sidebar-header {
+        justify-content: center;
+    }
+}
+
+@media only screen and (min-width: 600px) and (max-width: 991px) {
+    .sidebar {
+        width: 70px;
+        align-items: center;
+        padding: 25px 10px;
+    }
+
+    .menu li span,
+    .menu-item .menu-main span,
+    .user-name {
+        display: none;
+    }
+
+    .sidebar-header {
+        justify-content: center;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    .sidebar {
+        width: 240px;
+        align-items: flex-start;
+        padding: 25px 15px;
+    }
+
+    .menu li span,
+    .menu-item .menu-main span,
+    .user-name {
+        display: inline;
+    }
+
+    .sidebar-header {
+        justify-content: space-between;
+    }
+}
