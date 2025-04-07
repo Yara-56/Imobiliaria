@@ -70,46 +70,7 @@ body {
 
 
 .content {
-    margin-left: 260px;
-    width: calc(100vw - 260px);
-    padding: 20px;
-    transition: margin-left 0.3s;
-    /* display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center; */
-}
-
-.payment-container,
-.comprovante-container {
-    background-color: #ffffff;
-    padding: 1.8rem 2.5rem;
-    border-radius: 12px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    width: 380px;
-    display: flex;
-    flex-direction: column;
-    margin-top: 20px;
-}
-
-h2,
-h3 {
-    font-size: 22px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    text-transform: uppercase;
-    color: #2c3e50;
-}
-
-h2::after,
-h3::after {
-    content: "";
-    display: block;
-    width: 50px;
-    height: 2px;
-    background-color: #8fc98f;
-    margin: 5px auto 15px;
+    align-items: start;
 }
 
 label {
@@ -196,7 +157,9 @@ button:hover {
     background-color: #ffffff;
     box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
 
-    width: fit-content;
+    width: fit-content !important;
+    max-width: 60vw;
+    overflow: auto;
 }
 
 .secao>h1 {
@@ -209,6 +172,7 @@ button:hover {
 .tabela {
     /* width: 100%; */
     border-spacing: 0;
+    font-size: 16px;
 }
 
 
@@ -228,6 +192,11 @@ button:hover {
     margin: 0;
 }
 
+.filtro {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
 
 
 /* Responsividade */
@@ -244,9 +213,26 @@ button:hover {
     .content {
         margin-left: 70px;
     }
+
+    .filtro {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .filtro input, .filtro select {
+        margin-bottom: 0;
+    }
+
+    .secao h1{
+        font-size: 16px;
+    }
+
+    .tabela {
+        font-size: 14px;
+    }
 }
 
-@media (max-width: 480px) {
+/* @media (max-width: 480px) {
 
     .payment-container,
     .comprovante-container {
@@ -265,4 +251,4 @@ button:hover {
         font-size: 12px;
         padding: 10px;
     }
-}
+} */
