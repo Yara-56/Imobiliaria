@@ -17,9 +17,15 @@
 <body>
 
 	<div class="sidebar" id="sidebar">
-		<button class="toggle-btn" onclick="toggleSidebar()">
-			<i class="fas fa-bars"></i>
-		</button>
+		<div class="sidebar-header">
+			<div class="user-info">
+				<i class="fas fa-user-circle"></i>
+				<span class="user-name">Cleia Maria</span>
+			</div>
+			<button class="toggle-btn" aria-label="Fechar Menu">
+				<i class="fas fa-bars"></i>
+			</button>
+		</div>
 		<ul class="menu">
 			<li><a href="inicio.html"><i class="fas fa-home"></i> <span>Início</span></a></li>
 			<li class="title"><span>Páginas</span></li>
@@ -40,7 +46,8 @@
 			<li><a href=""><i class="fas fa-cog"></i> <span>Configurações</span></a></li>
 			<li><a href=""><i class="fas fa-question-circle"></i> <span>Ajuda</span></a></li>
 
-			<li style="margin-top: 12px;"><a href="login.html"><i class="fa-solid fa-right-from-bracket"></i><span>Sair</span></a></li>
+			<li style="margin-top: 12px;"><a href="login.html"><i
+						class="fa-solid fa-right-from-bracket"></i><span>Sair</span></a></li>
 		</ul>
 	</div>
 

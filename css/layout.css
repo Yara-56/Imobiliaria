@@ -197,3 +197,22 @@ body {
 .toggle-btn:hover {
     background: rgba(0, 0, 0, 0.05);
 }
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+        padding: 10px;
+    }
+
+    .sidebar .menu li span, .sidebar .menu .title {
+        display: none;
+    }
+
+    .content {
+        margin-left: 70px;
+    }
+
+    .user-name {
+        display: none;
+    }
+}

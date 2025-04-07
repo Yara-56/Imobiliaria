@@ -145,19 +145,6 @@ button:hover {
 
 /* Responsividade */
 @media (max-width: 768px) {
-    .sidebar {
-        width: 70px;
-        padding: 10px;
-    }
-
-    .sidebar .menu li span, .sidebar .menu .title {
-        display: none;
-    }
-
-    .content {
-        margin-left: 70px;
-    }
-
     .filtro {
         flex-direction: column;
         gap: 4px;
