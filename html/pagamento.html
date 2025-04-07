@@ -2,160 +2,199 @@
 <html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sistema de Pagamento</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-    <link rel="stylesheet" href="../css/pagamento.css" />
-    <link rel="stylesheet" href="../css/layout.css" />
-    <link rel="stylesheet" href="../css/style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Pagamento</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link rel="stylesheet" href="../css/pagamento.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/style.css" />
 </head>
 
 <body>
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="user-info">
-                <i class="fas fa-user-circle"></i>
-                <span class="user-name">Cleia Maria</span>
-            </div>
-            <button class="toggle-btn" onclick="toggleSidebar()" aria-label="Fechar Menu">
-                <i class="fas fa-bars"></i>
-            </button>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="user-info">
+        <i class="fas fa-user-circle"></i>
+        <span class="user-name">Cleia Maria</span>
+      </div>
+      <button class="toggle-btn" aria-label="Fechar Menu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <ul class="menu">
+      <li class="title">Dashboard</li>
+      <li class="active">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Início</span>
+      </li>
+
+      <li class="title">Páginas</li>
+
+      <li class="has-submenu">
+        <div class="menu-item">
+          <i class="fas fa-user"></i>
+          <span>Inquilino</span>
+          <i class="fas fa-chevron-down arrow"></i>
         </div>
-
-        <ul class="menu">
-            <li class="title">Dashboard</li>
-            <li class="active">
-                <i class="fas fa-tachometer-alt"></i>
-                <span>Início</span>
-            </li>
-
-            <li class="title">Páginas</li>
-
-            <li class="has-submenu" onclick="toggleSubmenu(this)">
-                <div class="menu-item">
-                    <i class="fas fa-user"></i>
-                    <span>Inquilino</span>
-                    <i class="fas fa-chevron-down arrow"></i>
-                </div>
-                <ul class="submenu">
-                    <li>
-                        <i class="fas fa-user-plus"></i>
-                        <span>Novo Inquilino</span>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="has-submenu" onclick="toggleSubmenu(this)">
-                <div class="menu-item">
-                    <i class="fas fa-money-bill"></i>
-                    <span>Pagamentos</span>
-                    <i class="fas fa-chevron-down arrow"></i>
-                </div>
-                <ul class="submenu">
-                    <li>
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Novo Pagamento</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-history"></i>
-                        <span>Histórico de Pagamentos</span>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="has-submenu" onclick="toggleSubmenu(this)">
-                <div class="menu-item">
-                    <i class="fas fa-file-contract"></i>
-                    <span>Contrato</span>
-                    <i class="fas fa-chevron-down arrow"></i>
-                </div>
-                <ul class="submenu">
-                    <li>
-                        <i class="fas fa-file-signature"></i>
-                        <span>Novo Contrato</span>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="has-submenu" onclick="toggleSubmenu(this)">
-                <div class="menu-item">
-                    <i class="fas fa-building"></i>
-                    <span>Imóveis</span>
-                    <i class="fas fa-chevron-down arrow"></i>
-                </div>
-                <ul class="submenu">
-                    <li>
-                        <i class="fas fa-plus-square"></i>
-                        <span>Novo Imóvel</span>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="has-submenu" onclick="toggleSubmenu(this)">
-                <div class="menu-item">
-                    <i class="fas fa-chart-pie"></i>
-                    <span>Relatórios</span>
-                    <i class="fas fa-chevron-down arrow"></i>
-                </div>
-                <ul class="submenu">
-                    <li>
-                        <i class="fas fa-chart-line"></i>
-                        <span>Pagamentos</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-address-book"></i>
-                        <span>Contatos</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-users"></i>
-                        <span>Inquilinos</span>
-                    </li>
-                </ul>
-            </li>
-
-            <li>
-                <hr class="menu-separator" />
-            </li>
-
-            <li class="title">Outros</li>
-            <li>
-                <i class="fas fa-cog"></i>
-                <span>Configurações</span>
-            </li>
-            <li>
-                <i class="fas fa-question-circle"></i>
-                <span>Ajuda</span>
-            </li>
+        <ul class="submenu">
+          <li>
+            <i class="fas fa-user-plus"></i>
+            <span>Novo Inquilino</span>
+          </li>
         </ul>
-    </div>
+      </li>
 
-    <div class="content" id="content">
-        <div class="payment-container">
-            <h2>Selecionar Inquilino</h2>
-            <label for="inquilino">Inquilino</label>
-            <select id="inquilino">
-                <option value="">Selecione um inquilino</option>
-                <option value="1" data-nome="Carlos Silva" data-cpf="123.456.789-00" data-endereco="Rua A, 123">Carlos Silva</option>
-                <option value="2" data-nome="Mariana Souza" data-cpf="987.654.321-00" data-endereco="Av. B, 456">Mariana Souza</option>
-            </select>
-
-            <label for="nome">Nome</label>
-            <input type="text" id="nome" readonly />
-
-            <label for="cpf">CPF</label>
-            <input type="text" id="cpf" readonly />
-
-            <label for="endereco">Endereço</label>
-            <input type="text" id="endereco" readonly />
-
-            <label for="valor">Valor do Pagamento</label>
-            <input type="text" id="valor" placeholder="Digite o valor" />
-
-            <button id="continuar" disabled>Continuar</button>
+      <li class="has-submenu">
+        <div class="menu-item">
+          <i class="fas fa-money-bill"></i>
+          <span>Pagamentos</span>
+          <i class="fas fa-chevron-down arrow"></i>
         </div>
+        <ul class="submenu">
+          <li>
+            <i class="fas fa-plus-circle"></i>
+            <span>Novo Pagamento</span>
+          </li>
+          <li>
+            <i class="fas fa-history"></i>
+            <span>Histórico de Pagamentos</span>
+          </li>
+        </ul>
+      </li>
+
+      <li class="has-submenu">
+        <div class="menu-item">
+          <i class="fas fa-file-contract"></i>
+          <span>Contrato</span>
+          <i class="fas fa-chevron-down arrow"></i>
+        </div>
+        <ul class="submenu">
+          <li>
+            <i class="fas fa-file-signature"></i>
+            <span>Novo Contrato</span>
+          </li>
+        </ul>
+      </li>
+
+      <li class="has-submenu">
+        <div class="menu-item">
+          <i class="fas fa-building"></i>
+          <span>Imóveis</span>
+          <i class="fas fa-chevron-down arrow"></i>
+        </div>
+        <ul class="submenu">
+          <li>
+            <i class="fas fa-plus-square"></i>
+            <span>Novo Imóvel</span>
+          </li>
+        </ul>
+      </li>
+
+      <li class="has-submenu">
+        <div class="menu-item">
+          <i class="fas fa-chart-pie"></i>
+          <span>Relatórios</span>
+          <i class="fas fa-chevron-down arrow"></i>
+        </div>
+        <ul class="submenu">
+          <li>
+            <i class="fas fa-chart-line"></i>
+            <span>Pagamentos</span>
+          </li>
+          <li>
+            <i class="fas fa-address-book"></i>
+            <span>Contatos</span>
+          </li>
+          <li>
+            <i class="fas fa-users"></i>
+            <span>Inquilinos</span>
+          </li>
+        </ul>
+      </li>
+
+      <li>
+        <hr class="menu-separator" />
+      </li>
+
+      <li class="title">Outros</li>
+      <li>
+        <i class="fas fa-cog"></i>
+        <span>Configurações</span>
+      </li>
+      <li>
+        <i class="fas fa-question-circle"></i>
+        <span>Ajuda</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="content" id="content">
+    <div class="payment-container">
+      <h2 class="section-title">Receber Pagamento</h2>
+
+      <div class="progress-container">
+        <div class="step active">
+          <div class="circle">1</div>
+          <span class="label">Inquilino</span>
+        </div>
+        <div class="step">
+          <div class="circle">2</div>
+          <span class="label">Pagamento</span>
+        </div>
+        <div class="step">
+          <div class="circle">3</div>
+          <span class="label">Comprovante</span>
+        </div>
+      </div>
+
+      <div class="form-section search-inquilino">
+        <label for="busca-inquilino">Pesquisar Inquilino</label>
+        <div class="search-box">
+          <input type="text" id="busca-inquilino" name="busca-inquilino" value="Carlos Silva" readonly />
+          <button type="button" class="btn-buscar" disabled>Buscar</button>
+        </div>
+      </div>
+
+      <div class="form-section details-container">
+        <label for="nome">Nome</label>
+        <input type="text" id="nome" readonly value="Carlos Silva" />
+
+        <label for="cpf">CPF</label>
+        <input type="text" id="cpf" readonly value="123.456.789-00" />
+
+        <label for="endereco">Endereço</label>
+        <input type="text" id="endereco" readonly value="Rua A, 123" />
+
+        <label for="valor">Valor do Pagamento</label>
+        <input type="text" id="valor" readonly value="1200,00" />
+      </div>
+
+      <div class="form-section btn-container">
+        <button class="btn-receber" disabled>Receber</button>
+        <button class="btn-cancelar">Cancelar</button>
+      </div>
+
+      <div class="form-section comprovante-container">
+        <h3>Comprovante de Pagamento</h3>
+
+        <div class="comprovante-info">
+          <p><strong>Nome:</strong> Carlos Silva</p>
+          <p><strong>CPF:</strong> 123.456.789-00</p>
+          <p><strong>Endereço:</strong> Rua A, 123</p>
+          <p><strong>Valor Pago:</strong> R$ 1200,00</p>
+          <p><strong>Data:</strong> 06/04/2025</p>
+        </div>
+
+        <div class="buttons">
+          <button class="imprimir">Imprimir Comprovante</button>
+          <button class="whatsapp">Enviar pelo WhatsApp</button>
+        </div>
+      </div>
     </div>
+  </div>
 </body>
 
 </html>

@@ -3,6 +3,7 @@ body {
     display: flex;
     height: 100vh;
     margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* Sidebar */
@@ -23,68 +24,7 @@ body {
     box-shadow: 5px 0 15px rgba(0, 0, 0, 0.15);
 }
 
-.sidebar .menu .title {
-    font-weight: 600;
-    text-transform: none; /* Agora fica com letras normais */
-    font-size: 14px;
-    margin: 20px 0 10px;
-    color: #a4b0be !important; /* Cor mais clara */
-}
-
-.sidebar .menu li {
-    padding: 14px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    transition: background 0.3s;
-    border-radius: 10px;
-    width: 100%;
-    color: #1e272e !important;
-    text-transform: none; /* Letras normais nos itens */
-}
-
-.sidebar .menu li i {
-    width: 35px;
-    text-align: center;
-    font-size: 18px;
-    color: #1e272e !important;
-}
-
-.sidebar .menu li span {
-    margin-left: 18px;
-    font-size: 15px;
-    color: #1e272e !important;
-}
-
-.sidebar .menu li:hover {
-    background: #dcdde1 !important;
-}
-
-.sidebar .menu li.active {
-    background-color: #f1f2f6;
-    border-radius: 8px;
-    font-weight: bold;
-    color: #1e272e;
-}
-
-/* Botão de menu */
-.menu-toggle,
-.menu-toggle button {
-    background: transparent !important;
-    color: #1e272e !important;
-    border: none !important;
-    padding: 10px !important;
-    cursor: pointer !important;
-    font-size: 20px !important;
-    box-shadow: none !important;
-}
-
-.menu-toggle:hover,
-.menu-toggle button:hover {
-    background: #dcdde1 !important;
-}
-
-/* Cabeçalho e conteúdo */
+/* Cabeçalho e usuário */
 .sidebar-header {
     display: flex;
     justify-content: space-between;
@@ -111,56 +51,24 @@ body {
     font-weight: 500;
 }
 
-.content {
-    flex: 1;
-    margin-left: 240px;
-    padding: 30px;
-    transition: margin-left 0.3s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.toggle-btn {
-    background: transparent;
-    border: none;
-    color: #1e272e;
-    font-size: 22px;
-    cursor: pointer;
-    padding: 10px;
-    margin: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    transition: background 0.3s;
-}
-
-.toggle-btn:hover {body {
-    display: flex;
-    height: 100vh;
-    margin: 0;
-}
-
-/* Sidebar */
-.sidebar {
-    width: 240px;
-    background: #ffffff !important;
+/* Botão do menu (se necessário) */
+.menu-toggle,
+.menu-toggle button {
+    background: transparent !important;
     color: #1e272e !important;
-    padding: 25px 15px;
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-    transition: width 0.3s;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.15);
+    border: none !important;
+    padding: 10px !important;
+    cursor: pointer !important;
+    font-size: 20px !important;
+    box-shadow: none !important;
 }
 
+.menu-toggle:hover,
+.menu-toggle button:hover {
+    background: #dcdde1 !important;
+}
+
+/* Menu */
 .menu .title {
     font-weight: 500;
     font-size: 14px;
@@ -204,7 +112,7 @@ body {
 .menu li.active {
     background-color: #f1f2f6;
     border-radius: 8px;
-    font-weight: normal; /* ou remova esta linha */
+    font-weight: normal;
     color: #1e272e;
 }
 
@@ -249,12 +157,41 @@ body {
 .menu-item.open .arrow-icon {
     transform: rotate(180deg);
 }
-    background: rgba(0, 0, 0, 0.05);
-}
 
+/* Separador */
 .menu-separator {
     border: none;
-    border-top: 1px solid rgba(0, 0, 0, 0.2); /* 40% black */
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
     margin: 16px 0;
-  }
-  
+}
+
+/* Conteúdo */
+.content {
+    flex: 1;
+    margin-left: 240px;
+    padding: 30px;
+    transition: margin-left 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggle-btn {
+    background: transparent;
+    border: none;
+    color: #1e272e;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 10px;
+    margin: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background 0.3s;
+}
+
+.toggle-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}

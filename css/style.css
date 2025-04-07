@@ -1,89 +1,187 @@
 /* Reset básico */
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
 }
 
+/* Fonte padrão */
 body {
-    background-color: #f5f6fa;
-}
-
-/* Títulos principais */
-h2, h3 {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 14px;
-    text-transform: uppercase;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
     color: #1e272e;
 }
 
-h2::after, h3::after {
-    content: "";
-    display: block;
-    width: 60px;
-    height: 3px;
-    background-color: #44bd32;
-    margin: 6px auto 18px;
+/* Títulos */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    color: #1e272e;
+    margin-bottom: 15px;
+}
+
+/* Parágrafos e textos */
+p, span, label {
+    font-size: 14px;
+    color: #1e272e;
+}
+
+/* Botões */
+button {
+    background-color: #1e272e;
+    color: #ffffff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #2f3640;
+}
+
+/* Campos de formulário */
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.2); /* 40% black */
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: #ffffff;
+    color: #1e272e;
 }
 
 /* Labels */
 label {
-    font-weight: 600;
+    margin-bottom: 5px;
     display: block;
-    text-align: left;
-    margin-bottom: 8px;
-    font-size: 15px;
-    color: #333;
+    font-weight: 500;
 }
 
-/* Inputs e selects */
-input, select {
-    width: 100%;
-    padding: 14px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    font-size: 15px;
-    outline: none;
-    margin-bottom: 18px;
-    transition: border-color 0.3s;
-    background: #f1f2f6;
-}
-
-input:focus, select:focus {
-    border-color: #44bd32;
-}
-
-/* Botões padrão */
-button {
-    width: 100%;
-    background: #44bd32;
-    color: white;
-    padding: 14px;
-    border: none;
-    border-radius: 10px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-    box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.12);
-}
-
-button:hover {
-    background: #4cd137;
-}
-
-/* Containers comuns */
-.payment-container,
-.comprovante-container {
+/* Cards / caixas */
+.card {
     background-color: #ffffff;
-    padding: 2rem 3rem;
-    border-radius: 15px;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.12);
-    text-align: center;
-    width: 420px;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 24px;
+    width: 100%;
+    max-width: 900px;
+}
+
+/* Tabelas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    font-size: 14px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #dcdde1;
+}
+
+th {
+    background-color: #f1f2f6;
+    color: #1e272e;
+    font-weight: 600;
+}
+
+/* Links */
+a {
+    color: #1e272e;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: #2f3640;
+}
+
+/* Responsivo básico */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px;
+    }
+
+    .content {
+        margin-left: 200px;
+        padding: 20px;
+    }
+
+    .card {
+        padding: 16px;
+    }
+
+    button {
+        padding: 8px 12px;
+    }
+}
+
+/* Barra de Progresso */
+.progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar .step {
     display: flex;
     flex-direction: column;
-    margin-top: 25px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.progress-bar .circle {
+    width: 30px;
+    height: 30px;
+    border: 2px solid rgba(0, 0, 0, 0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    transition: background 0.3s, border-color 0.3s;
+}
+
+.progress-bar .step.completed .circle {
+    background-color: #1e272e;
+    border-color: #1e272e;
+}
+
+.progress-bar .step.completed .check {
+    color: white;
+    font-size: 16px;
+}
+
+.progress-bar .check {
+    color: transparent;
+    transition: color 0.3s;
+}
+
+.progress-bar span {
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #1e272e;
+}
+
+.progress-bar .line {
+    height: 2px;
+    width: 40px;
+    background: rgba(0, 0, 0, 0.4);
+    margin: 0 10px;
 }

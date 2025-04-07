@@ -9,6 +9,7 @@
     margin: 2rem auto;
 }
 
+/* Container do comprovante de pagamento */
 .comprovante-container {
     background-color: #ffffff;
     padding: 2rem 3rem;
@@ -18,15 +19,17 @@
     width: 420px;
     display: flex;
     flex-direction: column;
-    margin-top: 25px;
+    margin: 2rem auto;
 }
 
+/* Agrupamento de botões */
 .comprovante-container .buttons {
     display: flex;
     justify-content: space-between;
     margin-top: 18px;
 }
 
+/* Estilo base dos botões */
 .comprovante-container button {
     flex: 1;
     margin: 6px;
@@ -34,9 +37,11 @@
     border: none;
     cursor: pointer;
     border-radius: 10px;
+    font-size: 15px;
+    transition: 0.3s ease;
 }
 
-/* Botão imprimir */
+/* Botão de imprimir */
 .comprovante-container .imprimir {
     background: #0097e6;
     color: white;
@@ -46,7 +51,7 @@
     background: #00a8ff;
 }
 
-/* Botão WhatsApp */
+/* Botão de envio por WhatsApp */
 .comprovante-container .whatsapp {
     background: #25d366;
     color: white;
