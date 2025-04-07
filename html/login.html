@@ -14,15 +14,17 @@
         <h2>Login</h2>
         <p>Insira suas credenciais de acesso nos campos abaixo:</p>
 
-        <form onsubmit="return validarLogin()">
+        <!-- Retirada da validação com required e uso de um link estilizado como botão -->
+        <form>
             <label for="email">EMAIL</label>
-            <input type="email" id="email" name="email" placeholder="Digite seu e-mail..." required>
+            <input type="email" id="email" name="email" placeholder="Digite seu e-mail...">
 
             <label for="senha">SENHA</label>
-            <input type="password" id="senha" name="senha" placeholder="Digite sua senha..." required>
+            <input type="password" id="senha" name="senha" placeholder="Digite sua senha...">
 
             <a href="#" class="forgot-password">Esqueci minha senha.</a>
 
+            <!-- Botão sem validação, vai direto pra página inicial -->
             <a href="inicio.html" class="button-acess">Acessar</a>
         </form>
     </div>
