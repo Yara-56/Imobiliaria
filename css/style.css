@@ -71,26 +71,6 @@ label {
     max-width: 900px;
 }
 
-/* Tabelas */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 24px;
-    font-size: 14px;
-}
-
-th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #dcdde1;
-}
-
-th {
-    background-color: #f1f2f6;
-    color: #1e272e;
-    font-weight: 600;
-}
-
 /* Links */
 a {
     color: #1e272e;
@@ -104,15 +84,6 @@ a:hover {
 
 /* Responsivo básico */
 @media (max-width: 768px) {
-    .sidebar {
-        width: 200px;
-    }
-
-    .content {
-        margin-left: 200px;
-        padding: 20px;
-    }
-
     .card {
         padding: 16px;
     }
