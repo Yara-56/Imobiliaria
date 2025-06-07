@@ -1,163 +1,176 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Início</title>
+    <script
+      src="https://kit.fontawesome.com/b6a8bf4768.js"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/inicio.css" />
+    <link rel="stylesheet" href="../css/menu.css" />
+  </head>
+  <body>
+    <div id="menu-container"></div>
 
-<head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Início</title>
-	<script src="http://kit.fontawesome.com/b6a8bf4768.js" crossorigin="anonymous"></script>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-		integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
-		crossorigin="anonymous" referrerpolicy="no-referrer" />
-	<link rel="stylesheet" href="../css/layout.css">
-	<link rel="stylesheet" href="../css/style.css">
-	<link rel="stylesheet" href="../css/inicio.css">
-	<link rel="stylesheet" href="../css/menu.css">
-</head>
+    <div class="content">
+      <form class="filtro">
+        <input type="date" />
+        <select>
+          <option>Status</option>
+        </select>
+        <select>
+          <option>M. Pagamento</option>
+        </select>
+        <select>
+          <option>Imóvel</option>
+        </select>
+        <input type="text" placeholder="Pesquisar" />
+      </form>
 
-<body>
+      <section class="secao">
+        <h1>Pagamentos</h1>
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th></th>
+              <th>NOME</th>
+              <th>STATUS</th>
+              <th>VALOR</th>
+              <th>M. PAGAMENTO</th>
+              <th>DATA</th>
+              <td></td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox" /></td>
+              <td>Padaria Braz LTDA</td>
+              <td>
+                <i class="fa-solid fa-circle-check"></i> <span>Aprovada</span>
+              </td>
+              <td>R$1.500,00</td>
+              <td>Dinheiro</td>
+              <td>31/Out/2024, 16:00 PM</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" /></td>
+              <td>Yara Lacerda Moraes</td>
+              <td><i class="fa-solid fa-clock"></i> <span>Pendente</span></td>
+              <td>R$1.500,00</td>
+              <td>Dinheiro</td>
+              <td>31/Out/2024, 16:00 PM</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" /></td>
+              <td>Cauan Oliveira Castro</td>
+              <td>
+                <i class="fa-solid fa-circle-minus"></i> <span>Vencido</span>
+              </td>
+              <td>R$1.500,00</td>
+              <td>Dinheiro</td>
+              <td>31/Out/2024, 16:00 PM</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
 
-	<div id="menu-container"></div>
+      <section class="secao">
+        <h1>Inquilinos</h1>
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th></th>
+              <th>NOME</th>
+              <th>CONTRATO</th>
+              <td></td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox" /></td>
+              <td>Padaria Braz LTDA</td>
+              <td>
+                <i class="fa-solid fa-circle-check"></i> <span>Ativo</span>
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" /></td>
+              <td>Yara Lacerda Moraes</td>
+              <td><i class="fa-solid fa-clock"></i> <span>Pendente</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" /></td>
+              <td>Cauan Oliveira Castro</td>
+              <td>
+                <i class="fa-solid fa-circle-minus"></i> <span>Vencido</span>
+              </td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
 
-	<div class="content">
-		<div>
-			<form action="" class="filtro">
-				<input type="date" name="" id="" />
-				<select name="" id="">
-					<option value="">Status</option>
-				</select>
-				<select name="" id="">
-					<option value="">M. Pagamento</option>
-				</select>
-				<select name="" id="">
-					<option value="">Imóvel</option>
-				</select>
-				<input type="text" name="" id="" placeholder="Pesquisar" />
-			</form>
+      <section class="secao">
+        <h1>Imóveis</h1>
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th></th>
+              <th>CEP</th>
+              <th>STATUS</th>
+              <td></td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox" /></td>
+              <td>35160-133</td>
+              <td>
+                <i class="fa-solid fa-circle-check"></i> <span>Disponível</span>
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" /></td>
+              <td>18744-771</td>
+              <td><i class="fa-solid fa-clock"></i> <span>Em Reforma</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" /></td>
+              <td>89721-882</td>
+              <td>
+                <i class="fa-solid fa-circle-minus"></i> <span>Ocupado</span>
+              </td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
 
-			<section class="secao">
-				<h1>Pagamentos</h1>
-				<table class="tabela">
-					<thead>
-						<tr>
-							<th></th>
-							<th>NOME</th>
-							<th>STATUS</th>
-							<th>VALOR</th>
-							<th>M. PAGAMENTO</th>
-							<th>DATA</th>
-							<td></td>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td><input type="checkbox" /></td>
-							<td>Padaria Braz LTDA</td>
-							<td><i class="fa-solid fa-circle-check"></i> <span>Aprovada</span></td>
-							<td>R$1.500,00</td>
-							<td>Dinheiro</td>
-							<td>31/Out/2024, 16:00 PM</td>
-							<td></td>
-						</tr>
-						<tr>
-							<td><input type="checkbox" /></td>
-							<td>Yara Lacerda Moraes</td>
-							<td><i class="fa-solid fa-clock"></i> <span>Pendente</span></td>
-							<td>R$1.500,00</td>
-							<td>Dinheiro</td>
-							<td>31/Out/2024, 16:00 PM</td>
-							<td></td>
-						</tr>
-						<tr>
-							<td><input type="checkbox" /></td>
-							<td>Cauan Oliveira Castro</td>
-							<td><i class="fa-solid fa-circle-minus"></i> <span>Vencido</span></td>
-							<td>R$1.500,00</td>
-							<td>Dinheiro</td>
-							<td>31/Out/2024, 16:00 PM</td>
-							<td></td>
-						</tr>
-					</tbody>
-				</table>
-			</section>
-
-			<section class="secao">
-				<h1>Inquilinos</h1>
-				<table class="tabela">
-					<thead>
-						<tr>
-							<th></th>
-							<th>NOME</th>
-							<th>CONTRATO</th>
-							<td></td>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td><input type="checkbox" /></td>
-							<td>Padaria Braz LTDA</td>
-							<td><i class="fa-solid fa-circle-check"></i> <span>Ativo</span></td>
-							<td></td>
-						</tr>
-						<tr>
-							<td><input type="checkbox" /></td>
-							<td>Yara Lacerda Moraes</td>
-							<td><i class="fa-solid fa-clock"></i> <span>Pendente</span></td>
-							<td></td>
-						</tr>
-						<tr>
-							<td><input type="checkbox" /></td>
-							<td>Cauan Oliveira Castro</td>
-							<td><i class="fa-solid fa-circle-minus"></i> <span>Vencido</span></td>
-							<td></td>
-						</tr>
-					</tbody>
-				</table>
-			</section>
-
-			<section class="secao">
-				<h1>Imóveis</h1>
-				<table class="tabela">
-					<thead>
-						<tr>
-							<th></th>
-							<th>CEP</th>
-							<th>STATUS</th>
-							<td></td>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td><input type="checkbox" /></td>
-							<td>35160-133</td>
-							<td><i class="fa-solid fa-circle-check"></i> <span>Disponível</span></td>
-							<td></td>
-						</tr>
-						<tr>
-							<td><input type="checkbox" /></td>
-							<td>18744-771</td>
-							<td><i class="fa-solid fa-clock"></i> <span>Em Reforma</span></td>
-							<td></td>
-						</tr>
-						<tr>
-							<td><input type="checkbox" /></td>
-							<td>89721-882</td>
-							<td><i class="fa-solid fa-circle-minus"></i> <span>Ocupado</span></td>
-							<td></td>
-						</tr>
-					</tbody>
-				</table>
-			</section>
-		</div>
-	</div>
-
-	<script>
-		fetch('menu.html')
-			.then(response => response.text())
-			.then(html => {
-				document.getElementById('menu-container').innerHTML = html;
-			});
-	</script>
-</body>
-
+    <script>
+      fetch("menu.html")
+        .then((response) => response.text())
+        .then((html) => {
+          document.getElementById("menu-container").innerHTML = html;
+        });
+    </script>
+  </body>
 </html>

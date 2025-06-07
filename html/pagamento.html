@@ -1,134 +1,164 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema de Pagamento</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <link rel="stylesheet" href="../css/pagamento.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/menu.css" />
+    <link rel="stylesheet" href="../css/topbar.css" />
+  </head>
+  <body>
+    <div id="menu-container"></div>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Pagamento</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-  <link rel="stylesheet" href="../css/pagamento.css" />
-  <link rel="stylesheet" href="../css/layout.css" />
-  <link rel="stylesheet" href="../css/style.css" />
-  <link rel="stylesheet" href="../css/menu.css" />
-  <link rel="stylesheet" href="../css/topbar.css" />
-</head>
-
-<body>
-  <div id="menu-container"></div>
-
-  <header class="topbar" role="banner">
-    <div class="topbar-content">
-      <nav class="breadcrumbs" aria-label="Navegação de localização">
-        <i class="fas fa-dollar-sign" aria-hidden="true"></i>
-        <span class="current">Pagamentos</span>
-      </nav>
-      <div class="top-actions">
-        <input type="text" placeholder="Pesquisar" class="search" disabled aria-disabled="true" />
-        <i class="fas fa-sun" aria-hidden="true"></i>
-        <i class="fas fa-bell" aria-hidden="true"></i>
-        <i class="fas fa-window-restore" aria-hidden="true"></i>
-      </div>
-    </div>
-  </header>
-
-  <main class="content" id="content">
-    <div class="progress-container" role="group" aria-label="Etapas do pagamento">
-      <div class="step completed" data-step="1">
-        <div class="circle"><i class="fas fa-check" aria-hidden="true"></i></div>
-        <span class="label">Inquilino</span>
-      </div>
-      <div class="step completed" data-step="2">
-        <div class="circle"><i class="fas fa-check" aria-hidden="true"></i></div>
-        <span class="label">Pagamento</span>
-      </div>
-      <div class="step completed" data-step="3">
-        <div class="circle"><i class="fas fa-check" aria-hidden="true"></i></div>
-        <span class="label">Comprovante</span>
-      </div>
-    </div>
-
-    <section class="search-tenant-section">
-      <input type="text" class="tenant-search" placeholder="Pesquisar pelo nome" aria-label="Pesquisar inquilino" />
-      <ul class="tenant-list">
-        <li class="tenant-item active">
-          <i class="fas fa-clock"></i>
-          <span>Roberto Carvalho Cunha</span>
-        </li>
-        <li class="tenant-item disabled">
-          <i class="fas fa-clock"></i>
-          <span>Yara Lacerda Oliveira</span>
-        </li>
-        <li class="tenant-item disabled">
-          <i class="fas fa-clock"></i>
-          <span>Sabrina Vasconcelos Souza</span>
-        </li>
-        <li class="tenant-item disabled">
-          <i class="fas fa-clock"></i>
-          <span>Ellyssa Pereira Castro</span>
-        </li>
-      </ul>
-    </section>
-
-    <section class="payment-summary">
-      <h3>Resumo</h3>
-      <p>Aluguel comercial.</p>
-      <p>
-        Recebi (emos) de <strong>Padaria Lanchonete Braz Machado LTDA</strong>, a importância de
-        <strong>um mil e cinquenta e cinco reais</strong>. Valor pactuado entre as partes.
-      </p>
-      <p>
-        Proveniente do aluguel de <br />
-        Sítio à Rua Estados Unidos, número 21, bairro Cariru. <br />
-        Referente ao período de 10/Out a 10/Nov/24 <strong>Vencido em 10/Nov/2024</strong>.
-      </p>
-
-      <div class="payment-boxes">
-        <div class="box">
-          <span class="label">Método de Pagamento</span>
-          <strong>Dinheiro</strong>
+    <header class="topbar" role="banner">
+      <div class="topbar-content">
+        <nav class="breadcrumbs" aria-label="Navegação de localização">
+          <i class="fas fa-dollar-sign" aria-hidden="true"></i>
+          <span class="current">Pagamentos</span>
+        </nav>
+        <div class="top-actions">
+          <input
+            type="text"
+            placeholder="Pesquisar"
+            class="search"
+            disabled
+            aria-disabled="true"
+          />
+          <i class="fas fa-sun" aria-hidden="true"></i>
+          <i class="fas fa-bell" aria-hidden="true"></i>
+          <i class="fas fa-window-restore" aria-hidden="true"></i>
         </div>
-        <div class="box">
-          <span class="label">Valor Total</span>
-          <strong>R$ 1.700,00</strong>
+      </div>
+    </header>
+
+    <main class="content" id="content">
+      <div
+        class="progress-container"
+        role="group"
+        aria-label="Etapas do pagamento"
+      >
+        <div class="step completed" data-step="1">
+          <div class="circle">
+            <i class="fas fa-check" aria-hidden="true"></i>
+          </div>
+          <span class="label">Inquilino</span>
+        </div>
+        <div class="step completed" data-step="2">
+          <div class="circle">
+            <i class="fas fa-check" aria-hidden="true"></i>
+          </div>
+          <span class="label">Pagamento</span>
+        </div>
+        <div class="step completed" data-step="3">
+          <div class="circle">
+            <i class="fas fa-check" aria-hidden="true"></i>
+          </div>
+          <span class="label">Comprovante</span>
         </div>
       </div>
 
-      <div class="btn-container">
-        <button type="button" class="btn-cancelar">Cancelar</button>
-        <button type="button" class="btn-receber">Receber</button>
-      </div>
-    </section>
-    
-    <section class="receipt-container">
-      <div class="receipt-actions">
-        <i class="fas fa-download" title="Download"></i>
-        <i class="fas fa-print" title="Imprimir"></i>
-      </div>
-      <div class="receipt-content">
-        <h3>Recibo de Aluguel</h3>
+      <section class="search-tenant-section">
+        <input
+          type="text"
+          class="tenant-search"
+          placeholder="Pesquisar pelo nome"
+          aria-label="Pesquisar inquilino"
+        />
+        <ul class="tenant-list">
+          <li class="tenant-item active">
+            <i class="fas fa-clock"></i>
+            <span>Roberto Carvalho Cunha</span>
+          </li>
+          <li class="tenant-item disabled">
+            <i class="fas fa-clock"></i>
+            <span>Yara Lacerda Oliveira</span>
+          </li>
+          <li class="tenant-item disabled">
+            <i class="fas fa-clock"></i>
+            <span>Sabrina Vasconcelos Souza</span>
+          </li>
+          <li class="tenant-item disabled">
+            <i class="fas fa-clock"></i>
+            <span>Ellyssa Pereira Castro</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="payment-summary">
+        <h3>Resumo</h3>
         <p>Aluguel comercial.</p>
         <p>
-          Recebi (emos) de <strong>Padaria Lanchonete Braz Machado LTDA</strong>, a importância de
-          <strong>um mil e cinquenta e cinco reais</strong>. Valor pactuado entre as partes.
+          Recebi (emos) de
+          <strong>Padaria Lanchonete Braz Machado LTDA</strong>, a importância
+          de <strong>um mil e cinquenta e cinco reais</strong>. Valor pactuado
+          entre as partes.
         </p>
         <p>
           Proveniente do aluguel de <br />
           Sítio à Rua Estados Unidos, número 21, bairro Cariru. <br />
-          Referente ao período de 10/Out a 10/Nov/24 <strong>Vencido em 10/Nov/2024</strong>.
+          Referente ao período de 10/Out a 10/Nov/24
+          <strong>Vencido em 10/Nov/2024</strong>.
         </p>
-        <p>Assinatura: Cleia Maria Oliveira</p>
-      </div>
-    </section>
-  </main>
 
-  <script>
-    fetch('menu.html')
-      .then(response => response.text())
-      .then(html => {
-        document.getElementById('menu-container').innerHTML = html;
-      });
-  </script>
-</body>
+        <div class="payment-boxes">
+          <div class="box">
+            <span class="label">Método de Pagamento</span>
+            <strong>Dinheiro</strong>
+          </div>
+          <div class="box">
+            <span class="label">Valor Total</span>
+            <strong>R$ 1.700,00</strong>
+          </div>
+        </div>
 
+        <div class="btn-container">
+          <button type="button" class="btn-cancelar">Cancelar</button>
+          <button type="button" class="btn-receber">Receber</button>
+        </div>
+      </section>
+
+      <section class="receipt-container">
+        <div class="receipt-actions">
+          <i class="fas fa-download" title="Download"></i>
+          <i class="fas fa-print" title="Imprimir"></i>
+        </div>
+        <div class="receipt-content">
+          <h3>Recibo de Aluguel</h3>
+          <p>Aluguel comercial.</p>
+          <p>
+            Recebi (emos) de
+            <strong>Padaria Lanchonete Braz Machado LTDA</strong>, a importância
+            de <strong>um mil e cinquenta e cinco reais</strong>. Valor pactuado
+            entre as partes.
+          </p>
+          <p>
+            Proveniente do aluguel de <br />
+            Sítio à Rua Estados Unidos, número 21, bairro Cariru. <br />
+            Referente ao período de 10/Out a 10/Nov/24
+            <strong>Vencido em 10/Nov/2024</strong>.
+          </p>
+          <p>Assinatura: Cleia Maria Oliveira</p>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      fetch("menu.html")
+        .then((response) => response.text())
+        .then((html) => {
+          document.getElementById("menu-container").innerHTML = html;
+        });
+    </script>
+  </body>
 </html>
