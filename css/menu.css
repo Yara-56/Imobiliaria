@@ -15,6 +15,11 @@
   box-shadow: 5px 0 15px rgba(0, 0, 0, 0.15);
 }
 
+.sidebar.collapsed {
+  width: 70px;
+  align-items: center;
+}
+
 .sidebar-header {
   display: flex;
   justify-content: space-between;
@@ -59,6 +64,10 @@
   background: #dcdde1 !important;
 }
 
+.menu {
+  width: 100%;
+}
+
 .menu .title {
   font-weight: 500;
   font-size: 14px;
@@ -99,6 +108,71 @@
   background-color: #f0f0f0;
 }
 
+.has-submenu {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  transition: background-color 0.3s;
+  color: #1e272e !important;
+}
+
+.menu-item:hover {
+  background-color: #f0f0f0;
+}
+
+.arrow {
+  font-size: 14px;
+  margin-left: 10px;
+  transition: transform 0.3s ease;
+}
+
+.arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.submenu {
+  display: none;
+  flex-direction: column;
+  padding-left: 40px;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.submenu li {
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+  color: #1e272e !important;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.submenu li i {
+  width: 30px;
+  text-align: center;
+  font-size: 16px;
+  color: #1e272e !important;
+}
+
+.submenu li span {
+  margin-left: 10px;
+}
+
+.submenu li:hover {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding-left: 8px;
+}
+
 @media only screen and (max-width: 600px) {
   .sidebar {
     width: 70px;
@@ -107,7 +181,7 @@
   }
 
   .menu li span,
-  .menu-item .menu-main span,
+  .menu-item span,
   .user-name {
     display: none;
   }
@@ -125,7 +199,7 @@
   }
 
   .menu li span,
-  .menu-item .menu-main span,
+  .menu-item span,
   .user-name {
     display: none;
   }
@@ -143,7 +217,7 @@
   }
 
   .menu li span,
-  .menu-item .menu-main span,
+  .menu-item span,
   .user-name {
     display: inline;
   }
@@ -151,9 +225,4 @@
   .sidebar-header {
     justify-content: space-between;
   }
-}
-
-.has-submenu {
-  display: flex;
-  flex-direction: column;
 }
