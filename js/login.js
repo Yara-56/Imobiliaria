@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       const email = document.getElementById('email').value.trim();
       const senha = document.getElementById('senha').value.trim();
+      console.log(email, senha);
   
       if (!email || !senha) {
         alert('Preencha todos os campos!');
