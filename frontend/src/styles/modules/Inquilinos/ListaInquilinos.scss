@@ -1,0 +1,60 @@
+@use '../../base/variables' as *;
+@use '../../base/mixins' as *;
+
+.caixa-branca {
+  background-color: $white;
+  border-radius: $border-radius;
+  padding: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+
+.tabela-inquilinos {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Open Sans', sans-serif;
+
+  th, td {
+    text-align: left;
+    padding: 1rem;
+    border-bottom: 1px solid $gray;
+  }
+
+  th {
+    background-color: $gray-light;
+    color: $text-dark;
+    font-weight: 600;
+  }
+
+  td {
+    color: $text-dark;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    color: $white;
+    background-color: $primary;
+
+    &.visualizar {
+      background-color: $primary;
+
+      &:hover {
+        background-color: $primary-hover;
+      }
+    }
+
+    &.editar {
+      background-color: darken($primary, 10%);
+
+      &:hover {
+        background-color: darken($primary, 20%);
+      }
+    }
+  }
+}

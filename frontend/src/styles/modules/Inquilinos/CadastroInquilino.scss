@@ -1,0 +1,75 @@
+@use '../../base/variables' as *;
+@use '../../base/mixins' as *;
+
+.caixa-branca {
+  background-color: $white;
+  border-radius: $border-radius;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.form-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+
+  label {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    display: block;
+  }
+
+  .input-form {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid $gray;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    background-color: $white;
+    color: $text-dark;
+  }
+}
+
+.botoes-container {
+  grid-column: span 2;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+
+  button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    background-color: $primary;
+    color: $white;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $primary-hover;
+    }
+  }
+}
+
+.upload-button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: $primary;
+  color: $white;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 1rem;
+
+  &:hover {
+    background-color: $primary-hover;
+  }
+}
+
+input[type="file"] {
+  display: none;
+}
