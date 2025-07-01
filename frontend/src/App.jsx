@@ -42,6 +42,7 @@ export default function App() {
         <Route path="/recibo/:id" element={<RotaProtegida><ReciboVisualizacao /></RotaProtegida>} />
         <Route path="/historico-pagamentos" element={<RotaProtegida><HistoricoPagamentos /></RotaProtegida>} />
       </Routes>
+      <Route path="/teste-novo-inquilino" element={<NovoInquilino />} />
     </Router>
   );
 }
