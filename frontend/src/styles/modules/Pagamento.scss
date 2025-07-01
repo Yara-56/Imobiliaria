@@ -139,7 +139,7 @@
       }
 
       &:hover {
-        background-color: lighten($gray-light, 5%);
+        background-color: color.adjust($gray-light, $lightness: 5%);
         transform: scale(1.01);
       }
 
@@ -304,6 +304,7 @@
     align-items: stretch;
   }
 }
+
 /* === FORMULÁRIO DE CONFIGURAÇÃO DE PAGAMENTO === */
 .form-pagamento {
   background: $white;
@@ -353,7 +354,7 @@
     transition: background-color 0.2s ease;
 
     &:hover {
-      background-color: darken($primary, 5%);
+      background-color: color.adjust($primary, $lightness: -5%);
     }
   }
 }

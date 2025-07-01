@@ -1,7 +1,24 @@
 @use "./base/variables" as *;
 @use "./base/mixins" as *;
 @use "./base/utilities" as *;
-@import "@fortawesome/fontawesome-free/css/all.min.css";
+
+@font-face {
+  font-family: 'Font Awesome 5 Free';
+  font-style: normal;
+  font-weight: 900;
+  src: url('/fonts/fa-solid-900.woff2') format('woff2'),
+       url('/fonts/fa-solid-900.ttf') format('truetype');
+}
+
+.fas {
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  font-style: normal;
+  display: inline-block;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
 
 * {
   box-sizing: border-box;
