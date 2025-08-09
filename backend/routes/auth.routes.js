@@ -1,5 +1,5 @@
 import express from 'express';
-import fs from 'fs';
+import fs from 'fs/promises'; // Usando a versão assíncrona do 'fs'
 import path from 'path';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
@@ -8,7 +8,7 @@ const router = express.Router();
 const caminhoUsuarios = path.resolve('usuarios.json');
 const JWT_SECRET = process.env.JWT_SECRET || 'segredo-super-seguro';
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -20,7 +20,7 @@ router.post('/login', (req, res) => {
       return res.status(404).json({ error: 'Nenhum usuário cadastrado ainda.' });
     }
 
-    const data = fs.readFileSync(caminhoUsuarios, 'utf8');
+    const data = await fs.readFile(caminhoUsuarios, 'utf8');
     const usuarios = JSON.parse(data);
     const usuario = usuarios.find((u) => u.email === email);
 
@@ -28,7 +28,7 @@ router.post('/login', (req, res) => {
       return res.status(401).json({ error: 'E-mail ou senha inválidos.' });
     }
 
-    const senhaValida = bcrypt.compareSync(password, usuario.password);
+    const senhaValida = await bcrypt.compare(password, usuario.password);
     if (!senhaValida) {
       return res.status(401).json({ error: 'E-mail ou senha inválidos.' });
     }

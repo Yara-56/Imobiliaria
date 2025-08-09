@@ -1,7 +1,6 @@
-// routes/property.routes.js
 import express from 'express';
 import * as propertyController from '../controllers/property.controller.js';
-import { proteger } from '../middlewares/auth.middleware.js';
+import { proteger } from '../middlewares/auth.middleware.js'; // Verifique o caminho de importação
 
 const router = express.Router();
 
