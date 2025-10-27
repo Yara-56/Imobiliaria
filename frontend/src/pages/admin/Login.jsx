@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { useAuth } from "../hooks/useAuth";
-import api from "../services/api";
-import { Navigate, useNavigate, Link } from "react-router-dom"; // 1. Importar o Link
+// 1. CORREÇÃO PRINCIPAL: Importando do lugar certo
+import { useAuth } from "../../contexts/AuthContext";
+import api from "../../services/api";
+import { Navigate, useNavigate, Link } from "react-router-dom";
 
 export default function Login() {
   const { login, isAuthenticated, isReady } = useAuth();
@@ -13,7 +14,8 @@ export default function Login() {
   const [error, setError] = useState(null);
 
   if (isReady && isAuthenticated) {
-    return <Navigate to="/home" replace />;
+    // 2. CORREÇÃO DE ROTA: Redireciona para o dashboard
+    return <Navigate to="/admin/dashboard" replace />;
   }
 
   if (!isReady) {
@@ -38,7 +40,8 @@ export default function Login() {
       const { token, user } = response.data;
       
       login(user, token);
-      navigate("/home");
+      // 3. CORREÇÃO DE ROTA: Navega para o dashboard
+      navigate("/admin/dashboard");
 
     } catch (err) {
       // Tenta pegar a mensagem de erro específica do backend
@@ -94,10 +97,10 @@ export default function Login() {
             />
           </div>
 
-          {/* 2. ADICIONAR O LINK PARA RECUPERAÇÃO DE SENHA */}
           <div className="text-right text-sm">
+            {/* 4. CORREÇÃO DE ROTA: Adicionado o /admin/ */}
             <Link 
-              to="/esqueci-minha-senha"
+              to="/admin/esqueci-senha"
               className="font-medium text-blue-600 hover:text-blue-500"
             >
               Esqueceu sua senha?
@@ -116,6 +119,18 @@ export default function Login() {
             {loading ? "Verificando..." : "ENTRAR"}
           </button>
         </form>
+
+        <div className="text-center mt-6 text-sm">
+          <span className="text-gray-600">Não tem uma conta? </span>
+          {/* 5. CORREÇÃO DE ROTA: Adicionado o /admin/ */}
+          <Link 
+            to="/admin/register" // Link para a nova rota que criamos
+            className="font-medium text-blue-600 hover:text-blue-500"
+          >
+            Cadastre-se
+          </Link>
+        </div>
+
       </div>
     </div>
   );

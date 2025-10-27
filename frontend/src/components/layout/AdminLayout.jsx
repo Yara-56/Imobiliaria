@@ -1,23 +1,27 @@
 import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import Menu from "./Menu";
-import Topbar from "./Topbar";
+import Topbar from "../admin/Topbar";
+import Sidebar from "../admin/SideBar";
 
-export default function Layout() {
+export default function AdminLayout() {
   const location = useLocation();
+  
+  const getPageInfo = (path) => {
+    if (path.includes("dashboard")) return { title: "Dashboard", subtitle: "Visão Geral" };
+    if (path.includes("imoveis/novo")) return { title: "Imóveis", subtitle: "Novo Cadastro" };
+    if (path.includes("imoveis")) return { title: "Imóveis", subtitle: "Listagem" };
+    if (path.includes("contratos/novo")) return { title: "Contratos", subtitle: "Novo Contrato" };
+    return { title: "Admin", subtitle: "Página Principal" };
+  };
+
+  const { title, subtitle } = getPageInfo(location.pathname);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-gray-50 text-gray-800">
-      {/* Menu lateral fixo */}
-      <Menu />
-
-      {/* Área principal */}
+      <Sidebar />
       <div className="flex flex-col flex-1 h-full overflow-hidden">
-        {/* Topbar fixa na parte superior da área principal */}
-        <Topbar icon="faUserCircle" title="Página" subtitle="Conteúdo" />
-
-        {/* Área de conteúdo das páginas */}
+        <Topbar title={title} subtitle={subtitle} />
         <AnimatePresence mode="wait">
           <motion.main
             key={location.pathname}

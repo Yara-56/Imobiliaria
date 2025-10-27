@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getTemplateById, updateTemplate } from '../services/contractTemplateService';
+import { getTemplateById, updateTemplate } from '../../services/contractTemplateService';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 

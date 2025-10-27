@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  getPropertyById,
-  updateProperty,
-  deleteProperty,
-  deletePropertyDocument,
-} from "../services/propertyService";
+import { getPropertyById, updateProperty } from "../../services/propertyService";
 
 export default function PropertyEdit() {
   const { id } = useParams();

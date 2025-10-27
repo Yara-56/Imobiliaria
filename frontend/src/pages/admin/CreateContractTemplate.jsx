@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
-import { createTemplate } from '../services/contractTemplateService';
+import { createTemplate } from '../../services/contractTemplateService';
 import 'react-quill/dist/quill.snow.css';
 
 export default function CreateContractTemplate() {

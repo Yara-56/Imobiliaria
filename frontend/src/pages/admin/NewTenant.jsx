@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createTenant } from '../services/tenantService';
-import { listTemplates } from '../services/contractTemplateService';
+import { createTenant } from '../../services/tenantService';
+import { listTemplates } from '../../services/contractTemplateService';
 
 const DOCUMENTS = [
   { key: 'idDoc', label: 'Documento de identificação' },

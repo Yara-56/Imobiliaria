@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { listTemplates, deleteTemplate } from '../services/contractTemplateService';
+import { listTemplates, deleteTemplate } from '../../services/contractTemplateService';
 
 export default function ContractTemplateList() {
   const [templates, setTemplates] = useState([]);

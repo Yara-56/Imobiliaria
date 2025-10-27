@@ -1,7 +1,7 @@
 // frontend/src/pages/ForgotPassword.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../services/api'; // Certifique-se que este é seu arquivo de config do axios
+import api from '../../services/api'; // Certifique-se que este é seu arquivo de config do axios
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');

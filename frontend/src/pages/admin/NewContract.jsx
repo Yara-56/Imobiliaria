@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { createContract } from '../services/contractService';
-import { listTenants } from '../services/tenantService';
-import { listProperties } from '../services/propertyService';
+import { createContract } from '../../services/contractService';
+import { listTenants } from '../../services/tenantService';
+import { listProperties } from '../../services/propertyService';
 
 export default function NewContract() {
   const [tenants, setTenants] = useState([]);

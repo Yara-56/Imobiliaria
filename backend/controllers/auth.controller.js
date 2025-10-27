@@ -58,9 +58,26 @@ export const login = async (req, res) => {
 
     const user = await User.findOne({ email }).select('+password');
     
+    // ==========================================================
+    // --- MODIFICAÇÃO TEMPORÁRIA PARA TESTE ---
+    // ==========================================================
+    
+    // 1. Verificamos apenas se o usuário existe
+    if (!user) {
+      return res.status(401).json({ error: 'E-mail inválido (usuário não encontrado).' });
+    }
+
+    // 2. Comentamos a verificação da senha para pular esta etapa
+    //    Isso vai "liberar o login" com qualquer senha, desde que o e-mail exista.
+    /*
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ error: 'E-mail ou senha inválidos.' });
     }
+    */
+    // ==========================================================
+    // --- FIM DA MODIFICAÇÃO ---
+    // ==========================================================
+
 
     const token = jwt.sign(
       { id: user._id, role: user.role },

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createProperty } from "../services/propertyService";
+import { createProperty } from "../../services/propertyService";
 
 export default function PropertyForm() {
   const navigate = useNavigate();
