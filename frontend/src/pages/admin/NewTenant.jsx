@@ -10,215 +10,219 @@ const DOCUMENTS = [
   { key: 'residenceProof', label: 'Comprovante de residência' },
   { key: 'inspectionReport', label: 'Laudo de vistoria' },
 ];
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import Topbar from "../components/Topbar";
+import { createTenant } from "../services/tenantService"; // Importa a função REAL
 
 export default function NewTenant() {
-  const [form, setForm] = useState({
-    name: '',
-    cpf: '',
-    email: '',
-    phone: '',
-    birthdate: '',
-    address: '',
-    rg: '',
-    templateId: ''
+  const [formData, setFormData] = useState({
+    name: "",
+    cpf: "",
+    email: "",
+    phone: "",
+    suretyLetter: "", // <-- ADICIONADO: Campo Carta de Fiança
   });
 
-  const [documents, setDocuments] = useState({});
-  const [templates, setTemplates] = useState([]);
+  const [newFiles, setNewFiles] = useState([]); // <-- ADICIONADO: Estado para novos arquivos
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    async function fetchTemplates() {
-      try {
-        const data = await listTemplates();
-        setTemplates(data);
-      } catch (error) {
-        console.error('Erro ao carregar modelos:', error);
-      }
-    }
-    fetchTemplates();
-  }, []);
-
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleClear = () => {
-    setForm({
-      name: '',
-      cpf: '',
-      email: '',
-      phone: '',
-      birthdate: '',
-      address: '',
-      rg: '',
-      templateId: ''
-    });
-    setDocuments({});
-  };
-
-  const handleFileChange = (key, file) => {
-    setDocuments((prev) => ({ ...prev, [key]: file }));
+  const onFilesChange = (e) => {
+    setNewFiles(Array.from(e.target.files || []));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
 
-    Object.entries(form).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-
-    Object.entries(documents).forEach(([key, file]) => {
-      if (file) formData.append(key, file);
-    });
+    setSuccessMessage("");
+    setErrorMessage("");
+    setIsSubmitting(true);
 
     try {
-      await createTenant(formData);
-      alert('✅ Inquilino cadastrado com sucesso!');
-      navigate('/tenants');
+      // Cria um objeto FormData para enviar JSON e Arquivos juntos
+      const dataToSend = new FormData();
+
+      // Anexa os campos de texto JSON (exceto arquivos)
+      Object.keys(formData).forEach((key) => {
+        dataToSend.append(key, formData[key]);
+      });
+
+      // Anexa os novos arquivos (campo 'documents[]' é o que o Multer espera)
+      newFiles.forEach((file) => {
+        dataToSend.append("documents[]", file);
+      });
+
+      // --- CHAMA A API DE VERDADE ---
+      // A função createTenant deve estar adaptada no tenantService para aceitar FormData
+      await createTenant(dataToSend);
+
+      setSuccessMessage("Inquilino salvo com sucesso! Redirecionando...");
+
+      setTimeout(() => {
+        navigate("/tenants");
+      }, 2000);
     } catch (error) {
-      alert('❌ Erro ao cadastrar inquilino.');
-      console.error(error);
+      console.error("Erro ao criar inquilino:", error);
+      let message = "Falha ao salvar alterações.";
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        message = `Detalhe: ${error.response.data.message}`;
+      } else if (error.message) {
+        message = `Detalhe: ${error.message}`;
+      }
+      setErrorMessage(message);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8 space-y-8">
-      <h2 className="text-2xl font-semibold text-gray-800">Perfil do Inquilino</h2>
+    <>
+      {/* Não use Topbar aqui para evitar a barra de pesquisa duplicada */}
 
-      {/* Seção 1 */}
-      <section className="bg-white rounded-lg shadow-sm p-6 space-y-6">
-        <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-          📋 Dados do inquilino
-        </h3>
+      <form onSubmit={handleSubmit} className="px-6 py-4 max-w-5xl mx-auto">
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-6">
+            Dados do inquilino
+          </h3>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <input
-              name="name"
-              placeholder="Nome *"
-              value={form.name}
-              onChange={handleChange}
-              required
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm"
-            />
-            <input
-              name="phone"
-              placeholder="Telefone *"
-              value={form.phone}
-              onChange={handleChange}
-              required
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm"
-            />
-            <input
-              type="date"
-              name="birthdate"
-              value={form.birthdate}
-              onChange={handleChange}
-              required
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm"
-            />
-            <input
-              name="email"
-              placeholder="E-mail *"
-              value={form.email}
-              onChange={handleChange}
-              required
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm"
-            />
-            <input
-              name="cpf"
-              placeholder="CPF *"
-              value={form.cpf}
-              onChange={handleChange}
-              required
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm"
-            />
-            <input
-              name="address"
-              placeholder="Endereço *"
-              value={form.address}
-              onChange={handleChange}
-              required
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm"
-            />
-            <input
-              name="rg"
-              placeholder="RG *"
-              value={form.rg}
-              onChange={handleChange}
-              required
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm"
-            />
-            <select
-              name="templateId"
-              value={form.templateId}
-              onChange={handleChange}
-              required
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm"
-            >
-              <option value="">Selecione um modelo de contrato</option>
-              {templates.map((t) => (
-                <option key={t._id} value={t._id}>{t.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={handleClear}
-              className="px-4 py-2 border border-gray-300 bg-gray-100 text-gray-700 rounded-md text-sm hover:bg-gray-200"
-            >
-              Limpar
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 border border-blue-300 bg-blue-100 text-blue-700 rounded-md text-sm font-medium hover:bg-blue-200"
-            >
-              Salvar
-            </button>
-          </div>
-        </form>
-      </section>
-
-      {/* Seção 2 */}
-      <section className="bg-white rounded-lg shadow-sm p-6 space-y-6">
-        <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-          📎 Documentos do inquilino
-        </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {DOCUMENTS.map(({ key, label }) => (
-            <div
-              key={key}
-              className="flex flex-col items-center justify-between bg-blue-50 border border-dashed border-blue-200 rounded-lg p-4 min-h-[160px] transition hover:bg-blue-100 hover:border-blue-500"
-            >
-              <label className="text-sm font-medium text-blue-700 mb-2 text-center">
-                {label}
-              </label>
-
-              <label className="flex flex-col items-center gap-2 cursor-pointer w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Coluna da Esquerda */}
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  Nome *
+                </label>
                 <input
-                  type="file"
-                  accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                  className="hidden"
-                  onChange={(e) => handleFileChange(key, e.target.files[0])}
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600"
+                  required
                 />
-                <div className="text-2xl text-blue-400 hover:text-blue-600 transition">
-                  {documents[key] ? '📄' : '📁➕'}
-                </div>
-                {documents[key] && (
-                  <div className="text-xs text-gray-700 text-center break-words max-w-[180px]">
-                    {documents[key].name}
-                  </div>
-                )}
-              </label>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  CPF *
+                </label>
+                <input
+                  type="text"
+                  name="cpf"
+                  value={formData.cpf}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600"
+                  required
+                />
+              </div>
             </div>
-          ))}
+
+            {/* Coluna da Direita */}
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  Telefone
+                </label>
+                <input
+                  type="text"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  E-mail
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* --- NOVO CAMPO: CARTA DE FIANÇA --- */}
+          <div className="mt-6 pt-4 border-t">
+            <label className="block text-sm font-medium text-gray-600 mb-1">
+              Carta de Fiança / Observações
+            </label>
+            <textarea
+              name="suretyLetter"
+              value={formData.suretyLetter}
+              onChange={handleChange}
+              rows="3"
+              placeholder="Detalhes sobre a carta de fiança ou observações importantes..."
+              className="border rounded px-3 py-2 w-full resize-none"
+            />
+          </div>
+
+          {/* --- ÁREA DE DOCUMENTOS (Upload) --- */}
+          <div className="mt-8 pt-4 border-t">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Documentos do Inquilino
+            </h3>
+
+            {/* Adicionar novos */}
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">
+                Escolher documentos
+              </label>
+              <input type="file" multiple onChange={onFilesChange} />
+              {newFiles?.length > 0 && (
+                <p className="text-sm text-gray-600 mt-2">
+                  {newFiles.length} arquivo(s) selecionado(s)
+                </p>
+              )}
+            </div>
+          </div>
         </div>
-      </section>
-    </div>
+
+        {/* Área para mostrar as mensagens */}
+        <div className="mt-6 text-center h-5">
+          {successMessage && (
+            <p className="text-sm text-green-600">{successMessage}</p>
+          )}
+          {errorMessage && (
+            <p className="text-sm text-red-600">{errorMessage}</p>
+          )}
+        </div>
+
+        {/* Botões Salvar/Cancelar */}
+        <div className="flex justify-end gap-4 mt-8">
+          <button
+            type="button"
+            onClick={() => navigate("/tenants")}
+            disabled={isSubmitting}
+            className="px-5 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-5 py-2 rounded-lg transition disabled:opacity-50 disabled:bg-blue-400"
+          >
+            {isSubmitting ? "Salvando..." : "Salvar"}
+          </button>
+        </div>
+      </form>
+    </>
   );
 }
