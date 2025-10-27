@@ -10,7 +10,7 @@ import {
   deleteTenant,
 } from "../controllers/tenant.controller.js";
 // NOVO: Importa o middleware de upload
-import upload from '../middlewares/upload.js'; 
+import upload from '../middlewares/upload.middleware.js'; 
 
 
 const router = express.Router();
