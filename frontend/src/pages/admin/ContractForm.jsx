@@ -4,7 +4,7 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { createTemplate } from "../../services/contractTemplateService";
 import Menu from "../../components/Menu";
-import Topbar from "../../components/Topbar";
+import Topbar from "../../components/admin/Topbar";
 import { faFileContract } from "@fortawesome/free-solid-svg-icons";
 
 export default function ContractForm() {

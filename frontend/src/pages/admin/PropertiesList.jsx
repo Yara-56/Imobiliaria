@@ -1,21 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { listProperties, deleteProperty } from "../../services/propertyService";
 
 export default function PropertiesList() {
-  const [properties, setProperties] = useState([]);
-  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, pages: 1 });
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [q, setQ] = useState("");
 
-  const fetchData = async (page = 1) => {
+  // ✅ Mapa de rótulos PT-BR para status que vem do back (EN)
+  const statusLabel = {
+    Available: "Disponível",
+    Occupied: "Ocupado",
+    "Under Maintenance": "Manutenção",
+  };
+
+  const fetchData = async () => {
     setLoading(true);
     try {
-      const data = await listProperties({ page, limit: 10, q: search });
-      setProperties(data.items || []);
-      setPagination(data.pagination || { page: 1, limit: 10, total: 0, pages: 1 });
-    } catch (error) {
-      console.error("Erro ao buscar imóveis:", error);
+      const data = await listProperties({ q });
+      // backend pode retornar { items, pagination } ou array direto
+      setItems(Array.isArray(data) ? data : (data?.items ?? []));
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -23,103 +29,97 @@ export default function PropertiesList() {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Deseja realmente excluir este imóvel?")) return;
-    try {
-      await deleteProperty(id);
-      fetchData(pagination.page);
-    } catch (e) {
-      console.error(e);
-      alert("Não foi possível excluir o imóvel.");
-    }
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchData(1);
-  };
+  const filtered = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    if (!needle) return items;
+    return items.filter((p) =>
+      [
+        p.sqls,
+        p.cep,
+        p.street,
+        p.bairro,   // ✅ garante que entra na busca
+        p.city,
+        p.state,
+        p.status,
+        p.number,
+      ]
+        .filter(Boolean)
+        .some((v) => String(v).toLowerCase().includes(needle))
+    );
+  }, [items, q]);
 
   return (
-    <div className="p-6">
-      {/* Cabeçalho */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-gray-800">Gerenciar Imóveis</h1>
-        <Link
-          to="/properties/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Novo Imóvel
-        </Link>
-      </div>
+    <div className="max-w-6xl">
+      <h1 className="text-2xl font-semibold mb-4">Gerenciar Imóveis</h1>
 
-      {/* Barra de busca */}
-      <form onSubmit={handleSearch} className="flex gap-2 mb-4">
+      {/* Busca menor */}
+      <div className="flex items-center gap-2 mb-4">
         <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar por cidade, CEP, status..."
-          className="border px-3 py-2 rounded w-full"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Buscar por bairro, cidade, CEP, status..."
+          className="border rounded px-3 py-2 w-80 max-w-full"
         />
         <button
-          type="submit"
-          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+          type="button"
+          onClick={fetchData}
+          className="px-3 py-2 border rounded hover:bg-gray-50"
         >
           Buscar
         </button>
-      </form>
+      </div>
 
-      {/* Tabela */}
-      <div className="overflow-x-auto bg-white rounded shadow">
-        <table className="w-full text-left">
-          <thead className="bg-gray-100 text-gray-700">
+      <div className="overflow-x-auto bg-white rounded border">
+        <table className="min-w-full">
+          <thead className="bg-gray-50 text-left">
             <tr>
-              <th className="p-3">Título</th>
-              <th className="p-3">CEP</th>
-              <th className="p-3">Rua</th>
-              <th className="p-3">Cidade</th>
-              <th className="p-3">Estado</th>
-              <th className="p-3">Status</th>
-              <th className="p-3 text-right">Ações</th>
+              <th className="px-4 py-2">SQLS</th>
+              <th className="px-4 py-2">CEP</th>
+              <th className="px-4 py-2">Rua</th>
+              <th className="px-4 py-2">Bairro</th> {/* ✅ nova coluna */}
+              <th className="px-4 py-2">Cidade</th>
+              <th className="px-4 py-2">Estado</th>
+              <th className="px-4 py-2">Status</th>
+              <th className="px-4 py-2 w-40">Ações</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="7" className="p-4 text-center text-gray-500">
+                {/* ✅ colSpan atualizado para 8 por causa da nova coluna */}
+                <td className="px-4 py-6 text-center" colSpan={8}>
                   Carregando...
                 </td>
               </tr>
-            ) : properties.length === 0 ? (
+            ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan="7" className="p-4 text-center text-gray-500">
+                <td className="px-4 py-6 text-center" colSpan={8}>
                   Nenhum imóvel encontrado
                 </td>
               </tr>
             ) : (
-              properties.map((p) => (
-                <tr key={p._id} className="border-t hover:bg-gray-50">
-                  <td className="p-3">{p.title || "-"}</td>
-                  <td className="p-3">{p.cep || "-"}</td>
-                  <td className="p-3">{p.street || "-"}</td>
-                  <td className="p-3">{p.city || "-"}</td>
-                  <td className="p-3">{p.state || "-"}</td>
-                  <td className="p-3">{p.status || "-"}</td>
-                  <td className="p-3 text-right space-x-3">
+              filtered.map((p) => (
+                <tr key={p._id} className="border-t">
+                  <td className="px-4 py-2">{p.sqls || "-"}</td>
+                  <td className="px-4 py-2">{p.cep || "-"}</td>
+                  <td className="px-4 py-2">{p.street || "-"}</td>
+                  <td className="px-4 py-2">{p.bairro || "-"}</td> {/* ✅ mostra o bairro */}
+                  <td className="px-4 py-2">{p.city || "-"}</td>
+                  <td className="px-4 py-2">{p.state || "-"}</td>
+                  <td className="px-4 py-2">
+                    {/* ✅ traduz status EN -> PT-BR */}
+                    {statusLabel[p.status] ?? p.status ?? "-"}
+                  </td>
+                  <td className="px-4 py-2">
                     <Link
-                      to={`/properties/${p._id}/edit`}
+                      to={`/imoveis/${p._id}/editar`}
                       className="text-blue-600 hover:underline"
                     >
-                      Editar
+                      Ver detalhes
                     </Link>
-                    <button
-                      onClick={() => handleDelete(p._id)}
-                      className="text-red-600 hover:underline"
-                    >
-                      Excluir
-                    </button>
                   </td>
                 </tr>
               ))
@@ -127,29 +127,6 @@ export default function PropertiesList() {
           </tbody>
         </table>
       </div>
-
-      {/* Paginação */}
-      {!loading && pagination.pages > 1 && (
-        <div className="flex items-center justify-center gap-3 mt-4">
-          <button
-            disabled={pagination.page <= 1}
-            onClick={() => fetchData(pagination.page - 1)}
-            className="px-3 py-1 border rounded disabled:opacity-50"
-          >
-            Anterior
-          </button>
-          <span className="text-gray-700">
-            Página {pagination.page} de {pagination.pages}
-          </span>
-          <button
-            disabled={pagination.page >= pagination.pages}
-            onClick={() => fetchData(pagination.page + 1)}
-            className="px-3 py-1 border rounded disabled:opacity-50"
-          >
-            Próxima
-          </button>
-        </div>
-      )}
     </div>
   );
 }

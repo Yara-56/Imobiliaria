@@ -13,7 +13,7 @@ const PropertySchema = new mongoose.Schema(
     sqls: { type: String, trim: true, maxlength: 20 },
     street: { type: String, required: true, trim: true, maxlength: 80 },
     number: { type: String, required: true, trim: true, maxlength: 10 },
-    district: { type: String, required: true, trim: true, maxlength: 60 },
+    bairro: { type: String, required: true, trim: true, maxlength: 60 },
     city: { type: String, required: true, trim: true, maxlength: 60 },
     state: { type: String, required: true, trim: true, maxlength: 30 },
     status: {

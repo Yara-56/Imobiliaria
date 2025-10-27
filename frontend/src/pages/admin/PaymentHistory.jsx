@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Layout from "../../components/layout/Layout";
+import Layout from "../../components/layout/AdminLayout";
 // 🚨 CORREÇÃO DE CAMINHO: Incluindo "admin" para resolver o erro
 import Topbar from "../../components/admin/Topbar"; 
 import { faFileInvoiceDollar } from "@fortawesome/free-solid-svg-icons";
@@ -28,7 +28,7 @@ export default function PaymentHistory() {
   );
 
   return (
-    <Layout>
+    <AdminLayout>
       <Topbar
         icon={faFileInvoiceDollar}
         title="Histórico de Pagamentos"
@@ -111,6 +111,6 @@ export default function PaymentHistory() {
           </table>
         </div>
       </div>
-    </Layout>
+    </AdminLayout>
   );
 }

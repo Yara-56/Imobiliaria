@@ -1,15 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import classNames from "classnames";
 
 export default function Menu() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // abre/fecha submenus
   const [openSubmenus, setOpenSubmenus] = useState({});
   const [menuOpen, setMenuOpen] = useState(true);
 
   const user = JSON.parse(localStorage.getItem("user"));
   const nomeUsuario = user?.name || "Usuário";
+
+  // helper: rota ativa exata
+  const isActive = (path) => location.pathname === path;
+
+  // helper: rota ativa por prefixo (para marcar o grupo/parent)
+  const isPrefixActive = (prefix) => location.pathname.startsWith(prefix);
 
   const toggleSubmenu = (menuKey) => {
     setOpenSubmenus((prev) => ({
@@ -18,24 +26,27 @@ export default function Menu() {
     }));
   };
 
-  const isActive = (path) => location.pathname === path;
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/");
   };
 
+  // ---- MENU CONFIG ----
   const menuItems = [
     { key: "home", icon: "fa-house", label: "Início", path: "/home" },
+
     { key: "tenants", icon: "fa-users", label: "Inquilinos", path: "/tenants" },
+
     {
       key: "payments",
       icon: "fa-dollar-sign",
       label: "Pagamentos",
+      // parent com página
       path: "/payments",
       submenu: [{ to: "/payment-history", label: "📜 Histórico de Pagamentos" }],
     },
+
     {
       key: "contracts",
       icon: "fa-file-contract",
@@ -43,18 +54,27 @@ export default function Menu() {
       path: "/contracts",
       submenu: [{ to: "/templates", label: "📂 Modelos de Contrato" }],
     },
+
     {
       key: "receipt",
       icon: "fa-receipt",
       label: "Recibos",
       path: "/receipt/1",
     },
+
+    // ⭐ Imóveis com submenu (listar + novo)
     {
       key: "properties",
       icon: "fa-building",
       label: "Imóveis",
-      path: "/new-property",
+      // o "path" do pai será a lista
+      path: "/imoveis",
+      submenu: [
+        { to: "/imoveis", label: "📋 Listar imóveis" },
+        { to: "/imoveis/novo", label: "➕ Novo imóvel" },
+      ],
     },
+
     {
       key: "reports",
       icon: "fa-chart-pie",
@@ -67,6 +87,17 @@ export default function Menu() {
       ],
     },
   ];
+
+  // Abre automaticamente o submenu de "Imóveis" (e outros que forem prefixos ativos)
+  useEffect(() => {
+    const defaults = {};
+    if (isPrefixActive("/imoveis")) defaults["properties"] = true;
+    if (isPrefixActive("/templates") || isPrefixActive("/contracts")) defaults["contracts"] = true;
+    if (isPrefixActive("/payment")) defaults["payments"] = true;
+    if (isPrefixActive("/report-")) defaults["reports"] = true;
+    setOpenSubmenus((prev) => ({ ...prev, ...defaults }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
   return (
     <aside
@@ -106,39 +137,50 @@ export default function Menu() {
 
       {/* Menu */}
       <nav className="flex-1 p-2 overflow-y-auto">
-        {menuItems.map((item) => (
-          <div key={item.key}>
-            <div
-              onClick={() => {
-                if (item.path) navigate(item.path);
-                if (item.submenu) toggleSubmenu(item.key);
-              }}
-              className={classNames(
-                "flex items-center justify-between px-4 py-2 rounded-md cursor-pointer text-gray-700 hover:bg-gray-100 transition",
-                isActive(item.path) && "bg-gray-200 font-semibold"
-              )}
-            >
-              <div className="flex items-center gap-3">
-                <i className={`fa-solid ${item.icon} w-4 text-center`} />
-                {menuOpen && <span>{item.label}</span>}
-              </div>
-              {menuOpen && item.submenu?.length > 0 && (
-                <i
-                  className={`fa-solid ${
-                    openSubmenus[item.key] ? "fa-angle-up" : "fa-angle-down"
-                  } text-sm text-gray-500`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleSubmenu(item.key);
-                  }}
-                ></i>
-              )}
-            </div>
+        {menuItems.map((item) => {
+          const hasSub = !!item.submenu?.length;
+          const parentActive =
+            (item.path && isActive(item.path)) ||
+            (hasSub && isPrefixActive(item.path || `/${item.key}`));
 
-            {/* Submenu */}
-            {menuOpen &&
-              openSubmenus[item.key] &&
-              item.submenu?.length > 0 && (
+          return (
+            <div key={item.key}>
+              <div
+                onClick={() => {
+                  if (hasSub) {
+                    // se tiver submenu, primeiro abre/fecha;
+                    // se quiser navegar ao clicar no rótulo do pai, descomente a linha abaixo:
+                    // navigate(item.path);
+                    toggleSubmenu(item.key);
+                  } else if (item.path) {
+                    navigate(item.path);
+                  }
+                }}
+                className={classNames(
+                  "flex items-center justify-between px-4 py-2 rounded-md cursor-pointer text-gray-700 hover:bg-gray-100 transition",
+                  parentActive && "bg-gray-200 font-semibold"
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <i className={`fa-solid ${item.icon} w-4 text-center`} />
+                  {menuOpen && <span>{item.label}</span>}
+                </div>
+
+                {menuOpen && hasSub && (
+                  <i
+                    className={`fa-solid ${
+                      openSubmenus[item.key] ? "fa-angle-up" : "fa-angle-down"
+                    } text-sm text-gray-500`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleSubmenu(item.key);
+                    }}
+                  />
+                )}
+              </div>
+
+              {/* Submenu */}
+              {menuOpen && openSubmenus[item.key] && hasSub && (
                 <div className="ml-8 mt-1 flex flex-col gap-1">
                   {item.submenu.map((sub) => (
                     <Link
@@ -154,8 +196,9 @@ export default function Menu() {
                   ))}
                 </div>
               )}
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </nav>
 
       {/* Footer */}

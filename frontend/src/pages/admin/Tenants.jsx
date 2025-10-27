@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { listTenants } from "../../services/tenantService";
 // 🚨 CORREÇÃO DE CAMINHO: Incluindo "admin" no path do Topbar
 import Topbar from "../../components/admin/Topbar"; 
-import Layout from "../../components/layout/Layout";
+import Layout from "../../components/layout/AdminLayout";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 
 export default function Tenants() {
@@ -36,7 +36,7 @@ export default function Tenants() {
   };
 
   return (
-    <Layout>
+    <AdminLayout>
       <Topbar
         title="Inquilinos"
         subtitle="Visualize todos os inquilinos cadastrados"
@@ -116,6 +116,6 @@ export default function Tenants() {
           </table>
         </div>
       </div>
-    </Layout>
+    </AdminLayout>
   );
 }

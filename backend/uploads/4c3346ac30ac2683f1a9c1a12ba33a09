@@ -1,0 +1,2655 @@
+{
+  "log": {
+    "version": "1.2",
+    "creator": {
+      "name": "WebInspector",
+      "version": "537.36"
+    },
+    "pages": [],
+    "entries": [
+      {
+        "_connectionId": "219332",
+        "_initiator": {
+          "type": "script",
+          "stack": {
+            "callFrames": [
+              {
+                "functionName": "dispatchXhrRequest",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 1682,
+                "columnNumber": 12
+              },
+              {
+                "functionName": "xhr",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 1559,
+                "columnNumber": 9
+              },
+              {
+                "functionName": "dispatchRequest",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 2084,
+                "columnNumber": 9
+              }
+            ],
+            "parent": {
+              "description": "Promise.then",
+              "callFrames": [
+                {
+                  "functionName": "_request",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2287,
+                  "columnNumber": 26
+                },
+                {
+                  "functionName": "request",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2196,
+                  "columnNumber": 24
+                },
+                {
+                  "functionName": "Axios.<computed>",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2323,
+                  "columnNumber": 16
+                },
+                {
+                  "functionName": "wrap",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 7,
+                  "columnNumber": 14
+                },
+                {
+                  "functionName": "deletePropertyDocument",
+                  "scriptId": "1418",
+                  "url": "http://localhost:5173/src/services/propertyService.js?t=1761515116642",
+                  "lineNumber": 132,
+                  "columnNumber": 35
+                },
+                {
+                  "functionName": "onRemoveDoc",
+                  "scriptId": "1397",
+                  "url": "http://localhost:5173/src/pages/PropertyEdit.jsx?t=1761515116642",
+                  "lineNumber": 105,
+                  "columnNumber": 12
+                },
+                {
+                  "functionName": "onClick",
+                  "scriptId": "1397",
+                  "url": "http://localhost:5173/src/pages/PropertyEdit.jsx?t=1761515116642",
+                  "lineNumber": 434,
+                  "columnNumber": 33
+                },
+                {
+                  "functionName": "callCallback2",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 3673,
+                  "columnNumber": 21
+                },
+                {
+                  "functionName": "invokeGuardedCallbackDev",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 3698,
+                  "columnNumber": 23
+                },
+                {
+                  "functionName": "invokeGuardedCallback",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 3732,
+                  "columnNumber": 38
+                },
+                {
+                  "functionName": "invokeGuardedCallbackAndCatchFirstError",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 3735,
+                  "columnNumber": 32
+                },
+                {
+                  "functionName": "executeDispatch",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7013,
+                  "columnNumber": 10
+                },
+                {
+                  "functionName": "processDispatchQueueItemsInOrder",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7033,
+                  "columnNumber": 14
+                },
+                {
+                  "functionName": "processDispatchQueue",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7042,
+                  "columnNumber": 12
+                },
+                {
+                  "functionName": "dispatchEventsForPlugins",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7050,
+                  "columnNumber": 10
+                },
+                {
+                  "functionName": "",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7173,
+                  "columnNumber": 19
+                },
+                {
+                  "functionName": "batchedUpdates$1",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 18912,
+                  "columnNumber": 19
+                },
+                {
+                  "functionName": "batchedUpdates",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 3578,
+                  "columnNumber": 19
+                },
+                {
+                  "functionName": "dispatchEventForPluginEventSystem",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7172,
+                  "columnNumber": 10
+                },
+                {
+                  "functionName": "dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 5477,
+                  "columnNumber": 12
+                },
+                {
+                  "functionName": "dispatchEvent",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 5471,
+                  "columnNumber": 12
+                },
+                {
+                  "functionName": "dispatchDiscreteEvent",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 5448,
+                  "columnNumber": 12
+                }
+              ]
+            }
+          }
+        },
+        "_priority": "High",
+        "_resourceType": "xhr",
+        "cache": {},
+        "connection": "5050",
+        "request": {
+          "method": "DELETE",
+          "url": "http://localhost:5050/api/properties/68fe984516b5902d3e938349/documents/68fe984516b5902d3e93834a",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7,pt-PT;q=0.6"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Host",
+              "value": "localhost:5050"
+            },
+            {
+              "name": "Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "name": "Referer",
+              "value": "http://localhost:5173/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 OPR/122.0.0.0"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Opera GX\";v=\"122\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            }
+          ],
+          "queryString": [],
+          "cookies": [],
+          "headersSize": 690,
+          "bodySize": 0
+        },
+        "response": {
+          "status": 404,
+          "statusText": "Not Found",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Content-Length",
+              "value": "216"
+            },
+            {
+              "name": "Content-Security-Policy",
+              "value": "default-src 'none'"
+            },
+            {
+              "name": "Content-Type",
+              "value": "text/html; charset=utf-8"
+            },
+            {
+              "name": "Date",
+              "value": "Sun, 26 Oct 2025 21:55:04 GMT"
+            },
+            {
+              "name": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "name": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "name": "X-Powered-By",
+              "value": "Express"
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "size": 216,
+            "mimeType": "text/html",
+            "compression": 0,
+            "text": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>Cannot DELETE /api/properties/68fe984516b5902d3e938349/documents/68fe984516b5902d3e93834a</pre>\n</body>\n</html>\n"
+          },
+          "redirectURL": "",
+          "headersSize": 304,
+          "bodySize": 216,
+          "_transferSize": 520,
+          "_error": null,
+          "_fetchedViaServiceWorker": false
+        },
+        "serverIPAddress": "[::1]",
+        "startedDateTime": "2025-10-26T21:55:04.413Z",
+        "time": 19.507999997586015,
+        "timings": {
+          "blocked": 17.404000006198885,
+          "dns": -1,
+          "ssl": -1,
+          "connect": -1,
+          "send": 0.18400000000000016,
+          "wait": 1.1180000545755027,
+          "receive": 0.801999936811626,
+          "_blocked_queueing": 15.106000006198883,
+          "_workerStart": -1,
+          "_workerReady": -1,
+          "_workerFetchStart": -1,
+          "_workerRespondWithSettled": -1
+        }
+      },
+      {
+        "_connectionId": "219332",
+        "_initiator": {
+          "type": "preflight",
+          "url": "http://localhost:5050/api/properties/68fe984516b5902d3e938349/documents/68fe984516b5902d3e93834a",
+          "requestId": "21956.2587"
+        },
+        "_priority": "High",
+        "_resourceType": "preflight",
+        "cache": {},
+        "connection": "5050",
+        "request": {
+          "method": "OPTIONS",
+          "url": "http://localhost:5050/api/properties/68fe984516b5902d3e938349/documents/68fe984516b5902d3e93834a",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "*/*"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7,pt-PT;q=0.6"
+            },
+            {
+              "name": "Access-Control-Request-Method",
+              "value": "DELETE"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Host",
+              "value": "localhost:5050"
+            },
+            {
+              "name": "Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "name": "Referer",
+              "value": "http://localhost:5173/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 OPR/122.0.0.0"
+            }
+          ],
+          "queryString": [],
+          "cookies": [],
+          "headersSize": 575,
+          "bodySize": 0
+        },
+        "response": {
+          "status": 204,
+          "statusText": "No Content",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Access-Control-Allow-Methods",
+              "value": "GET,HEAD,PUT,PATCH,POST,DELETE"
+            },
+            {
+              "name": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Content-Length",
+              "value": "0"
+            },
+            {
+              "name": "Date",
+              "value": "Sun, 26 Oct 2025 21:55:04 GMT"
+            },
+            {
+              "name": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "name": "Vary",
+              "value": "Access-Control-Request-Headers"
+            },
+            {
+              "name": "X-Powered-By",
+              "value": "Express"
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "size": 0,
+            "mimeType": "x-unknown",
+            "compression": 285
+          },
+          "redirectURL": "",
+          "headersSize": 285,
+          "bodySize": -285,
+          "_transferSize": 0,
+          "_error": null,
+          "_fetchedViaServiceWorker": false
+        },
+        "serverIPAddress": "[::1]",
+        "startedDateTime": "2025-10-26T21:55:04.420Z",
+        "time": 7.7929999392852185,
+        "timings": {
+          "blocked": 2.844,
+          "dns": 0.010000000000000231,
+          "ssl": -1,
+          "connect": 0.4259999999999997,
+          "send": 0.6420000000000003,
+          "wait": 2.980000023275614,
+          "receive": 0.8909999160096049,
+          "_blocked_queueing": -1,
+          "_workerStart": -1,
+          "_workerReady": -1,
+          "_workerFetchStart": -1,
+          "_workerRespondWithSettled": -1
+        }
+      },
+      {
+        "_connectionId": "219332",
+        "_initiator": {
+          "type": "script",
+          "stack": {
+            "callFrames": [
+              {
+                "functionName": "dispatchXhrRequest",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 1682,
+                "columnNumber": 12
+              },
+              {
+                "functionName": "xhr",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 1559,
+                "columnNumber": 9
+              },
+              {
+                "functionName": "dispatchRequest",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 2084,
+                "columnNumber": 9
+              }
+            ],
+            "parent": {
+              "description": "Promise.then",
+              "callFrames": [
+                {
+                  "functionName": "_request",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2287,
+                  "columnNumber": 26
+                },
+                {
+                  "functionName": "request",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2196,
+                  "columnNumber": 24
+                },
+                {
+                  "functionName": "Axios.<computed>",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2323,
+                  "columnNumber": 16
+                },
+                {
+                  "functionName": "wrap",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 7,
+                  "columnNumber": 14
+                },
+                {
+                  "functionName": "deleteProperty",
+                  "scriptId": "1418",
+                  "url": "http://localhost:5173/src/services/propertyService.js?t=1761515116642",
+                  "lineNumber": 123,
+                  "columnNumber": 35
+                },
+                {
+                  "functionName": "onDelete",
+                  "scriptId": "1397",
+                  "url": "http://localhost:5173/src/pages/PropertyEdit.jsx?t=1761515116642",
+                  "lineNumber": 93,
+                  "columnNumber": 12
+                },
+                {
+                  "functionName": "callCallback2",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 3673,
+                  "columnNumber": 21
+                },
+                {
+                  "functionName": "invokeGuardedCallbackDev",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 3698,
+                  "columnNumber": 23
+                },
+                {
+                  "functionName": "invokeGuardedCallback",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 3732,
+                  "columnNumber": 38
+                },
+                {
+                  "functionName": "invokeGuardedCallbackAndCatchFirstError",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 3735,
+                  "columnNumber": 32
+                },
+                {
+                  "functionName": "executeDispatch",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7013,
+                  "columnNumber": 10
+                },
+                {
+                  "functionName": "processDispatchQueueItemsInOrder",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7033,
+                  "columnNumber": 14
+                },
+                {
+                  "functionName": "processDispatchQueue",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7042,
+                  "columnNumber": 12
+                },
+                {
+                  "functionName": "dispatchEventsForPlugins",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7050,
+                  "columnNumber": 10
+                },
+                {
+                  "functionName": "",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7173,
+                  "columnNumber": 19
+                },
+                {
+                  "functionName": "batchedUpdates$1",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 18912,
+                  "columnNumber": 19
+                },
+                {
+                  "functionName": "batchedUpdates",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 3578,
+                  "columnNumber": 19
+                },
+                {
+                  "functionName": "dispatchEventForPluginEventSystem",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7172,
+                  "columnNumber": 10
+                },
+                {
+                  "functionName": "dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 5477,
+                  "columnNumber": 12
+                },
+                {
+                  "functionName": "dispatchEvent",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 5471,
+                  "columnNumber": 12
+                },
+                {
+                  "functionName": "dispatchDiscreteEvent",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 5448,
+                  "columnNumber": 12
+                }
+              ]
+            }
+          }
+        },
+        "_priority": "High",
+        "_resourceType": "xhr",
+        "cache": {},
+        "connection": "5050",
+        "request": {
+          "method": "DELETE",
+          "url": "http://localhost:5050/api/properties/68fe984516b5902d3e938349",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7,pt-PT;q=0.6"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Host",
+              "value": "localhost:5050"
+            },
+            {
+              "name": "Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "name": "Referer",
+              "value": "http://localhost:5173/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 OPR/122.0.0.0"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Opera GX\";v=\"122\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            }
+          ],
+          "queryString": [],
+          "cookies": [],
+          "headersSize": 655,
+          "bodySize": 0
+        },
+        "response": {
+          "status": 404,
+          "statusText": "Not Found",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Content-Length",
+              "value": "181"
+            },
+            {
+              "name": "Content-Security-Policy",
+              "value": "default-src 'none'"
+            },
+            {
+              "name": "Content-Type",
+              "value": "text/html; charset=utf-8"
+            },
+            {
+              "name": "Date",
+              "value": "Sun, 26 Oct 2025 21:55:09 GMT"
+            },
+            {
+              "name": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "name": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "name": "X-Powered-By",
+              "value": "Express"
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "size": 181,
+            "mimeType": "text/html",
+            "compression": 0,
+            "text": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>Cannot DELETE /api/properties/68fe984516b5902d3e938349</pre>\n</body>\n</html>\n"
+          },
+          "redirectURL": "",
+          "headersSize": 304,
+          "bodySize": 181,
+          "_transferSize": 485,
+          "_error": null,
+          "_fetchedViaServiceWorker": false
+        },
+        "serverIPAddress": "[::1]",
+        "startedDateTime": "2025-10-26T21:55:09.102Z",
+        "time": 14.081000001169741,
+        "timings": {
+          "blocked": 11.631999911576509,
+          "dns": -1,
+          "ssl": -1,
+          "connect": -1,
+          "send": 0.17100000000000026,
+          "wait": 1.1449999606907366,
+          "receive": 1.133000128902495,
+          "_blocked_queueing": 9.13099991157651,
+          "_workerStart": -1,
+          "_workerReady": -1,
+          "_workerFetchStart": -1,
+          "_workerRespondWithSettled": -1
+        }
+      },
+      {
+        "_connectionId": "219332",
+        "_initiator": {
+          "type": "preflight",
+          "url": "http://localhost:5050/api/properties/68fe984516b5902d3e938349",
+          "requestId": "21956.2588"
+        },
+        "_priority": "High",
+        "_resourceType": "preflight",
+        "cache": {},
+        "connection": "5050",
+        "request": {
+          "method": "OPTIONS",
+          "url": "http://localhost:5050/api/properties/68fe984516b5902d3e938349",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "*/*"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7,pt-PT;q=0.6"
+            },
+            {
+              "name": "Access-Control-Request-Method",
+              "value": "DELETE"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Host",
+              "value": "localhost:5050"
+            },
+            {
+              "name": "Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "name": "Referer",
+              "value": "http://localhost:5173/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 OPR/122.0.0.0"
+            }
+          ],
+          "queryString": [],
+          "cookies": [],
+          "headersSize": 540,
+          "bodySize": 0
+        },
+        "response": {
+          "status": 204,
+          "statusText": "No Content",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Access-Control-Allow-Methods",
+              "value": "GET,HEAD,PUT,PATCH,POST,DELETE"
+            },
+            {
+              "name": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Content-Length",
+              "value": "0"
+            },
+            {
+              "name": "Date",
+              "value": "Sun, 26 Oct 2025 21:55:09 GMT"
+            },
+            {
+              "name": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "name": "Vary",
+              "value": "Access-Control-Request-Headers"
+            },
+            {
+              "name": "X-Powered-By",
+              "value": "Express"
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "size": 0,
+            "mimeType": "x-unknown",
+            "compression": 285
+          },
+          "redirectURL": "",
+          "headersSize": 285,
+          "bodySize": -285,
+          "_transferSize": 0,
+          "_error": null,
+          "_fetchedViaServiceWorker": false
+        },
+        "serverIPAddress": "[::1]",
+        "startedDateTime": "2025-10-26T21:55:09.108Z",
+        "time": 3.272000049240887,
+        "timings": {
+          "blocked": 1.5510000000000002,
+          "dns": -1,
+          "ssl": -1,
+          "connect": -1,
+          "send": 0.22699999999999987,
+          "wait": 0.7009999481290579,
+          "receive": 0.7930001011118293,
+          "_blocked_queueing": -1,
+          "_workerStart": -1,
+          "_workerReady": -1,
+          "_workerFetchStart": -1,
+          "_workerRespondWithSettled": -1
+        }
+      },
+      {
+        "_connectionId": "219375",
+        "_initiator": {
+          "type": "script",
+          "stack": {
+            "callFrames": [
+              {
+                "functionName": "dispatchXhrRequest",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 1682,
+                "columnNumber": 12
+              },
+              {
+                "functionName": "xhr",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 1559,
+                "columnNumber": 9
+              },
+              {
+                "functionName": "dispatchRequest",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 2084,
+                "columnNumber": 9
+              }
+            ],
+            "parent": {
+              "description": "Promise.then",
+              "callFrames": [
+                {
+                  "functionName": "_request",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2287,
+                  "columnNumber": 26
+                },
+                {
+                  "functionName": "request",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2196,
+                  "columnNumber": 24
+                },
+                {
+                  "functionName": "httpMethod",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2333,
+                  "columnNumber": 18
+                },
+                {
+                  "functionName": "wrap",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 7,
+                  "columnNumber": 14
+                },
+                {
+                  "functionName": "updateProperty",
+                  "scriptId": "1418",
+                  "url": "http://localhost:5173/src/services/propertyService.js?t=1761515116642",
+                  "lineNumber": 83,
+                  "columnNumber": 31
+                },
+                {
+                  "functionName": "onSubmit",
+                  "scriptId": "1397",
+                  "url": "http://localhost:5173/src/pages/PropertyEdit.jsx?t=1761515116642",
+                  "lineNumber": 79,
+                  "columnNumber": 12
+                },
+                {
+                  "functionName": "callCallback2",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 3673,
+                  "columnNumber": 21
+                },
+                {
+                  "functionName": "invokeGuardedCallbackDev",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 3698,
+                  "columnNumber": 23
+                },
+                {
+                  "functionName": "invokeGuardedCallback",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 3732,
+                  "columnNumber": 38
+                },
+                {
+                  "functionName": "invokeGuardedCallbackAndCatchFirstError",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 3735,
+                  "columnNumber": 32
+                },
+                {
+                  "functionName": "executeDispatch",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7013,
+                  "columnNumber": 10
+                },
+                {
+                  "functionName": "processDispatchQueueItemsInOrder",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7033,
+                  "columnNumber": 14
+                },
+                {
+                  "functionName": "processDispatchQueue",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7042,
+                  "columnNumber": 12
+                },
+                {
+                  "functionName": "dispatchEventsForPlugins",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7050,
+                  "columnNumber": 10
+                },
+                {
+                  "functionName": "",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7173,
+                  "columnNumber": 19
+                },
+                {
+                  "functionName": "batchedUpdates$1",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 18912,
+                  "columnNumber": 19
+                },
+                {
+                  "functionName": "batchedUpdates",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 3578,
+                  "columnNumber": 19
+                },
+                {
+                  "functionName": "dispatchEventForPluginEventSystem",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 7172,
+                  "columnNumber": 10
+                },
+                {
+                  "functionName": "dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 5477,
+                  "columnNumber": 12
+                },
+                {
+                  "functionName": "dispatchEvent",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 5471,
+                  "columnNumber": 12
+                },
+                {
+                  "functionName": "dispatchDiscreteEvent",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 5448,
+                  "columnNumber": 12
+                }
+              ]
+            }
+          }
+        },
+        "_priority": "High",
+        "_resourceType": "xhr",
+        "cache": {},
+        "connection": "5050",
+        "request": {
+          "method": "PATCH",
+          "url": "http://localhost:5050/api/properties/68fe984516b5902d3e938349",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7,pt-PT;q=0.6"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Content-Length",
+              "value": "200"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Host",
+              "value": "localhost:5050"
+            },
+            {
+              "name": "Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "name": "Referer",
+              "value": "http://localhost:5173/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 OPR/122.0.0.0"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Opera GX\";v=\"122\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            }
+          ],
+          "queryString": [],
+          "cookies": [],
+          "headersSize": 707,
+          "bodySize": 200,
+          "postData": {
+            "mimeType": "application/json",
+            "text": "{\"cep\":\"35171-172\",\"sqls\":\"12930423546793023\",\"street\":\"Rua Teste\",\"number\":\"10\",\"neighborhood\":\"Caladinho de baixo\",\"city\":\"Ipatinga\",\"state\":\"MG\",\"status\":\"Occupied\",\"district\":\"Caladinho de baixo\"}"
+          }
+        },
+        "response": {
+          "status": 200,
+          "statusText": "OK",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Content-Length",
+              "value": "444"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "name": "Date",
+              "value": "Sun, 26 Oct 2025 21:55:15 GMT"
+            },
+            {
+              "name": "ETag",
+              "value": "W/\"1bc-muSnp9zgCO0Zgkk87rkE1iYrFYU\""
+            },
+            {
+              "name": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "name": "X-Powered-By",
+              "value": "Express"
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "size": 444,
+            "mimeType": "application/json",
+            "compression": 0,
+            "text": "{\"_id\":\"68fe984516b5902d3e938349\",\"cep\":\"35171-172\",\"sqls\":\"12930423546793023\",\"street\":\"Rua Teste\",\"number\":\"10\",\"district\":\"Caladinho de baixo\",\"city\":\"Ipatinga\",\"state\":\"MG\",\"status\":\"Occupied\",\"documents\":[{\"name\":\"RelatÃ³rios do projeto de extensÃ£o - Entrega final.docx\",\"url\":\"/uploads/916dd55a9bd16812c4be9a37cbe36e06\",\"_id\":\"68fe984516b5902d3e93834a\"}],\"createdAt\":\"2025-10-26T21:53:09.352Z\",\"updatedAt\":\"2025-10-26T21:55:15.429Z\"}"
+          },
+          "redirectURL": "",
+          "headersSize": 269,
+          "bodySize": 444,
+          "_transferSize": 713,
+          "_error": null,
+          "_fetchedViaServiceWorker": false
+        },
+        "serverIPAddress": "[::1]",
+        "startedDateTime": "2025-10-26T21:55:15.406Z",
+        "time": 28.879999998025596,
+        "timings": {
+          "blocked": 21.723000018544496,
+          "dns": -1,
+          "ssl": -1,
+          "connect": -1,
+          "send": 0.16900000000000004,
+          "wait": 6.352000026106834,
+          "receive": 0.6359999533742666,
+          "_blocked_queueing": 19.312000018544495,
+          "_workerStart": -1,
+          "_workerReady": -1,
+          "_workerFetchStart": -1,
+          "_workerRespondWithSettled": -1
+        }
+      },
+      {
+        "_connectionId": "219375",
+        "_initiator": {
+          "type": "preflight",
+          "url": "http://localhost:5050/api/properties/68fe984516b5902d3e938349",
+          "requestId": "21956.2589"
+        },
+        "_priority": "High",
+        "_resourceType": "preflight",
+        "cache": {},
+        "connection": "5050",
+        "request": {
+          "method": "OPTIONS",
+          "url": "http://localhost:5050/api/properties/68fe984516b5902d3e938349",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "*/*"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7,pt-PT;q=0.6"
+            },
+            {
+              "name": "Access-Control-Request-Headers",
+              "value": "content-type"
+            },
+            {
+              "name": "Access-Control-Request-Method",
+              "value": "PATCH"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Host",
+              "value": "localhost:5050"
+            },
+            {
+              "name": "Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "name": "Referer",
+              "value": "http://localhost:5173/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 OPR/122.0.0.0"
+            }
+          ],
+          "queryString": [],
+          "cookies": [],
+          "headersSize": 585,
+          "bodySize": 0
+        },
+        "response": {
+          "status": 204,
+          "statusText": "No Content",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Access-Control-Allow-Headers",
+              "value": "content-type"
+            },
+            {
+              "name": "Access-Control-Allow-Methods",
+              "value": "GET,HEAD,PUT,PATCH,POST,DELETE"
+            },
+            {
+              "name": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Content-Length",
+              "value": "0"
+            },
+            {
+              "name": "Date",
+              "value": "Sun, 26 Oct 2025 21:55:15 GMT"
+            },
+            {
+              "name": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "name": "Vary",
+              "value": "Access-Control-Request-Headers"
+            },
+            {
+              "name": "X-Powered-By",
+              "value": "Express"
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "size": 0,
+            "mimeType": "x-unknown",
+            "compression": 329
+          },
+          "redirectURL": "",
+          "headersSize": 329,
+          "bodySize": -329,
+          "_transferSize": 0,
+          "_error": null,
+          "_fetchedViaServiceWorker": false
+        },
+        "serverIPAddress": "[::1]",
+        "startedDateTime": "2025-10-26T21:55:15.418Z",
+        "time": 6.235000059068203,
+        "timings": {
+          "blocked": 3.2939999999999996,
+          "dns": 0.01100000000000012,
+          "ssl": -1,
+          "connect": 0.5980000000000008,
+          "send": 0.3069999999999995,
+          "wait": 0.9320000019147994,
+          "receive": 1.0930000571534038,
+          "_blocked_queueing": -1,
+          "_workerStart": -1,
+          "_workerReady": -1,
+          "_workerFetchStart": -1,
+          "_workerRespondWithSettled": -1
+        }
+      },
+      {
+        "_connectionId": "219375",
+        "_initiator": {
+          "type": "script",
+          "stack": {
+            "callFrames": [
+              {
+                "functionName": "dispatchXhrRequest",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 1682,
+                "columnNumber": 12
+              },
+              {
+                "functionName": "xhr",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 1559,
+                "columnNumber": 9
+              },
+              {
+                "functionName": "dispatchRequest",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 2084,
+                "columnNumber": 9
+              }
+            ],
+            "parent": {
+              "description": "Promise.then",
+              "callFrames": [
+                {
+                  "functionName": "_request",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2287,
+                  "columnNumber": 26
+                },
+                {
+                  "functionName": "request",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2196,
+                  "columnNumber": 24
+                },
+                {
+                  "functionName": "Axios.<computed>",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2323,
+                  "columnNumber": 16
+                },
+                {
+                  "functionName": "wrap",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 7,
+                  "columnNumber": 14
+                },
+                {
+                  "functionName": "listProperties",
+                  "scriptId": "1418",
+                  "url": "http://localhost:5173/src/services/propertyService.js?t=1761515116642",
+                  "lineNumber": 29,
+                  "columnNumber": 29
+                },
+                {
+                  "functionName": "fetchData",
+                  "scriptId": "1393",
+                  "url": "http://localhost:5173/src/pages/PropertiesList.jsx?t=1761515116642",
+                  "lineNumber": 28,
+                  "columnNumber": 25
+                },
+                {
+                  "functionName": "",
+                  "scriptId": "1393",
+                  "url": "http://localhost:5173/src/pages/PropertiesList.jsx?t=1761515116642",
+                  "lineNumber": 37,
+                  "columnNumber": 4
+                },
+                {
+                  "functionName": "commitHookEffectListMount",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 16914,
+                  "columnNumber": 33
+                },
+                {
+                  "functionName": "commitPassiveMountOnFiber",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 18155,
+                  "columnNumber": 18
+                },
+                {
+                  "functionName": "commitPassiveMountEffects_complete",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 18128,
+                  "columnNumber": 16
+                },
+                {
+                  "functionName": "commitPassiveMountEffects_begin",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 18118,
+                  "columnNumber": 14
+                },
+                {
+                  "functionName": "commitPassiveMountEffects",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 18108,
+                  "columnNumber": 10
+                },
+                {
+                  "functionName": "flushPassiveEffectsImpl",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 19489,
+                  "columnNumber": 10
+                },
+                {
+                  "functionName": "flushPassiveEffects",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 19446,
+                  "columnNumber": 21
+                },
+                {
+                  "functionName": "",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 19327,
+                  "columnNumber": 16
+                },
+                {
+                  "functionName": "workLoop",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 196,
+                  "columnNumber": 41
+                },
+                {
+                  "functionName": "flushWork",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 175,
+                  "columnNumber": 21
+                },
+                {
+                  "functionName": "performWorkUntilDeadline",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 383,
+                  "columnNumber": 28
+                }
+              ],
+              "parentId": {
+                "id": "239",
+                "debuggerId": "3229405656703080482.8171339745129487643"
+              }
+            }
+          }
+        },
+        "_priority": "High",
+        "_resourceType": "xhr",
+        "cache": {},
+        "connection": "5050",
+        "request": {
+          "method": "GET",
+          "url": "http://localhost:5050/api/properties?q=",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7,pt-PT;q=0.6"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Host",
+              "value": "localhost:5050"
+            },
+            {
+              "name": "If-None-Match",
+              "value": "W/\"549-EuwMbY0kzZBu0DK9Rjgz7dlNJ6M\""
+            },
+            {
+              "name": "Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "name": "Referer",
+              "value": "http://localhost:5173/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 OPR/122.0.0.0"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Opera GX\";v=\"122\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            }
+          ],
+          "queryString": [
+            {
+              "name": "q",
+              "value": ""
+            }
+          ],
+          "cookies": [],
+          "headersSize": 682,
+          "bodySize": 0
+        },
+        "response": {
+          "status": 200,
+          "statusText": "OK",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Content-Length",
+              "value": "1353"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "name": "Date",
+              "value": "Sun, 26 Oct 2025 21:55:15 GMT"
+            },
+            {
+              "name": "ETag",
+              "value": "W/\"549-sbtuKR2x1xcfrpucqz8e+4SYa0o\""
+            },
+            {
+              "name": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "name": "X-Powered-By",
+              "value": "Express"
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "size": 1353,
+            "mimeType": "application/json",
+            "compression": 0,
+            "text": "{\"items\":[{\"_id\":\"68fe984516b5902d3e938349\",\"cep\":\"35171-172\",\"sqls\":\"12930423546793023\",\"street\":\"Rua Teste\",\"number\":\"10\",\"district\":\"Caladinho de baixo\",\"city\":\"Ipatinga\",\"state\":\"MG\",\"status\":\"Occupied\",\"documents\":[{\"name\":\"RelatÃ³rios do projeto de extensÃ£o - Entrega final.docx\",\"url\":\"/uploads/916dd55a9bd16812c4be9a37cbe36e06\",\"_id\":\"68fe984516b5902d3e93834a\"}],\"createdAt\":\"2025-10-26T21:53:09.352Z\",\"updatedAt\":\"2025-10-26T21:55:15.429Z\"},{\"_id\":\"68e287da4d7a5531d0317159\",\"cep\":\"35160-133\",\"sqls\":\"123456\",\"street\":\"Rua Teste\",\"number\":\"10\",\"district\":\"Centro\",\"city\":\"Ipatinga\",\"state\":\"MG\",\"status\":\"Available\",\"documents\":[],\"createdAt\":\"2025-10-05T14:59:38.445Z\",\"updatedAt\":\"2025-10-05T14:59:38.445Z\"},{\"_id\":\"68e27f4066862847f29a71fb\",\"cep\":\"35160-133\",\"sqls\":\"129304...\",\"street\":\"Quênia\",\"number\":\"70\",\"district\":\"Cariru\",\"city\":\"Ipatinga\",\"state\":\"MG\",\"status\":\"Available\",\"documents\":[],\"createdAt\":\"2025-10-05T14:22:56.031Z\",\"updatedAt\":\"2025-10-05T14:22:56.031Z\",\"__v\":0},{\"_id\":\"68e1c221c155b88b4373f7d3\",\"cep\":\"35160-133\",\"sqls\":\"12930423546793023\",\"street\":\"Quênia\",\"number\":\"72\",\"district\":\"Cariru\",\"city\":\"Ipatinga\",\"state\":\"Minas Gerais\",\"status\":\"Occupied\",\"documents\":[],\"createdAt\":\"2025-10-05T00:56:01.314Z\",\"updatedAt\":\"2025-10-05T14:29:59.334Z\",\"__v\":0}],\"pagination\":{\"page\":1,\"limit\":20,\"total\":4,\"pages\":1}}"
+          },
+          "redirectURL": "",
+          "headersSize": 270,
+          "bodySize": 1353,
+          "_transferSize": 1623,
+          "_error": null,
+          "_fetchedViaServiceWorker": false
+        },
+        "serverIPAddress": "[::1]",
+        "startedDateTime": "2025-10-26T21:55:15.451Z",
+        "time": 29.839999973773956,
+        "timings": {
+          "blocked": 12.778000006385149,
+          "dns": -1,
+          "ssl": -1,
+          "connect": -1,
+          "send": 0.2109999999999994,
+          "wait": 11.869999990992248,
+          "receive": 4.980999976396561,
+          "_blocked_queueing": 5.306000006385148,
+          "_workerStart": -1,
+          "_workerReady": -1,
+          "_workerFetchStart": -1,
+          "_workerRespondWithSettled": -1
+        }
+      },
+      {
+        "_connectionId": "219394",
+        "_initiator": {
+          "type": "script",
+          "stack": {
+            "callFrames": [
+              {
+                "functionName": "dispatchXhrRequest",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 1682,
+                "columnNumber": 12
+              },
+              {
+                "functionName": "xhr",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 1559,
+                "columnNumber": 9
+              },
+              {
+                "functionName": "dispatchRequest",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 2084,
+                "columnNumber": 9
+              }
+            ],
+            "parent": {
+              "description": "Promise.then",
+              "callFrames": [
+                {
+                  "functionName": "_request",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2287,
+                  "columnNumber": 26
+                },
+                {
+                  "functionName": "request",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2196,
+                  "columnNumber": 24
+                },
+                {
+                  "functionName": "Axios.<computed>",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2323,
+                  "columnNumber": 16
+                },
+                {
+                  "functionName": "wrap",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 7,
+                  "columnNumber": 14
+                },
+                {
+                  "functionName": "listProperties",
+                  "scriptId": "1418",
+                  "url": "http://localhost:5173/src/services/propertyService.js?t=1761515116642",
+                  "lineNumber": 29,
+                  "columnNumber": 29
+                },
+                {
+                  "functionName": "fetchData",
+                  "scriptId": "1393",
+                  "url": "http://localhost:5173/src/pages/PropertiesList.jsx?t=1761515116642",
+                  "lineNumber": 28,
+                  "columnNumber": 25
+                },
+                {
+                  "functionName": "",
+                  "scriptId": "1393",
+                  "url": "http://localhost:5173/src/pages/PropertiesList.jsx?t=1761515116642",
+                  "lineNumber": 37,
+                  "columnNumber": 4
+                },
+                {
+                  "functionName": "commitHookEffectListMount",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 16914,
+                  "columnNumber": 33
+                },
+                {
+                  "functionName": "invokePassiveEffectMountInDEV",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 18323,
+                  "columnNumber": 18
+                },
+                {
+                  "functionName": "invokeEffectsInDev",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 19700,
+                  "columnNumber": 18
+                },
+                {
+                  "functionName": "commitDoubleInvokeEffectsInDEV",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 19685,
+                  "columnNumber": 14
+                },
+                {
+                  "functionName": "flushPassiveEffectsImpl",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 19502,
+                  "columnNumber": 12
+                },
+                {
+                  "functionName": "flushPassiveEffects",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 19446,
+                  "columnNumber": 21
+                },
+                {
+                  "functionName": "",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 19327,
+                  "columnNumber": 16
+                },
+                {
+                  "functionName": "workLoop",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 196,
+                  "columnNumber": 41
+                },
+                {
+                  "functionName": "flushWork",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 175,
+                  "columnNumber": 21
+                },
+                {
+                  "functionName": "performWorkUntilDeadline",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 383,
+                  "columnNumber": 28
+                }
+              ],
+              "parentId": {
+                "id": "239",
+                "debuggerId": "3229405656703080482.8171339745129487643"
+              }
+            }
+          }
+        },
+        "_priority": "High",
+        "_resourceType": "xhr",
+        "cache": {},
+        "connection": "5050",
+        "request": {
+          "method": "GET",
+          "url": "http://localhost:5050/api/properties?q=",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7,pt-PT;q=0.6"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Host",
+              "value": "localhost:5050"
+            },
+            {
+              "name": "If-None-Match",
+              "value": "W/\"549-sbtuKR2x1xcfrpucqz8e+4SYa0o\""
+            },
+            {
+              "name": "Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "name": "Referer",
+              "value": "http://localhost:5173/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 OPR/122.0.0.0"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Opera GX\";v=\"122\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            }
+          ],
+          "queryString": [
+            {
+              "name": "q",
+              "value": ""
+            }
+          ],
+          "cookies": [],
+          "headersSize": 682,
+          "bodySize": 0
+        },
+        "response": {
+          "status": 200,
+          "statusText": "OK",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "name": "Content-Length",
+              "value": "1353"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "name": "Date",
+              "value": "Sun, 26 Oct 2025 21:55:15 GMT"
+            },
+            {
+              "name": "ETag",
+              "value": "W/\"549-sbtuKR2x1xcfrpucqz8e+4SYa0o\""
+            },
+            {
+              "name": "X-Powered-By",
+              "value": "Express"
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "size": 1353,
+            "mimeType": "application/json",
+            "compression": 1365,
+            "text": "{\"items\":[{\"_id\":\"68fe984516b5902d3e938349\",\"cep\":\"35171-172\",\"sqls\":\"12930423546793023\",\"street\":\"Rua Teste\",\"number\":\"10\",\"district\":\"Caladinho de baixo\",\"city\":\"Ipatinga\",\"state\":\"MG\",\"status\":\"Occupied\",\"documents\":[{\"name\":\"RelatÃ³rios do projeto de extensÃ£o - Entrega final.docx\",\"url\":\"/uploads/916dd55a9bd16812c4be9a37cbe36e06\",\"_id\":\"68fe984516b5902d3e93834a\"}],\"createdAt\":\"2025-10-26T21:53:09.352Z\",\"updatedAt\":\"2025-10-26T21:55:15.429Z\"},{\"_id\":\"68e287da4d7a5531d0317159\",\"cep\":\"35160-133\",\"sqls\":\"123456\",\"street\":\"Rua Teste\",\"number\":\"10\",\"district\":\"Centro\",\"city\":\"Ipatinga\",\"state\":\"MG\",\"status\":\"Available\",\"documents\":[],\"createdAt\":\"2025-10-05T14:59:38.445Z\",\"updatedAt\":\"2025-10-05T14:59:38.445Z\"},{\"_id\":\"68e27f4066862847f29a71fb\",\"cep\":\"35160-133\",\"sqls\":\"129304...\",\"street\":\"Quênia\",\"number\":\"70\",\"district\":\"Cariru\",\"city\":\"Ipatinga\",\"state\":\"MG\",\"status\":\"Available\",\"documents\":[],\"createdAt\":\"2025-10-05T14:22:56.031Z\",\"updatedAt\":\"2025-10-05T14:22:56.031Z\",\"__v\":0},{\"_id\":\"68e1c221c155b88b4373f7d3\",\"cep\":\"35160-133\",\"sqls\":\"12930423546793023\",\"street\":\"Quênia\",\"number\":\"72\",\"district\":\"Cariru\",\"city\":\"Ipatinga\",\"state\":\"Minas Gerais\",\"status\":\"Occupied\",\"documents\":[],\"createdAt\":\"2025-10-05T00:56:01.314Z\",\"updatedAt\":\"2025-10-05T14:29:59.334Z\",\"__v\":0}],\"pagination\":{\"page\":1,\"limit\":20,\"total\":4,\"pages\":1}}"
+          },
+          "redirectURL": "",
+          "headersSize": 223,
+          "bodySize": -12,
+          "_transferSize": 211,
+          "_error": null,
+          "_fetchedViaServiceWorker": false
+        },
+        "serverIPAddress": "[::1]",
+        "startedDateTime": "2025-10-26T21:55:15.451Z",
+        "time": 43.40699999535084,
+        "timings": {
+          "blocked": 24.25700005592406,
+          "dns": 0.04899999999999949,
+          "ssl": -1,
+          "connect": 0.6869999999999976,
+          "send": 0.36599999999999966,
+          "wait": 7.773000048018993,
+          "receive": 10.274999891407788,
+          "_blocked_queueing": 6.398000055924058,
+          "_workerStart": -1,
+          "_workerReady": -1,
+          "_workerFetchStart": -1,
+          "_workerRespondWithSettled": -1
+        }
+      },
+      {
+        "_connectionId": "219394",
+        "_initiator": {
+          "type": "script",
+          "stack": {
+            "callFrames": [
+              {
+                "functionName": "dispatchXhrRequest",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 1682,
+                "columnNumber": 12
+              },
+              {
+                "functionName": "xhr",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 1559,
+                "columnNumber": 9
+              },
+              {
+                "functionName": "dispatchRequest",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 2084,
+                "columnNumber": 9
+              }
+            ],
+            "parent": {
+              "description": "Promise.then",
+              "callFrames": [
+                {
+                  "functionName": "_request",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2287,
+                  "columnNumber": 26
+                },
+                {
+                  "functionName": "request",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2196,
+                  "columnNumber": 24
+                },
+                {
+                  "functionName": "Axios.<computed>",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2323,
+                  "columnNumber": 16
+                },
+                {
+                  "functionName": "wrap",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 7,
+                  "columnNumber": 14
+                },
+                {
+                  "functionName": "listProperties",
+                  "scriptId": "1418",
+                  "url": "http://localhost:5173/src/services/propertyService.js?t=1761515116642",
+                  "lineNumber": 29,
+                  "columnNumber": 29
+                },
+                {
+                  "functionName": "fetchData",
+                  "scriptId": "1393",
+                  "url": "http://localhost:5173/src/pages/PropertiesList.jsx?t=1761515116642",
+                  "lineNumber": 28,
+                  "columnNumber": 25
+                },
+                {
+                  "functionName": "",
+                  "scriptId": "1393",
+                  "url": "http://localhost:5173/src/pages/PropertiesList.jsx?t=1761515116642",
+                  "lineNumber": 37,
+                  "columnNumber": 4
+                },
+                {
+                  "functionName": "commitHookEffectListMount",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 16914,
+                  "columnNumber": 33
+                },
+                {
+                  "functionName": "commitPassiveMountOnFiber",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 18155,
+                  "columnNumber": 18
+                },
+                {
+                  "functionName": "commitPassiveMountEffects_complete",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 18128,
+                  "columnNumber": 16
+                },
+                {
+                  "functionName": "commitPassiveMountEffects_begin",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 18118,
+                  "columnNumber": 14
+                },
+                {
+                  "functionName": "commitPassiveMountEffects",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 18108,
+                  "columnNumber": 10
+                },
+                {
+                  "functionName": "flushPassiveEffectsImpl",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 19489,
+                  "columnNumber": 10
+                },
+                {
+                  "functionName": "flushPassiveEffects",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 19446,
+                  "columnNumber": 21
+                },
+                {
+                  "functionName": "",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 19327,
+                  "columnNumber": 16
+                },
+                {
+                  "functionName": "workLoop",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 196,
+                  "columnNumber": 41
+                },
+                {
+                  "functionName": "flushWork",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 175,
+                  "columnNumber": 21
+                },
+                {
+                  "functionName": "performWorkUntilDeadline",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 383,
+                  "columnNumber": 28
+                }
+              ],
+              "parentId": {
+                "id": "244",
+                "debuggerId": "3229405656703080482.8171339745129487643"
+              }
+            }
+          }
+        },
+        "_priority": "High",
+        "_resourceType": "xhr",
+        "cache": {},
+        "connection": "5050",
+        "request": {
+          "method": "GET",
+          "url": "http://localhost:5050/api/properties?q=",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7,pt-PT;q=0.6"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Host",
+              "value": "localhost:5050"
+            },
+            {
+              "name": "If-None-Match",
+              "value": "W/\"549-sbtuKR2x1xcfrpucqz8e+4SYa0o\""
+            },
+            {
+              "name": "Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "name": "Referer",
+              "value": "http://localhost:5173/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 OPR/122.0.0.0"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Opera GX\";v=\"122\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            }
+          ],
+          "queryString": [
+            {
+              "name": "q",
+              "value": ""
+            }
+          ],
+          "cookies": [],
+          "headersSize": 682,
+          "bodySize": 0
+        },
+        "response": {
+          "status": 200,
+          "statusText": "OK",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "name": "Content-Length",
+              "value": "1353"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "name": "Date",
+              "value": "Sun, 26 Oct 2025 21:55:15 GMT"
+            },
+            {
+              "name": "ETag",
+              "value": "W/\"549-sbtuKR2x1xcfrpucqz8e+4SYa0o\""
+            },
+            {
+              "name": "X-Powered-By",
+              "value": "Express"
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "size": 1353,
+            "mimeType": "application/json",
+            "compression": 1365,
+            "text": "{\"items\":[{\"_id\":\"68fe984516b5902d3e938349\",\"cep\":\"35171-172\",\"sqls\":\"12930423546793023\",\"street\":\"Rua Teste\",\"number\":\"10\",\"district\":\"Caladinho de baixo\",\"city\":\"Ipatinga\",\"state\":\"MG\",\"status\":\"Occupied\",\"documents\":[{\"name\":\"RelatÃ³rios do projeto de extensÃ£o - Entrega final.docx\",\"url\":\"/uploads/916dd55a9bd16812c4be9a37cbe36e06\",\"_id\":\"68fe984516b5902d3e93834a\"}],\"createdAt\":\"2025-10-26T21:53:09.352Z\",\"updatedAt\":\"2025-10-26T21:55:15.429Z\"},{\"_id\":\"68e287da4d7a5531d0317159\",\"cep\":\"35160-133\",\"sqls\":\"123456\",\"street\":\"Rua Teste\",\"number\":\"10\",\"district\":\"Centro\",\"city\":\"Ipatinga\",\"state\":\"MG\",\"status\":\"Available\",\"documents\":[],\"createdAt\":\"2025-10-05T14:59:38.445Z\",\"updatedAt\":\"2025-10-05T14:59:38.445Z\"},{\"_id\":\"68e27f4066862847f29a71fb\",\"cep\":\"35160-133\",\"sqls\":\"129304...\",\"street\":\"Quênia\",\"number\":\"70\",\"district\":\"Cariru\",\"city\":\"Ipatinga\",\"state\":\"MG\",\"status\":\"Available\",\"documents\":[],\"createdAt\":\"2025-10-05T14:22:56.031Z\",\"updatedAt\":\"2025-10-05T14:22:56.031Z\",\"__v\":0},{\"_id\":\"68e1c221c155b88b4373f7d3\",\"cep\":\"35160-133\",\"sqls\":\"12930423546793023\",\"street\":\"Quênia\",\"number\":\"72\",\"district\":\"Cariru\",\"city\":\"Ipatinga\",\"state\":\"Minas Gerais\",\"status\":\"Occupied\",\"documents\":[],\"createdAt\":\"2025-10-05T00:56:01.314Z\",\"updatedAt\":\"2025-10-05T14:29:59.334Z\",\"__v\":0}],\"pagination\":{\"page\":1,\"limit\":20,\"total\":4,\"pages\":1}}"
+          },
+          "redirectURL": "",
+          "headersSize": 223,
+          "bodySize": -12,
+          "_transferSize": 211,
+          "_error": null,
+          "_fetchedViaServiceWorker": false
+        },
+        "serverIPAddress": "[::1]",
+        "startedDateTime": "2025-10-26T21:55:15.765Z",
+        "time": 13.707999954931438,
+        "timings": {
+          "blocked": 6.298999954558909,
+          "dns": -1,
+          "ssl": -1,
+          "connect": -1,
+          "send": 0.15399999999999991,
+          "wait": 6.042999968416989,
+          "receive": 1.2120000319555402,
+          "_blocked_queueing": 2.057999954558909,
+          "_workerStart": -1,
+          "_workerReady": -1,
+          "_workerFetchStart": -1,
+          "_workerRespondWithSettled": -1
+        }
+      },
+      {
+        "_connectionId": "219394",
+        "_initiator": {
+          "type": "script",
+          "stack": {
+            "callFrames": [
+              {
+                "functionName": "dispatchXhrRequest",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 1682,
+                "columnNumber": 12
+              },
+              {
+                "functionName": "xhr",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 1559,
+                "columnNumber": 9
+              },
+              {
+                "functionName": "dispatchRequest",
+                "scriptId": "1407",
+                "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                "lineNumber": 2084,
+                "columnNumber": 9
+              }
+            ],
+            "parent": {
+              "description": "Promise.then",
+              "callFrames": [
+                {
+                  "functionName": "_request",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2287,
+                  "columnNumber": 26
+                },
+                {
+                  "functionName": "request",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2196,
+                  "columnNumber": 24
+                },
+                {
+                  "functionName": "Axios.<computed>",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 2323,
+                  "columnNumber": 16
+                },
+                {
+                  "functionName": "wrap",
+                  "scriptId": "1407",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/axios.js?v=0305b55c",
+                  "lineNumber": 7,
+                  "columnNumber": 14
+                },
+                {
+                  "functionName": "listProperties",
+                  "scriptId": "1418",
+                  "url": "http://localhost:5173/src/services/propertyService.js?t=1761515116642",
+                  "lineNumber": 29,
+                  "columnNumber": 29
+                },
+                {
+                  "functionName": "fetchData",
+                  "scriptId": "1393",
+                  "url": "http://localhost:5173/src/pages/PropertiesList.jsx?t=1761515116642",
+                  "lineNumber": 28,
+                  "columnNumber": 25
+                },
+                {
+                  "functionName": "",
+                  "scriptId": "1393",
+                  "url": "http://localhost:5173/src/pages/PropertiesList.jsx?t=1761515116642",
+                  "lineNumber": 37,
+                  "columnNumber": 4
+                },
+                {
+                  "functionName": "commitHookEffectListMount",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 16914,
+                  "columnNumber": 33
+                },
+                {
+                  "functionName": "invokePassiveEffectMountInDEV",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 18323,
+                  "columnNumber": 18
+                },
+                {
+                  "functionName": "invokeEffectsInDev",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 19700,
+                  "columnNumber": 18
+                },
+                {
+                  "functionName": "commitDoubleInvokeEffectsInDEV",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 19685,
+                  "columnNumber": 14
+                },
+                {
+                  "functionName": "flushPassiveEffectsImpl",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 19502,
+                  "columnNumber": 12
+                },
+                {
+                  "functionName": "flushPassiveEffects",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 19446,
+                  "columnNumber": 21
+                },
+                {
+                  "functionName": "",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 19327,
+                  "columnNumber": 16
+                },
+                {
+                  "functionName": "workLoop",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 196,
+                  "columnNumber": 41
+                },
+                {
+                  "functionName": "flushWork",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 175,
+                  "columnNumber": 21
+                },
+                {
+                  "functionName": "performWorkUntilDeadline",
+                  "scriptId": "1384",
+                  "url": "http://localhost:5173/node_modules/.vite/deps/chunk-6GSFWH52.js?v=0305b55c",
+                  "lineNumber": 383,
+                  "columnNumber": 28
+                }
+              ],
+              "parentId": {
+                "id": "244",
+                "debuggerId": "3229405656703080482.8171339745129487643"
+              }
+            }
+          }
+        },
+        "_priority": "High",
+        "_resourceType": "xhr",
+        "cache": {},
+        "connection": "5050",
+        "request": {
+          "method": "GET",
+          "url": "http://localhost:5050/api/properties?q=",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json, text/plain, */*"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7,pt-PT;q=0.6"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Host",
+              "value": "localhost:5050"
+            },
+            {
+              "name": "If-None-Match",
+              "value": "W/\"549-sbtuKR2x1xcfrpucqz8e+4SYa0o\""
+            },
+            {
+              "name": "Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "name": "Referer",
+              "value": "http://localhost:5173/"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 OPR/122.0.0.0"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Opera GX\";v=\"122\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            }
+          ],
+          "queryString": [
+            {
+              "name": "q",
+              "value": ""
+            }
+          ],
+          "cookies": [],
+          "headersSize": 682,
+          "bodySize": 0
+        },
+        "response": {
+          "status": 200,
+          "statusText": "OK",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "name": "Content-Length",
+              "value": "1353"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "name": "Date",
+              "value": "Sun, 26 Oct 2025 21:55:15 GMT"
+            },
+            {
+              "name": "ETag",
+              "value": "W/\"549-sbtuKR2x1xcfrpucqz8e+4SYa0o\""
+            },
+            {
+              "name": "X-Powered-By",
+              "value": "Express"
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "size": 1353,
+            "mimeType": "application/json",
+            "compression": 1365,
+            "text": "{\"items\":[{\"_id\":\"68fe984516b5902d3e938349\",\"cep\":\"35171-172\",\"sqls\":\"12930423546793023\",\"street\":\"Rua Teste\",\"number\":\"10\",\"district\":\"Caladinho de baixo\",\"city\":\"Ipatinga\",\"state\":\"MG\",\"status\":\"Occupied\",\"documents\":[{\"name\":\"RelatÃ³rios do projeto de extensÃ£o - Entrega final.docx\",\"url\":\"/uploads/916dd55a9bd16812c4be9a37cbe36e06\",\"_id\":\"68fe984516b5902d3e93834a\"}],\"createdAt\":\"2025-10-26T21:53:09.352Z\",\"updatedAt\":\"2025-10-26T21:55:15.429Z\"},{\"_id\":\"68e287da4d7a5531d0317159\",\"cep\":\"35160-133\",\"sqls\":\"123456\",\"street\":\"Rua Teste\",\"number\":\"10\",\"district\":\"Centro\",\"city\":\"Ipatinga\",\"state\":\"MG\",\"status\":\"Available\",\"documents\":[],\"createdAt\":\"2025-10-05T14:59:38.445Z\",\"updatedAt\":\"2025-10-05T14:59:38.445Z\"},{\"_id\":\"68e27f4066862847f29a71fb\",\"cep\":\"35160-133\",\"sqls\":\"129304...\",\"street\":\"Quênia\",\"number\":\"70\",\"district\":\"Cariru\",\"city\":\"Ipatinga\",\"state\":\"MG\",\"status\":\"Available\",\"documents\":[],\"createdAt\":\"2025-10-05T14:22:56.031Z\",\"updatedAt\":\"2025-10-05T14:22:56.031Z\",\"__v\":0},{\"_id\":\"68e1c221c155b88b4373f7d3\",\"cep\":\"35160-133\",\"sqls\":\"12930423546793023\",\"street\":\"Quênia\",\"number\":\"72\",\"district\":\"Cariru\",\"city\":\"Ipatinga\",\"state\":\"Minas Gerais\",\"status\":\"Occupied\",\"documents\":[],\"createdAt\":\"2025-10-05T00:56:01.314Z\",\"updatedAt\":\"2025-10-05T14:29:59.334Z\",\"__v\":0}],\"pagination\":{\"page\":1,\"limit\":20,\"total\":4,\"pages\":1}}"
+          },
+          "redirectURL": "",
+          "headersSize": 223,
+          "bodySize": -12,
+          "_transferSize": 211,
+          "_error": null,
+          "_fetchedViaServiceWorker": false
+        },
+        "serverIPAddress": "[::1]",
+        "startedDateTime": "2025-10-26T21:55:15.765Z",
+        "time": 19.21499997843057,
+        "timings": {
+          "blocked": 12.345999985337258,
+          "dns": -1,
+          "ssl": -1,
+          "connect": -1,
+          "send": 0.2110000000000003,
+          "wait": 5.66399999128282,
+          "receive": 0.9940000018104911,
+          "_blocked_queueing": 3.3309999853372574,
+          "_workerStart": -1,
+          "_workerReady": -1,
+          "_workerFetchStart": -1,
+          "_workerRespondWithSettled": -1
+        }
+      }
+    ]
+  }
+}
