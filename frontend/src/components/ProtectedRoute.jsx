@@ -2,12 +2,17 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 export default function ProtectedRoute({ children }) {
-  // --- MODIFICAÇÃO TEMPORÁRIA ---
-  // A linha original foi comentada para desabilitar a verificação de login.
-  // const token = localStorage.getItem('token');
-  // return token ? children : <Navigate to="/" replace />; 
+  // --- LÓGICA DE LOGIN REATIVADA ---
+  
+  // 1. Busca o token no localStorage
+  const token = localStorage.getItem('token');
 
-  // Agora, sempre permite o acesso, renderizando a página filha.
-  return children; 
+  // 2. Verifica o token:
+  //    - Se existir (truthy), renderiza o componente filho (children).
+  //    - Se não existir (falsy), redireciona para a rota "/" (Login).
+  return token ? children : <Navigate to="/" replace />;
+
+  // --- MODIFICAÇÃO TEMPORÁRIA REMOVIDA ---
+  // return children; 
   // --- FIM DA MODIFICAÇÃO TEMPORÁRIA ---
 }

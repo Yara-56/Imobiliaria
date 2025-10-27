@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { listContracts } from '../services/contractService';
+import { listContracts } from '../../services/contractService';
 import { Link } from 'react-router-dom';
 
 export default function Contracts() {

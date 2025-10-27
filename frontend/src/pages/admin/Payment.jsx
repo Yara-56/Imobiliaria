@@ -6,7 +6,7 @@ import {
   faDownload,
   faEnvelope,
 } from '@fortawesome/free-solid-svg-icons';
-import { listTenants } from '../services/tenantService';
+import { listTenants } from '../../services/tenantService';
 
 export default function Payment() {
   const [step, setStep] = useState(1);

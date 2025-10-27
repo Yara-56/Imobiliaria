@@ -1,14 +1,15 @@
-import React, { createContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // 1. Importe o useNavigate
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
-// Exporta o Context para o hook poder usar
+// 1. Exporta o Context para o hook e o provider poderem usar
 export const AuthContext = createContext(null);
 
+// 2. Exporta o Provider (o componente que gerencia a autenticação)
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [isReady, setIsReady] = useState(false);
-  const navigate = useNavigate(); // 2. Use o hook
+  const [isReady, setIsReady] = useState(false); // Estado para saber se já verificou o token
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Roda só uma vez para verificar se já existe uma sessão salva
@@ -33,7 +34,7 @@ export function AuthProvider({ children }) {
     };
 
     checkUserSession();
-  }, []);
+  }, []); // O array vazio [] garante que isso rode só uma vez
 
   const login = (userData, token) => {
     localStorage.setItem('user', JSON.stringify(userData));
@@ -47,22 +48,36 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('token');
     delete api.defaults.headers.common['Authorization'];
     setUser(null);
-    navigate('/login'); // 3. Redireciona para o login no logout!
+    navigate('/admin/login'); // Redireciona para o login do admin
   };
 
-  const isAuthenticated = !!user;
+  const isAuthenticated = !!user; // Converte o 'user' (objeto ou null) para true/false
 
+  // Valores que serão compartilhados com toda a aplicação
   const value = {
     user,
     login,
     logout,
     isAuthenticated,
-    isReady,
+    isReady, // Compartilha o 'isReady' para o ProtectedRoute usar
   };
 
   return (
+    // Esta parte está correta. Não tem <BrowserRouter> aqui.
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 }
+
+// 3. Exporta o Hook (o atalho para consumir o contexto)
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    // Isso acontece se você tentar usar o useAuth fora do AuthProvider
+    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
+  }
+
+  return context;
+};

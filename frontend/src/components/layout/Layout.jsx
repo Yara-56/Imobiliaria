@@ -1,8 +1,9 @@
 import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import Menu from "./Menu";
-import Topbar from "./Topbar";
+import Menu from "../Menu";
+// 🚨 CORREÇÃO DE CAMINHO: Apontando para components/admin/Topbar
+import Topbar from "../components/admin/Topbar"; 
 
 export default function Layout() {
   const location = useLocation();

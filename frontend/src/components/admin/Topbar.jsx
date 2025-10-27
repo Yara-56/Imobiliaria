@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-// AQUI ESTAVA O ERRO -> O caminho foi corrigido para a pasta 'hooks'
-import { useAuth } from '../hooks/useAuth';
+// ✅ CORREÇÃO VERIFICADA: Caminho correto se Topbar está em components/admin e AuthContext está em contexts
+import { useAuth } from '../../contexts/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faSearch,
@@ -14,24 +14,31 @@ import {
 
 export default function Topbar({ title, subtitle }) {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  // Pegamos o user para usar o nome e a função logout
+  const { logout, user } = useAuth(); 
+  
+  // Extraímos o nome para usar no 'Olá, [Nome]!'
+  // Usa o nome do usuário ou 'Admin' como fallback
+  const userName = user?.name || 'Admin';
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate('/'); // Manda para a home pública após o logout
   };
 
   return (
     <div className="sticky top-0 z-10 w-full bg-white border-b border-gray-200 px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-      {/* Esquerda */}
+      {/* Esquerda: Título da Página */}
       <div className="flex items-center gap-3">
         <span className="font-semibold text-lg text-gray-800">{title}</span>
         <span className="text-gray-400 font-light">/</span>
         <span className="text-sm text-gray-500">{subtitle}</span>
       </div>
 
-      {/* Direita */}
+      {/* Direita: Ícones e Ações */}
       <div className="flex items-center gap-4 flex-wrap md:flex-nowrap">
+        
+        {/* Campo de Busca */}
         <div className="flex items-center border border-gray-200 bg-gray-100 rounded-full px-3 py-1 focus-within:border-blue-500 focus-within:bg-white transition-colors">
           <FontAwesomeIcon icon={faSearch} className="text-gray-400 text-sm mr-2" />
           <input
@@ -40,6 +47,12 @@ export default function Topbar({ title, subtitle }) {
             className="bg-transparent outline-none text-sm text-gray-800 placeholder-gray-400 w-40"
           />
         </div>
+        
+        {/* Saudação ao Usuário */}
+        <span className="text-sm text-gray-700 font-medium hidden sm:block">
+          Olá, **{userName.split(' ')[0]}**! {/* Mostra só o primeiro nome */}
+        </span>
+
 
         <FontAwesomeIcon
           icon={faSun}

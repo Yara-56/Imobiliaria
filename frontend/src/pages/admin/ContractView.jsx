@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Menu from '../components/Menu';
-import Topbar from '../components/Topbar';
+import Menu from '../../components/Menu';
+import Topbar from '../../components/Topbar';
 import { faFileContract } from '@fortawesome/free-solid-svg-icons';
-import { getContractById } from '../services/contractService';
+import { getContractById } from '../../services/contractService';
 
 export default function ContractView() {
   const { id } = useParams();
