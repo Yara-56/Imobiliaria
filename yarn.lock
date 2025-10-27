@@ -1116,7 +1116,7 @@ cors@^2.8.5:
 
 cross-env@^10.1.0:
   version "10.1.0"
-  resolved "https://registry.npmjs.org/cross-env/-/cross-env-10.1.0.tgz"
+  resolved "https://registry.yarnpkg.com/cross-env/-/cross-env-10.1.0.tgz#cfd2a6200df9ed75bfb9cb3d7ce609c13ea21783"
   integrity sha512-GsYosgnACZTADcmEyJctkJIoqAhHjttw7RsFrVoJNXbsWWqaq6Ym+7kZjq6mS45O0jij6vtiReppKQEtqWy6Dw==
   dependencies:
     "@epic-web/invariant" "^1.0.0"
