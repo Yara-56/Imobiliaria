@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-
-// Ícones para o Menu Interativo e Logo
 import { FaHome, FaBars, FaTimes } from 'react-icons/fa';
 
 // --- NOSSOS DADOS FICTÍCIOS ---
@@ -29,7 +27,6 @@ const fakeProperties = [
   }
 ];
 
-// Componente separado para o Card de Imóvel
 const PropertyCard = ({ property }) => {
   const formatPrice = (price) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -41,7 +38,7 @@ const PropertyCard = ({ property }) => {
   return (
     <div className="border border-gray-200 rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:scale-105 hover:shadow-xl">
       <img
-        src={property.imageUrls[0]} // Usa a imagem do nosso array fictício
+        src={property.imageUrls[0]}
         alt={property.title}
         className="w-full h-48 object-cover"
       />
@@ -50,7 +47,7 @@ const PropertyCard = ({ property }) => {
         <p className="text-sm text-gray-500 truncate">{property.address.city}, {property.address.state}</p>
         <p className="text-xl font-bold text-blue-600 mt-2">{formatPrice(property.price)}</p>
         <Link
-          to={`/imovel/${property._id}`} // Rota de detalhes (você pode criar depois)
+          to={`/admin/imovel/${property._id}`} // Rota de detalhes atualizada
           className="mt-4 inline-block text-sm font-medium text-blue-600 hover:text-blue-800"
         >
           Ver detalhes
@@ -60,29 +57,23 @@ const PropertyCard = ({ property }) => {
   );
 };
 
-// --- COMPONENTE PRINCIPAL DA HOME PAGE ---
 export default function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    // font-inter precisa estar no seu tailwind.config.js para funcionar
     <div className="font-inter bg-gray-50 min-h-screen">
       
-      {/* --- Header Interativo --- */}
       <header className="bg-white shadow-md sticky top-0 z-50">
         <nav className="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
-          
           <Link to="/" className="flex items-center gap-2 text-xl font-bold text-gray-800 hover:text-blue-600 transition-colors">
             <FaHome className="text-blue-600" />
             <span>Imobiliária Lacerda</span>
           </Link>
 
-          {/* Links do Desktop (só aparece em telas médias 'md' ou maiores) */}
           <div className="hidden md:flex items-center space-x-6">
             <Link to="/" className="text-gray-600 hover:text-blue-600 transition-colors">Início</Link>
-            <Link to="/imoveis" className="text-gray-600 hover:text-blue-600 transition-colors">Ver Imóveis</Link>
+            <Link to="/admin/imoveis" className="text-gray-600 hover:text-blue-600 transition-colors">Ver Imóveis</Link>
             <Link to="/contato" className="text-gray-600 hover:text-blue-600 transition-colors">Contato</Link>
-            
             <Link
               to="/admin/login" 
               className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
@@ -91,7 +82,6 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Botão Hamburger (só aparece em telas pequenas, 'md' é o ponto de quebra) */}
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -103,12 +93,11 @@ export default function HomePage() {
           </div>
         </nav>
 
-        {/* Menu Mobile (só abre se isMenuOpen for true) */}
         {isMenuOpen && (
           <div className="md:hidden bg-white shadow-xl absolute top-16 left-0 w-full z-40">
             <div className="flex flex-col space-y-2 p-4">
               <Link to="/" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100" onClick={() => setIsMenuOpen(false)}>Início</Link>
-              <Link to="/imoveis" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100" onClick={() => setIsMenuOpen(false)}>Ver Imóveis</Link>
+              <Link to="/admin/imoveis" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100" onClick={() => setIsMenuOpen(false)}>Ver Imóveis</Link>
               <Link to="/contato" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100" onClick={() => setIsMenuOpen(false)}>Contato</Link>
               <Link
                 to="/admin/login"
@@ -122,7 +111,6 @@ export default function HomePage() {
         )}
       </header>
 
-      {/* --- Seção Hero --- */}
       <main>
         <section className="bg-gradient-to-r from-blue-700 to-blue-500 text-white py-20 md:py-32">
           <div className="container mx-auto px-4 text-center">
@@ -133,7 +121,7 @@ export default function HomePage() {
               Os melhores imóveis para alugar ou comprar em Ipatinga e região.
             </p>
             <Link
-              to="/imoveis"
+              to="/admin/imoveis"
               className="bg-white text-blue-700 font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-gray-100 transition-colors text-lg transform hover:scale-105"
             >
               Ver Imóveis Disponíveis
@@ -141,14 +129,11 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* --- Seção de Imóveis em Destaque (Fictícia) --- */}
         <section className="py-16">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center text-gray-800 mb-10">
               Imóveis em Destaque
             </h2>
-            
-            {/* Grid de Imóveis (isso só funciona se o Tailwind estiver certo) */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {fakeProperties.map(property => (
                 <PropertyCard key={property._id} property={property} />
@@ -158,7 +143,6 @@ export default function HomePage() {
         </section>
       </main>
 
-      {/* --- Footer --- */}
       <footer className="bg-gray-800 text-gray-300 py-12 mt-16">
         <div className="container mx-auto px-4 text-center">
           <p>&copy; 2025 Imobiliária Lacerda. Todos os direitos reservados.</p>

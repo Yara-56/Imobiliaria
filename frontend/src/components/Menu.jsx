@@ -1,30 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import classNames from "classnames";
 
 export default function Menu() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [openMenu, setOpenMenu] = useState(null);
+  const [userName, setUserName] = useState("");
 
-  // abre/fecha submenus
-  const [openSubmenus, setOpenSubmenus] = useState({});
-  const [menuOpen, setMenuOpen] = useState(true);
-
-  const user = JSON.parse(localStorage.getItem("user"));
-  const nomeUsuario = user?.name || "Usuário";
-
-  // helper: rota ativa exata
-  const isActive = (path) => location.pathname === path;
-
-  // helper: rota ativa por prefixo (para marcar o grupo/parent)
-  const isPrefixActive = (prefix) => location.pathname.startsWith(prefix);
-
-  const toggleSubmenu = (menuKey) => {
-    setOpenSubmenus((prev) => ({
-      ...prev,
-      [menuKey]: !prev[menuKey],
-    }));
-  };
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    setUserName(user?.name || "Usuário");
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -32,199 +19,140 @@ export default function Menu() {
     navigate("/");
   };
 
-  // ---- MENU CONFIG ----
+  const isActive = (path) => location.pathname === path;
+  const isPrefixActive = (prefix) => location.pathname.startsWith(prefix);
+
+  const toggleSubmenu = (key) => {
+    setOpenMenu(openMenu === key ? null : key);
+  };
+
   const menuItems = [
-    { key: "home", icon: "fa-house", label: "Início", path: "/home" },
-
-    { key: "tenants", icon: "fa-users", label: "Inquilinos", path: "/tenants" },
-
     {
-      key: "payments",
-      icon: "fa-dollar-sign",
-      label: "Pagamentos",
-      // parent com página
-      path: "/payments",
-      submenu: [{ to: "/payment-history", label: "📜 Histórico de Pagamentos" }],
+      key: "dashboard",
+      icon: "fa-solid fa-chart-line",
+      label: "Dashboard",
+      path: "/admin/dashboard",
     },
-
-    {
-      key: "contracts",
-      icon: "fa-file-contract",
-      label: "Contratos",
-      path: "/contracts",
-      submenu: [{ to: "/templates", label: "📂 Modelos de Contrato" }],
-    },
-
-    {
-      key: "receipt",
-      icon: "fa-receipt",
-      label: "Recibos",
-      path: "/receipt/1",
-    },
-
-    // ⭐ Imóveis com submenu (listar + novo)
     {
       key: "properties",
-      icon: "fa-building",
+      icon: "fa-solid fa-building",
       label: "Imóveis",
-      // o "path" do pai será a lista
-      path: "/imoveis",
+      path: "/admin/imoveis",
       submenu: [
-        { to: "/imoveis", label: "📋 Listar imóveis" },
-        { to: "/imoveis/novo", label: "➕ Novo imóvel" },
+        { to: "/admin/imoveis", label: "📋 Listar imóveis" },
+        { to: "/admin/imoveis/novo", label: "➕ Novo imóvel" },
       ],
     },
-
+    {
+      key: "tenants",
+      icon: "fa-solid fa-users",
+      label: "Inquilinos",
+      path: "/admin/inquilinos",
+    },
+    {
+      key: "contracts",
+      icon: "fa-solid fa-file-contract",
+      label: "Contratos",
+      path: "/admin/contratos",
+      submenu: [
+        { to: "/admin/contratos", label: "📄 Todos os Contratos" },
+        { to: "/admin/contratos/modelos", label: "📂 Modelos de Contrato" },
+      ],
+    },
     {
       key: "reports",
-      icon: "fa-chart-pie",
+      icon: "fa-solid fa-chart-pie",
       label: "Relatórios",
-      path: "/report-payments",
+      path: "/admin/relatorios",
       submenu: [
-        { to: "/report-payments", label: "📊 Pagamentos" },
-        { to: "/report-contracts", label: "📄 Contratos" },
-        { to: "/report-tenants", label: "🧑‍💼 Inquilinos" },
+        { to: "/admin/pagamentos/historico/1", label: "📊 Pagamentos" },
+        { to: "/admin/contratos", label: "📄 Contratos" },
+        { to: "/admin/inquilinos", label: "🧑‍💼 Inquilinos" },
       ],
     },
   ];
 
-  // Abre automaticamente o submenu de "Imóveis" (e outros que forem prefixos ativos)
-  useEffect(() => {
-    const defaults = {};
-    if (isPrefixActive("/imoveis")) defaults["properties"] = true;
-    if (isPrefixActive("/templates") || isPrefixActive("/contracts")) defaults["contracts"] = true;
-    if (isPrefixActive("/payment")) defaults["payments"] = true;
-    if (isPrefixActive("/report-")) defaults["reports"] = true;
-    setOpenSubmenus((prev) => ({ ...prev, ...defaults }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname]);
-
   return (
-    <aside
-      className={classNames(
-        "min-h-screen transition-all duration-300 flex flex-col bg-white border-r border-gray-200 shadow-sm",
-        menuOpen ? "w-64" : "w-20"
-      )}
-    >
+    <aside className="min-h-screen w-64 bg-[#0B1D3A] flex flex-col text-white shadow-xl">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
-        {menuOpen && (
-          <div className="flex items-center gap-3">
-            <img
-              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-                nomeUsuario
-              )}&background=random`}
-              alt="Avatar"
-              className="w-10 h-10 rounded-full object-cover"
-            />
-            <div>
-              <p className="text-sm font-semibold text-gray-700">
-                Olá, {nomeUsuario.split(" ")[0]}
-              </p>
-              <p className="text-xs text-gray-500">Administrador</p>
-            </div>
-          </div>
-        )}
+      <div className="px-6 py-5 border-b border-white/10">
+        <h1 className="text-lg font-semibold tracking-wide mb-1">
+          Imobiliária Lacerda
+        </h1>
+        <p className="text-sm text-gray-300 italic">
+          Olá, <span className="text-white font-medium">{userName}</span> 👋
+        </p>
+      </div>
 
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="text-gray-500 hover:text-gray-800"
-          title="Expandir/Recolher menu"
-        >
-          <i className={`fa-solid ${menuOpen ? "fa-angle-left" : "fa-bars"}`}></i>
-        </button>
-      </header>
-
-      {/* Menu */}
-      <nav className="flex-1 p-2 overflow-y-auto">
-        {menuItems.map((item) => {
-          const hasSub = !!item.submenu?.length;
-          const parentActive =
-            (item.path && isActive(item.path)) ||
-            (hasSub && isPrefixActive(item.path || `/${item.key}`));
-
-          return (
-            <div key={item.key}>
-              <div
-                onClick={() => {
-                  if (hasSub) {
-                    // se tiver submenu, primeiro abre/fecha;
-                    // se quiser navegar ao clicar no rótulo do pai, descomente a linha abaixo:
-                    // navigate(item.path);
-                    toggleSubmenu(item.key);
-                  } else if (item.path) {
-                    navigate(item.path);
-                  }
-                }}
-                className={classNames(
-                  "flex items-center justify-between px-4 py-2 rounded-md cursor-pointer text-gray-700 hover:bg-gray-100 transition",
-                  parentActive && "bg-gray-200 font-semibold"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <i className={`fa-solid ${item.icon} w-4 text-center`} />
-                  {menuOpen && <span>{item.label}</span>}
-                </div>
-
-                {menuOpen && hasSub && (
-                  <i
-                    className={`fa-solid ${
-                      openSubmenus[item.key] ? "fa-angle-up" : "fa-angle-down"
-                    } text-sm text-gray-500`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleSubmenu(item.key);
-                    }}
-                  />
-                )}
-              </div>
-
-              {/* Submenu */}
-              {menuOpen && openSubmenus[item.key] && hasSub && (
-                <div className="ml-8 mt-1 flex flex-col gap-1">
-                  {item.submenu.map((sub) => (
-                    <Link
-                      key={sub.to}
-                      to={sub.to}
-                      className={classNames(
-                        "text-sm text-gray-600 py-1 px-2 rounded hover:bg-gray-100 transition",
-                        isActive(sub.to) && "bg-blue-100 text-blue-700 font-semibold"
-                      )}
-                    >
-                      {sub.label}
-                    </Link>
-                  ))}
-                </div>
+      {/* Menu principal */}
+      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        {menuItems.map((item) => (
+          <div key={item.key} className="relative">
+            <button
+              onClick={() =>
+                item.submenu ? toggleSubmenu(item.key) : navigate(item.path)
+              }
+              className={classNames(
+                "flex items-center justify-between w-full px-4 py-2 rounded-md text-sm font-medium transition-all",
+                isPrefixActive(item.path)
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-300 hover:bg-blue-800 hover:text-white"
               )}
-            </div>
-          );
-        })}
+            >
+              <div className="flex items-center gap-3">
+                <i className={item.icon}></i>
+                <span>{item.label}</span>
+              </div>
+              {item.submenu && (
+                <i
+                  className={classNames(
+                    "fa-solid fa-chevron-right text-xs transition-transform duration-200",
+                    openMenu === item.key && "rotate-90"
+                  )}
+                ></i>
+              )}
+            </button>
+
+            {/* Submenu */}
+            {item.submenu && openMenu === item.key && (
+              <div className="ml-9 mt-1 flex flex-col gap-1">
+                {item.submenu.map((sub) => (
+                  <Link
+                    key={sub.to}
+                    to={sub.to}
+                    className={classNames(
+                      "text-sm py-1 px-2 rounded transition-all",
+                      isActive(sub.to)
+                        ? "bg-blue-500 text-white font-medium"
+                        : "text-gray-400 hover:text-white hover:bg-blue-800"
+                    )}
+                  >
+                    {sub.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
       </nav>
 
-      {/* Footer */}
-      <footer className="p-3 border-t border-gray-100 space-y-2">
+      {/* Rodapé */}
+      <div className="border-t border-white/10 px-4 py-3 mt-auto">
         <Link
-          to="/settings"
-          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded"
+          to="/admin/configuracoes"
+          className="flex items-center gap-3 px-2 py-2 rounded-md text-gray-300 hover:bg-blue-800 hover:text-white text-sm"
         >
-          <i className="fa-solid fa-gear w-4 text-center" />
-          {menuOpen && <span>Configurações</span>}
-        </Link>
-        <Link
-          to="/help"
-          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded"
-        >
-          <i className="fa-solid fa-circle-question w-4 text-center" />
-          {menuOpen && <span>Ajuda</span>}
+          <i className="fa-solid fa-gear"></i>
+          <span>Configurações</span>
         </Link>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-100 rounded w-full text-left"
+          className="mt-2 flex items-center gap-3 px-2 py-2 rounded-md text-gray-300 hover:bg-red-600 hover:text-white text-sm w-full text-left"
         >
-          <i className="fa-solid fa-right-from-bracket w-4 text-center" />
-          {menuOpen && <span>Sair</span>}
+          <i className="fa-solid fa-right-from-bracket"></i>
+          <span>Sair</span>
         </button>
-      </footer>
+      </div>
     </aside>
   );
 }

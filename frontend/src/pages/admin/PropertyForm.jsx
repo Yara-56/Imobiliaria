@@ -9,11 +9,12 @@ export default function PropertyForm() {
     sqls: "",
     street: "",
     number: "",
-    district: "",     // <-- era neighborhood
+    bairro: "",      // ✅ nome correto
     city: "",
     state: "",
-    status: "",       // se ficar vazio, não enviaremos
+    status: "",      // opcional
   });
+
   const [files, setFiles] = useState([]);
   const [saving, setSaving] = useState(false);
 
@@ -31,7 +32,7 @@ export default function PropertyForm() {
     if (saving) return;
     setSaving(true);
     try {
-      await createProperty(form, files); // envia multipart
+      await createProperty(form, files);
       navigate("/imoveis");
     } catch (err) {
       console.error(err);
@@ -45,6 +46,7 @@ export default function PropertyForm() {
     <form onSubmit={onSubmit} className="max-w-5xl">
       <h1 className="text-2xl font-semibold mb-6">Novo Imóvel</h1>
 
+      {/* Dados do imóvel */}
       <div className="bg-white rounded border p-4 mb-6">
         <h2 className="font-medium mb-4 flex items-center gap-2">
           <i className="fa-solid fa-house" /> Dados do imóvel
@@ -81,7 +83,7 @@ export default function PropertyForm() {
               name="street"
               value={form.street}
               onChange={onChange}
-              placeholder="Digite o nome da Rua"
+              placeholder="Digite o nome da rua"
               className="border rounded px-3 py-2 w-full"
             />
           </div>
@@ -100,7 +102,7 @@ export default function PropertyForm() {
           <div>
             <label className="block text-sm text-gray-600 mb-1">Bairro</label>
             <input
-              name="bairro"                // <-- nome certo para o Model
+              name="bairro"
               value={form.bairro}
               onChange={onChange}
               placeholder="Digite o nome do bairro"
@@ -114,7 +116,7 @@ export default function PropertyForm() {
               name="city"
               value={form.city}
               onChange={onChange}
-              placeholder="Ex: Digite o nome da cidade"
+              placeholder="Ex: Coronel Fabriciano"
               className="border rounded px-3 py-2 w-full"
             />
           </div>
@@ -141,12 +143,13 @@ export default function PropertyForm() {
               <option value="">Selecione o status</option>
               <option value="Available">Disponível</option>
               <option value="Occupied">Ocupado</option>
-              <option value="Under Maintenance">Manutenção</option> {/* <-- valor certo */}
+              <option value="Under Maintenance">Manutenção</option>
             </select>
           </div>
         </div>
       </div>
 
+      {/* Documentos */}
       <div className="bg-white rounded border p-4 mb-6">
         <h2 className="font-medium mb-4 flex items-center gap-2">
           <i className="fa-solid fa-folder" /> Documentos do imóvel
@@ -160,6 +163,7 @@ export default function PropertyForm() {
         )}
       </div>
 
+      {/* Botão */}
       <div className="flex justify-end gap-3">
         <button
           type="submit"

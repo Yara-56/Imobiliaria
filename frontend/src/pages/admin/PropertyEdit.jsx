@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getPropertyById, updateProperty } from "../../services/propertyService";
+import { getPropertyById, updateProperty, deleteProperty, deletePropertyDocument } from "../../services/propertyService";
 
 export default function PropertyEdit() {
   const { id } = useParams();
@@ -17,7 +17,7 @@ export default function PropertyEdit() {
     status: "",
   });
 
-  const [existingDocs, setExistingDocs] = useState([]); // [{_id,name,url}]
+  const [existingDocs, setExistingDocs] = useState([]);
   const [newFiles, setNewFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -61,8 +61,8 @@ export default function PropertyEdit() {
     if (saving) return;
     setSaving(true);
     try {
-      await updateProperty(id, form, newFiles); // multipart com anexos adicionais
-      navigate("/imoveis");
+      await updateProperty(id, form, newFiles);
+      navigate("/admin/imoveis"); // ✅ corrigido
     } catch (err) {
       console.error(err);
       alert("Falha ao salvar alterações.");
@@ -77,7 +77,7 @@ export default function PropertyEdit() {
     setDeleting(true);
     try {
       await deleteProperty(id);
-      navigate("/imoveis");
+      navigate("/admin/imoveis"); // ✅ corrigido
     } catch (err) {
       console.error(err);
       alert("Falha ao excluir.");
@@ -110,79 +110,27 @@ export default function PropertyEdit() {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">CEP</label>
-            <input
-              name="cep"
-              value={form.cep}
-              onChange={onChange}
-              placeholder="35160-133"
-              className="border rounded px-3 py-2 w-full"
-              autoComplete="off"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">SQLS</label>
-            <input
-              name="sqls"
-              value={form.sqls}
-              onChange={onChange}
-              placeholder="Ex: 12930423546793023"
-              className="border rounded px-3 py-2 w-full"
-              autoComplete="off"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Rua</label>
-            <input
-              name="street"
-              value={form.street}
-              onChange={onChange}
-              className="border rounded px-3 py-2 w-full"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Número</label>
-            <input
-              name="number"
-              value={form.number}
-              onChange={onChange}
-              className="border rounded px-3 py-2 w-full"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Bairro</label>
-            <input
-              name="neighborhood"
-              value={form.neighborhood}
-              onChange={onChange}
-              className="border rounded px-3 py-2 w-full"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Cidade</label>
-            <input
-              name="city"
-              value={form.city}
-              onChange={onChange}
-              className="border rounded px-3 py-2 w-full"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Estado</label>
-            <input
-              name="state"
-              value={form.state}
-              onChange={onChange}
-              className="border rounded px-3 py-2 w-full"
-            />
-          </div>
+          {[
+            { label: "CEP", name: "cep", placeholder: "35160-133" },
+            { label: "SQLS", name: "sqls", placeholder: "Ex: 12930423546793023" },
+            { label: "Rua", name: "street" },
+            { label: "Número", name: "number" },
+            { label: "Bairro", name: "neighborhood" },
+            { label: "Cidade", name: "city" },
+            { label: "Estado", name: "state" },
+          ].map((f) => (
+            <div key={f.name}>
+              <label className="block text-sm text-gray-600 mb-1">{f.label}</label>
+              <input
+                name={f.name}
+                value={form[f.name]}
+                onChange={onChange}
+                placeholder={f.placeholder}
+                className="border rounded px-3 py-2 w-full"
+                autoComplete="off"
+              />
+            </div>
+          ))}
 
           <div>
             <label className="block text-sm text-gray-600 mb-1">Status</label>
@@ -195,6 +143,7 @@ export default function PropertyEdit() {
               <option value="">Selecione o status</option>
               <option value="Available">Disponível</option>
               <option value="Occupied">Ocupado</option>
+              <option value="Under Maintenance">Em manutenção</option>
             </select>
           </div>
         </div>
@@ -206,7 +155,6 @@ export default function PropertyEdit() {
           <i className="fa-solid fa-folder" /> Documentos do imóvel
         </h2>
 
-        {/* Existentes */}
         {existingDocs?.length > 0 ? (
           <ul className="space-y-2 mb-4">
             {existingDocs.map((doc) => (
@@ -237,12 +185,11 @@ export default function PropertyEdit() {
           <p className="text-sm text-gray-600 mb-4">Nenhum documento anexado.</p>
         )}
 
-        {/* Adicionar novos */}
         <div>
           <label className="block text-sm text-gray-600 mb-1">
             Adicionar documentos
           </label>
-          <input type="file" multiple onChange={(e) => setNewFiles(Array.from(e.target.files || []))} />
+          <input type="file" multiple onChange={onFilesChange} />
           {newFiles?.length > 0 && (
             <p className="text-sm text-gray-600 mt-2">
               {newFiles.length} arquivo(s) selecionado(s)
@@ -251,7 +198,7 @@ export default function PropertyEdit() {
         </div>
       </div>
 
-      {/* Ações (somente Salvar e Excluir), alinhados à direita */}
+      {/* Ações */}
       <div className="flex justify-end gap-3">
         <button
           type="submit"

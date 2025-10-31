@@ -7,7 +7,7 @@ export default function PropertiesList() {
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
 
-  // ✅ Mapa de rótulos PT-BR para status que vem do back (EN)
+  // ✅ Mapa de rótulos PT-BR para status do back (em EN)
   const statusLabel = {
     Available: "Disponível",
     Occupied: "Ocupado",
@@ -18,8 +18,8 @@ export default function PropertiesList() {
     setLoading(true);
     try {
       const data = await listProperties({ q });
-      // backend pode retornar { items, pagination } ou array direto
-      setItems(Array.isArray(data) ? data : (data?.items ?? []));
+      // Backend pode retornar { items, pagination } ou array direto
+      setItems(Array.isArray(data) ? data : data?.items ?? []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -40,7 +40,7 @@ export default function PropertiesList() {
         p.sqls,
         p.cep,
         p.street,
-        p.bairro,   // ✅ garante que entra na busca
+        p.bairro,
         p.city,
         p.state,
         p.status,
@@ -55,7 +55,7 @@ export default function PropertiesList() {
     <div className="max-w-6xl">
       <h1 className="text-2xl font-semibold mb-4">Gerenciar Imóveis</h1>
 
-      {/* Busca menor */}
+      {/* Campo de busca */}
       <div className="flex items-center gap-2 mb-4">
         <input
           value={q}
@@ -79,7 +79,7 @@ export default function PropertiesList() {
               <th className="px-4 py-2">SQLS</th>
               <th className="px-4 py-2">CEP</th>
               <th className="px-4 py-2">Rua</th>
-              <th className="px-4 py-2">Bairro</th> {/* ✅ nova coluna */}
+              <th className="px-4 py-2">Bairro</th>
               <th className="px-4 py-2">Cidade</th>
               <th className="px-4 py-2">Estado</th>
               <th className="px-4 py-2">Status</th>
@@ -89,7 +89,6 @@ export default function PropertiesList() {
           <tbody>
             {loading ? (
               <tr>
-                {/* ✅ colSpan atualizado para 8 por causa da nova coluna */}
                 <td className="px-4 py-6 text-center" colSpan={8}>
                   Carregando...
                 </td>
@@ -106,16 +105,15 @@ export default function PropertiesList() {
                   <td className="px-4 py-2">{p.sqls || "-"}</td>
                   <td className="px-4 py-2">{p.cep || "-"}</td>
                   <td className="px-4 py-2">{p.street || "-"}</td>
-                  <td className="px-4 py-2">{p.bairro || "-"}</td> {/* ✅ mostra o bairro */}
+                  <td className="px-4 py-2">{p.bairro || "-"}</td>
                   <td className="px-4 py-2">{p.city || "-"}</td>
                   <td className="px-4 py-2">{p.state || "-"}</td>
                   <td className="px-4 py-2">
-                    {/* ✅ traduz status EN -> PT-BR */}
                     {statusLabel[p.status] ?? p.status ?? "-"}
                   </td>
                   <td className="px-4 py-2">
                     <Link
-                      to={`/imoveis/${p._id}/editar`}
+                      to={`/admin/imoveis/${p._id}/editar`} // ✅ corrigido
                       className="text-blue-600 hover:underline"
                     >
                       Ver detalhes
