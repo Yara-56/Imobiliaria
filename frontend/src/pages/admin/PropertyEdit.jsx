@@ -1,27 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getPropertyById, updateProperty, deleteProperty, deletePropertyDocument } from "../../services/propertyService";
+import {
+  getPropertyById,
+  updateProperty,
+  deleteProperty,
+  deletePropertyDocument,
+} from "../../services/propertyService";
 
 export default function PropertyEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // ... (seus 'useState' estão corretos) ...
   const [form, setForm] = useState({
-    cep: "",
-    sqls: "",
-    street: "",
-    number: "",
-    neighborhood: "",
-    city: "",
-    state: "",
-    status: "",
+    cep: "", sqls: "", street: "", number: "", bairro: "",
+    city: "", state: "", status: "",
   });
-
   const [existingDocs, setExistingDocs] = useState([]);
   const [newFiles, setNewFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
 
   useEffect(() => {
     (async () => {
@@ -32,21 +32,38 @@ export default function PropertyEdit() {
           sqls: data?.sqls || "",
           street: data?.street || "",
           number: data?.number || "",
-          neighborhood: data?.neighborhood || "",
+          bairro: data?.bairro || "", // ✅ Corrigido
           city: data?.city || "",
           state: data?.state || "",
           status: data?.status || "",
         });
         setExistingDocs(data?.documents || []);
+
+      // ✅ BLOCO 'CATCH' ATUALIZADO PARA DEBUG
       } catch (err) {
-        console.error(err);
-        alert("Falha ao carregar imóvel.");
+        console.error(
+          "❌ ERRO REAL AO CARREGAR IMÓVEL (REINICIADO):", 
+          err
+        );
+        console.error("DADOS COMPLETOS DO ERRO (REINICIADO):", err.response);
+        
+        if (err.response && err.response.status === 401) {
+          alert("Sessão expirou (NÃO VOU REDIRECIONAR).");
+          localStorage.clear(); 
+          // navigate("/"); // <-- DESATIVADO 
+        } else {
+          alert("Imóvel não encontrado (NÃO VOU REDIRECIONAR).");
+          // navigate("/admin/imoveis"); // <-- DESATIVADO
+        }
       } finally {
         setLoading(false);
       }
     })();
-  }, [id]);
+  }, [id, navigate]); 
 
+  
+  // ... (O restante do seu arquivo: onChange, onSubmit, onDelete, e o JSX estão corretos) ...
+  
   const onChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -62,10 +79,10 @@ export default function PropertyEdit() {
     setSaving(true);
     try {
       await updateProperty(id, form, newFiles);
-      navigate("/admin/imoveis"); // ✅ corrigido
+      navigate("/admin/imoveis"); 
     } catch (err) {
       console.error(err);
-      alert("Falha ao salvar alterações.");
+      alert("Falha ao salvar alterações. Verifique os campos obrigatórios.");
     } finally {
       setSaving(false);
     }
@@ -77,7 +94,7 @@ export default function PropertyEdit() {
     setDeleting(true);
     try {
       await deleteProperty(id);
-      navigate("/admin/imoveis"); // ✅ corrigido
+      navigate("/admin/imoveis");
     } catch (err) {
       console.error(err);
       alert("Falha ao excluir.");
@@ -97,14 +114,15 @@ export default function PropertyEdit() {
     }
   };
 
+
   if (loading) return <div>Carregando...</div>;
 
   return (
     <form onSubmit={onSubmit} className="max-w-5xl">
       <h1 className="text-2xl font-semibold mb-6">Editar Imóvel</h1>
-
-      {/* Dados do imóvel */}
-      <div className="bg-white rounded border p-4 mb-6">
+      {/* O resto do seu JSX está perfeito */}
+      {/* ... (Dados do imóvel, Documentos, Ações) ... */}
+        <div className="bg-white rounded border p-4 mb-6">
         <h2 className="font-medium mb-4 flex items-center gap-2">
           <i className="fa-solid fa-house" /> Dados do imóvel
         </h2>
@@ -115,7 +133,7 @@ export default function PropertyEdit() {
             { label: "SQLS", name: "sqls", placeholder: "Ex: 12930423546793023" },
             { label: "Rua", name: "street" },
             { label: "Número", name: "number" },
-            { label: "Bairro", name: "neighborhood" },
+            { label: "Bairro", name: "bairro" }, // ✅ Corrigido
             { label: "Cidade", name: "city" },
             { label: "Estado", name: "state" },
           ].map((f) => (
@@ -148,8 +166,6 @@ export default function PropertyEdit() {
           </div>
         </div>
       </div>
-
-      {/* Documentos */}
       <div className="bg-white rounded border p-4 mb-6">
         <h2 className="font-medium mb-4 flex items-center gap-2">
           <i className="fa-solid fa-folder" /> Documentos do imóvel
@@ -197,8 +213,6 @@ export default function PropertyEdit() {
           )}
         </div>
       </div>
-
-      {/* Ações */}
       <div className="flex justify-end gap-3">
         <button
           type="submit"

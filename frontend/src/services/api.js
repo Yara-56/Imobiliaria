@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Se VITE_API_URL não vier, usa fallback local
 // Esperado: "http://localhost:5050/api"
-const DEFAULT_BASE_URL = "http://localhost:5050/api";
+const DEFAULT_BASE_URL = "http://localhost:5050";
 const rawBase = import.meta.env?.VITE_API_URL?.trim();
 const baseURL = rawBase && rawBase.length ? rawBase : DEFAULT_BASE_URL;
 

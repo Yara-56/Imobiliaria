@@ -1,40 +1,20 @@
 // src/services/propertyService.js
 import api from "./api";
 
-/**
- * ==============================
- * LISTAR IMÓVEIS COM FILTROS
- * ==============================
- */
+// ... (as funções listProperties e getPropertyById estão perfeitas) ...
 export const listProperties = async (params = {}) => {
   const { data } = await api.get("/properties", { params });
   return data;
 };
 
-/**
- * ==============================
- * BUSCAR IMÓVEL POR ID
- * ==============================
- */
 export const getPropertyById = async (id) => {
   const { data } = await api.get(`/properties/${id}`);
   return data;
 };
 
-/**
- * ==============================
- * FUNÇÃO AUXILIAR PARA FORM DATA
- * ==============================
- * Aceita campos simples + múltiplos arquivos.
- */
+// ... (a função buildFormData está perfeita) ...
 const buildFormData = (payload = {}, files = []) => {
   const fd = new FormData();
-
-  /**
-   * 🔧 Ajuste importante:
-   * Garante que 'bairro' seja sempre enviado corretamente,
-   * mesmo que o form ainda use 'district' ou 'neighborhood'.
-   */
   const normalized = {
     ...payload,
     bairro: (
@@ -44,18 +24,16 @@ const buildFormData = (payload = {}, files = []) => {
       ""
     ).toString().trim(),
   };
-  delete normalized.district;       // Evita enviar o campo errado
-  delete normalized.neighborhood;   // Evita duplicidade de chave
+  delete normalized.district;
+  delete normalized.neighborhood;
 
-  // Campos básicos (pule undefined, null **e string vazia**)
   Object.entries(normalized).forEach(([key, value]) => {
     if (value === undefined || value === null) return;
     const v = String(value);
-    if (v.trim() === "") return; // ⬅️ não envia vazio (ex.: bairro="")
+    if (v.trim() === "") return;
     fd.append(key, v);
   });
 
-  // Arquivos (múltiplos)
   (files || []).forEach((file) => {
     fd.append("documents[]", file);
   });
@@ -70,9 +48,8 @@ const buildFormData = (payload = {}, files = []) => {
  */
 export const createProperty = async (payload, files = []) => {
   const formData = buildFormData(payload, files);
-  const { data } = await api.post("/properties", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  // ✅ REMOVIDO o header manual. O api.js cuida disso.
+  const { data } = await api.post("/properties", formData);
   return data;
 };
 
@@ -83,9 +60,8 @@ export const createProperty = async (payload, files = []) => {
  */
 export const updateProperty = async (id, payload, newFiles = []) => {
   const formData = buildFormData(payload, newFiles);
-  const { data } = await api.patch(`/properties/${id}`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  // ✅ REMOVIDO o header manual. O api.js cuida disso.
+  const { data } = await api.patch(`/properties/${id}`, formData);
   return data;
 };
 
@@ -109,9 +85,8 @@ export const addPropertyDocuments = async (id, newFiles = []) => {
   (newFiles || []).forEach((file) => {
     formData.append("documents[]", file);
   });
-  const { data } = await api.post(`/properties/${id}/documents`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  // ✅ REMOVIDO o header manual. O api.js cuida disso.
+  const { data } = await api.post(`/properties/${id}/documents`, formData);
   return data;
 };
 
