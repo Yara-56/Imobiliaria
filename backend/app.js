@@ -19,12 +19,45 @@ const app = express();
 
 // --- MIDDLEWARES GLOBAIS ---
 
-// 👇👇👇 ESTA É A LINHA CORRIGIDA 👇👇👇
-// Dizemos ao CORS para aceitar requisições APENAS do seu frontend
+// 👇👇👇 ESTA É A NOVA LÓGICA DE CORS 👇👇👇
+
+// Lista de origens permitidas (APENAS produção)
+const allowedOrigins = [
+  'https://imobiliaria-frontend-bice.vercel.app' 
+];
+
+// Se NÃO estiver em produção (ou seja, local), permita qualquer localhost
+if (process.env.NODE_ENV !== 'production') {
+  // Isso usa uma "Expressão Regular" para permitir http://localhost: QUALQUER_PORTA
+  allowedOrigins.push(/http:\/\/localhost:\d+/);
+  console.log('Ambiente de desenvolvimento: Permitindo origens localhost.');
+}
+
 app.use(cors({
-  origin: 'https://imobiliaria-frontend-bice.vercel.app'
+  origin: function (origin, callback) {
+    // Permite requisições sem 'origin' (como Postman ou apps mobile)
+    if (!origin) return callback(null, true);
+
+    // Verifica se a 'origin' da requisição está na nossa lista de permitidos
+    const isAllowed = allowedOrigins.some(allowedOrigin => {
+      if (typeof allowedOrigin === 'string') {
+        return allowedOrigin === origin; // Compara string
+      }
+      if (allowedOrigin instanceof RegExp) {
+        return allowedOrigin.test(origin); // Testa a Regex
+      }
+      return false;
+    });
+
+    if (isAllowed) {
+      return callback(null, true); // Permite a requisição
+    } else {
+      const msg = 'A política de CORS para este site não permite acesso da Origem especificada.';
+      return callback(new Error(msg), false); // Bloqueia a requisição
+    }
+  }
 }));
-// 👆👆👆 FIM DA CORREÇÃO 👆👆👆
+// 👆👆👆 FIM DA LÓGICA DE CORS 👆👆👆
 
 app.use(express.json());
 
