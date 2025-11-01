@@ -35,4 +35,6 @@ PropertySchema.index({ cep: 1 });
 PropertySchema.index({ sqls: 1 });
 PropertySchema.index({ status: 1, createdAt: -1 });
 
-export default mongoose.model("Property", PropertySchema);
+// 🚨 CORREÇÃO DE ESTABILIDADE (SINGLETON) 🚨
+// Isto garante que o modelo só seja definido UMA VEZ, evitando o erro OverwriteModelError
+export default mongoose.models.Property || mongoose.model("Property", PropertySchema);
