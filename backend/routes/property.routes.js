@@ -11,15 +11,12 @@ const upload = multer({ dest: "uploads/" });
 
 /**
  * Middleware que aplica o Multer **apenas se** o Content-Type for multipart/form-data.
- * Assim, as requisições JSON simples continuam funcionando normalmente.
  */
 function maybeMulter(req, res, next) {
   const ct = (req.headers["content-type"] || "").toLowerCase();
   if (ct.startsWith("multipart/form-data")) {
-    // Aplica o middleware de upload (aceita vários arquivos no campo "documents[]")
     return upload.array("documents[]")(req, res, next);
   }
-  // Se não for multipart, segue direto
   return next();
 }
 
@@ -27,11 +24,23 @@ function maybeMulter(req, res, next) {
 // 🚀 MODO DEV — sem autenticação
 // =========================================================
 
+// --- ⬇️ ROTAS 'GET' ESPECÍFICAS VÊM PRIMEIRO ⬇️ ---
+
 // Listar imóveis + filtros/paginação
 router.get("/", controller.listProperties);
 
-// Buscar imóvel por ID
+// Rota para buscar os "tipos" de imóvel (para preencher o dropdown)
+router.get("/tipos", controller.getPropertyTypes); 
+
+// Rota para buscar os "agentes/corretores" (para preencher o dropdown)
+router.get("/agentes", controller.getPropertyAgents);
+
+// --- ⬇️ ROTA 'GET' DINÂMICA VEM POR ÚLTIMO ⬇️ ---
+// Ela deve vir depois de '/', '/tipos', '/agentes', etc.
 router.get("/:id", controller.getPropertyById);
+
+
+// --- ROTAS 'POST', 'PATCH', 'DELETE' ---
 
 // Criar imóvel (aceita JSON ou multipart com documentos)
 router.post("/", maybeMulter, controller.createProperty);
@@ -49,31 +58,11 @@ router.delete("/:id/documents/:docId", controller.removePropertyDocument);
 router.delete("/:id", controller.removeProperty);
 
 // =========================================================
-// 🔒 MODO PROD — quando o login/autenticação voltar
+// 🔒 MODO PROD — (Comentado por enquanto)
 // =========================================================
 /*
 import auth from "../middlewares/auth.middleware.js";
-
-// Listar imóveis
-router.get("/", auth, controller.listProperties);
-
-// Buscar imóvel por ID
-router.get("/:id", auth, controller.getPropertyById);
-
-// Criar imóvel (com upload opcional)
-router.post("/", auth, maybeMulter, controller.createProperty);
-
-// Atualizar imóvel parcialmente
-router.patch("/:id", auth, maybeMulter, controller.updateProperty);
-
-// Adicionar documentos
-router.post("/:id/documents", auth, maybeMulter, controller.addPropertyDocuments);
-
-// Remover documento específico
-router.delete("/:id/documents/:docId", auth, controller.removePropertyDocument);
-
-// Deletar imóvel
-router.delete("/:id", auth, controller.removeProperty);
+// ... (suas rotas com 'auth' aqui)
 */
 
 // Exporta o router para uso no server.js

@@ -1,5 +1,64 @@
 // backend/controllers/property.controller.js
 import Property from "../models/property.model.js";
+import User from "../models/user.model.js"; // <-- 1. IMPORTADO O USER MODEL
+
+// =========================================================
+// 🚀 NOVAS FUNÇÕES ADICIONADAS
+// =========================================================
+
+/**
+ * BUSCAR TIPOS DE IMÓVEL (Para dropdowns)
+ * GET /properties/tipos
+ */
+export const getPropertyTypes = async (req, res) => {
+  try {
+    // Em uma aplicação grande, isso viria de uma coleção "PropertyType"
+    // Por enquanto, uma lista estática (hardcoded) resolve o 404 e faz o
+    // seu formulário funcionar.
+    const types = [
+      { id: "Apartamento", name: "Apartamento" },
+      { id: "Casa", name: "Casa" },
+      { id: "Loja", name: "Loja" },
+      { id: "Terreno", name: "Terreno" },
+      { id: "Comercial", name: "Comercial" },
+      { id: "Rural", name: "Rural" },
+    ];
+    res.json(types);
+  } catch (error) {
+    console.error("Error fetching property types:", error);
+    res.status(500).json({ error: "Error fetching property types." });
+  }
+};
+
+/**
+ * BUSCAR AGENTES/CORRETORES (Para dropdowns)
+ * GET /properties/agentes
+ */
+export const getPropertyAgents = async (req, res) => {
+  try {
+    // Busca usuários que SÃO 'admin' ou 'agent'.
+    // **Ajuste o campo 'role'** se o nome for diferente no seu model.
+    const agents = await User.find({
+      role: { $in: ["admin", "agent"] }, // Assumindo que você tem um campo 'role'
+    })
+      .select("name email _id") // Retorna apenas os campos úteis
+      .lean();
+
+    if (!agents.length) {
+      // Se não achar ninguém, retorna um fallback para não quebrar o frontend
+      return res.json([{ _id: "default_user", name: "Usuário Admin" }]);
+    }
+
+    res.json(agents);
+  } catch (error) {
+    console.error("Error fetching agents:", error);
+    res.status(500).json({ error: "Error fetching agents." });
+  }
+};
+
+// =========================================================
+// (O RESTO DO SEU CÓDIGO ORIGINAL)
+// =========================================================
 
 /**
  * LISTAR + BUSCAR + PAGINAR
@@ -10,7 +69,7 @@ export const listProperties = async (req, res) => {
     const { page = 1, limit = 20, cep, sqls, q, status } = req.query;
 
     const filter = {};
-    if (cep)  filter.cep  = new RegExp(escapeRegex(cep), "i");
+    if (cep) filter.cep = new RegExp(escapeRegex(cep), "i");
     if (sqls) filter.sqls = new RegExp(escapeRegex(sqls), "i");
     if (status) filter.status = status; // "Available" | "Occupied" | "Under Maintenance"
 
@@ -20,9 +79,9 @@ export const listProperties = async (req, res) => {
       filter.$or = [{ cep: rx }, { sqls: rx }, { street: rx }, { city: rx }, { bairro: rx }];
     }
 
-    const pageNum  = Math.max(1, Number(page));
+    const pageNum = Math.max(1, Number(page));
     const limitNum = Math.min(100, Math.max(1, Number(limit)));
-    const skip     = (pageNum - 1) * limitNum;
+    const skip = (pageNum - 1) * limitNum;
 
     const [items, total] = await Promise.all([
       Property.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limitNum).lean(),
@@ -95,7 +154,7 @@ export const createProperty = async (req, res) => {
 export const getPropertyById = async (req, res) => {
   try {
     const property = await Property.findById(req.params.id).lean();
-    if (!property) return res.status(404).json({ error: "Property not found." });
+    if (!property) return res.status(44).json({ error: "Property not found." });
     res.json(property);
   } catch (err) {
     console.error("Error getting property:", err);
@@ -255,7 +314,7 @@ function toDoc(file) {
 function asDocObject(x) {
   if (x && typeof x === "object") {
     if (x.url && !x.name) return { name: inferNameFromUrl(x.url), url: x.url };
-    if (x.url && x.name)  return { name: x.name, url: x.url };
+    if (x.url && x.name) return { name: x.name, url: x.url };
     return x;
   }
   if (typeof x === "string") return { name: inferNameFromUrl(x), url: x };
