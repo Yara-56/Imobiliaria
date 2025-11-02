@@ -14,13 +14,15 @@ process.on('unhandledRejection', (reason, promise) => {
   // Não encerra o processo, mas é bom logar
 });
 
-// --- Carrega .env ---
-dotenv.config();
+// --- Carrega .env (Apenas em Desenvolvimento!) ---
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 import app from './app.js';
 
 if (!process.env.JWT_SECRET) {
-  console.error("ERRO FATAL: JWT_SECRET não definido no .env");
+  console.error("ERRO FATAL: JWT_SECRET não definido no ambiente (Render)");
   process.exit(1);
 }
 
@@ -29,7 +31,7 @@ const MONGO_URI = process.env.MONGO_URI;
 
 const startServer = async () => {
   try {
-    if (!MONGO_URI) throw new Error("MONGO_URI não definido no .env");
+    if (!MONGO_URI) throw new Error("MONGO_URI não definido no ambiente. Verifique as variáveis do Render.");
 
     await mongoose.connect(MONGO_URI, {
       useNewUrlParser: true,
