@@ -11,8 +11,8 @@ import axios from "axios";
 const isProduction = import.meta.env.MODE === "production";
 
 // ⚙️ URLs do backend
-const RENDER_BASE_URL = "https://imobiliaria-pwh6.onrender.com/api";
-const LOCAL_BASE_URL = "http://localhost:5050/api"; // ✅ Corrigido: inclui /api
+const RENDER_BASE_URL = "https://imobiliaria-pwh6.onrender.com/api"; // não adiciona /auth aqui
+const LOCAL_BASE_URL = "http://localhost:5050/api"; // inclui /api
 
 // Seleciona URL de acordo com ambiente
 const baseURL = isProduction ? RENDER_BASE_URL : LOCAL_BASE_URL;
