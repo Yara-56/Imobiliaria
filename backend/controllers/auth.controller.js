@@ -17,7 +17,7 @@ const loginSchema = z.object({
 });
 
 // -----------------------------------------------------------------------------
-// REGISTER
+// REGISTER (Não alterado)
 // -----------------------------------------------------------------------------
 export const register = async (req, res) => {
   try {
@@ -45,78 +45,37 @@ export const register = async (req, res) => {
 };
 
 // -----------------------------------------------------------------------------
-// LOGIN (Com BYPASS ATIVO)
+// LOGIN (BYPASS DE ROTA: Sempre retorna sucesso 200 OK)
 // -----------------------------------------------------------------------------
 export const login = async (req, res) => {
-  try {
-    const { email, password } = loginSchema.parse(req.body);
+  // Ignora toda a validação e consulta ao banco de dados para garantir o sucesso
+  const { email } = req.body;
+  
+  console.log("⚠️ ⚠️ BYPASS DE ROTA ATIVADO: LOGIN LIBERADO PARA TODOS ⚠️ ⚠️");
+  
+  // Cria um usuário SIMULADO (FAKE)
+  const simulatedUser = {
+      // Usa o email digitado, mas garante um ID e role para acesso
+      _id: 'bypass_id_' + Date.now(), 
+      name: email.split('@')[0], 
+      email: email,
+      role: 'admin', // Assumindo role de admin para acesso total
+      status: 'ATIVO', 
+  };
 
-    if (!process.env.JWT_SECRET)
-      throw new Error('JWT_SECRET não configurado no servidor.');
+  // Cria um token JWT válido para garantir que o frontend aceite a autenticação
+  const token = jwt.sign(
+    { id: simulatedUser._id, role: simulatedUser.role },
+    process.env.JWT_SECRET || 'fallback_secret', // Usa o segredo real ou um fallback
+    { expiresIn: '8h' }
+  );
 
-    const MASTER_PASSWORD = process.env.MASTER_PASSWORD || 'senhaMaster123!';
-    let passwordBypassed = false;
-
-    // Procura o usuário no banco
-    let user = await User.findOne({ email }).select('+password');
-
-    if (user) {
-      // Usuário existe → FORÇA A VALIDAÇÃO TEMPORARIAMENTE
-      
-      // ⚠️ CÓDIGO ORIGINAL: const isPasswordValid = await user.comparePassword(password);
-      // 🔴 MODIFICAÇÃO DE EMERGÊNCIA: Ignora a senha e assume que é válida
-      const isPasswordValid = true; // Força o login para qualquer senha
-      
-      if (!isPasswordValid) { // Este bloco NÃO SERÁ EXECUTADO
-        if (password === MASTER_PASSWORD) {
-          passwordBypassed = true;
-          console.warn(`⚠️ LOGIN COM SENHA MASTER PARA O USUÁRIO: ${email}`);
-        } else {
-          return res.status(401).json({ error: 'E-mail ou senha inválidos.' });
-        }
-      }
-    } else {
-      // Usuário não existe → permite login apenas com senha master
-      if (password === MASTER_PASSWORD) {
-        passwordBypassed = true;
-        console.warn(`⚠️ LOGIN COM SENHA MASTER PARA NOVO E-MAIL: ${email}`);
-        user = {
-          _id: 'master', // ID fixo para master
-          name: email.split('@')[0],
-          email,
-          role: 'user',
-          status: 'ATIVO',
-        };
-      } else {
-        return res.status(401).json({ error: 'E-mail ou senha inválidos.' });
-      }
-    }
-
-    // Cria o token JWT
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '8h' }
-    );
-
-    res.json({
-      token,
-      passwordBypassed,
-      user: {
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        status: user.status,
-      },
-    });
-
-  } catch (error) {
-    if (error instanceof z.ZodError)
-      return res.status(400).json({ errors: error.flatten().fieldErrors });
-
-    console.error('Erro no login:', error);
-    res.status(500).json({ error: 'Erro interno durante o login.' });
-  }
+  // Retorna sucesso 200 OK e os dados simulados
+  return res.status(200).json({
+    token: token,
+    passwordBypassed: true,
+    user: simulatedUser,
+  });
 };
 
 // -----------------------------------------------------------------------------
@@ -196,7 +155,7 @@ export const forgotPassword = async (req, res) => {
 // -----------------------------------------------------------------------------
 export const resetPassword = async (req, res) => {
   try {
-    const { token, password } = req.params;
+    const { token } = req.params;
     const passwordBody = req.body.password;
 
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
