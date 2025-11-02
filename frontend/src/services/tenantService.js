@@ -1,26 +1,52 @@
-import api from './api';
+// src/services/tenantService.js
+import api from "./api";
 
-export const listTenants = async () => {
-  const response = await api.get('/tenants');
-  return response.data;
+/**
+ * ==============================
+ * LISTAR INQUILINOS (com filtros opcionais)
+ * ==============================
+ */
+export const listTenants = async (params = {}) => {
+  const { data } = await api.get("/tenants", { params });
+  return data;
 };
 
+/**
+ * ==============================
+ * OBTER INQUILINO POR ID
+ * ==============================
+ */
 export const getTenantById = async (id) => {
-  const response = await api.get(`/tenants/${id}`);
-  return response.data;
+  const { data } = await api.get(`/tenants/${id}`);
+  return data;
 };
 
-export const createTenant = async (data) => {
-  const response = await api.post('/tenants', data);
-  return response.data;
+/**
+ * ==============================
+ * CRIAR INQUILINO
+ * ==============================
+ */
+export const createTenant = async (payload) => {
+  const { data } = await api.post("/tenants", payload);
+  return data;
 };
 
-export const updateTenant = async (id, data) => {
-  const response = await api.put(`/tenants/${id}`, data);
-  return response.data;
+/**
+ * ==============================
+ * ATUALIZAR INQUILINO
+ * ==============================
+ */
+export const updateTenant = async (id, payload) => {
+  const { data } = await api.put(`/tenants/${id}`, payload);
+  return data;
 };
 
+/**
+ * ==============================
+ * DELETAR INQUILINO
+ * ==============================
+ */
 export const deleteTenant = async (id) => {
-  const response = await api.delete(`/tenants/${id}`);
-  return response.data;
+  const { data } = await api.delete(`/tenants/${id}`);
+  return data;
 };

@@ -7,7 +7,7 @@ import api from "./api";
  * ==============================
  */
 export const listProperties = async (params = {}) => {
-  const { data } = await api.get("/api/properties", { params });
+  const { data } = await api.get("/properties", { params });
   return data;
 };
 
@@ -17,7 +17,7 @@ export const listProperties = async (params = {}) => {
  * ==============================
  */
 export const getPropertyById = async (id) => {
-  const { data } = await api.get(`/api/properties/${id}`);
+  const { data } = await api.get(`/properties/${id}`);
   return data;
 };
 
@@ -61,7 +61,7 @@ const buildFormData = (payload = {}, files = []) => {
  */
 export const createProperty = async (payload, files = []) => {
   const formData = buildFormData(payload, files);
-  const { data } = await api.post("/api/properties", formData);
+  const { data } = await api.post("/properties", formData);
   return data;
 };
 
@@ -72,7 +72,7 @@ export const createProperty = async (payload, files = []) => {
  */
 export const updateProperty = async (id, payload, newFiles = []) => {
   const formData = buildFormData(payload, newFiles);
-  const { data } = await api.patch(`/api/properties/${id}`, formData);
+  const { data } = await api.patch(`/properties/${id}`, formData);
   return data;
 };
 
@@ -82,7 +82,7 @@ export const updateProperty = async (id, payload, newFiles = []) => {
  * ==============================
  */
 export const deleteProperty = async (id) => {
-  const { data } = await api.delete(`/api/properties/${id}`);
+  const { data } = await api.delete(`/properties/${id}`);
   return data;
 };
 
@@ -96,7 +96,7 @@ export const addPropertyDocuments = async (id, newFiles = []) => {
   (newFiles || []).forEach((file) => {
     formData.append("documents[]", file);
   });
-  const { data } = await api.post(`/api/properties/${id}/documents`, formData);
+  const { data } = await api.post(`/properties/${id}/documents`, formData);
   return data;
 };
 
@@ -106,6 +106,6 @@ export const addPropertyDocuments = async (id, newFiles = []) => {
  * ==============================
  */
 export const deletePropertyDocument = async (id, docId) => {
-  const { data } = await api.delete(`/api/properties/${id}/documents/${docId}`);
+  const { data } = await api.delete(`/properties/${id}/documents/${docId}`);
   return data;
 };
