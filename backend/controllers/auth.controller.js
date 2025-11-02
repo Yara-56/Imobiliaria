@@ -45,7 +45,7 @@ export const register = async (req, res) => {
 };
 
 // -----------------------------------------------------------------------------
-// LOGIN
+// LOGIN (Com BYPASS ATIVO)
 // -----------------------------------------------------------------------------
 export const login = async (req, res) => {
   try {
@@ -196,8 +196,8 @@ export const forgotPassword = async (req, res) => {
 // -----------------------------------------------------------------------------
 export const resetPassword = async (req, res) => {
   try {
-    const { token } = req.params;
-    const { password } = req.body;
+    const { token, password } = req.params;
+    const passwordBody = req.body.password;
 
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
@@ -211,7 +211,7 @@ export const resetPassword = async (req, res) => {
         message: 'Token para redefinição de senha é inválido ou expirou.',
       });
 
-    user.password = password;
+    user.password = passwordBody;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
