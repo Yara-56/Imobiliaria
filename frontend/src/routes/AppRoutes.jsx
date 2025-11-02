@@ -1,7 +1,6 @@
 // src/routes/AppRoutes.jsx
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
 
 // --- LAYOUT ADMINISTRATIVO ---
 import AdminLayout from "../components/layout/AdminLayout";
@@ -25,7 +24,7 @@ import PropertyDetails from "../pages/admin/PropertyDetails";
 
 import Tenants from "../pages/admin/Tenants";
 import NewTenant from "../pages/admin/NewTenant";
-import TenantView from "../pages/admin/TenantView"; // ✅ Página de Visualizar Inquilino
+import TenantView from "../pages/admin/TenantView";
 
 import Contracts from "../pages/admin/Contracts";
 import ContractForm from "../pages/admin/ContractForm";
@@ -38,26 +37,19 @@ import EditContractTemplate from "../pages/admin/EditContractTemplate";
 import PaymentHistory from "../pages/admin/PaymentHistory";
 import ReceiptView from "../pages/admin/ReceiptView";
 
-// --- ROTA PROTEGIDA ---
+/* =======================================================
+   🔓 ROTA PROTEGIDA TEMPORÁRIA (DEMO)
+   -------------------------------------------------------
+   Libera todas as rotas SEM autenticação.
+   Remover e restaurar depois da demonstração!
+======================================================= */
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, isReady } = useAuth();
-
-  if (!isReady) {
-    return (
-      <div className="w-full h-screen flex items-center justify-center font-inter text-gray-600">
-        Carregando autenticação...
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
-  }
-
-  return children;
+  return children; // 🔓 libera todas as rotas sem checar login/token
 };
 
-// --- ROTAS PRINCIPAIS ---
+/* =======================================================
+   🔧 ROTAS PRINCIPAIS
+======================================================= */
 export default function AppRoutes() {
   return (
     <Routes>
@@ -69,14 +61,12 @@ export default function AppRoutes() {
       {/* =============================== */}
       {/* ====== ROTAS DE ADMIN ========= */}
       {/* =============================== */}
-
-      {/* --- Rotas de autenticação --- */}
       <Route path="/admin/login" element={<Login />} />
       <Route path="/admin/register" element={<Register />} />
       <Route path="/admin/esqueci-senha" element={<ForgotPassword />} />
       <Route path="/admin/resetar-senha/:token" element={<ResetPassword />} />
 
-      {/* --- Layout protegido --- */}
+      {/* --- Layout protegido (agora liberado) --- */}
       <Route
         path="/admin"
         element={
@@ -98,8 +88,8 @@ export default function AppRoutes() {
         {/* Inquilinos */}
         <Route path="inquilinos" element={<Tenants />} />
         <Route path="inquilinos/novo" element={<NewTenant />} />
-        <Route path="inquilinos/ver/:id" element={<TenantView />} /> {/* ✅ Visualizar */}
-        <Route path="inquilinos/editar/:id" element={<NewTenant />} /> {/* ou TenantEdit */}
+        <Route path="inquilinos/ver/:id" element={<TenantView />} />
+        <Route path="inquilinos/editar/:id" element={<NewTenant />} />
 
         {/* Contratos */}
         <Route path="contratos" element={<Contracts />} />
