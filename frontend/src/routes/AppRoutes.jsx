@@ -8,10 +8,6 @@ import AdminLayout from "../components/layout/AdminLayout";
 
 // --- PÁGINAS PÚBLICAS ---
 import HomePage from "../pages/public/HomePage";
-// (Você pode adicionar mais páginas públicas futuramente)
-// import PropertiesPage from "../pages/public/PropertiesPage";
-// import PropertyDetailsPage from "../pages/public/PropertyDetailsPage";
-// import ContactPage from "../pages/public/ContactPage";
 
 // --- PÁGINAS DE ADMIN (PAINEL) ---
 // Autenticação
@@ -25,6 +21,7 @@ import Home from "../pages/admin/Home";
 import PropertiesList from "../pages/admin/PropertiesList";
 import PropertyForm from "../pages/admin/PropertyForm";
 import PropertyEdit from "../pages/admin/PropertyEdit";
+import PropertyDetails from "../pages/admin/PropertyDetails"; // ✅ import do detalhe
 import Tenants from "../pages/admin/Tenants";
 import Contracts from "../pages/admin/Contracts";
 import ContractForm from "../pages/admin/ContractForm";
@@ -51,7 +48,7 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/admin/login" replace />;
   }
 
-  return children; // Retorna o conteúdo protegido
+  return children;
 };
 
 // --- ROTAS PRINCIPAIS ---
@@ -82,13 +79,14 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        {/* ROTAS FILHAS (vão dentro do <Outlet /> no AdminLayout) */}
+        {/* ROTAS FILHAS */}
         <Route path="dashboard" element={<Home />} />
 
         {/* Imóveis */}
         <Route path="imoveis" element={<PropertiesList />} />
         <Route path="imoveis/novo" element={<PropertyForm />} />
         <Route path="imoveis/editar/:id" element={<PropertyEdit />} />
+        <Route path="imoveis/:id" element={<PropertyDetails />} /> {/* ✅ Detalhes do imóvel */}
 
         {/* Inquilinos */}
         <Route path="inquilinos" element={<Tenants />} />
@@ -100,20 +98,14 @@ export default function AppRoutes() {
 
         {/* Modelos de Contrato */}
         <Route path="contratos/modelos" element={<ContractTemplateList />} />
-        <Route
-          path="contratos/modelos/novo"
-          element={<CreateContractTemplate />}
-        />
-        <Route
-          path="contratos/modelos/editar/:id"
-          element={<EditContractTemplate />}
-        />
+        <Route path="contratos/modelos/novo" element={<CreateContractTemplate />} />
+        <Route path="contratos/modelos/editar/:id" element={<EditContractTemplate />} />
 
         {/* Pagamentos e Recibos */}
         <Route path="pagamentos/historico/:id" element={<PaymentHistory />} />
         <Route path="recibo/:id" element={<ReceiptView />} />
 
-        {/* Se o usuário digitar apenas /admin, vai para /admin/dashboard */}
+        {/* Redirecionamento /admin -> /admin/dashboard */}
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
       </Route>
 

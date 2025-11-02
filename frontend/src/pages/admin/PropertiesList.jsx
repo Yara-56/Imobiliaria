@@ -6,19 +6,20 @@ export default function PropertiesList() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
 
-  // ✅ Mapa de rótulos PT-BR para status do back (em EN)
+  // ✅ Mapa de status em português
   const statusLabel = {
     Available: "Disponível",
     Occupied: "Ocupado",
     "Under Maintenance": "Manutenção",
   };
 
+  // Carrega os imóveis
   const fetchData = async () => {
     setLoading(true);
     try {
       const data = await listProperties({ q });
-      // Backend pode retornar { items, pagination } ou array direto
       setItems(Array.isArray(data) ? data : data?.items ?? []);
     } catch (err) {
       console.error(err);
@@ -32,6 +33,7 @@ export default function PropertiesList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Filtragem de busca
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
     if (!needle) return items;
@@ -50,6 +52,21 @@ export default function PropertiesList() {
         .some((v) => String(v).toLowerCase().includes(needle))
     );
   }, [items, q]);
+
+  // Deletar imóvel
+  const handleDelete = async (id) => {
+    if (!window.confirm("Deseja realmente deletar este imóvel?")) return;
+    setDeletingId(id);
+    try {
+      await deleteProperty(id);
+      fetchData(); // atualiza lista
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao deletar o imóvel. Tente novamente.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <div className="max-w-6xl">
@@ -72,6 +89,7 @@ export default function PropertiesList() {
         </button>
       </div>
 
+      {/* Tabela de imóveis */}
       <div className="overflow-x-auto bg-white rounded border">
         <table className="min-w-full">
           <thead className="bg-gray-50 text-left">
@@ -83,7 +101,7 @@ export default function PropertiesList() {
               <th className="px-4 py-2">Cidade</th>
               <th className="px-4 py-2">Estado</th>
               <th className="px-4 py-2">Status</th>
-              <th className="px-4 py-2 w-40">Ações</th>
+              <th className="px-4 py-2 w-48">Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -112,12 +130,27 @@ export default function PropertiesList() {
                     {statusLabel[p.status] ?? p.status ?? "-"}
                   </td>
                   <td className="px-4 py-2">
-                    <Link
-                      to={`/admin/imoveis/${p._id}`} // ✅ corrigido
-                      className="text-blue-600 hover:underline"
-                    >
-                      Ver detalhes
-                    </Link>
+                    <div className="flex gap-2">
+                      <Link
+                        to={`/admin/imoveis/${p._id}`}
+                        className="text-blue-600 hover:underline"
+                      >
+                        Ver
+                      </Link>
+                      <Link
+                        to={`/admin/imoveis/editar/${p._id}`}
+                        className="text-yellow-600 hover:underline"
+                      >
+                        ✎
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(p._id)}
+                        disabled={deletingId === p._id}
+                        className="text-red-600 hover:underline"
+                      >
+                        {deletingId === p._id ? "Deletando..." : "🗑️"}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
