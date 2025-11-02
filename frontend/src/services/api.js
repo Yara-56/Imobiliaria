@@ -1,90 +1,41 @@
-// src/services/api.js
 import axios from "axios";
 
-// ============================================================
-// CONFIGURAÇÃO AUTOMÁTICA DA API
-// ============================================================
-// - Desenvolvimento: usa backend local (porta 5050)
-// - Produção: usa backend hospedado no Render
-// ============================================================
-
-const isProduction = import.meta.env.MODE === "production";
-
-// ⚙️ URLs do backend
-const RENDER_BASE_URL = "https://imobiliaria-pwh6.onrender.com"; // ❌ sem /api
-const LOCAL_BASE_URL = "http://localhost:5050/api"; // ✅ local já inclui /api
-
-// Seleciona URL de acordo com ambiente
-const baseURL = isProduction ? RENDER_BASE_URL : LOCAL_BASE_URL;
+const baseURL = import.meta.env.VITE_API_URL; // ex: "https://imobiliaria-pwh6.onrender.com/api"
 
 const api = axios.create({
   baseURL,
-  timeout: 20000, // 20s
+  timeout: 20000,
 });
 
-// === REQUEST INTERCEPTOR ===
-api.interceptors.request.use(
-  (config) => {
-    const isFormData =
-      typeof FormData !== "undefined" && config.data instanceof FormData;
+api.interceptors.request.use((config) => {
+  const isFormData = config.data instanceof FormData;
 
-    if (!isFormData) {
-      config.headers = {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        ...(config.headers || {}),
-      };
-    } else {
-      config.headers = {
-        Accept: "application/json",
-        ...(config.headers || {}),
-      };
-    }
+  config.headers = {
+    Accept: "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
+    ...(config.headers || {}),
+  };
 
-    // Token JWT (opcional)
-    let token = localStorage.getItem("token");
-    try {
-      const parsed = JSON.parse(token);
-      if (typeof parsed === "string") token = parsed;
-    } catch (_) {}
+  // Token JWT opcional
+  let token = localStorage.getItem("token");
+  try {
+    const parsed = JSON.parse(token);
+    if (typeof parsed === "string") token = parsed;
+  } catch (_) {}
 
-    if (token && token.startsWith('"') && token.endsWith('"')) {
-      token = token.slice(1, -1);
-    }
+  if (token) {
+    const bearer = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
+    config.headers.Authorization = bearer;
+    config.headers["x-access-token"] = token;
+  }
 
-    if (token) {
-      const bearer = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
-      config.headers.Authorization = bearer;
-      config.headers["x-access-token"] = token;
-    }
+  return config;
+});
 
-    if (import.meta.env?.DEV) {
-      console.debug("[API] →", config.method?.toUpperCase(), config.url, {
-        baseURL,
-      });
-    }
-
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// === RESPONSE INTERCEPTOR ===
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const status = error?.response?.status;
-    const data = error?.response?.data;
-
-    if (import.meta.env?.DEV) {
-      console.error("[API ERROR]", {
-        url: error?.config?.url,
-        method: error?.config?.method,
-        status,
-        data,
-      });
-    }
-
+    console.error("[API ERROR]", error?.response?.status, error?.response?.data);
     return Promise.reject(error);
   }
 );

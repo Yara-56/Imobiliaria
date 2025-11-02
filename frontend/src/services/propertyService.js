@@ -1,4 +1,3 @@
-// src/services/propertyService.js
 import api from "./api";
 
 /**
@@ -8,7 +7,7 @@ import api from "./api";
  */
 export const listProperties = async (params = {}) => {
   const { data } = await api.get("/properties", { params });
-  return data;
+  return data.items ?? [];
 };
 
 /**
@@ -56,7 +55,7 @@ const buildFormData = (payload = {}, files = []) => {
 
 /**
  * ==============================
- * CRIAR IMÓVEL (COM OU SEM DOCS)
+ * CRIAR IMÓVEL
  * ==============================
  */
 export const createProperty = async (payload, files = []) => {
@@ -67,7 +66,7 @@ export const createProperty = async (payload, files = []) => {
 
 /**
  * ==============================
- * ATUALIZAR IMÓVEL (PATCH)
+ * ATUALIZAR IMÓVEL
  * ==============================
  */
 export const updateProperty = async (id, payload, newFiles = []) => {
@@ -78,7 +77,7 @@ export const updateProperty = async (id, payload, newFiles = []) => {
 
 /**
  * ==============================
- * DELETAR IMÓVEL COMPLETO
+ * DELETAR IMÓVEL
  * ==============================
  */
 export const deleteProperty = async (id) => {
@@ -102,7 +101,7 @@ export const addPropertyDocuments = async (id, newFiles = []) => {
 
 /**
  * ==============================
- * DELETAR DOCUMENTO ESPECÍFICO
+ * DELETAR DOCUMENTO DO IMÓVEL
  * ==============================
  */
 export const deletePropertyDocument = async (id, docId) => {

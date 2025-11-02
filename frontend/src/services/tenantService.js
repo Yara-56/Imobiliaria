@@ -1,81 +1,63 @@
-// src/services/tenantService.js
+import api from "./api";
 
-const API_BASE = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/tenants`
-  : "http://localhost:5050/api/tenants";
+/**
+ * ==============================
+ * LISTAR INQUILINOS
+ * ==============================
+ */
+export const listTenants = async (query = "") => {
+  const { data } = await api.get("/tenants", { params: { q: query } });
+  return data.items ?? [];
+};
 
-// ✅ Listar todos os inquilinos (com opcional query de busca)
-export async function listTenants(query = "") {
-  try {
-    const url = query ? `${API_BASE}?q=${encodeURIComponent(query)}` : API_BASE;
-    const res = await fetch(url, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-    if (!res.ok) throw new Error("Erro ao buscar inquilinos");
-    return await res.json();
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
-}
+/**
+ * ==============================
+ * OBTER INQUILINO POR ID
+ * ==============================
+ */
+export const getTenant = async (id) => {
+  const { data } = await api.get(`/tenants/${id}`);
+  return data;
+};
 
-// ✅ Obter detalhes de um inquilino
-export async function getTenant(id) {
-  try {
-    const res = await fetch(`${API_BASE}/${id}`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-    if (!res.ok) throw new Error("Erro ao buscar inquilino");
-    return await res.json();
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
-}
+/**
+ * ==============================
+ * CRIAR INQUILINO
+ * ==============================
+ */
+export const createTenant = async (payload, files = []) => {
+  const formData = new FormData();
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value != null) formData.append(key, value);
+  });
+  (files || []).forEach((file) => formData.append("documents[]", file));
 
-// ✅ Criar novo inquilino
-export async function createTenant(data) {
-  try {
-    const res = await fetch(API_BASE, {
-      method: "POST",
-      body: data, // FormData para arquivos
-    });
-    if (!res.ok) throw new Error("Erro ao criar inquilino");
-    return await res.json();
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
-}
+  const { data } = await api.post("/tenants", formData);
+  return data;
+};
 
-// ✅ Atualizar inquilino
-export async function updateTenant(id, data) {
-  try {
-    const res = await fetch(`${API_BASE}/${id}`, {
-      method: "PUT",
-      body: data, // FormData para arquivos
-    });
-    if (!res.ok) throw new Error("Erro ao atualizar inquilino");
-    return await res.json();
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
-}
+/**
+ * ==============================
+ * ATUALIZAR INQUILINO
+ * ==============================
+ */
+export const updateTenant = async (id, payload, files = []) => {
+  const formData = new FormData();
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value != null) formData.append(key, value);
+  });
+  (files || []).forEach((file) => formData.append("documents[]", file));
 
-// ✅ Deletar inquilino
-export async function deleteTenant(id) {
-  try {
-    const res = await fetch(`${API_BASE}/${id}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-    });
-    if (!res.ok) throw new Error("Erro ao deletar inquilino");
-    return await res.json();
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
-}
+  const { data } = await api.put(`/tenants/${id}`, formData);
+  return data;
+};
+
+/**
+ * ==============================
+ * DELETAR INQUILINO
+ * ==============================
+ */
+export const deleteTenant = async (id) => {
+  const { data } = await api.delete(`/tenants/${id}`);
+  return data;
+};
