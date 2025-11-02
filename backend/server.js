@@ -1,64 +1,50 @@
-// backend/server.js
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
-// ---> ADICIONADO: Listeners Globais de Erro <---
-// Captura erros síncronos não tratados que podem derrubar o processo
+// --- Captura erros globais ---
 process.on('uncaughtException', (error) => {
-  console.error('--- ERRO NÃO CAPTURADO (uncaughtException) ---');
+  console.error('--- ERRO NÃO CAPTURADO ---');
   console.error(error);
-  // Em produção, logar o erro em um serviço externo é recomendado
   process.exit(1);
 });
 
-// Captura rejeições de Promises não tratadas (erros assíncronos)
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('--- REJEIÇÃO DE PROMISE NÃO TRATADA (unhandledRejection) ---');
+  console.error('--- REJEIÇÃO DE PROMISE NÃO TRATADA ---');
   console.error('Reason:', reason);
-  // Geralmente, não se encerra o processo aqui, mas é importante logar
+  // Não encerra o processo, mas é bom logar
 });
-// ---> FIM DO BLOCO ADICIONADO <---
 
-// 1. Carrega as variáveis de ambiente PRIMEIRO que tudo!
+// --- Carrega .env ---
 dotenv.config();
 
-// 2. Agora importa o restante da aplicação
 import app from './app.js';
 
-// Verificação de segurança (Opcional, mas recomendado)
 if (!process.env.JWT_SECRET) {
-  console.error("ERRO FATAL: JWT_SECRET não está definida no arquivo .env");
-  process.exit(1); 
+  console.error("ERRO FATAL: JWT_SECRET não definido no .env");
+  process.exit(1);
 }
 
-// Define a porta do servidor e a URL do MongoDB
-const PORT = process.env.PORT || 5050; 
+const PORT = process.env.PORT || 5050;
 const MONGO_URI = process.env.MONGO_URI;
 
-// Função principal para iniciar o servidor
 const startServer = async () => {
   try {
-    if (!MONGO_URI) {
-      throw new Error("ERRO FATAL: MONGO_URI não está definida no arquivo .env");
-    }
+    if (!MONGO_URI) throw new Error("MONGO_URI não definido no .env");
 
-    // Conecta ao MongoDB
     await mongoose.connect(MONGO_URI, {
       useNewUrlParser: true,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
     });
+
     console.log("🟢 Conectado ao MongoDB com sucesso");
 
-    // Inicia o servidor Express
     app.listen(PORT, () => {
-      console.log(`🚀 Servidor rodando na porta ${PORT}`); 
+      console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
     });
-
   } catch (error) {
-    console.error("🔴 Erro ao conectar ao MongoDB ou iniciar o servidor:", error);
-    process.exit(1); 
+    console.error("🔴 Erro ao iniciar servidor:", error);
+    process.exit(1);
   }
 };
 
-// Chama a função para iniciar tudo
 startServer();

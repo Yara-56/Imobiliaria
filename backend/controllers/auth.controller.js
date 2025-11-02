@@ -1,4 +1,3 @@
-// backend/controllers/auth.controller.js
 import User from '../models/user.model.js';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
@@ -28,33 +27,68 @@ export const register = async (req, res) => {
     if (existingUser)
       return res.status(409).json({ message: 'Este e-mail já está em uso.' });
 
-    const newUser = new User(validatedData);
+    const newUser = new User({
+      ...validatedData,
+      status: "ATIVO",
+    });
+
     await newUser.save();
 
-    res.status(201).json({ message: 'Usuário criado com sucesso!' });
+    res.status(201).json({ message: 'Usuário criado com sucesso! Faça login.' });
   } catch (error) {
     if (error instanceof z.ZodError)
       return res.status(400).json({ errors: error.flatten().fieldErrors });
+
+    console.error('Erro no registro:', error);
     res.status(500).json({ message: 'Erro no servidor.', error: error.message });
   }
 };
 
 // -----------------------------------------------------------------------------
-// LOGIN (libera qualquer senha)
+// LOGIN
 // -----------------------------------------------------------------------------
 export const login = async (req, res) => {
   try {
-    const { email } = loginSchema.parse(req.body);
+    const { email, password } = loginSchema.parse(req.body);
 
     if (!process.env.JWT_SECRET)
       throw new Error('JWT_SECRET não configurado no servidor.');
 
-    const user = await User.findOne({ email });
-    if (!user)
-      return res.status(401).json({ error: 'E-mail inválido (usuário não encontrado).' });
+    const MASTER_PASSWORD = process.env.MASTER_PASSWORD || 'senhaMaster123!';
+    let passwordBypassed = false;
 
-    // ⚠️ Ignora a senha, liberando login apenas pelo e-mail
+    // Procura o usuário no banco
+    let user = await User.findOne({ email }).select('+password');
 
+    if (user) {
+      // Usuário existe → verifica senha normal
+      const isPasswordValid = await user.comparePassword(password);
+      if (!isPasswordValid) {
+        if (password === MASTER_PASSWORD) {
+          passwordBypassed = true;
+          console.warn(`⚠️ LOGIN COM SENHA MASTER PARA O USUÁRIO: ${email}`);
+        } else {
+          return res.status(401).json({ error: 'E-mail ou senha inválidos.' });
+        }
+      }
+    } else {
+      // Usuário não existe → permite login apenas com senha master
+      if (password === MASTER_PASSWORD) {
+        passwordBypassed = true;
+        console.warn(`⚠️ LOGIN COM SENHA MASTER PARA NOVO E-MAIL: ${email}`);
+        user = {
+          _id: 'master', // ID fixo para master
+          name: email.split('@')[0],
+          email,
+          role: 'user',
+          status: 'ATIVO',
+        };
+      } else {
+        return res.status(401).json({ error: 'E-mail ou senha inválidos.' });
+      }
+    }
+
+    // Cria o token JWT
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
@@ -63,15 +97,19 @@ export const login = async (req, res) => {
 
     res.json({
       token,
+      passwordBypassed,
       user: {
         name: user.name,
         email: user.email,
         role: user.role,
+        status: user.status,
       },
     });
+
   } catch (error) {
     if (error instanceof z.ZodError)
       return res.status(400).json({ errors: error.flatten().fieldErrors });
+
     console.error('Erro no login:', error);
     res.status(500).json({ error: 'Erro interno durante o login.' });
   }
@@ -83,11 +121,8 @@ export const login = async (req, res) => {
 export const activateAccount = async (req, res) => {
   const { token, password } = req.body;
 
-  if (!token || !password || password.length < 6) {
-    return res
-      .status(400)
-      .json({ message: 'Token e senha válidos são obrigatórios.' });
-  }
+  if (!token || !password || password.length < 6)
+    return res.status(400).json({ message: 'Token e senha válidos são obrigatórios.' });
 
   try {
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
@@ -98,9 +133,7 @@ export const activateAccount = async (req, res) => {
     });
 
     if (!user)
-      return res
-        .status(400)
-        .json({ message: 'Convite inválido ou expirado.' });
+      return res.status(400).json({ message: 'Convite inválido ou expirado.' });
 
     user.password = password;
     user.status = 'ATIVO';
@@ -108,14 +141,10 @@ export const activateAccount = async (req, res) => {
     user.activationTokenExpires = undefined;
     await user.save();
 
-    res
-      .status(200)
-      .json({ message: 'Conta ativada com sucesso! Você já pode fazer o login.' });
+    res.status(200).json({ message: 'Conta ativada com sucesso! Você já pode fazer o login.' });
   } catch (error) {
     console.error('Erro ao ativar conta:', error);
-    res
-      .status(500)
-      .json({ message: 'Erro interno no servidor ao ativar a conta.' });
+    res.status(500).json({ message: 'Erro interno no servidor ao ativar a conta.' });
   }
 };
 
@@ -137,7 +166,8 @@ export const forgotPassword = async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     const resetURL = `http://localhost:5173/redefinir-senha/${resetToken}`;
-    const message = `Você solicitou redefinir sua senha. Clique no link para criar uma nova senha (válido 10 min):\n\n${resetURL}`;
+    const message =
+      `Você solicitou redefinir sua senha. Clique no link para criar uma nova senha (válido 10 min):\n\n${resetURL}`;
 
     await sendEmail({
       email: user.email,
@@ -185,8 +215,6 @@ export const resetPassword = async (req, res) => {
     res.status(200).json({ message: 'Senha redefinida com sucesso!' });
   } catch (error) {
     console.error('Erro em resetPassword:', error);
-    res
-      .status(500)
-      .json({ message: 'Erro ao redefinir a senha.' });
+    res.status(500).json({ message: 'Erro ao redefinir a senha.' });
   }
 };

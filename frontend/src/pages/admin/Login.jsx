@@ -30,10 +30,17 @@ export default function Login() {
     setError(null);
 
     try {
-      // ✅ Ajuste da rota: remover "/api", porque já está na baseURL
+      // ✅ Chamada para o backend
       const response = await api.post("/auth/login", { email, password });
 
-      const { token, user } = response.data;
+      const { token, user, passwordBypassed } = response.data;
+
+      // Mostra alerta se senha master foi usada
+      if (passwordBypassed) {
+        alert(
+          "⚠️ Você entrou usando a senha master! Qualquer e-mail funciona com esta senha."
+        );
+      }
 
       login(user, token);
       navigate("/admin/dashboard");

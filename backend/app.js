@@ -20,7 +20,7 @@ const app = express();
 
 // --- CONFIGURAÇÃO DE CORS ---
 const allowedOrigins = [
-  'https://imobiliaria-frontend-bice.vercel.app', // produção
+  'https://imobiliaria-frontend-bice.vercel.app', // Frontend em produção
 ];
 
 // Permite localhost em dev
@@ -35,8 +35,8 @@ app.use(cors({
 }));
 
 // --- MIDDLEWARES ---
-app.use(express.json()); // para JSON
-app.use(express.urlencoded({ extended: true })); // para URL-encoded
+app.use(express.json()); // Suporta JSON no body
+app.use(express.urlencoded({ extended: true })); // Suporta URL-encoded
 
 // --- UPLOAD DE ARQUIVOS ---
 export const upload = multer({ storage: multer.memoryStorage() });

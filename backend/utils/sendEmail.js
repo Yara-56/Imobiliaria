@@ -1,29 +1,24 @@
-// backend/utils/sendEmail.js
 import nodemailer from 'nodemailer';
 
 const sendEmail = async ({ email, subject, message }) => {
   try {
-    // Cria conta temporária de teste
-    const testAccount = await nodemailer.createTestAccount();
-
     const transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
+      host: process.env.MAIL_HOST,
+      port: process.env.MAIL_PORT,
       auth: {
-        user: testAccount.user,
-        pass: testAccount.pass,
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS,
       },
     });
 
-    const info = await transporter.sendMail({
-      from: `"Imobiliária Lacerda" <${testAccount.user}>`,
+    await transporter.sendMail({
+      from: `"Imobiliária" <${process.env.MAIL_USER}>`,
       to: email,
       subject,
       text: message,
     });
 
-    console.log('Mensagem enviada: %s', info.messageId);
-    console.log('URL de visualização do e-mail: %s', nodemailer.getTestMessageUrl(info));
+    console.log(`✅ E-mail enviado para: ${email}`);
   } catch (error) {
     console.error('Erro ao enviar e-mail:', error);
     throw new Error('Não foi possível enviar o e-mail.');
