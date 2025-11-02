@@ -113,7 +113,7 @@ export default function PropertiesList() {
                   </td>
                   <td className="px-4 py-2">
                     <Link
-                      to={`/admin/imoveis/${p._id}/editar`} // ✅ corrigido
+                      to={`/admin/imoveis/${p._id}`} // ✅ corrigido
                       className="text-blue-600 hover:underline"
                     >
                       Ver detalhes
