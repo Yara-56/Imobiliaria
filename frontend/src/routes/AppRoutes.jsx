@@ -1,6 +1,7 @@
 // src/routes/AppRoutes.jsx
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 // --- LAYOUT ADMINISTRATIVO ---
 import AdminLayout from "../components/layout/AdminLayout";
@@ -9,8 +10,6 @@ import AdminLayout from "../components/layout/AdminLayout";
 import HomePage from "../pages/public/HomePage";
 
 // --- PÁGINAS DE ADMIN (PAINEL) ---
-// Autenticação
-import Login from "../pages/admin/Login";
 import Register from "../pages/admin/Register";
 import ForgotPassword from "../pages/admin/ForgotPassword";
 import ResetPassword from "../pages/admin/ResetPassword";
@@ -37,20 +36,20 @@ import EditContractTemplate from "../pages/admin/EditContractTemplate";
 import PaymentHistory from "../pages/admin/PaymentHistory";
 import ReceiptView from "../pages/admin/ReceiptView";
 
-/* =======================================================
-   🔓 ROTA PROTEGIDA TEMPORÁRIA (DEMO)
-   -------------------------------------------------------
-   Libera todas as rotas SEM autenticação.
-   Remover e restaurar depois da demonstração!
-======================================================= */
+// =====================================================
+// 🔓 ROTA PROTEGIDA (AGORA SEM LOGIN)
+// =====================================================
 const ProtectedRoute = ({ children }) => {
-  return children; // 🔓 libera todas as rotas sem checar login/token
+  // Tudo liberado — o login foi completamente desativado
+  return children;
 };
 
-/* =======================================================
-   🔧 ROTAS PRINCIPAIS
-======================================================= */
+// =====================================================
+// 🔗 ROTAS PRINCIPAIS
+// =====================================================
 export default function AppRoutes() {
+  const { user } = useAuth();
+
   return (
     <Routes>
       {/* =============================== */}
@@ -61,12 +60,14 @@ export default function AppRoutes() {
       {/* =============================== */}
       {/* ====== ROTAS DE ADMIN ========= */}
       {/* =============================== */}
-      <Route path="/admin/login" element={<Login />} />
+
+      {/* 🚫 Login desativado — redireciona direto */}
+      <Route path="/admin/login" element={<Navigate to="/admin/dashboard" replace />} />
       <Route path="/admin/register" element={<Register />} />
       <Route path="/admin/esqueci-senha" element={<ForgotPassword />} />
       <Route path="/admin/resetar-senha/:token" element={<ResetPassword />} />
 
-      {/* --- Layout protegido (agora liberado) --- */}
+      {/* --- Layout liberado --- */}
       <Route
         path="/admin"
         element={
