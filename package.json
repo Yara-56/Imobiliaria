@@ -17,6 +17,7 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "chart.js": "^4.5.1",
+    "cors": "^2.8.5",
     "disposable-email-domains": "^1.0.62",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",

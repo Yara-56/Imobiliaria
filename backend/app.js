@@ -1,3 +1,4 @@
+// app.js
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
@@ -20,8 +21,8 @@ const app = express();
 // CORS CONFIG
 // =====================================================
 const allowedOrigins = [
-  'https://imobiliaria-frontend-bice.vercel.app', // frontend Vercel
-  'https://imobiliaria-pwh6.onrender.com',        // backend Render
+  'https://imobiliaria-frontend-76xsdlum1-yara-56s-projects.vercel.app', // frontend Vercel atual
+  'https://imobiliaria-pwh6.onrender.com', // backend Render
 ];
 
 // Permite localhost em dev
@@ -35,6 +36,7 @@ app.use(cors({
     if (!origin || allowedOrigins.some(o => o instanceof RegExp ? o.test(origin) : o === origin)) {
       callback(null, true);
     } else {
+      console.warn(`❌ CORS não permitido para: ${origin}`);
       callback(new Error(`CORS não permitido para: ${origin}`));
     }
   },

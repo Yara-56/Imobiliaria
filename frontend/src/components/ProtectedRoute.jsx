@@ -26,16 +26,13 @@ export default function ProtectedRoute({ children }) {
 
   const demoBypass =
     parseFlag(envVars.vite) || parseFlag(envVars.cra) || parseFlag(envVars.next) ||
-    // fallback: possibilidade de ativar via global setado manualmente (opcional)
     (typeof window !== "undefined" && window.__DEMO_BYPASS === true);
 
   if (demoBypass) {
-    // LOG opcional para debug (remove depois)
-    // console.warn("DEMO BYPASS ATIVADO - REMOVER APÓS DEMONSTRAÇÃO");
     return children;
   }
 
-  // 3) Comportamento padrão: checa token no localStorage (sua lógica original)
+  // 3) Comportamento padrão: checa token no localStorage
   const token = typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
   return token ? children : <Navigate to="/" replace />;
 }

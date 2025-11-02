@@ -1,3 +1,4 @@
+// server.js
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import app from './app.js';
@@ -8,19 +9,18 @@ import app from './app.js';
 process.on('uncaughtException', (error) => {
   console.error('--- ERRO NÃO CAPTURADO ---');
   console.error(error);
-  process.exit(1); // encerra para evitar estado inconsistente
+  process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('--- REJEIÇÃO DE PROMISE NÃO TRATADA ---');
   console.error('Reason:', reason);
-  // Não encerra o processo, mas log é importante
 });
 
 // =====================================================
 // CARREGA VARIÁVEIS DE AMBIENTE
 // =====================================================
-dotenv.config(); // carrega .env independente do NODE_ENV
+dotenv.config();
 
 if (!process.env.JWT_SECRET) {
   console.error("ERRO FATAL: JWT_SECRET não definido no ambiente!");
@@ -41,7 +41,6 @@ const MONGO_URI = process.env.MONGO_URI;
 const startServer = async () => {
   try {
     await mongoose.connect(MONGO_URI, {
-      // ⚠️ Estas opções são padrão no Mongoose 6+, mas mantidas para compatibilidade
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
