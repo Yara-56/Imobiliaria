@@ -1,7 +1,7 @@
 // src/routes/AppRoutes.jsx
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+// import { useAuth } from "../contexts/AuthContext"; // Removido pois 'user' não é usado
 
 // --- LAYOUT ADMINISTRATIVO ---
 import AdminLayout from "../components/layout/AdminLayout";
@@ -48,21 +48,24 @@ const ProtectedRoute = ({ children }) => {
 // 🔗 ROTAS PRINCIPAIS
 // =====================================================
 export default function AppRoutes() {
-  const { user } = useAuth();
+  // const { user } = useAuth(); // Não é mais usado aqui
 
   return (
     <Routes>
       {/* =============================== */}
-      {/* ====== ROTAS PÚBLICAS ========= */}
+      {/* ====== ROTAS PÚBLICAS/INICIAL ========= */}
       {/* =============================== */}
-      <Route path="/" element={<HomePage />} />
+      {/* 🛑 MUDANÇA PRINCIPAL: Redireciona a rota raiz para a tela de Inquilinos */}
+      <Route path="/" element={<Navigate to="/admin/inquilinos" replace />} />
+      {/* Se quiser manter a HomePage para testes, use uma rota diferente: */}
+      <Route path="/public" element={<HomePage />} /> 
 
       {/* =============================== */}
       {/* ====== ROTAS DE ADMIN ========= */}
       {/* =============================== */}
 
       {/* 🚫 Login desativado — redireciona direto */}
-      <Route path="/admin/login" element={<Navigate to="/admin/dashboard" replace />} />
+      <Route path="/admin/login" element={<Navigate to="/admin/inquilinos" replace />} />
       <Route path="/admin/register" element={<Register />} />
       <Route path="/admin/esqueci-senha" element={<ForgotPassword />} />
       <Route path="/admin/resetar-senha/:token" element={<ResetPassword />} />
@@ -77,7 +80,8 @@ export default function AppRoutes() {
         }
       >
         {/* ROTAS FILHAS */}
-        <Route index element={<Navigate to="/admin/dashboard" replace />} />
+        {/* 🛑 MUDANÇA: O index ( /admin ) agora redireciona para Inquilinos */}
+        <Route index element={<Navigate to="/admin/inquilinos" replace />} />
         <Route path="dashboard" element={<Home />} />
 
         {/* Imóveis */}
@@ -110,12 +114,14 @@ export default function AppRoutes() {
       {/* =============================== */}
       {/* ====== REDIRECIONAMENTOS ====== */}
       {/* =============================== */}
-      <Route path="/home" element={<Navigate to="/admin/dashboard" replace />} />
+      {/* O '/home' agora aponta para inquilinos */}
+      <Route path="/home" element={<Navigate to="/admin/inquilinos" replace />} />
 
       {/* =============================== */}
       {/* ====== ROTA INEXISTENTE ======= */}
       {/* =============================== */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* O '*' agora redireciona para a tela de Inquilinos, e não mais para '/' */}
+      <Route path="*" element={<Navigate to="/admin/inquilinos" replace />} />
     </Routes>
   );
 }
