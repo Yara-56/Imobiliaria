@@ -30,7 +30,7 @@ if (process.env.NODE_ENV !== 'production') {
   console.log('Dev: Permitindo localhost');
 }
 
-// Middleware CORS
+// Middleware CORS (intercepta automaticamente preflight OPTIONS)
 const corsOptions = {
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.some(o => o instanceof RegExp ? o.test(origin) : o === origin)) {
@@ -46,12 +46,8 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
+// 1️⃣ Aplica CORS antes de qualquer rota ou middleware
 app.use(cors(corsOptions));
-
-// =====================================================
-// PREFLIGHT OPTIONS (Evita 500 no browser)
-// =====================================================
-app.options('*', cors(corsOptions));
 
 // =====================================================
 // MIDDLEWARES
