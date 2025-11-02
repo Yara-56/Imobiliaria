@@ -12,6 +12,11 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // ===============================================================
+  // BLOQUEIO DE LOGIN ORIGINAL: 
+  // Comentado para forçar ir direto para o dashboard
+  // ===============================================================
+  /*
   if (isReady && isAuthenticated) {
     return <Navigate to="/admin/dashboard" replace />;
   }
@@ -23,6 +28,7 @@ export default function Login() {
       </div>
     );
   }
+  */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,12 +36,15 @@ export default function Login() {
     setError(null);
 
     try {
-      // ✅ Chamada para o backend
+      // ===============================================================
+      // BLOQUEIO ORIGINAL: chamada real para o backend
+      // Comentado para liberar login direto
+      // ===============================================================
+      /*
       const response = await api.post("/auth/login", { email, password });
 
       const { token, user, passwordBypassed } = response.data;
 
-      // Mostra alerta se senha master foi usada
       if (passwordBypassed) {
         alert(
           "⚠️ Você entrou usando a senha master! Qualquer e-mail funciona com esta senha."
@@ -43,8 +52,20 @@ export default function Login() {
       }
 
       login(user, token);
-      navigate("/admin/dashboard");
+      */
 
+      // ===============================================================
+      // LOGIN LIBERADO: simula usuário e token
+      // ===============================================================
+      const user = { name: email || "Usuário Teste", role: "admin" };
+      const token = "tokenFakeParaTeste";
+
+      // salva no localStorage para compatibilidade com AuthContext
+      localStorage.setItem("token", JSON.stringify(token));
+      localStorage.setItem("user", JSON.stringify(user));
+
+      login(user, token); // chama login do contexto
+      navigate("/admin/dashboard"); // vai direto para dashboard
     } catch (err) {
       const errorMessage =
         err.response?.data?.error ||
