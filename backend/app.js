@@ -22,7 +22,6 @@ const app = express();
 // =====================================================
 const allowedOrigins = [
   'https://imobiliaria-frontend-76xsdlum1-yara-56s-projects.vercel.app', // frontend Vercel atual
-  'https://imobiliaria-pwh6.onrender.com', // backend Render
 ];
 
 // Permite localhost em dev
@@ -31,7 +30,8 @@ if (process.env.NODE_ENV !== 'production') {
   console.log('Dev: Permitindo localhost');
 }
 
-app.use(cors({
+// Middleware CORS
+const corsOptions = {
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.some(o => o instanceof RegExp ? o.test(origin) : o === origin)) {
       callback(null, true);
@@ -44,7 +44,14 @@ app.use(cors({
   allowedHeaders: ['Content-Type','Authorization'],
   credentials: true,
   optionsSuccessStatus: 200,
-}));
+};
+
+app.use(cors(corsOptions));
+
+// =====================================================
+// PREFLIGHT OPTIONS (Evita 500 no browser)
+// =====================================================
+app.options('*', cors(corsOptions));
 
 // =====================================================
 // MIDDLEWARES
