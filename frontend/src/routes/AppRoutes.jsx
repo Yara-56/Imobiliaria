@@ -21,14 +21,20 @@ import Home from "../pages/admin/Home";
 import PropertiesList from "../pages/admin/PropertiesList";
 import PropertyForm from "../pages/admin/PropertyForm";
 import PropertyEdit from "../pages/admin/PropertyEdit";
-import PropertyDetails from "../pages/admin/PropertyDetails"; // ✅ import do detalhe
+import PropertyDetails from "../pages/admin/PropertyDetails";
+
 import Tenants from "../pages/admin/Tenants";
+import NewTenant from "../pages/admin/NewTenant";
+import TenantView from "../pages/admin/TenantView"; // ✅ Página de Visualizar Inquilino
+
 import Contracts from "../pages/admin/Contracts";
 import ContractForm from "../pages/admin/ContractForm";
 import NewContract from "../pages/admin/NewContract";
+
 import ContractTemplateList from "../pages/admin/ContractTemplateList";
 import CreateContractTemplate from "../pages/admin/CreateContractTemplate";
 import EditContractTemplate from "../pages/admin/EditContractTemplate";
+
 import PaymentHistory from "../pages/admin/PaymentHistory";
 import ReceiptView from "../pages/admin/ReceiptView";
 
@@ -80,16 +86,20 @@ export default function AppRoutes() {
         }
       >
         {/* ROTAS FILHAS */}
+        <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<Home />} />
 
         {/* Imóveis */}
         <Route path="imoveis" element={<PropertiesList />} />
         <Route path="imoveis/novo" element={<PropertyForm />} />
         <Route path="imoveis/editar/:id" element={<PropertyEdit />} />
-        <Route path="imoveis/:id" element={<PropertyDetails />} /> {/* ✅ Detalhes do imóvel */}
+        <Route path="imoveis/:id" element={<PropertyDetails />} />
 
         {/* Inquilinos */}
         <Route path="inquilinos" element={<Tenants />} />
+        <Route path="inquilinos/novo" element={<NewTenant />} />
+        <Route path="inquilinos/ver/:id" element={<TenantView />} /> {/* ✅ Visualizar */}
+        <Route path="inquilinos/editar/:id" element={<NewTenant />} /> {/* ou TenantEdit */}
 
         {/* Contratos */}
         <Route path="contratos" element={<Contracts />} />
@@ -104,16 +114,12 @@ export default function AppRoutes() {
         {/* Pagamentos e Recibos */}
         <Route path="pagamentos/historico/:id" element={<PaymentHistory />} />
         <Route path="recibo/:id" element={<ReceiptView />} />
-
-        {/* Redirecionamento /admin -> /admin/dashboard */}
-        <Route index element={<Navigate to="/admin/dashboard" replace />} />
       </Route>
 
       {/* =============================== */}
       {/* ====== REDIRECIONAMENTOS ====== */}
       {/* =============================== */}
       <Route path="/home" element={<Navigate to="/admin/dashboard" replace />} />
-      <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
       {/* =============================== */}
       {/* ====== ROTA INEXISTENTE ======= */}

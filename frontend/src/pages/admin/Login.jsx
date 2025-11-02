@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-// 1. CORREÇÃO PRINCIPAL: Importando do lugar certo
 import { useAuth } from "../../contexts/AuthContext";
 import api from "../../services/api";
 import { Navigate, useNavigate, Link } from "react-router-dom";
@@ -14,7 +13,6 @@ export default function Login() {
   const [error, setError] = useState(null);
 
   if (isReady && isAuthenticated) {
-    // 2. CORREÇÃO DE ROTA: Redireciona para o dashboard
     return <Navigate to="/admin/dashboard" replace />;
   }
 
@@ -32,20 +30,19 @@ export default function Login() {
     setError(null);
 
     try {
-      const response = await api.post("/api/auth/login", {
-        email,
-        password,
-      });
+      // ✅ Ajuste da rota: remover "/api", porque já está na baseURL
+      const response = await api.post("/auth/login", { email, password });
 
       const { token, user } = response.data;
-      
+
       login(user, token);
-      // 3. CORREÇÃO DE ROTA: Navega para o dashboard
       navigate("/admin/dashboard");
 
     } catch (err) {
-      // Tenta pegar a mensagem de erro específica do backend
-      const errorMessage = err.response?.data?.error || err.response?.data?.message || "E-mail ou senha inválidos. Tente novamente.";
+      const errorMessage =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "E-mail ou senha inválidos. Tente novamente.";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -66,9 +63,7 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="text-sm font-semibold text-gray-700 block mb-1">
-              E-MAIL
-            </label>
+            <label htmlFor="email" className="text-sm font-semibold text-gray-700 block mb-1">E-MAIL</label>
             <input
               type="email"
               id="email"
@@ -82,9 +77,7 @@ export default function Login() {
           </div>
 
           <div>
-            <label htmlFor="password" className="text-sm font-semibold text-gray-700 block mb-1">
-              SENHA
-            </label>
+            <label htmlFor="password" className="text-sm font-semibold text-gray-700 block mb-1">SENHA</label>
             <input
               type="password"
               id="password"
@@ -98,7 +91,6 @@ export default function Login() {
           </div>
 
           <div className="text-right text-sm">
-            {/* 4. CORREÇÃO DE ROTA: Adicionado o /admin/ */}
             <Link 
               to="/admin/esqueci-senha"
               className="font-medium text-blue-600 hover:text-blue-500"
@@ -122,15 +114,13 @@ export default function Login() {
 
         <div className="text-center mt-6 text-sm">
           <span className="text-gray-600">Não tem uma conta? </span>
-          {/* 5. CORREÇÃO DE ROTA: Adicionado o /admin/ */}
           <Link 
-            to="/admin/register" // Link para a nova rota que criamos
+            to="/admin/register"
             className="font-medium text-blue-600 hover:text-blue-500"
           >
             Cadastre-se
           </Link>
         </div>
-
       </div>
     </div>
   );

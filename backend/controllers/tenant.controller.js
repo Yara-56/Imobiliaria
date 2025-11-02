@@ -3,39 +3,47 @@
 import Tenant from "../models/tenant.model.js";
 import fs from "fs/promises";
 import path from "path";
-
-// --- Utilitário de diretório (necessário para deletar arquivos, se for o caso) ---
 import { fileURLToPath } from "url";
+
+// Diretório de uploads
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadDir = path.join(__dirname, "..", "uploads");
 
-// Listar todos os inquilinos
+// ================================
+// LISTAR TODOS OS INQUILINOS
+// ================================
 export const listTenants = async (req, res) => {
   try {
     const tenants = await Tenant.find();
     res.json(tenants);
   } catch (error) {
+    console.error("Erro ao listar inquilinos:", error);
     res.status(500).json({ error: "Failed to fetch tenants." });
   }
 };
 
-// Obter inquilino por ID (Necessário para a tela de edição)
+// ================================
+// OBTER INQUILINO POR ID
+// ================================
 export const getTenant = async (req, res) => {
   try {
     const tenant = await Tenant.findById(req.params.id);
-    if (!tenant) {
-      return res.status(404).json({ error: "Tenant not found." });
-    }
+    if (!tenant) return res.status(404).json({ error: "Tenant not found." });
     res.json(tenant);
   } catch (error) {
+    console.error("Erro ao buscar inquilino:", error);
     res.status(500).json({ error: "Failed to fetch tenant." });
   }
 };
 
-// Criar um novo inquilino (Agora processa req.body e req.files)
+// ================================
+// CRIAR NOVO INQUILINO
+// ================================
 export const createTenant = async (req, res) => {
-  const { body, files } = req; // Adiciona os documentos ao corpo, se existirem
+  const { body, files } = req;
+
+  // Processa documentos enviados
   const documents = (files || []).map((file) => ({
     name: file.originalname,
     url: `/uploads/${file.filename}`,
@@ -44,50 +52,48 @@ export const createTenant = async (req, res) => {
   try {
     const newTenant = new Tenant({
       ...body,
-      documents: documents, // Inclui os novos documentos
+      documents,
     });
     await newTenant.save();
     res.status(201).json(newTenant);
   } catch (error) {
-    // Se houver erro de validação, deleta os arquivos recém-uploadados
+    // Em caso de erro, remove arquivos enviados
     for (const file of files || []) {
       await fs.unlink(path.join(uploadDir, file.filename)).catch(console.error);
     }
     console.error("Erro ao criar inquilino:", error);
-    res
-      .status(400)
-      .json({ error: "Failed to create tenant. Please check data format." });
+    res.status(400).json({ error: "Failed to create tenant. Check data format." });
   }
 };
 
-// --- FUNÇÃO CORRIGIDA: ATUALIZAR INQUILINO (PUT) ---
+// ================================
+// ATUALIZAR INQUILINO
+// ================================
 export const updateTenant = async (req, res) => {
   const { id } = req.params;
   const updateData = req.body;
-  const newFiles = req.files; // Arquivos salvos pelo Multer (chave 'files' em vez de 'newFiles')
+  const newFiles = req.files;
 
   try {
-    // 1. Encontra o inquilino
     const tenant = await Tenant.findById(id);
+    if (!tenant) return res.status(404).json({ error: "Tenant not found." });
 
-    if (!tenant) {
-      return res.status(404).json({ error: "Tenant not found." });
-    } // 2. Processa os NOVOS documentos
-
+    // Adiciona novos documentos se houver
     if (newFiles && newFiles.length > 0) {
       const newDocuments = newFiles.map((file) => ({
         name: file.originalname,
-        url: `/uploads/${file.filename}`, // URL de acesso para o frontend
+        url: `/uploads/${file.filename}`,
       }));
       tenant.documents.push(...newDocuments);
-    } // 3. Atualiza os campos de texto // O Object.assign ou loop manual garantirá que apenas os campos do formulário sejam atualizados
+    }
 
-    Object.assign(tenant, updateData); // 4. Salva no banco
+    // Atualiza os campos do corpo do formulário
+    Object.assign(tenant, updateData);
 
     const updatedTenant = await tenant.save();
     res.status(200).json(updatedTenant);
   } catch (error) {
-    // Se houver erro de validação, deleta os arquivos recém-uploadados
+    // Remove arquivos enviados se houver erro
     for (const file of newFiles || []) {
       await fs.unlink(path.join(uploadDir, file.filename)).catch(console.error);
     }
@@ -98,28 +104,27 @@ export const updateTenant = async (req, res) => {
   }
 };
 
-// --- FUNÇÃO DELETAR INQUILINO (DELETE) ---
+// ================================
+// DELETAR INQUILINO
+// ================================
 export const deleteTenant = async (req, res) => {
   try {
-    // Implementação ideal:
-    // 1. Encontrar o inquilino
-    // 2. Deletar todos os arquivos associados da pasta 'uploads'
-    // 3. Deletar o registro no MongoDB
     const tenant = await Tenant.findByIdAndDelete(req.params.id);
-    if (!tenant) {
-      return res.status(404).json({ error: "Tenant not found." });
-    }
+    if (!tenant) return res.status(404).json({ error: "Tenant not found." });
 
-    // Opcional, mas recomendado: Limpar arquivos físicos
-    // if (tenant.documents && tenant.documents.length > 0) {
-    //    for (const doc of tenant.documents) {
-    //        const filename = path.basename(doc.url);
-    //        await fs.unlink(path.join(uploadDir, filename)).catch(err => console.error(`Failed to delete file ${filename}:`, err));
-    //    }
-    // }
+    // Remove arquivos do upload
+    if (tenant.documents && tenant.documents.length > 0) {
+      for (const doc of tenant.documents) {
+        const filename = path.basename(doc.url);
+        await fs.unlink(path.join(uploadDir, filename)).catch(err =>
+          console.error(`Falha ao deletar arquivo ${filename}:`, err)
+        );
+      }
+    }
 
     res.status(200).json({ message: "Tenant deleted successfully." });
   } catch (error) {
+    console.error("Erro ao deletar inquilino:", error);
     res.status(500).json({ error: "Failed to delete tenant." });
   }
 };

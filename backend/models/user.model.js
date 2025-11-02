@@ -1,98 +1,37 @@
-// backend/models/user.model.js
-
-import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'O nome é obrigatório.'],
-    trim: true,
-  },
-  email: {
-    type: String,
-    required: [true, 'O e-mail é obrigatório.'],
-    unique: true,
-    lowercase: true,
-    trim: true,
-    match: [/.+\@.+\..+/, 'Por favor, insira um e-mail válido.'],
-  },
-  password: {
-    type: String,
-    minlength: [6, 'A senha deve ter pelo menos 6 caracteres.'],
-    select: false,
-  },
-  role: {
-    type: String,
-    enum: ['admin', 'corretor'],
-    default: 'corretor',
-  },
-  status: {
-    type: String,
-    enum: ['PENDENTE', 'ATIVO'],
-    default: 'PENDENTE',
-  },
-  activationToken: {
-    type: String,
-  },
-  activationTokenExpires: {
-    type: Date,
-  },
-  // ---> NOVOS CAMPOS PARA RECUPERAÇÃO DE SENHA <---
-  resetPasswordToken: {
-    type: String,
-  },
-  resetPasswordExpires: {
-    type: Date,
-  },
-}, {
-  timestamps: true,
-  versionKey: false, // Adicionando para estabilidade
-});
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true, select: false },
+  role: { type: String, default: "ADMIN" },
+  status: { type: String, default: "INATIVO" },
+  activationToken: String,
+  activationTokenExpires: Date,
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
+}, { timestamps: true });
 
-// Hook para criptografar a senha ANTES de salvar
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-
-  // O seu erro de 'bcryptjs' anterior pode ser resolvido com 'bcryptjs' aqui
-  // ou garantindo que o 'bcrypt' está instalado. Assumimos 'bcryptjs'.
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+// --- Hash da senha antes de salvar ---
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-// Método para comparar senha
-userSchema.methods.comparePassword = async function(candidatePassword) {
-  // A comparação usará o módulo que você configurou no import
-  return await bcrypt.compare(candidatePassword, this.password);
+// --- Comparar senha para login ---
+userSchema.methods.comparePassword = async function (password) {
+  return bcrypt.compare(password, this.password);
 };
 
-// Método para gerar o token de ATIVAÇÃO de conta
-userSchema.methods.createActivationToken = function() {
-  const activationToken = crypto.randomBytes(32).toString('hex');
-  this.activationToken = crypto.createHash('sha256').update(activationToken).digest('hex');
-  this.activationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 horas
-  return activationToken;
-};
-
-// ---> NOVO MÉTODO PARA GERAR O TOKEN DE REDEFINIÇÃO DE SENHA <---
-userSchema.methods.createPasswordResetToken = function() {
-  const resetToken = crypto.randomBytes(32).toString('hex');
-
-  // Criptografa o token antes de salvar no banco
-  this.resetPasswordToken = crypto
-    .createHash('sha256')
-    .update(resetToken)
-    .digest('hex');
-
-  // Define a expiração para 10 minutos
-  this.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
-
-  // Retorna o token NÃO criptografado para ser enviado por e-mail
+// --- Criar token de redefinição de senha ---
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+  this.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minutos
   return resetToken;
 };
 
-// 🚨 CORREÇÃO ESSENCIAL (SINGLETON) 🚨
-// Garante que o modelo só seja definido uma vez para evitar OverwriteModelError no Render/Vercel.
-export default mongoose.models.User || mongoose.model('User', userSchema);
+export default mongoose.model("User", userSchema);

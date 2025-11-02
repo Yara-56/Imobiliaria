@@ -1,11 +1,14 @@
+// src/components/Menu.jsx
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import classNames from "classnames";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Menu() {
   const location = useLocation();
-  const navigate = useNavigate();
+  const { logout } = useAuth();
   const [openMenu, setOpenMenu] = useState(null);
+  const [menuCollapsed, setMenuCollapsed] = useState(false);
   const [userName, setUserName] = useState("");
 
   useEffect(() => {
@@ -13,18 +16,12 @@ export default function Menu() {
     setUserName(user?.name || "Usuário");
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/");
+  const toggleSubmenu = (key) => {
+    setOpenMenu(openMenu === key ? null : key);
   };
 
   const isActive = (path) => location.pathname === path;
   const isPrefixActive = (prefix) => location.pathname.startsWith(prefix);
-
-  const toggleSubmenu = (key) => {
-    setOpenMenu(openMenu === key ? null : key);
-  };
 
   const menuItems = [
     {
@@ -48,6 +45,10 @@ export default function Menu() {
       icon: "fa-solid fa-users",
       label: "Inquilinos",
       path: "/admin/inquilinos",
+      submenu: [
+        { to: "/admin/inquilinos", label: "📋 Listar inquilinos" },
+        { to: "/admin/inquilinos/novo", label: "➕ Novo inquilino" },
+      ],
     },
     {
       key: "contracts",
@@ -59,41 +60,41 @@ export default function Menu() {
         { to: "/admin/contratos/modelos", label: "📂 Modelos de Contrato" },
       ],
     },
-    {
-      key: "reports",
-      icon: "fa-solid fa-chart-pie",
-      label: "Relatórios",
-      path: "/admin/relatorios",
-      submenu: [
-        { to: "/admin/pagamentos/historico/1", label: "📊 Pagamentos" },
-        { to: "/admin/contratos", label: "📄 Contratos" },
-        { to: "/admin/inquilinos", label: "🧑‍💼 Inquilinos" },
-      ],
-    },
   ];
 
   return (
-    <aside className="min-h-screen w-64 bg-[#0B1D3A] flex flex-col text-white shadow-xl">
+    <aside
+      className={classNames(
+        "min-h-screen bg-[#0B1D3A] flex flex-col text-white shadow-xl transition-all",
+        menuCollapsed ? "w-16" : "w-64"
+      )}
+    >
       {/* Header */}
-      <div className="px-6 py-5 border-b border-white/10">
-        <h1 className="text-lg font-semibold tracking-wide mb-1">
-          Imobiliária Lacerda
-        </h1>
-        <p className="text-sm text-gray-300 italic">
-          Olá, <span className="text-white font-medium">{userName}</span> 👋
-        </p>
+      <div className="px-4 py-4 border-b border-white/10 flex justify-between items-center">
+        {!menuCollapsed && (
+          <div>
+            <h1 className="text-lg font-semibold tracking-wide mb-1">Imobiliária</h1>
+            <p className="text-sm text-gray-300 italic">
+              Olá, <span className="text-white font-medium">{userName}</span> 👋
+            </p>
+          </div>
+        )}
+        <button
+          onClick={() => setMenuCollapsed(!menuCollapsed)}
+          className="text-gray-400 hover:text-white text-lg p-1 rounded"
+        >
+          <i className={classNames(menuCollapsed ? "fa-solid fa-arrow-right" : "fa-solid fa-arrow-left")}></i>
+        </button>
       </div>
 
-      {/* Menu principal */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+      {/* Menu */}
+      <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
         {menuItems.map((item) => (
           <div key={item.key} className="relative">
             <button
-              onClick={() =>
-                item.submenu ? toggleSubmenu(item.key) : navigate(item.path)
-              }
+              onClick={() => (item.submenu ? toggleSubmenu(item.key) : (window.location.href = item.path))}
               className={classNames(
-                "flex items-center justify-between w-full px-4 py-2 rounded-md text-sm font-medium transition-all",
+                "flex items-center justify-between w-full px-3 py-2 rounded-md text-sm font-medium transition-all",
                 isPrefixActive(item.path)
                   ? "bg-blue-600 text-white"
                   : "text-gray-300 hover:bg-blue-800 hover:text-white"
@@ -101,9 +102,9 @@ export default function Menu() {
             >
               <div className="flex items-center gap-3">
                 <i className={item.icon}></i>
-                <span>{item.label}</span>
+                {!menuCollapsed && <span>{item.label}</span>}
               </div>
-              {item.submenu && (
+              {!menuCollapsed && item.submenu && (
                 <i
                   className={classNames(
                     "fa-solid fa-chevron-right text-xs transition-transform duration-200",
@@ -113,9 +114,8 @@ export default function Menu() {
               )}
             </button>
 
-            {/* Submenu */}
-            {item.submenu && openMenu === item.key && (
-              <div className="ml-9 mt-1 flex flex-col gap-1">
+            {item.submenu && openMenu === item.key && !menuCollapsed && (
+              <div className="ml-8 mt-1 flex flex-col gap-1">
                 {item.submenu.map((sub) => (
                   <Link
                     key={sub.to}
@@ -136,21 +136,14 @@ export default function Menu() {
         ))}
       </nav>
 
-      {/* Rodapé */}
-      <div className="border-t border-white/10 px-4 py-3 mt-auto">
-        <Link
-          to="/admin/configuracoes"
-          className="flex items-center gap-3 px-2 py-2 rounded-md text-gray-300 hover:bg-blue-800 hover:text-white text-sm"
-        >
-          <i className="fa-solid fa-gear"></i>
-          <span>Configurações</span>
-        </Link>
+      {/* Footer */}
+      <div className="border-t border-white/10 px-4 py-3 mt-auto flex flex-col gap-2">
         <button
-          onClick={handleLogout}
-          className="mt-2 flex items-center gap-3 px-2 py-2 rounded-md text-gray-300 hover:bg-red-600 hover:text-white text-sm w-full text-left"
+          onClick={logout}
+          className="flex items-center gap-3 px-2 py-2 rounded-md text-gray-300 hover:bg-red-600 hover:text-white text-sm w-full text-left"
         >
           <i className="fa-solid fa-right-from-bracket"></i>
-          <span>Sair</span>
+          {!menuCollapsed && <span>Sair</span>}
         </button>
       </div>
     </aside>

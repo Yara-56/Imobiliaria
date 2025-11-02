@@ -1,71 +1,205 @@
-import React from 'react';
-import { useAuth } from '../../contexts/AuthContext'; // Pega o usuário logado
+// src/pages/admin/Home.jsx
+import React, { useEffect, useState } from "react";
+import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function Home() {
-  const { user } = useAuth(); 
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState({
+    totalTenants: 0,
+    totalOverdue: 0,
+    totalAmountOverdue: 0,
+  });
 
-  const name = user ? user.name : "Usuário";
-  const email = user ? user.email : "sem@email.com";
-  const age = user ? user.idade : "--";
+  useEffect(() => {
+    setLoading(true);
+    const today = new Date();
+
+    const simulatedPayments = [
+      { id: 1, tenant: "João", dueDate: "2025-09-28", amount: 1200, fine: 100, lastPayment: "2025-09-01", email: "joao@email.com", contractLink: "#" },
+      { id: 2, tenant: "Maria", dueDate: "2025-10-15", amount: 1500, fine: 0, lastPayment: "2025-10-01", email: "maria@email.com", contractLink: "#" },
+      { id: 3, tenant: "Carlos", dueDate: today.toISOString().split("T")[0], amount: 1000, fine: 0, lastPayment: "2025-10-01", email: "carlos@email.com", contractLink: "#" },
+      { id: 4, tenant: "Ana", dueDate: "2025-10-31", amount: 1800, fine: 50, lastPayment: "2025-09-20", email: "ana@email.com", contractLink: "#" },
+      { id: 5, tenant: "Beatriz", dueDate: "2025-10-25", amount: 2000, fine: 0, lastPayment: "2025-10-01", email: "beatriz@email.com", contractLink: "#" },
+      { id: 6, tenant: "Fernando", dueDate: "2025-11-02", amount: 900, fine: 0, lastPayment: "2025-10-20", email: "fernando@email.com", contractLink: "#" },
+      { id: 7, tenant: "Patrícia", dueDate: "2025-11-01", amount: 2200, fine: 0, lastPayment: "2025-10-30", email: "patricia@email.com", contractLink: "#" },
+      { id: 8, tenant: "Lucas", dueDate: "2025-10-27", amount: 1300, fine: 0, lastPayment: today.toISOString().split("T")[0], email: "lucas@email.com", contractLink: "#" },
+    ];
+
+    const paymentsWithStatus = simulatedPayments.map(p => {
+      const due = new Date(p.dueDate);
+      const diffDays = Math.floor((due - today) / (1000 * 60 * 60 * 24));
+
+      let status = "Em dia";
+      let daysOverdue = 0;
+
+      if (diffDays < 0) {
+        status = "Atrasado";
+        daysOverdue = Math.abs(diffDays);
+      } else if (diffDays === 0) {
+        status = "Vence hoje";
+      } else if (diffDays === 1) {
+        status = "Prestes a expirar";
+      } else if (diffDays > 1 && p.lastPayment === today.toISOString().split("T")[0]) {
+        status = "Pago recentemente";
+      }
+
+      return { ...p, status, daysOverdue };
+    });
+
+    const order = { "Atrasado": 0, "Vence hoje": 1, "Prestes a expirar": 2, "Pago recentemente": 3, "Em dia": 4 };
+    paymentsWithStatus.sort((a, b) => order[a.status] - order[b.status]);
+
+    const overdue = paymentsWithStatus.filter(p => p.status === "Atrasado");
+    const totalAmountOverdue = overdue.reduce((acc, p) => acc + p.amount + p.fine, 0);
+
+    setSummary({
+      totalTenants: simulatedPayments.length,
+      totalOverdue: overdue.length,
+      totalAmountOverdue,
+    });
+
+    setPayments(paymentsWithStatus);
+    setLoading(false);
+  }, []);
+
+  if (loading) return <p className="p-6 text-gray-500">Carregando dashboard...</p>;
+
+  const chartData = {
+    labels: ["Atrasado", "Vence hoje", "Prestes a expirar", "Pago recentemente", "Em dia"],
+    datasets: [
+      {
+        data: [
+          payments.filter(p => p.status === "Atrasado").length,
+          payments.filter(p => p.status === "Vence hoje").length,
+          payments.filter(p => p.status === "Prestes a expirar").length,
+          payments.filter(p => p.status === "Pago recentemente").length,
+          payments.filter(p => p.status === "Em dia").length,
+        ],
+        backgroundColor: ["#F87171", "#F97316", "#FBBF24", "#34D399", "#3B82F6"],
+      },
+    ],
+  };
+
+  // Funções dos botões
+  const handleSendNotice = (tenant) => alert(`Aviso enviado para ${tenant}!`);
+  const handleMarkPaid = (id) => {
+    setPayments(prev => prev.map(p => p.id === id ? {...p, status: "Pago recentemente"} : p));
+    alert(`Pagamento marcado como pago!`);
+  };
+  const handleViewContract = (link) => window.open(link, "_blank");
 
   return (
-    // Não tem <main> aqui, pois o Layout já tem!
-    <div>
-      {/* Boas-vindas (para testar que o login funcionou) */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h1 className="text-lg font-semibold mb-4">Bem-vindo(a), {name}!</h1>
-        
-        {user && (
-          <p className="text-gray-600 text-sm">
-            <strong>Email:</strong> {email}
-          </p>
-        )}
-        <p className="text-sm mb-2">
-          <strong>Idade:</strong> {age} anos
-        </p>
-        <div className="mt-4 p-3 bg-green-100 text-green-800 border border-green-300 rounded-md">
-          <span className="font-semibold">✅ Login efetuado com sucesso.</span>
+    <div className="p-6 space-y-8 font-sans text-gray-800">
+      {/* Indicadores gerais */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="bg-white p-4 rounded-lg shadow flex flex-col items-start">
+          <span className="text-gray-500 text-sm font-medium">Total de Inquilinos</span>
+          <span className="text-2xl font-bold mt-1">{summary.totalTenants}</span>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow flex flex-col items-start border-l-4 border-red-500">
+          <span className="text-gray-500 text-sm font-medium">Inquilinos com Atraso</span>
+          <span className="text-2xl font-bold text-red-600 mt-1">{summary.totalOverdue}</span>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow flex flex-col items-start border-l-4 border-yellow-500">
+          <span className="text-gray-500 text-sm font-medium">Valor Total em Atraso</span>
+          <span className="text-2xl font-bold text-yellow-600 mt-1">R$ {summary.totalAmountOverdue.toFixed(2)}</span>
         </div>
       </div>
 
-      {/* Filtros (agora dentro de um card branco) */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-lg font-semibold mb-4">Filtros Rápidos</h3>
-        <form className="flex flex-wrap gap-3">
-          <input
-            type="date"
-            aria-label="Data"
-            className="min-w-[160px] px-4 py-2 border border-gray-300 rounded-md text-sm"
-            defaultValue={new Date().toISOString().split('T')[0]}
-          />
-          <select
-            aria-label="Status"
-            className="min-w-[160px] px-4 py-2 border border-gray-300 rounded-md text-sm"
-          >
-            <option value="">Status</option>
-            <option value="ativo">Ativo</option>
-          </select>
-          <select
-            aria-label="Meio de Pagamento"
-            className="min-w-[160px] px-4 py-2 border border-gray-300 rounded-md text-sm"
-          >
-            <option value="">Meio de Pagamento</option>
-          </select>
-          <select
-            aria-label="Imóvel"
-            className="min-w-[160px] px-4 py-2 border border-gray-300 rounded-md text-sm"
-          >
-            <option value="">Imóvel</option>
-          </select>
-          <input
-            type="text"
-            placeholder="Pesquisar por nome ou imóvel"
-            aria-label="Pesquisar"
-            className="flex-1 min-w-[200px] px-4 py-2 border border-gray-300 rounded-md text-sm"
-          />
-        </form>
-      </div>
+      {/* Gráfico e cards lado a lado */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Gráfico */}
+        <div className="lg:col-span-1 bg-white p-4 rounded-lg shadow flex flex-col items-center justify-center">
+          <h3 className="text-lg font-semibold mb-2 text-center">Status dos Pagamentos</h3>
+          <div className="w-full max-w-xs">
+            <Pie data={chartData} options={{ maintainAspectRatio: true }} />
+          </div>
+        </div>
 
+        {/* Cards de pagamentos */}
+        <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {payments.map(p => (
+            <div
+              key={p.id}
+              className={`bg-white p-5 rounded-lg shadow hover:shadow-lg transition flex flex-col justify-between border-l-4 ${
+                p.status === "Atrasado"
+                  ? "border-red-500"
+                  : p.status === "Vence hoje"
+                  ? "border-orange-500"
+                  : p.status === "Prestes a expirar"
+                  ? "border-yellow-400"
+                  : p.status === "Pago recentemente"
+                  ? "border-green-400"
+                  : "border-blue-500"
+              }`}
+            >
+              <div>
+                <h3 className={`text-xl font-semibold ${
+                  p.status === "Atrasado"
+                    ? "text-red-700"
+                    : p.status === "Vence hoje"
+                    ? "text-orange-600"
+                    : p.status === "Prestes a expirar"
+                    ? "text-yellow-600"
+                    : p.status === "Pago recentemente"
+                    ? "text-green-700"
+                    : "text-blue-700"
+                }`}>
+                  {p.tenant}
+                </h3>
+                <p className="text-gray-600 mt-1"><span className="font-semibold">Valor:</span> R$ {p.amount.toFixed(2)}</p>
+                <p className="text-gray-600"><span className="font-semibold">Vencimento:</span> {p.dueDate}</p>
+                {p.status === "Atrasado" && (
+                  <p className="text-gray-600"><span className="font-semibold">Dias de atraso:</span> {p.daysOverdue}</p>
+                )}
+                <p className="text-gray-600"><span className="font-semibold">Multa:</span> R$ {p.fine.toFixed(2)}</p>
+                <p className="text-gray-600"><span className="font-semibold">Último pagamento:</span> {p.lastPayment}</p>
+                <p className="text-gray-600"><span className="font-semibold">Email:</span> {p.email}</p>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  onClick={() => handleSendNotice(p.tenant)}
+                  className="px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded hover:bg-orange-200 transition"
+                >
+                  Enviar aviso
+                </button>
+                <button
+                  onClick={() => handleMarkPaid(p.id)}
+                  className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded hover:bg-green-200 transition"
+                >
+                  Marcar como pago
+                </button>
+                <button
+                  onClick={() => handleViewContract(p.contractLink)}
+                  className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition"
+                >
+                  Ver contrato
+                </button>
+                <span
+                  className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
+                    p.status === "Atrasado"
+                      ? "text-red-800 bg-red-100"
+                      : p.status === "Vence hoje"
+                      ? "text-orange-800 bg-orange-100"
+                      : p.status === "Prestes a expirar"
+                      ? "text-yellow-800 bg-yellow-100"
+                      : p.status === "Pago recentemente"
+                      ? "text-green-800 bg-green-100"
+                      : "text-blue-800 bg-blue-100"
+                  }`}
+                >
+                  {p.status}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

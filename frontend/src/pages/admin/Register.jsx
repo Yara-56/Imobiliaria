@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import api from "../../services/api"; // Usa o mesmo 'api' do seu login
-import { useNavigate, Link } from "react-router-dom"; // Importa o Link
+import { useNavigate, Link } from "react-router-dom"; 
+import { useAuth } from "../../contexts/AuthContext"; // Para login automático
 
 export default function Register() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  // Estados para cada campo do formulário
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState(""); // Campo extra
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -19,7 +20,6 @@ export default function Register() {
     setLoading(true);
     setError(null);
 
-    // 1. Validação simples no front-end
     if (password !== confirmPassword) {
       setError("As senhas não coincidem.");
       setLoading(false);
@@ -27,27 +27,34 @@ export default function Register() {
     }
 
     try {
-      // 2. Chama a rota de REGISTRO da sua API
-      await api.post("/api/auth/register", {
+      const response = await api.post("/auth/register", { // ⚠ rota corrigida
         name,
         email,
         password,
       });
 
-      // 3. Se deu certo, avisa e manda para o Login
-      alert("Conta criada com sucesso! Você já pode fazer o login.");
-      navigate("/"); // Redireciona para a página de Login (sua rota "/")
+      // Se o backend retornar token e user, faz login automático
+      const { user, token } = response.data;
+
+      if (user && token) {
+        login(user, token); // Guarda no localStorage e headers
+        navigate("/admin/dashboard"); // Redireciona direto para dashboard
+      } else {
+        // Caso a API não retorne token, apenas avisa e manda para login
+        alert("Conta criada com sucesso! Faça login para continuar.");
+        navigate("/"); 
+      }
 
     } catch (err) {
-      // Pega a mensagem de erro do backend (ex: "Email já existe")
-      const errorMessage = err.response?.data?.error || err.response?.data?.message || "Erro ao criar conta. Tente novamente.";
+      const errorMessage = err.response?.data?.error 
+        || err.response?.data?.message 
+        || "Erro ao criar conta. Tente novamente.";
       setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  // O JSX é uma cópia do seu Login.jsx, mas adaptado para o registro
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-gray-100 px-4 font-inter">
       <div className="bg-white p-8 md:p-14 rounded-xl shadow-2xl max-w-md w-full">
@@ -61,7 +68,6 @@ export default function Register() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* CAMPO NOME */}
           <div>
             <label htmlFor="name" className="text-sm font-semibold text-gray-700 block mb-1">
               NOME COMPLETO
@@ -78,7 +84,6 @@ export default function Register() {
             />
           </div>
 
-          {/* CAMPO E-MAIL */}
           <div>
             <label htmlFor="email" className="text-sm font-semibold text-gray-700 block mb-1">
               E-MAIL
@@ -95,7 +100,6 @@ export default function Register() {
             />
           </div>
 
-          {/* CAMPO SENHA */}
           <div>
             <label htmlFor="password" className="text-sm font-semibold text-gray-700 block mb-1">
               SENHA
@@ -112,7 +116,6 @@ export default function Register() {
             />
           </div>
 
-          {/* CAMPO CONFIRMAR SENHA */}
           <div>
             <label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-700 block mb-1">
               CONFIRME A SENHA
@@ -142,11 +145,10 @@ export default function Register() {
           </button>
         </form>
 
-        {/* Link para voltar ao Login */}
         <div className="text-center mt-6 text-sm">
           <span className="text-gray-600">Já tem uma conta? </span>
           <Link 
-            to="/" // Link para a página de Login (rota "/")
+            to="/" 
             className="font-medium text-blue-600 hover:text-blue-500"
           >
             Faça o login

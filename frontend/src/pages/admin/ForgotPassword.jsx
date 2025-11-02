@@ -1,7 +1,7 @@
 // frontend/src/pages/ForgotPassword.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../../services/api'; // Certifique-se que este é seu arquivo de config do axios
+import api from '../../services/api';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -16,9 +16,10 @@ export default function ForgotPassword() {
     setError('');
 
     try {
-      const { data } = await api.post('/api/auth/forgot-password', { email });
-      setMessage(data.message); // "Se um usuário..."
+      const { data } = await api.post('/auth/forgot-password', { email });
+      setMessage(data.message);
     } catch (err) {
+      console.error(err);
       setError('Ocorreu um erro. Tente novamente.');
     } finally {
       setLoading(false);
@@ -38,13 +39,14 @@ export default function ForgotPassword() {
             {message}
           </div>
         )}
+
         {error && (
           <div className="p-3 bg-red-100 border border-red-400 text-red-700 text-sm rounded-lg mb-4">
             {error}
           </div>
         )}
 
-        {!message && ( // Só mostra o formulário se a mensagem de sucesso não foi enviada
+        {!message && (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="email" className="text-sm font-semibold text-gray-700 block mb-1">
@@ -57,7 +59,7 @@ export default function ForgotPassword() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm ..."
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 disabled={loading}
               />
             </div>
@@ -65,15 +67,17 @@ export default function ForgotPassword() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 mt-6 text-base font-bold rounded-lg bg-blue-600 text-white ..."
+              className={`w-full py-3 mt-6 text-base font-bold rounded-lg text-white ${
+                loading ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+              }`}
             >
-              {loading ? "Enviando..." : "ENVIAR LINK"}
+              {loading ? 'Enviando...' : 'ENVIAR LINK'}
             </button>
           </form>
         )}
 
         <div className="text-center mt-6">
-          <Link to="/login" className="text-sm font-medium text-blue-600 hover:text-blue-500">
+          <Link to="/" className="text-sm font-medium text-blue-600 hover:text-blue-500">
             Voltar para o Login
           </Link>
         </div>
