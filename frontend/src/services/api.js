@@ -10,12 +10,11 @@ import axios from "axios";
 
 const isProduction = import.meta.env.MODE === "production";
 
-// ⚙️ Ajuste aqui a URL do backend Render
+// ⚙️ URLs do backend
 const RENDER_BASE_URL = "https://imobiliaria-pwh6.onrender.com/api";
-const LOCAL_BASE_URL = "http://localhost:5050/api";
+const LOCAL_BASE_URL = "http://localhost:5050/api"; // ✅ Corrigido: inclui /api
 
-// Se estiver no ambiente de produção (Vercel), usa o Render.
-// Caso contrário, usa localhost.
+// Seleciona URL de acordo com ambiente
 const baseURL = isProduction ? RENDER_BASE_URL : LOCAL_BASE_URL;
 
 const api = axios.create({
