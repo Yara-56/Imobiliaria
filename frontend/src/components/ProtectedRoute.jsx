@@ -1,10 +1,10 @@
 import React from "react";
 
 /**
- * Bypass temporário para demo.
- * Permite acesso direto a qualquer rota sem login.
- * ⚠️ REMOVER após demonstração.
+ * ProtectedRoute temporário para demonstração.
+ * ⚠️ Libera todas as rotas sem checar token.
+ * REMOVER após a demo.
  */
 export default function ProtectedRoute({ children }) {
-  return children; // Libera qualquer componente sem checar token
+  return children; // libera qualquer componente
 }
