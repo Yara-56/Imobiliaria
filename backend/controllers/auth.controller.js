@@ -17,7 +17,7 @@ const loginSchema = z.object({
 });
 
 // -----------------------------------------------------------------------------
-// REGISTER (Não alterado)
+// REGISTER
 // -----------------------------------------------------------------------------
 export const register = async (req, res) => {
   try {
@@ -45,37 +45,65 @@ export const register = async (req, res) => {
 };
 
 // -----------------------------------------------------------------------------
-// LOGIN (BYPASS DE ROTA: Sempre retorna sucesso 200 OK)
+// LOGIN (NORMAL OU LIBERADO VIA FLAG)
 // -----------------------------------------------------------------------------
 export const login = async (req, res) => {
-  // Ignora toda a validação e consulta ao banco de dados para garantir o sucesso
-  const { email } = req.body;
-  
-  console.log("⚠️ ⚠️ BYPASS DE ROTA ATIVADO: LOGIN LIBERADO PARA TODOS ⚠️ ⚠️");
-  
-  // Cria um usuário SIMULADO (FAKE)
-  const simulatedUser = {
-      // Usa o email digitado, mas garante um ID e role para acesso
-      _id: 'bypass_id_' + Date.now(), 
-      name: email.split('@')[0], 
-      email: email,
-      role: 'admin', // Assumindo role de admin para acesso total
-      status: 'ATIVO', 
-  };
+  try {
+    const { email, password } = loginSchema.parse(req.body);
+    const liberarLogin = process.env.LIBERAR_LOGIN === 'true';
 
-  // Cria um token JWT válido para garantir que o frontend aceite a autenticação
-  const token = jwt.sign(
-    { id: simulatedUser._id, role: simulatedUser.role },
-    process.env.JWT_SECRET || 'fallback_secret', // Usa o segredo real ou um fallback
-    { expiresIn: '8h' }
-  );
+    // --- LOGIN LIBERADO PARA TODOS (MODO TESTE) ---
+    if (liberarLogin) {
+      const fakeUser = {
+        _id: 'teste-' + Date.now(),
+        name: email.split('@')[0] || 'Usuário',
+        email,
+        role: 'user',
+        status: 'ATIVO',
+      };
 
-  // Retorna sucesso 200 OK e os dados simulados
-  return res.status(200).json({
-    token: token,
-    passwordBypassed: true,
-    user: simulatedUser,
-  });
+      const token = jwt.sign(
+        { id: fakeUser._id, role: fakeUser.role },
+        process.env.JWT_SECRET || 'segredoTemporario',
+        { expiresIn: '12h' }
+      );
+
+      return res.json({
+        token,
+        user: fakeUser,
+        aviso: '⚠️ LOGIN LIBERADO — qualquer e-mail é aceito (modo teste)',
+      });
+    }
+
+    // --- LOGIN NORMAL ---
+    const user = await User.findOne({ email }).select('+password');
+    if (!user || !(await user.comparePassword(password))) {
+      return res.status(401).json({ error: 'E-mail ou senha inválidos.' });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '8h' }
+    );
+
+    res.json({
+      token,
+      user: {
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+      },
+    });
+
+  } catch (error) {
+    if (error instanceof z.ZodError)
+      return res.status(400).json({ errors: error.flatten().fieldErrors });
+
+    console.error('Erro no login:', error);
+    res.status(500).json({ error: 'Erro interno durante o login.' });
+  }
 };
 
 // -----------------------------------------------------------------------------
@@ -96,7 +124,7 @@ export const activateAccount = async (req, res) => {
     });
 
     if (!user)
-      return res.status(400).json({ message: 'Convite inválido ou expirou.' });
+      return res.status(400).json({ message: 'Convite inválido ou expirado.' });
 
     user.password = password;
     user.status = 'ATIVO';
@@ -156,7 +184,7 @@ export const forgotPassword = async (req, res) => {
 export const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
-    const passwordBody = req.body.password;
+    const { password } = req.body;
 
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
@@ -170,7 +198,7 @@ export const resetPassword = async (req, res) => {
         message: 'Token para redefinição de senha é inválido ou expirou.',
       });
 
-    user.password = passwordBody;
+    user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
