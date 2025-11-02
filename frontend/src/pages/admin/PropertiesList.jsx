@@ -19,10 +19,17 @@ export default function PropertiesList() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const data = await listProperties({ q });
-      setItems(Array.isArray(data) ? data : data?.items ?? []);
+      const response = await listProperties({ q });
+
+      // ✅ Garantindo que pegamos o array certo
+      const itemsArray = Array.isArray(response)
+        ? response
+        : response?.items ?? response?.data ?? [];
+
+      setItems(itemsArray);
     } catch (err) {
-      console.error(err);
+      console.error("Erro ao carregar imóveis:", err);
+      setItems([]); // Limpa caso dê erro
     } finally {
       setLoading(false);
     }
@@ -69,7 +76,7 @@ export default function PropertiesList() {
   };
 
   return (
-    <div className="max-w-6xl">
+    <div className="max-w-6xl mx-auto p-6">
       <h1 className="text-2xl font-semibold mb-4">Gerenciar Imóveis</h1>
 
       {/* Campo de busca */}

@@ -1,18 +1,41 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+// ProtectedRoute.jsx
+import React from "react";
+import { Navigate } from "react-router-dom";
 
+/**
+ * Permite bypass temporário quando a variável de ambiente de demo estiver ativa.
+ * Suporta Vite (VITE_DEMO_BYPASS), CRA (REACT_APP_DEMO_BYPASS) e Next (NEXT_PUBLIC_DEMO_BYPASS).
+ *
+ * REMOVER/REVER depois da demo!
+ */
 export default function ProtectedRoute({ children }) {
-  // --- LÓGICA DE LOGIN REATIVADA ---
-  
-  // 1. Busca o token no localStorage
-  const token = localStorage.getItem('token');
+  // 1) Leitura cross-tooling das env vars
+  const envVars = {
+    vite: typeof import.meta !== "undefined" && import.meta.env ? import.meta.env.VITE_DEMO_BYPASS : undefined,
+    cra: typeof process !== "undefined" && process.env ? process.env.REACT_APP_DEMO_BYPASS : undefined,
+    next: typeof process !== "undefined" && process.env ? process.env.NEXT_PUBLIC_DEMO_BYPASS : undefined,
+  };
 
-  // 2. Verifica o token:
-  //    - Se existir (truthy), renderiza o componente filho (children).
-  //    - Se não existir (falsy), redireciona para a rota "/" (Login).
+  // 2) Normaliza qualquer valor string 'true' / '1' para boolean
+  const parseFlag = (v) => {
+    if (v === undefined || v === null) return false;
+    if (typeof v === "boolean") return v;
+    const s = String(v).toLowerCase().trim();
+    return s === "true" || s === "1" || s === "yes";
+  };
+
+  const demoBypass =
+    parseFlag(envVars.vite) || parseFlag(envVars.cra) || parseFlag(envVars.next) ||
+    // fallback: possibilidade de ativar via global setado manualmente (opcional)
+    (typeof window !== "undefined" && window.__DEMO_BYPASS === true);
+
+  if (demoBypass) {
+    // LOG opcional para debug (remove depois)
+    // console.warn("DEMO BYPASS ATIVADO - REMOVER APÓS DEMONSTRAÇÃO");
+    return children;
+  }
+
+  // 3) Comportamento padrão: checa token no localStorage (sua lógica original)
+  const token = typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
   return token ? children : <Navigate to="/" replace />;
-
-  // --- MODIFICAÇÃO TEMPORÁRIA REMOVIDA ---
-  // return children; 
-  // --- FIM DA MODIFICAÇÃO TEMPORÁRIA ---
 }

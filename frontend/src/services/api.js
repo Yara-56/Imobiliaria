@@ -4,15 +4,15 @@ import axios from "axios";
 // ============================================================
 // CONFIGURAÇÃO AUTOMÁTICA DA API
 // ============================================================
-// Em produção (Vercel), usa o backend hospedado no Render.
-// Em desenvolvimento (local), usa o servidor local (5050).
+// - Desenvolvimento: usa backend local (porta 5050)
+// - Produção: usa backend hospedado no Render
 // ============================================================
 
 const isProduction = import.meta.env.MODE === "production";
 
 // ⚙️ URLs do backend
-const RENDER_BASE_URL = "https://imobiliaria-pwh6.onrender.com/api"; // não adiciona /auth aqui
-const LOCAL_BASE_URL = "http://localhost:5050/api"; // inclui /api
+const RENDER_BASE_URL = "https://imobiliaria-pwh6.onrender.com"; // ❌ sem /api
+const LOCAL_BASE_URL = "http://localhost:5050/api"; // ✅ local já inclui /api
 
 // Seleciona URL de acordo com ambiente
 const baseURL = isProduction ? RENDER_BASE_URL : LOCAL_BASE_URL;
