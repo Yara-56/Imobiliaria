@@ -1,46 +1,53 @@
 // src/services/api.js
 import axios from "axios";
 
-// Se VITE_API_URL não vier, usa fallback local
-// Esperado: "http://localhost:5050/api"
-const DEFAULT_BASE_URL = "http://localhost:5050";
-const rawBase = import.meta.env?.VITE_API_URL?.trim();
-const baseURL = rawBase && rawBase.length ? rawBase : DEFAULT_BASE_URL;
+// ============================================================
+// CONFIGURAÇÃO AUTOMÁTICA DA API
+// ============================================================
+// Em produção (Vercel), usa o backend hospedado no Render.
+// Em desenvolvimento (local), usa o servidor local (5050).
+// ============================================================
+
+const isProduction = import.meta.env.MODE === "production";
+
+// ⚙️ Ajuste aqui a URL do backend Render
+const RENDER_BASE_URL = "https://imobiliaria-pwh6.onrender.com/api";
+const LOCAL_BASE_URL = "http://localhost:5050/api";
+
+// Se estiver no ambiente de produção (Vercel), usa o Render.
+// Caso contrário, usa localhost.
+const baseURL = isProduction ? RENDER_BASE_URL : LOCAL_BASE_URL;
 
 const api = axios.create({
   baseURL,
-  timeout: 20000, // 20s para evitar travas silenciosas
-  // withCredentials: true, // habilite se o backend usar cookie de sessão/JWT
+  timeout: 20000, // 20s
 });
 
 // === REQUEST INTERCEPTOR ===
 api.interceptors.request.use(
   (config) => {
-    // Não force Content-Type quando for FormData — o axios seta o boundary sozinho
     const isFormData =
       typeof FormData !== "undefined" && config.data instanceof FormData;
 
     if (!isFormData) {
-      // Para JSON comum, garanta Accept e (opcionalmente) Content-Type
       config.headers = {
         Accept: "application/json",
         "Content-Type": "application/json",
         ...(config.headers || {}),
       };
     } else {
-      // Para multipart, garanta apenas Accept
       config.headers = {
         Accept: "application/json",
         ...(config.headers || {}),
       };
     }
 
-    // Token (opcional) — mantém compatível com o back quando o login voltar
+    // Token JWT (opcional)
     let token = localStorage.getItem("token");
     try {
       const parsed = JSON.parse(token);
       if (typeof parsed === "string") token = parsed;
-    } catch (_) { /* ignore */ }
+    } catch (_) {}
 
     if (token && token.startsWith('"') && token.endsWith('"')) {
       token = token.slice(1, -1);
@@ -52,9 +59,10 @@ api.interceptors.request.use(
       config.headers["x-access-token"] = token;
     }
 
-    // Log útil em dev
     if (import.meta.env?.DEV) {
-      // console.debug("[API] →", config.method?.toUpperCase(), config.url, { isFormData, baseURL });
+      console.debug("[API] →", config.method?.toUpperCase(), config.url, {
+        baseURL,
+      });
     }
 
     return config;
@@ -76,21 +84,7 @@ api.interceptors.response.use(
         status,
         data,
       });
-      // Se o back mandar detalhes de validação do Mongoose, mostra:
-      if (data?.message || data?.error || data?.fields) {
-        console.error("[API ERROR DETAILS]", {
-          message: data?.message,
-          error: data?.error,
-          fields: data?.fields, // <- aqui aparecem os campos inválidos (quando 400)
-        });
-      }
     }
-
-    // Exemplo de logout automático quando voltar o auth:
-    // if (status === 401) {
-    //   localStorage.clear();
-    //   window.location.href = "/login";
-    // }
 
     return Promise.reject(error);
   }
