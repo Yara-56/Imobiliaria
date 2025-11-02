@@ -5,9 +5,13 @@ import api from "./api";
  * LISTAR INQUILINOS
  * ==============================
  */
-export const listTenants = async (query = "") => {
-  const { data } = await api.get("/tenants", { params: { q: query } });
-  return data.items ?? [];
+// 🔑 CORREÇÃO: Aceita um objeto { q } para a busca e processa o retorno como Array direto.
+export const listTenants = async ({ q = "" } = {}) => {
+  const { data } = await api.get("/tenants", { params: { q } });
+  
+  // A API retorna o array diretamente (ex: [...]), não { items: [...] }
+  // Retorna 'data' se for um Array, ou 'data.items' se a API mudar no futuro.
+  return Array.isArray(data) ? data : data?.items ?? [];
 };
 
 /**
@@ -26,6 +30,13 @@ export const getTenant = async (id) => {
  * ==============================
  */
 export const createTenant = async (payload, files = []) => {
+  // 🔑 CORREÇÃO 400 Bad Request: Envia como JSON se não houver arquivos.
+  if (!files || files.length === 0) {
+    const { data } = await api.post("/tenants", payload);
+    return data;
+  }
+
+  // Se houver arquivos, usa FormData (multipart/form-data)
   const formData = new FormData();
   Object.entries(payload).forEach(([key, value]) => {
     if (value != null) formData.append(key, value);
@@ -42,6 +53,13 @@ export const createTenant = async (payload, files = []) => {
  * ==============================
  */
 export const updateTenant = async (id, payload, files = []) => {
+  // 🔑 CORREÇÃO 400 Bad Request: Envia como JSON se não houver novos arquivos.
+  if (!files || files.length === 0) {
+    const { data } = await api.put(`/tenants/${id}`, payload);
+    return data;
+  }
+  
+  // Se houver arquivos, usa FormData.
   const formData = new FormData();
   Object.entries(payload).forEach(([key, value]) => {
     if (value != null) formData.append(key, value);

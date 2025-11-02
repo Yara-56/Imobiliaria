@@ -18,19 +18,18 @@ import debugRoutes from './routes/debug.routes.js';
 const app = express();
 
 // =====================================================
-// CORS CONFIG
+// ✅ CORS CONFIG COMPLETA
 // =====================================================
 const allowedOrigins = [
-  'https://imobiliaria-frontend-76xsdlum1-yara-56s-projects.vercel.app', // frontend Vercel atual
+  'https://imobiliaria-frontend-76xsdlum1-yara-56s-projects.vercel.app', // frontend Vercel
 ];
 
-// Permite localhost em dev
+// Permite localhost em desenvolvimento
 if (process.env.NODE_ENV !== 'production') {
-  allowedOrigins.push(/http:\/\/localhost:\d+/); 
+  allowedOrigins.push(/http:\/\/localhost:\d+/);
   console.log('Dev: Permitindo localhost');
 }
 
-// Middleware CORS (intercepta automaticamente preflight OPTIONS)
 const corsOptions = {
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.some(o => o instanceof RegExp ? o.test(origin) : o === origin)) {
@@ -40,13 +39,13 @@ const corsOptions = {
       callback(new Error(`CORS não permitido para: ${origin}`));
     }
   },
-  methods: ['GET','POST','PUT','DELETE','PATCH','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization','x-access-token'], // ✅ adicionado aqui
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token'], // 👈 adicionado aqui
   credentials: true,
   optionsSuccessStatus: 200,
 };
 
-// 1️⃣ Aplica CORS antes de qualquer rota ou middleware
+// Aplica o CORS antes de tudo
 app.use(cors(corsOptions));
 
 // =====================================================
@@ -56,7 +55,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // =====================================================
-// UPLOAD DE ARQUIVOS (MULTER)
+// UPLOAD DE ARQUIVOS
 // =====================================================
 export const upload = multer({ storage: multer.memoryStorage() });
 

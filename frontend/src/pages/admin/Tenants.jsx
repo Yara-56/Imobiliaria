@@ -1,78 +1,63 @@
 // src/pages/admin/Tenants.jsx
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { listTenants, deleteTenant } from "../../services/tenantService";
+import { listTenants, deleteTenant } from "../../services/tenantService"; 
 
 export default function Tenants() {
   const navigate = useNavigate();
 
-  const [tenants, setTenants] = useState([]);
+  const [items, setItems] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
-  const [search, setSearch] = useState("");
-  const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
+  const [q, setQ] = useState(""); 
 
-  // Buscar inquilinos
-  useEffect(() => {
-    async function fetchTenants() {
-      try {
-        setLoading(true);
-        const data = await listTenants();
-        setTenants(data);
-      } catch (err) {
-        console.error(err);
-        setError("Erro ao carregar os inquilinos.");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchTenants();
-  }, []);
-
-  // Deletar inquilino
-  const handleDelete = async (id) => {
-    if (!window.confirm("Deseja realmente deletar este inquilino?")) return;
-
-    setDeletingId(id);
-    try {
-      await deleteTenant(id);
-      setTenants((prev) => prev.filter((tenant) => tenant._id !== id));
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao deletar inquilino. Tente novamente.");
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  // Recarregar lista
-  const handleReload = async () => {
+  // 1. Função de busca que aciona a API com o termo de busca (q)
+  const fetchData = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const data = await listTenants();
-      setTenants(data);
+      const data = await listTenants({ q }); 
+
+      // 🔑 CORREÇÃO CRÍTICA: Priorizar o próprio 'data' (que é o array retornado)
+      let itemsArray = [];
+      if (Array.isArray(data)) {
+          itemsArray = data;
+      } else if (data?.items && Array.isArray(data.items)) {
+          // Caso a API mude para retornar { items: [...] }
+          itemsArray = data.items;
+      }
+
+      // Se sua função listTenants estiver definida como você me mostrou
+      // (export const listTenants = async ({ q = "" } = {}) => { ... return data.items ?? data ?? []; });
+      // o 'data' aqui já é o array. O mais seguro é simplesmente confiar que o serviço fez o trabalho:
+      setItems(data); 
+
     } catch (err) {
-      console.error(err);
-      setError("Erro ao atualizar a lista.");
+      console.error("Erro ao carregar inquilinos:", err);
+      setError("Erro ao carregar os inquilinos.");
+      setItems([]); 
     } finally {
       setLoading(false);
     }
   };
 
-  // Filtrar inquilinos pela busca
+  // 2. useEffect para carregar/recarregar a lista quando o 'q' mudar
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q]);
+  
+  // 3. Opcional: useMemo para filtro local. Mantenha para consistência
   const filteredTenants = useMemo(() => {
-    return tenants.filter((tenant) => {
-      const searchTerm = search.toLowerCase();
-      return (
-        tenant.name?.toLowerCase().includes(searchTerm) ||
-        tenant.cpf?.toLowerCase().includes(searchTerm) ||
-        tenant.email?.toLowerCase().includes(searchTerm)
-      );
-    });
-  }, [search, tenants]);
+    return items; // Retorna os itens já carregados (filtrados ou não)
+  }, [items]);
+  
+  // O restante da sua lógica (Deletar, Ordenação, Renderização) está correta e não precisa de mudança.
+  // ... (handleDelete, sortConfig, sortedTenants, requestSort)
+  
+  const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
 
-  // Ordenar inquilinos
   const sortedTenants = useMemo(() => {
     const sorted = [...filteredTenants];
     if (sortConfig.key) {
@@ -95,21 +80,20 @@ export default function Tenants() {
     setSortConfig({ key, direction });
   };
 
-  // Feedback de carregamento e erro
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <p className="text-gray-600 text-lg">Carregando inquilinos...</p>
-      </div>
-    );
-  }
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <p className="text-red-600">{error}</p>
-      </div>
-    );
-  }
+  const handleDelete = async (id) => {
+    if (!window.confirm("Deseja realmente deletar este inquilino?")) return;
+    setDeletingId(id);
+    try {
+      await deleteTenant(id);
+      fetchData(); 
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao deletar inquilino. Tente novamente.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
 
   return (
     <div className="max-w-6xl mx-auto p-6 bg-white rounded-xl shadow-md">
@@ -120,15 +104,15 @@ export default function Tenants() {
           <input
             type="text"
             placeholder="Pesquisar por nome, CPF ou e-mail..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={q} 
+            onChange={(e) => setQ(e.target.value)} 
             className="px-3 py-2 border border-gray-300 rounded-md w-64 focus:ring focus:ring-blue-200"
           />
           <button
-            onClick={handleReload}
+            onClick={fetchData} 
             className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
           >
-            Atualizar
+            Buscar
           </button>
           <button
             onClick={() => navigate("/admin/inquilinos/novo")}
@@ -138,8 +122,12 @@ export default function Tenants() {
           </button>
         </div>
       </div>
-
-      {sortedTenants.length === 0 ? (
+      
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <p className="text-gray-600 text-lg">Carregando inquilinos...</p>
+        </div>
+      ) : sortedTenants.length === 0 ? (
         <p className="text-gray-600">Nenhum inquilino encontrado.</p>
       ) : (
         <div className="overflow-x-auto">
