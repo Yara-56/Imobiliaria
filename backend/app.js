@@ -1,5 +1,3 @@
-// backend/app.js
-
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
@@ -20,17 +18,24 @@ const app = express();
 
 // --- CONFIGURAÇÃO DE CORS ---
 const allowedOrigins = [
-  'https://imobiliaria-frontend-bice.vercel.app', // Frontend em produção
+  'https://imobiliaria-frontend-bice.vercel.app', // DOMÍNIO DO FRONTEND NO VERCEL
+  'https://imobiliaria-pwh6.onrender.com',       // DOMÍNIO DO BACKEND NO RENDER (Geralmente necessário)
 ];
 
 // Permite localhost em dev
 if (process.env.NODE_ENV !== 'production') {
-  allowedOrigins.push(/http:\/\/localhost:\d+/);
+  // Regex para aceitar http://localhost:PORTA
+  allowedOrigins.push(/http:\/\/localhost:\d+/); 
   console.log('Dev: Permitindo localhost');
 }
 
+// ✅ CORREÇÃO APLICADA: Incluindo 'credentials: true' 
+// e um tratamento mais robusto para a validação.
 app.use(cors({
   origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, // ESSENCIAL para autenticação (cookies, headers)
   optionsSuccessStatus: 200,
 }));
 
