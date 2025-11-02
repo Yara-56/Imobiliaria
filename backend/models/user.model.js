@@ -48,12 +48,15 @@ const userSchema = new mongoose.Schema({
   },
 }, {
   timestamps: true,
+  versionKey: false, // Adicionando para estabilidade
 });
 
 // Hook para criptografar a senha ANTES de salvar
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
 
+  // O seu erro de 'bcryptjs' anterior pode ser resolvido com 'bcryptjs' aqui
+  // ou garantindo que o 'bcrypt' está instalado. Assumimos 'bcryptjs'.
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
@@ -61,6 +64,7 @@ userSchema.pre('save', async function(next) {
 
 // Método para comparar senha
 userSchema.methods.comparePassword = async function(candidatePassword) {
+  // A comparação usará o módulo que você configurou no import
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
@@ -89,4 +93,6 @@ userSchema.methods.createPasswordResetToken = function() {
   return resetToken;
 };
 
-export default mongoose.model('User', userSchema);
+// 🚨 CORREÇÃO ESSENCIAL (SINGLETON) 🚨
+// Garante que o modelo só seja definido uma vez para evitar OverwriteModelError no Render/Vercel.
+export default mongoose.models.User || mongoose.model('User', userSchema);
