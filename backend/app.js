@@ -16,37 +16,48 @@ import debugRoutes from './routes/debug.routes.js';
 
 const app = express();
 
-// --- CONFIGURAÇÃO DE CORS ---
+// =====================================================
+// CORS CONFIG
+// =====================================================
 const allowedOrigins = [
-  'https://imobiliaria-frontend-bice.vercel.app', // DOMÍNIO DO FRONTEND NO VERCEL
-  'https://imobiliaria-pwh6.onrender.com',       // DOMÍNIO DO BACKEND NO RENDER (Geralmente necessário)
+  'https://imobiliaria-frontend-bice.vercel.app', // frontend Vercel
+  'https://imobiliaria-pwh6.onrender.com',        // backend Render
 ];
 
 // Permite localhost em dev
 if (process.env.NODE_ENV !== 'production') {
-  // Regex para aceitar http://localhost:PORTA
   allowedOrigins.push(/http:\/\/localhost:\d+/); 
   console.log('Dev: Permitindo localhost');
 }
 
-// ✅ CORREÇÃO APLICADA: Incluindo 'credentials: true' 
-// e um tratamento mais robusto para a validação.
 app.use(cors({
-  origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true, // ESSENCIAL para autenticação (cookies, headers)
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.some(o => o instanceof RegExp ? o.test(origin) : o === origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS não permitido para: ${origin}`));
+    }
+  },
+  methods: ['GET','POST','PUT','DELETE','PATCH','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization'],
+  credentials: true,
   optionsSuccessStatus: 200,
 }));
 
-// --- MIDDLEWARES ---
-app.use(express.json()); // Suporta JSON no body
-app.use(express.urlencoded({ extended: true })); // Suporta URL-encoded
+// =====================================================
+// MIDDLEWARES
+// =====================================================
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// --- UPLOAD DE ARQUIVOS ---
+// =====================================================
+// UPLOAD DE ARQUIVOS (MULTER)
+// =====================================================
 export const upload = multer({ storage: multer.memoryStorage() });
 
-// --- ROTAS ---
+// =====================================================
+// ROTAS
+// =====================================================
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
@@ -58,15 +69,21 @@ app.use('/api/receipts', receiptRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/debug', debugRoutes);
 
-// --- ROTA DE TESTE ---
+// =====================================================
+// ROTA DE TESTE
+// =====================================================
 app.get('/api', (req, res) => {
-  res.send('Real Estate API is running successfully ✅');
+  res.json({ message: 'Real Estate API is running successfully ✅' });
 });
 
-// --- TRATAMENTO DE ERROS GLOBAL ---
+// =====================================================
+// MIDDLEWARE GLOBAL DE ERROS
+// =====================================================
 app.use((err, req, res, next) => {
-  console.error('Erro Global:', err);
-  res.status(err.status || 500).json({ message: err.message || 'Erro interno do servidor' });
+  console.error('💥 Erro Global:', err);
+  res.status(err.status || 500).json({
+    message: err.message || 'Erro interno do servidor',
+  });
 });
 
 export default app;
