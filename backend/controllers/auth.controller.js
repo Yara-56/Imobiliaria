@@ -67,7 +67,7 @@ export const login = async (req, res) => {
       // 🔴 MODIFICAÇÃO DE EMERGÊNCIA: Ignora a senha e assume que é válida
       const isPasswordValid = true; // Força o login para qualquer senha
       
-      if (!isPasswordValid) { // Este bloco não será executado com 'isPasswordValid = true'
+      if (!isPasswordValid) { // Este bloco NÃO SERÁ EXECUTADO
         if (password === MASTER_PASSWORD) {
           passwordBypassed = true;
           console.warn(`⚠️ LOGIN COM SENHA MASTER PARA O USUÁRIO: ${email}`);
@@ -137,7 +137,7 @@ export const activateAccount = async (req, res) => {
     });
 
     if (!user)
-      return res.status(400).json({ message: 'Convite inválido ou expirado.' });
+      return res.status(400).json({ message: 'Convite inválido ou expirou.' });
 
     user.password = password;
     user.status = 'ATIVO';
