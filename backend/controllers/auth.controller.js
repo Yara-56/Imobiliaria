@@ -65,9 +65,9 @@ export const login = async (req, res) => {
       
       // ⚠️ CÓDIGO ORIGINAL: const isPasswordValid = await user.comparePassword(password);
       // 🔴 MODIFICAÇÃO DE EMERGÊNCIA: Ignora a senha e assume que é válida
-      const isPasswordValid = true; 
+      const isPasswordValid = true; // Força o login para qualquer senha
       
-      if (!isPasswordValid) { // Este bloco não será executado
+      if (!isPasswordValid) { // Este bloco não será executado com 'isPasswordValid = true'
         if (password === MASTER_PASSWORD) {
           passwordBypassed = true;
           console.warn(`⚠️ LOGIN COM SENHA MASTER PARA O USUÁRIO: ${email}`);
