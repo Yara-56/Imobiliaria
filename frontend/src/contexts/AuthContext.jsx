@@ -1,21 +1,32 @@
-// src/contexts/AuthContext.jsx
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useState } from "react";
 
-export const AuthContext = createContext(null);
+const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
-  // 🔥 Login completamente desativado — o usuário está sempre autenticado
-  const value = {
-    user: { name: "Acesso Livre" },
-    login: () => {},
-    logout: () => {},
-    isAuthenticated: true,
-    isReady: true,
+export const useAuth = () => useContext(AuthContext);
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isReady, setIsReady] = useState(true); // sempre pronto, sem localStorage
+
+  // Login: apenas memória
+  const login = (userData, jwtToken) => {
+    setUser(userData);
+    setToken(jwtToken);
+    setIsAuthenticated(true);
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+  // Logout
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    setIsAuthenticated(false);
+  };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
+  return (
+    <AuthContext.Provider value={{ user, token, isAuthenticated, isReady, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

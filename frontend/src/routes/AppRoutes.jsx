@@ -35,12 +35,8 @@ import EditContractTemplate from "../pages/admin/EditContractTemplate";
 import PaymentHistory from "../pages/admin/PaymentHistory";
 import ReceiptView from "../pages/admin/ReceiptView";
 
-// =====================================================
-// 🔓 ROTA PROTEGIDA (LOGIN DESATIVADO)
-// =====================================================
-const ProtectedRoute = ({ children }) => {
-  return children; // tudo liberado
-};
+// --- PROTECTED ROUTE CORRIGIDO ---
+import ProtectedRoute from "../components/ProtectedRoute";
 
 // =====================================================
 // 🔗 ROTAS PRINCIPAIS
@@ -54,7 +50,7 @@ export default function AppRoutes() {
       <Route path="/" element={<HomePage />} />
       <Route path="/home" element={<HomePage />} />
       <Route path="/public" element={<HomePage />} />
-      
+
       {/* Redireciona /login para o path admin */}
       <Route path="/login" element={<Navigate to="/admin/login" replace />} />
       <Route path="/admin/login" element={<Login />} />

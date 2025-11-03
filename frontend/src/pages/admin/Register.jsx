@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import api from "../../services/api"; // Usa o mesmo 'api' do seu login
+import api from "../../services/api"; 
 import { useNavigate, Link } from "react-router-dom"; 
-import { useAuth } from "../../contexts/AuthContext"; // Para login automático
 
 export default function Register() {
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -27,28 +25,14 @@ export default function Register() {
     }
 
     try {
-      const response = await api.post("/auth/register", { // ⚠ rota corrigida
-        name,
-        email,
-        password,
-      });
+      await api.post("/auth/register", { name, email, password });
 
-      // Se o backend retornar token e user, faz login automático
-      const { user, token } = response.data;
-
-      if (user && token) {
-        login(user, token); // Guarda no localStorage e headers
-        navigate("/admin/dashboard"); // Redireciona direto para dashboard
-      } else {
-        // Caso a API não retorne token, apenas avisa e manda para login
-        alert("Conta criada com sucesso! Faça login para continuar.");
-        navigate("/"); 
-      }
+      // Usuário criado como INATIVO → manda para tela de ativação
+      alert("Conta criada! Verifique seu email para ativar a conta.");
+      navigate("/admin/ativar-conta", { state: { email } });
 
     } catch (err) {
-      const errorMessage = err.response?.data?.error 
-        || err.response?.data?.message 
-        || "Erro ao criar conta. Tente novamente.";
+      const errorMessage = err.response?.data?.message || "Erro ao criar conta. Tente novamente.";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -148,13 +132,12 @@ export default function Register() {
         <div className="text-center mt-6 text-sm">
           <span className="text-gray-600">Já tem uma conta? </span>
           <Link 
-            to="/" 
+            to="/admin/login" 
             className="font-medium text-blue-600 hover:text-blue-500"
           >
             Faça o login
           </Link>
         </div>
-
       </div>
     </div>
   );

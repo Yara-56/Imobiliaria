@@ -1,57 +1,40 @@
 import React, { useState } from "react";
-import { useAuth } from "../../contexts/AuthContext";
 import api from "../../services/api";
-import { Navigate, useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 
-export default function Login() {
-  const { login, isAuthenticated, isReady } = useAuth();
+export default function ActivateAccount() {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // Se vier do register, já preenche o email
+  const [email, setEmail] = useState(location.state?.email || "");
+  const [token, setToken] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  if (isReady && isAuthenticated) {
-    return <Navigate to="/admin/dashboard" replace />;
-  }
-
-  if (!isReady) {
-    return (
-      <div className="w-full min-h-screen flex items-center justify-center bg-gray-100">
-        <p className="text-lg text-gray-600">Carregando sistema...</p>
-      </div>
-    );
-  }
+  const [success, setSuccess] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccess(null);
+
+    if (!email || !token) {
+      setError("Preencha o email e o token de ativação.");
+      setLoading(false);
+      return;
+    }
 
     try {
-      if (password !== "senhaMaster123") {
-        setError("E-mail ou senha inválidos.");
-        setLoading(false);
-        return;
-      }
+      await api.post("/auth/activate", { token, email });
 
-      const response = await api.get(`/users/by-email?email=${email}`);
-      const user = response.data;
+      setSuccess("Conta ativada com sucesso! Você já pode fazer login.");
+      setTimeout(() => navigate("/admin/login"), 2000); // redireciona após 2s
 
-      if (!user) {
-        setError("Usuário não encontrado.");
-        setLoading(false);
-        return;
-      }
-
-      const token = "MASTER_TOKEN";
-      localStorage.setItem("token", JSON.stringify(token));
-      localStorage.setItem("user", JSON.stringify(user));
-      login(user, token);
-      navigate("/admin/dashboard");
     } catch (err) {
-      setError("Erro ao acessar usuário. Tente novamente.");
+      const errorMessage = err.response?.data?.message || "Erro ao ativar conta. Tente novamente.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -60,14 +43,20 @@ export default function Login() {
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-gray-100 px-4 font-inter">
       <div className="bg-white p-8 md:p-14 rounded-xl shadow-2xl max-w-md w-full">
-        <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">Imobiliária</h2>
+        <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">Ativar Conta</h2>
         <p className="text-sm text-blue-600 font-semibold text-center mb-8">
-          Acesso ao Sistema de Gestão
+          Insira seu email e token de ativação
         </p>
 
         {error && (
           <div className="p-3 bg-red-100 border border-red-400 text-red-700 text-sm rounded-lg mb-4">
             {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="p-3 bg-green-100 border border-green-400 text-green-700 text-sm rounded-lg mb-4">
+            {success}
           </div>
         )}
 
@@ -79,7 +68,7 @@ export default function Login() {
             <input
               type="email"
               id="email"
-              placeholder="seu.usuario@imobiliaria.com"
+              placeholder="seu.email@exemplo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -89,28 +78,19 @@ export default function Login() {
           </div>
 
           <div>
-            <label htmlFor="password" className="text-sm font-semibold text-gray-700 block mb-1">
-              SENHA
+            <label htmlFor="token" className="text-sm font-semibold text-gray-700 block mb-1">
+              TOKEN DE ATIVAÇÃO
             </label>
             <input
-              type="password"
-              id="password"
-              placeholder="Digite a senha master"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              type="text"
+              id="token"
+              placeholder="Digite o token recebido por email"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
               disabled={loading}
             />
-          </div>
-
-          <div className="text-right text-sm">
-            <Link
-              to="/admin/esqueci-senha"
-              className="font-medium text-blue-600 hover:text-blue-500"
-            >
-              Esqueceu sua senha?
-            </Link>
           </div>
 
           <button
@@ -122,17 +102,17 @@ export default function Login() {
                 : "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-500/50"
             }`}
           >
-            {loading ? "Verificando..." : "ENTRAR"}
+            {loading ? "Ativando..." : "ATIVAR CONTA"}
           </button>
         </form>
 
         <div className="text-center mt-6 text-sm">
-          <span className="text-gray-600">Não tem uma conta? </span>
-          <Link
-            to="/admin/register"
+          <span className="text-gray-600">Já ativou sua conta? </span>
+          <Link 
+            to="/admin/login" 
             className="font-medium text-blue-600 hover:text-blue-500"
           >
-            Cadastre-se
+            Faça o login
           </Link>
         </div>
       </div>
