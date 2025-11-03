@@ -1,12 +1,11 @@
 // src/components/Menu.jsx
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import classNames from "classnames";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Menu() {
   const location = useLocation();
-  const navigate = useNavigate();
   const { logout } = useAuth();
   const [openMenu, setOpenMenu] = useState(null);
   const [menuCollapsed, setMenuCollapsed] = useState(false);
@@ -23,13 +22,6 @@ export default function Menu() {
 
   const isActive = (path) => location.pathname === path;
   const isPrefixActive = (prefix) => location.pathname.startsWith(prefix);
-
-  const handleLogout = () => {
-    logout();
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/");
-  };
 
   const menuItems = [
     {
@@ -77,6 +69,7 @@ export default function Menu() {
         menuCollapsed ? "w-16" : "w-64"
       )}
     >
+      {/* Header */}
       <div className="px-4 py-4 border-b border-white/10 flex justify-between items-center">
         {!menuCollapsed && (
           <div>
@@ -94,6 +87,7 @@ export default function Menu() {
         </button>
       </div>
 
+      {/* Menu */}
       <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
         {menuItems.map((item) => (
           <div key={item.key} className="relative">
@@ -142,9 +136,10 @@ export default function Menu() {
         ))}
       </nav>
 
+      {/* Footer */}
       <div className="border-t border-white/10 px-4 py-3 mt-auto flex flex-col gap-2">
         <button
-          onClick={handleLogout}
+          onClick={logout}
           className="flex items-center gap-3 px-2 py-2 rounded-md text-gray-300 hover:bg-red-600 hover:text-white text-sm w-full text-left"
         >
           <i className="fa-solid fa-right-from-bracket"></i>

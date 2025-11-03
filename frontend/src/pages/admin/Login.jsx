@@ -12,6 +12,11 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // ===============================================================
+  // BLOQUEIO DE LOGIN ORIGINAL: 
+  // Comentado para forçar ir direto para o dashboard
+  // ===============================================================
+  /*
   if (isReady && isAuthenticated) {
     return <Navigate to="/admin/dashboard" replace />;
   }
@@ -23,6 +28,7 @@ export default function Login() {
       </div>
     );
   }
+  */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,28 +36,42 @@ export default function Login() {
     setError(null);
 
     try {
-      if (password !== "senhaMaster123") {
-        setError("E-mail ou senha inválidos.");
-        setLoading(false);
-        return;
+      // ===============================================================
+      // BLOQUEIO ORIGINAL: chamada real para o backend
+      // Comentado para liberar login direto
+      // ===============================================================
+      /*
+      const response = await api.post("/auth/login", { email, password });
+
+      const { token, user, passwordBypassed } = response.data;
+
+      if (passwordBypassed) {
+        alert(
+          "⚠️ Você entrou usando a senha master! Qualquer e-mail funciona com esta senha."
+        );
       }
 
-      const response = await api.get(`/users/by-email?email=${email}`);
-      const user = response.data;
+      login(user, token);
+      */
 
-      if (!user) {
-        setError("Usuário não encontrado.");
-        setLoading(false);
-        return;
-      }
+      // ===============================================================
+      // LOGIN LIBERADO: simula usuário e token
+      // ===============================================================
+      const user = { name: email || "Usuário Teste", role: "admin" };
+      const token = "tokenFakeParaTeste";
 
-      const token = "MASTER_TOKEN";
+      // salva no localStorage para compatibilidade com AuthContext
       localStorage.setItem("token", JSON.stringify(token));
       localStorage.setItem("user", JSON.stringify(user));
-      login(user, token);
-      navigate("/admin/dashboard");
+
+      login(user, token); // chama login do contexto
+      navigate("/admin/dashboard"); // vai direto para dashboard
     } catch (err) {
-      setError("Erro ao acessar usuário. Tente novamente.");
+      const errorMessage =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "E-mail ou senha inválidos. Tente novamente.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -61,9 +81,7 @@ export default function Login() {
     <div className="w-full min-h-screen flex items-center justify-center bg-gray-100 px-4 font-inter">
       <div className="bg-white p-8 md:p-14 rounded-xl shadow-2xl max-w-md w-full">
         <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">Imobiliária</h2>
-        <p className="text-sm text-blue-600 font-semibold text-center mb-8">
-          Acesso ao Sistema de Gestão
-        </p>
+        <p className="text-sm text-blue-600 font-semibold text-center mb-8">Acesso ao Sistema de Gestão</p>
 
         {error && (
           <div className="p-3 bg-red-100 border border-red-400 text-red-700 text-sm rounded-lg mb-4">
@@ -73,9 +91,7 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="text-sm font-semibold text-gray-700 block mb-1">
-              E-MAIL
-            </label>
+            <label htmlFor="email" className="text-sm font-semibold text-gray-700 block mb-1">E-MAIL</label>
             <input
               type="email"
               id="email"
@@ -89,13 +105,11 @@ export default function Login() {
           </div>
 
           <div>
-            <label htmlFor="password" className="text-sm font-semibold text-gray-700 block mb-1">
-              SENHA
-            </label>
+            <label htmlFor="password" className="text-sm font-semibold text-gray-700 block mb-1">SENHA</label>
             <input
               type="password"
               id="password"
-              placeholder="Digite a senha master"
+              placeholder="Digite sua senha de acesso"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -105,7 +119,7 @@ export default function Login() {
           </div>
 
           <div className="text-right text-sm">
-            <Link
+            <Link 
               to="/admin/esqueci-senha"
               className="font-medium text-blue-600 hover:text-blue-500"
             >
@@ -128,7 +142,7 @@ export default function Login() {
 
         <div className="text-center mt-6 text-sm">
           <span className="text-gray-600">Não tem uma conta? </span>
-          <Link
+          <Link 
             to="/admin/register"
             className="font-medium text-blue-600 hover:text-blue-500"
           >
