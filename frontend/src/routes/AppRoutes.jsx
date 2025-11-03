@@ -1,7 +1,5 @@
-// src/routes/AppRoutes.jsx
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-// import { useAuth } from "../contexts/AuthContext"; // Removido pois 'user' não é usado
 
 // --- LAYOUT ADMINISTRATIVO ---
 import AdminLayout from "../components/layout/AdminLayout";
@@ -10,11 +8,12 @@ import AdminLayout from "../components/layout/AdminLayout";
 import HomePage from "../pages/public/HomePage";
 
 // --- PÁGINAS DE ADMIN (PAINEL) ---
+import Login from "../pages/admin/Login";
 import Register from "../pages/admin/Register";
 import ForgotPassword from "../pages/admin/ForgotPassword";
 import ResetPassword from "../pages/admin/ResetPassword";
 
-// Páginas principais do Admin (dentro do layout)
+// --- PÁGINAS PRINCIPAIS DO ADMIN (DENTRO DO LAYOUT) ---
 import Home from "../pages/admin/Home";
 import PropertiesList from "../pages/admin/PropertiesList";
 import PropertyForm from "../pages/admin/PropertyForm";
@@ -37,40 +36,35 @@ import PaymentHistory from "../pages/admin/PaymentHistory";
 import ReceiptView from "../pages/admin/ReceiptView";
 
 // =====================================================
-// 🔓 ROTA PROTEGIDA (AGORA SEM LOGIN)
+// 🔓 ROTA PROTEGIDA (LOGIN DESATIVADO)
 // =====================================================
 const ProtectedRoute = ({ children }) => {
-  // Tudo liberado — o login foi completamente desativado
-  return children;
+  return children; // tudo liberado
 };
 
 // =====================================================
 // 🔗 ROTAS PRINCIPAIS
 // =====================================================
 export default function AppRoutes() {
-  // const { user } = useAuth(); // Não é mais usado aqui
-
   return (
     <Routes>
       {/* =============================== */}
-      {/* ====== ROTAS PÚBLICAS/INICIAL ========= */}
+      {/* ====== ROTAS PÚBLICAS ========= */}
       {/* =============================== */}
-      {/* 🛑 MUDANÇA PRINCIPAL: Redireciona a rota raiz para a tela de Inquilinos */}
-      <Route path="/" element={<Navigate to="/admin/inquilinos" replace />} />
-      {/* Se quiser manter a HomePage para testes, use uma rota diferente: */}
-      <Route path="/public" element={<HomePage />} /> 
-
-      {/* =============================== */}
-      {/* ====== ROTAS DE ADMIN ========= */}
-      {/* =============================== */}
-
-      {/* 🚫 Login desativado — redireciona direto */}
-      <Route path="/admin/login" element={<Navigate to="/admin/inquilinos" replace />} />
+      <Route path="/" element={<HomePage />} />
+      <Route path="/home" element={<HomePage />} />
+      <Route path="/public" element={<HomePage />} />
+      
+      {/* Redireciona /login para o path admin */}
+      <Route path="/login" element={<Navigate to="/admin/login" replace />} />
+      <Route path="/admin/login" element={<Login />} />
       <Route path="/admin/register" element={<Register />} />
       <Route path="/admin/esqueci-senha" element={<ForgotPassword />} />
       <Route path="/admin/resetar-senha/:token" element={<ResetPassword />} />
 
-      {/* --- Layout liberado --- */}
+      {/* =============================== */}
+      {/* ====== ROTAS ADMIN ============ */}
+      {/* =============================== */}
       <Route
         path="/admin"
         element={
@@ -79,8 +73,7 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        {/* ROTAS FILHAS */}
-        {/* 🛑 MUDANÇA: O index ( /admin ) agora redireciona para Inquilinos */}
+        {/* Rotas filhas */}
         <Route index element={<Navigate to="/admin/inquilinos" replace />} />
         <Route path="dashboard" element={<Home />} />
 
@@ -114,14 +107,8 @@ export default function AppRoutes() {
       {/* =============================== */}
       {/* ====== REDIRECIONAMENTOS ====== */}
       {/* =============================== */}
-      {/* O '/home' agora aponta para inquilinos */}
-      <Route path="/home" element={<Navigate to="/admin/inquilinos" replace />} />
-
-      {/* =============================== */}
-      {/* ====== ROTA INEXISTENTE ======= */}
-      {/* =============================== */}
-      {/* O '*' agora redireciona para a tela de Inquilinos, e não mais para '/' */}
-      <Route path="*" element={<Navigate to="/admin/inquilinos" replace />} />
+      {/* Qualquer rota desconhecida vai para HomePage */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
