@@ -1,4 +1,4 @@
-// app.js
+// backend/app.js
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
@@ -21,7 +21,8 @@ const app = express();
 // ✅ CORS CONFIG COMPLETA
 // =====================================================
 const allowedOrigins = [
-  'https://imobiliaria-frontend-76xsdlum1-yara-56s-projects.vercel.app', // frontend Vercel
+  'https://imobiliaria-frontend-76xsdlum1-yara-56s-projects.vercel.app', // Vercel antigo
+  'https://imobiliaria-frontend-bice.vercel.app', // Vercel atual
 ];
 
 // Permite localhost em desenvolvimento
@@ -40,7 +41,7 @@ const corsOptions = {
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token'], // 👈 adicionado aqui
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token'],
   credentials: true,
   optionsSuccessStatus: 200,
 };
@@ -84,7 +85,7 @@ app.get('/api', (req, res) => {
 // MIDDLEWARE GLOBAL DE ERROS
 // =====================================================
 app.use((err, req, res, next) => {
-  console.error('💥 Erro Global:', err);
+  console.error('💥 Erro Global:', err.message || err);
   res.status(err.status || 500).json({
     message: err.message || 'Erro interno do servidor',
   });
