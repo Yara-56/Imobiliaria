@@ -1,128 +1,109 @@
 import React, { useEffect, useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faCreditCard,
-  faUser,
-  faDownload,
-  faEnvelope,
-} from '@fortawesome/free-solid-svg-icons';
-import { listTenants } from '../../services/tenantService';
+// Importa o serviço
+import { listTenants } from '../../services/tenantService'; 
+
+// Componentes Auxiliares
+import StepIndicator from '../../components/StepIndicator'; 
+
+// Componentes de Passo (Localizados em src/components/payment/)
+import Step1Tenant from '../../components/payment/Step1Tenant';
+import Step2Details from '../../components/payment/Step2Details';
+import Step3Receipt from '../../components/payment/Step3Receipt';
+
+const stepLabels = ['Inquilino', 'Pagamento', 'Comprovante'];
 
 export default function Payment() {
   const [step, setStep] = useState(1);
-  const [selectedTenant, setSelectedTenant] = useState(null);
   const [tenants, setTenants] = useState([]);
-  const [search, setSearch] = useState('');
+  const [selectedTenant, setSelectedTenant] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Lógica de carregamento de inquilinos
   useEffect(() => {
     async function loadTenants() {
+      setIsLoading(true);
       try {
         const response = await listTenants();
-        setTenants(response);
-      } catch (error) {
-        console.error('Error loading tenants:', error);
+        setTenants(Array.isArray(response) ? response : response?.items ?? []);
+      } catch (err) {
+        console.error('Erro ao carregar inquilinos:', err);
+      } finally {
+        setIsLoading(false);
       }
     }
     loadTenants();
   }, []);
 
-  const next = () => setStep((s) => s + 1);
-  const back = () => setStep((s) => s - 1);
+  // Lógica de navegação e reset
+  const nextStep = () => setStep((s) => Math.min(s + 1, stepLabels.length));
+  const prevStep = () => setStep((s) => Math.max(s - 1, 1));
+  
+  const startNewPayment = () => {
+    setStep(1);
+    setSelectedTenant(null);
+    // Nota: O histórico é gerenciado internamente pelo SearchBarWithHistory
+  };
+  
+  const handleTenantSelection = (tenant) => {
+      setSelectedTenant(tenant);
+  }
 
-  const filteredTenants = tenants.filter((tenant) =>
-    tenant.name.toLowerCase().includes(search.toLowerCase())
-  );
+  // Renderização do passo atual
+  const renderStepContent = () => {
+    switch (step) {
+      case 1:
+        return (
+          <Step1Tenant 
+            tenants={tenants}
+            selectedTenant={selectedTenant}
+            onSelectTenant={handleTenantSelection}
+            onNextStep={nextStep}
+            isLoading={isLoading}
+          />
+        );
+      case 2:
+        // Verifica se há inquilino selecionado antes de renderizar o passo 2
+        if (!selectedTenant) return null; 
+        return (
+          <Step2Details 
+            selectedTenant={selectedTenant}
+            onNextStep={nextStep}
+            onPrevStep={prevStep}
+          />
+        );
+      case 3:
+        // Verifica se há inquilino selecionado antes de renderizar o passo 3
+        if (!selectedTenant) return null;
+        return (
+          <Step3Receipt 
+            selectedTenant={selectedTenant}
+            onStartNewPayment={startNewPayment}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
-      <StepProgress etapaAtual={step} />
+    <div className="max-w-4xl mx-auto p-6 space-y-8 bg-gray-50 min-h-screen">
+      <header className="flex items-center justify-between border-b pb-4">
+        <h1 className="text-3xl font-extrabold text-gray-900">Receber Pagamento</h1>
+        <div className="text-lg font-medium text-blue-600">Passo {step} de {stepLabels.length}</div>
+      </header>
 
-      {step === 1 && (
-        <section className="bg-white rounded-lg shadow-sm p-6">
-          <input
-            type="text"
-            placeholder="Buscar inquilino..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-4 py-2 mb-4 text-sm"
-          />
+      <StepIndicator currentStep={step} />
 
-          <ul className="space-y-2">
-            {filteredTenants.map((tenant) => (
-              <li
-                key={tenant._id}
-                onClick={() => setSelectedTenant(tenant)}
-                className={`border rounded-md px-4 py-2 flex items-center cursor-pointer transition 
-                  ${selectedTenant?._id === tenant._id ? 'bg-blue-100 border-blue-400' : 'hover:bg-gray-100'}`}
-              >
-                <FontAwesomeIcon icon={faUser} className="text-gray-500 mr-3" />
-                {tenant.name}
-              </li>
-            ))}
-          </ul>
+      <div className="min-h-[400px]">
+        {renderStepContent()}
 
-          <div className="flex justify-end mt-6">
-            <button
-              onClick={next}
-              disabled={!selectedTenant}
-              className={`px-5 py-2 rounded-md font-medium text-white transition-colors 
-                ${selectedTenant ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-300 cursor-not-allowed'}`}
-            >
-              Próximo
-            </button>
+        {/* Mensagem de segurança caso a navegação falhe */}
+        {(step > 1 && !selectedTenant) && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-center">
+            ⚠️ Erro de navegação. Volte ao primeiro passo e selecione um inquilino.
           </div>
-        </section>
-      )}
-
-      {step === 2 && (
-        <section className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-semibold mb-4">Resumo do Pagamento</h3>
-          <p><strong>Inquilino:</strong> {selectedTenant?.name}</p>
-          <p><strong>Valor:</strong> R$ 1.200,00</p>
-          <p><strong>Data:</strong> {new Date().toLocaleDateString('pt-BR')}</p>
-
-          <div className="flex justify-end gap-4 mt-6">
-            <button
-              onClick={back}
-              className="px-5 py-2 rounded-md bg-gray-300 text-black hover:bg-gray-400 transition"
-            >
-              Voltar
-            </button>
-            <button
-              onClick={next}
-              className="px-5 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition"
-            >
-              Receber
-            </button>
-          </div>
-        </section>
-      )}
-
-      {step === 3 && (
-        <section className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex justify-end gap-4 mb-4">
-            <FontAwesomeIcon icon={faDownload} className="text-gray-600 text-lg hover:text-blue-600 cursor-pointer" title="Download PDF" />
-            <FontAwesomeIcon icon={faEnvelope} className="text-gray-600 text-lg hover:text-blue-600 cursor-pointer" title="Enviar por e-mail" />
-          </div>
-
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Recibo de Pagamento</h3>
-            <p><strong>Inquilino:</strong> {selectedTenant?.name}</p>
-            <p><strong>Valor:</strong> R$ 1.200,00</p>
-            <p><strong>Data:</strong> {new Date().toLocaleDateString('pt-BR')}</p>
-            <p><strong>Método:</strong> Cartão de Crédito</p>
-          </div>
-
-          <div className="flex justify-end mt-6">
-            <button
-              onClick={() => setStep(1)}
-              className="px-5 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition"
-            >
-              Novo Pagamento
-            </button>
-          </div>
-        </section>
-      )}
+        )}
+      </div>
     </div>
   );
 }

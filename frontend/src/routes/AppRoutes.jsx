@@ -32,6 +32,7 @@ import ContractTemplateList from "../pages/admin/ContractTemplateList";
 import CreateContractTemplate from "../pages/admin/CreateContractTemplate";
 import EditContractTemplate from "../pages/admin/EditContractTemplate";
 
+import Payment from "../pages/admin/Payment";     // ✅ ADICIONADO
 import PaymentHistory from "../pages/admin/PaymentHistory";
 import ReceiptView from "../pages/admin/ReceiptView";
 
@@ -48,23 +49,19 @@ const ProtectedRoute = ({ children }) => {
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* =============================== */}
-      {/* ====== ROTAS PÚBLICAS ========= */}
-      {/* =============================== */}
+      {/* ROTAS PÚBLICAS */}
       <Route path="/" element={<HomePage />} />
       <Route path="/home" element={<HomePage />} />
       <Route path="/public" element={<HomePage />} />
-      
-      {/* Redireciona /login para o path admin */}
+
+      {/* Login */}
       <Route path="/login" element={<Navigate to="/admin/login" replace />} />
       <Route path="/admin/login" element={<Login />} />
       <Route path="/admin/register" element={<Register />} />
       <Route path="/admin/esqueci-senha" element={<ForgotPassword />} />
       <Route path="/admin/resetar-senha/:token" element={<ResetPassword />} />
 
-      {/* =============================== */}
-      {/* ====== ROTAS ADMIN ============ */}
-      {/* =============================== */}
+      {/* ROTAS ADMIN */}
       <Route
         path="/admin"
         element={
@@ -73,9 +70,11 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        {/* Rotas filhas */}
         <Route index element={<Navigate to="/admin/inquilinos" replace />} />
         <Route path="dashboard" element={<Home />} />
+
+        {/* ✅ PAGAMENTOS */}
+        <Route path="pagamentos" element={<Payment />} />
 
         {/* Imóveis */}
         <Route path="imoveis" element={<PropertiesList />} />
@@ -99,15 +98,12 @@ export default function AppRoutes() {
         <Route path="contratos/modelos/novo" element={<CreateContractTemplate />} />
         <Route path="contratos/modelos/editar/:id" element={<EditContractTemplate />} />
 
-        {/* Pagamentos e Recibos */}
+        {/* Histórico e Recibo */}
         <Route path="pagamentos/historico/:id" element={<PaymentHistory />} />
         <Route path="recibo/:id" element={<ReceiptView />} />
       </Route>
 
-      {/* =============================== */}
-      {/* ====== REDIRECIONAMENTOS ====== */}
-      {/* =============================== */}
-      {/* Qualquer rota desconhecida vai para HomePage */}
+      {/* ROTA DEFAULT */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

@@ -1,11 +1,12 @@
 // src/components/Menu.jsx
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import classNames from "classnames";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Menu() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { logout } = useAuth();
   const [openMenu, setOpenMenu] = useState(null);
   const [menuCollapsed, setMenuCollapsed] = useState(false);
@@ -15,6 +16,15 @@ export default function Menu() {
     const user = JSON.parse(localStorage.getItem("user"));
     setUserName(user?.name || "Usuário");
   }, []);
+
+  // Abre submenu automaticamente se a URL corresponder
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const activeItem = menuItems.find((item) =>
+      currentPath.startsWith(item.path)
+    );
+    if (activeItem?.submenu) setOpenMenu(activeItem.key);
+  }, [location.pathname]);
 
   const toggleSubmenu = (key) => {
     setOpenMenu(openMenu === key ? null : key);
@@ -29,6 +39,16 @@ export default function Menu() {
       icon: "fa-solid fa-chart-line",
       label: "Dashboard",
       path: "/admin/dashboard",
+    },
+    {
+      key: "payments",
+      icon: "fa-solid fa-credit-card",
+      label: "Pagamentos",
+      path: "/admin/pagamentos",
+      submenu: [
+        { to: "/admin/pagamentos", label: "➕ Novo Pagamento" },
+        { to: "/admin/pagamentos/historico", label: "📜 Histórico" },
+      ],
     },
     {
       key: "properties",
@@ -60,6 +80,17 @@ export default function Menu() {
         { to: "/admin/contratos/modelos", label: "📂 Modelos de Contrato" },
       ],
     },
+    {
+      key: "reports",
+      icon: "fa-solid fa-chart-pie",
+      label: "Relatórios",
+      path: "/admin/relatorios",
+      submenu: [
+        { to: "/admin/relatorios/pagamentos", label: "💰 Pagamentos" },
+        { to: "/admin/relatorios/contratos", label: "📄 Contratos" },
+        { to: "/admin/relatorios/inquilinos", label: "👥 Inquilinos" },
+      ],
+    },
   ];
 
   return (
@@ -87,12 +118,14 @@ export default function Menu() {
         </button>
       </div>
 
-      {/* Menu */}
+      {/* Menu Items */}
       <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
         {menuItems.map((item) => (
           <div key={item.key} className="relative">
             <button
-              onClick={() => (item.submenu ? toggleSubmenu(item.key) : (window.location.href = item.path))}
+              onClick={() =>
+                item.submenu ? toggleSubmenu(item.key) : navigate(item.path)
+              }
               className={classNames(
                 "flex items-center justify-between w-full px-3 py-2 rounded-md text-sm font-medium transition-all",
                 isPrefixActive(item.path)
@@ -100,8 +133,8 @@ export default function Menu() {
                   : "text-gray-300 hover:bg-blue-800 hover:text-white"
               )}
             >
-              <div className="flex items-center gap-3">
-                <i className={item.icon}></i>
+              <div className="flex items-center gap-4">
+                <i className={`${item.icon} text-[18px]`}></i>
                 {!menuCollapsed && <span>{item.label}</span>}
               </div>
               {!menuCollapsed && item.submenu && (
@@ -136,11 +169,11 @@ export default function Menu() {
         ))}
       </nav>
 
-      {/* Footer */}
+      {/* Logout */}
       <div className="border-t border-white/10 px-4 py-3 mt-auto flex flex-col gap-2">
         <button
           onClick={logout}
-          className="flex items-center gap-3 px-2 py-2 rounded-md text-gray-300 hover:bg-red-600 hover:text-white text-sm w-full text-left"
+          className="flex items-center gap-4 px-2 py-2 rounded-md text-gray-300 hover:bg-red-600 hover:text-white text-sm w-full text-left"
         >
           <i className="fa-solid fa-right-from-bracket"></i>
           {!menuCollapsed && <span>Sair</span>}
