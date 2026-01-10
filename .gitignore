@@ -5,7 +5,8 @@
 .env
 .env.local
 .env.*.local
-
+*.pem
+*.key
 # =============================================================================
 # DEPENDÊNCIAS
 # Ignora a pasta de pacotes instalados e o arquivo de lock do NPM,
