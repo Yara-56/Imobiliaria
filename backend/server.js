@@ -1,50 +1,58 @@
-import dotenv from 'dotenv';
-import connectDB from './src/config/db.js'; // <-- Importamos a conexão modular
-import app from './src/app.js'; // <-- O app agora vem da pasta src
-
 // =====================================================
-// CARREGA VARIÁVEIS DE AMBIENTE
+// CARREGA VARIÁVEIS DE AMBIENTE (TEM QUE SER PRIMEIRO)
 // =====================================================
+import dotenv from "dotenv";
 dotenv.config();
 
-// Validação Fail-Fast: O servidor nem liga se faltar o básico
-if (!process.env.JWT_SECRET || !process.env.MONGO_URI) {
-  console.error("🔴 ERRO FATAL: Variáveis de ambiente (JWT_SECRET ou MONGO_URI) não definidas.");
+// =====================================================
+// IMPORTS PRINCIPAIS
+// =====================================================
+import app from "./app.js";
+import connectDB from "./src/config/db.js";
+
+// =====================================================
+// FAIL FAST — NÃO SOBE SEM VARIÁVEIS IMPORTANTES
+// =====================================================
+if (!process.env.MONGO_URI || !process.env.JWT_SECRET) {
+  console.error("🔴 ERRO FATAL: MONGO_URI ou JWT_SECRET não definidos no .env");
   process.exit(1);
 }
 
 const PORT = process.env.PORT || 5050;
 
 // =====================================================
-// TRATAMENTO GLOBAL DE ERROS (Safety Net)
+// SAFETY NET — ERROS GLOBAIS
 // =====================================================
-process.on('uncaughtException', (error) => {
-  console.error('--- ERRO NÃO CAPTURADO (Uncaught Exception) ---');
-  console.error(error);
-  process.exit(1); // É mais seguro reiniciar o processo em caso de erro não tratado
+process.on("uncaughtException", (err) => {
+  console.error("🔥 Uncaught Exception:");
+  console.error(err);
+  process.exit(1);
 });
 
-process.on('unhandledRejection', (reason) => {
-  console.error('--- PROMISE REJEITADA NÃO TRATADA ---');
+process.on("unhandledRejection", (reason) => {
+  console.error("🔥 Unhandled Rejection:");
   console.error(reason);
 });
 
 // =====================================================
-// INICIALIZAÇÃO
+// START SERVER
 // =====================================================
 const startServer = async () => {
   try {
-    // 1. Conecta ao Banco (Usando o módulo isolado)
+    // Conecta no Mongo
     await connectDB();
 
-    // 2. Sobe o Servidor
+    // Sobe Express
     app.listen(PORT, () => {
-      console.log(`🚀 Servidor rodando em: http://localhost:${PORT}`);
-      console.log(`🛡️  Modo: ${process.env.NODE_ENV || 'development'}`);
+      console.log("=======================================");
+      console.log(`🚀 Backend rodando: http://localhost:${PORT}`);
+      console.log(`🛡️  Ambiente: ${process.env.NODE_ENV || "development"}`);
+      console.log("=======================================");
     });
-    
+
   } catch (error) {
-    console.error("🔴 Falha crítica na inicialização:", error);
+    console.error("🔴 Falha crítica ao iniciar servidor:");
+    console.error(error);
     process.exit(1);
   }
 };
