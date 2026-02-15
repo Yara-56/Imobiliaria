@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Flex, VStack, Icon, Text, Heading, Spacer, HStack, Container } from "@chakra-ui/react";
 import { LayoutDashboard, Users, FileText, Settings, LogOut, Building, LucideIcon } from "lucide-react";
-import { Avatar } from "@/components/ui/Avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { useAuth } from "@/core/contexts/AuthContext";
 
 interface NavItemProps { icon: LucideIcon; label: string; active?: boolean; }

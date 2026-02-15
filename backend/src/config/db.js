@@ -1,16 +1,20 @@
 import mongoose from 'mongoose';
+import { env } from './env.js';
+import logger from '../utils/logger.js';
 
 const connectDB = async () => {
   try {
-    // Conexão limpa, sem opções antigas
-    const conn = await mongoose.connect(process.env.MONGO_URI);
+    mongoose.set('strictQuery', true);
 
-    // Mostra em qual host conectou (útil para saber se é local ou nuvem)
-    console.log(`✅ MongoDB Conectado: ${conn.connection.host}`);
-  } catch (err) {
-    console.error(`❌ Erro ao conectar ao MongoDB: ${err.message}`);
-    // Encerra o app se o banco não subir (Fail Fast)
-    process.exit(1);
+    const conn = await mongoose.connect(env.MONGO_URI, {
+      autoIndex: env.NODE_ENV !== 'production', // evita custo em prod
+    });
+
+    logger.info(`✅ MongoDB conectado: ${conn.connection.host}`);
+
+  } catch (error) {
+    logger.error('❌ Erro ao conectar no MongoDB', error);
+    process.exit(1); // Fail Fast real
   }
 };
 

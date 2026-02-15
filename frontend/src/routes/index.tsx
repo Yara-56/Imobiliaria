@@ -5,8 +5,8 @@ import ProtectedRoute from "@/core/guards/ProtectedRoute";
 
 // Lazy loading - Removendo qualquer ambiguidade de extensão .js
 const HomePage = React.lazy(() => import("@/pages/public/home/HomePage"));
-const LoginPage = React.lazy(() => import("@/pages/public/LoginPage"));
-const Unauthorized = React.lazy(() => import("@/pages/public/Unauthorized"));
+const LoginPage = React.lazy(() => import("@/pages/LoginPage"));
+const Unauthorized = React.lazy(() => import("@/pages/Unauthorized"));
 
 // Importando o Dashboard que renomeamos para .tsx
 const Dashboard = React.lazy(() => import("@/features/dashboard/pages/Dashboard"));
