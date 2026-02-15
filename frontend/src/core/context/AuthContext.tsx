@@ -1,57 +1,56 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useState, ReactNode, FC, useEffect } from "react";
 
-export type UserRole = "ADMIN" | "USER";
+export type UserRole = "ADMIN" | "OWNER" | "USER";
 
-export interface AuthUser {
-  id: string;
+export interface User {
+  id?: string;
   name: string;
-  email: string;
   role: UserRole;
-  tenant_id: string;
+  email?: string;
 }
 
 interface AuthContextType {
-  user: AuthUser | null;
-  token: string | null;
-  login: (user: AuthUser, token: string) => void;
+  user: User | null;
+  login: (userData: User, token: string) => void; 
   logout: () => void;
+  isAuthenticated: boolean;
+  hasRole: (roles: UserRole[]) => boolean;
+  loading: boolean; // ✅ 1. Adicionado ao contrato do TypeScript
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true); // ✅ 2. Estado de carregamento inicial
 
-  const login = (userData: AuthUser, userToken: string) => {
+  // ✅ 3. useEffect para ler o localStorage assim que o app abrir
+  useEffect(() => {
+    const saved = localStorage.getItem("imobisys_user");
+    if (saved) {
+      setUser(JSON.parse(saved));
+    }
+    setLoading(false); // Finaliza o carregamento
+  }, []);
+
+  const login = (userData: User, token: string) => {
     setUser(userData);
-    setToken(userToken);
-
-    localStorage.setItem("auth_user", JSON.stringify(userData));
-    localStorage.setItem("auth_token", userToken);
+    localStorage.setItem("imobisys_user", JSON.stringify(userData));
+    localStorage.setItem("imobisys_token", token);
   };
 
   const logout = () => {
     setUser(null);
-    setToken(null);
-
-    localStorage.removeItem("auth_user");
-    localStorage.removeItem("auth_token");
+    localStorage.removeItem("imobisys_user");
+    localStorage.removeItem("imobisys_token");
   };
 
+  const isAuthenticated = !!user;
+  const hasRole = (roles: UserRole[]) => (user ? roles.includes(user.role) : false);
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, hasRole, loading }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error("useAuth deve ser usado dentro de um AuthProvider");
-  }
-
-  return context;
 };

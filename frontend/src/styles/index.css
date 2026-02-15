@@ -1,11 +1,55 @@
-/* Importações externas e internas primeiro */
-@import "./tokens.css";
-@import "./base.css";
-@import "./components.css";
-@import "./utilities.css";
-@import "./animations.css";
-
-/* Tailwind */
+/* 1. Reset e Camadas do Tailwind (Essencial para o seu projeto) */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 2. Variáveis Globais e Design Tokens */
+:root {
+  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+  --bg-app: #f8fafc; /* Um cinza bem clarinho para o fundo do sistema */
+}
+
+/* 3. Estilização Base Profissional */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-app);
+  color: #1a202c;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* 4. Customização de Scrollbar (Toque de Sênior) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* 5. Ajustes para o Chakra UI não conflitar com Tailwind */
+[data-theme] {
+  background-color: transparent !important;
+}

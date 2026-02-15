@@ -1,21 +1,23 @@
-import React from "react";
-import { BrowserRouter } from "react-router-dom";
-import { Provider } from "@/components/ui/provider"; 
-import { AuthProvider } from "@/core/contexts/AuthContext";
-import AppRoutes from "./routes/AppRoutes";
 import { Toaster } from "sonner";
+import { Suspense } from "react"; // Removido o 'lazy' daqui
+
+// Providers com caminhos relativos
+import { Provider as UIProvider } from "./core/components/ui/provider"; 
+import { AuthProvider } from "./core/context/AuthContext"; 
+import AppRoutes from "./core/routes/AppRoutes";
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Provider>
-        <AuthProvider>
-          {/* Toaster posicionado para ser visível sobre o tema dark */}
-          <Toaster richColors theme="dark" position="top-right" closeButton />
+    <UIProvider>
+      <AuthProvider>
+        <Toaster richColors theme="light" position="top-right" closeButton />
+        
+        {/* O Suspense é necessário para as rotas que usam lazy loading */}
+        <Suspense fallback={null}>
           <AppRoutes />
-        </AuthProvider>
-      </Provider>
-    </BrowserRouter>
+        </Suspense>
+      </AuthProvider>
+    </UIProvider>
   );
 };
 

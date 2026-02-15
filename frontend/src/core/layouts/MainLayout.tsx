@@ -1,18 +1,16 @@
-import React, { FC, ReactNode } from "react";
+import { Box } from "@chakra-ui/react";
+import { Outlet } from "react-router-dom";
 
 interface MainLayoutProps {
-  children: ReactNode;
+  children?: React.ReactNode; // Tornamos o children opcional com o "?"
 }
 
-const MainLayout: FC<MainLayoutProps> = ({ children }) => {
+const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
-    <div className="min-h-screen bg-slate-950 text-white font-inter">
-      <header className="p-6 border-b border-slate-800">Logo / Navbar</header>
-      <main className="p-6">{children}</main>
-      <footer className="p-6 border-t border-slate-800 text-center text-slate-400">
-        © 2026 ImobiSys
-      </footer>
-    </div>
+    <Box minH="100vh">
+      {/* Se houver children, renderiza. Se não (nas rotas), renderiza o Outlet */}
+      {children || <Outlet />}
+    </Box>
   );
 };
 

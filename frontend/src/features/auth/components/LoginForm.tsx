@@ -1,84 +1,119 @@
-import { Box, Button, Field, Input, Stack, Heading, Text, VStack, Flex } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
-import { useAuth } from "@/core/context/AuthContext";
-import { useNavigate } from "react-router-dom";
-// Se o PasswordInput der erro, use o Input normal com type="password" por enquanto
-import { toast } from "sonner"; 
-
-interface LoginFormData {
-  email: string;
-  password: string;
-}
-
-export const LoginForm = () => {
-  const { login } = useAuth();
-  const navigate = useNavigate();
+import { 
+    Box, 
+    Button, 
+    Heading, 
+    Input, 
+    Stack, 
+    Text, 
+    VStack,
+    Field
+  } from "@chakra-ui/react";
+  import { useState } from "react";
+  import { useNavigate } from "react-router-dom";
+  import { useAuth } from "@/core/hooks/useAuth";
+  import { toaster } from "@/core/components/ui/toaster"; // ✅ Importando o objeto toaster
   
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>();
-
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      // SIMULAÇÃO DE CHAMADA DE API (Substitua pela sua chamada axios depois)
-      // No mundo real: const response = await api.post('/login', data);
-      await new Promise(resolve => setTimeout(resolve, 1000)); 
-
-      const mockUser = {
-        id: "1",
-        name: "Yara Ramos",
-        email: data.email,
-        role: "ADMIN" as const,
-        tenant_id: "imobiliaria-vovo-123"
-      };
-      const mockToken = "token-jwt-gerado";
-
-      // Agora passamos os dados que o seu NOVO AuthContext espera
-      login(mockUser, mockToken);
-      
-      toast.success("Bem-vinda ao ImobiSys!");
-      navigate("/admin/dashboard");
-    } catch (error) {
-      toast.error("Falha na autenticação. Verifique seus dados.");
-    }
-  };
-
-  return (
-    <Box w="full" maxW="md" p={8} borderWidth={1} borderRadius="2xl" boxShadow="lg" bg="white" color="gray.800">
-      <VStack gap={6} align="stretch">
-        <Stack gap={2} textAlign="center">
-          <Heading size="xl" fontWeight="800">ImobiSys</Heading>
-          <Text color="gray.500" fontSize="sm">Acesse sua plataforma imobiliária</Text>
-        </Stack>
-
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Stack gap={5}>
-            <Field.Root invalid={!!errors.email}>
-              <Field.Label fontWeight="bold">E-mail</Field.Label>
-              <Input
-                type="email"
-                placeholder="seu@email.com"
-                {...register("email", { required: "E-mail obrigatório" })}
-              />
-              <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
-            </Field.Root>
-
-            <Field.Root invalid={!!errors.password}>
-              <Flex justify="space-between">
+  export const LoginForm = () => {
+    const navigate = useNavigate();
+    const { login } = useAuth();
+    const [isLoading, setIsLoading] = useState(false);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+  
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setIsLoading(true);
+  
+      try {
+        // Simulação de delay de rede
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+  
+        // Credenciais mockadas para seu teste
+        if (email === "admin@imobisys.com" && password === "123456") {
+          login({
+            id: "1",
+            name: "Yara Administradora",
+            email: email,
+            role: "ADMIN",
+          }, "token-fake-123");
+  
+          // ✅ Usando o toaster profissionalmente
+          toaster.create({
+            title: "Bem-vindo!",
+            description: "Login realizado com sucesso.",
+            type: "success",
+          });
+  
+          navigate("/admin/dashboard");
+        } else {
+          throw new Error("Usuário ou senha inválidos");
+        }
+      } catch (error: any) {
+        toaster.create({
+          title: "Erro no Login",
+          description: error.message || "Verifique suas credenciais.",
+          type: "error",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    return (
+      <Box 
+        w="full" 
+        maxW="md" 
+        p={8} 
+        borderWidth="1px" 
+        borderRadius="2xl" 
+        shadow="2xl" 
+        bg="white"
+      >
+        <form onSubmit={handleSubmit}>
+          <Stack gap={6}>
+            <VStack align="start" gap={1}>
+              <Heading size="xl" fontWeight="black" color="blue.600">ImobiSys</Heading>
+              <Text color="gray.500">Gestão imobiliária simplificada</Text>
+            </VStack>
+  
+            <Stack gap={4}>
+              <Field.Root>
+                <Field.Label fontWeight="bold">E-mail</Field.Label>
+                <Input 
+                  type="email" 
+                  placeholder="exemplo@imobi.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </Field.Root>
+  
+              <Field.Root>
                 <Field.Label fontWeight="bold">Senha</Field.Label>
-              </Flex>
-              <Input
-                type="password"
-                placeholder="********"
-                {...register("password", { required: "Senha obrigatória" })}
-              />
-              <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
-            </Field.Root>
-
-            <Button type="submit" colorPalette="blue" size="lg" width="full" loading={isSubmitting}>
-              Entrar
+                <Input 
+                  type="password" 
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </Field.Root>
+            </Stack>
+  
+            <Button 
+              type="submit" 
+              colorPalette="blue" 
+              size="lg" 
+              loading={isLoading}
+              w="full"
+              fontWeight="bold"
+            >
+              Acessar Painel
             </Button>
           </Stack>
         </form>
-      </VStack>
-    </Box>
-  );
-};
+      </Box>
+    );
+  };
+  
+  export default LoginForm;

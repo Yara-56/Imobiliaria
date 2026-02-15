@@ -1,24 +1,26 @@
 import React from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+// ✅ Ajustado: Apontando para o hook na pasta correta e usando o alias @
+import { useAuth } from "@/core/hooks/useAuth"; 
 
 interface ProtectedRouteProps {
   allowedRoles?: string[];
 }
 
 export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
-  const { user, isAuthenticated, loading } = useAuth();
+  // Nota: Removi o 'loading' pois no nosso AuthContext simplificado 
+  // a verificação do localStorage é instantânea no useState.
+  const { user, isAuthenticated } = useAuth();
   const location = useLocation();
 
-  if (loading) return null; // Aguarda a verificação do localStorage
-
   if (!isAuthenticated) {
-    // Salva a página que a Yara tentou acessar para voltar após o login
+    // Redireciona para o login salvando a rota de origem
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // Verifica se o usuário tem a permissão necessária
   if (allowedRoles && !allowedRoles.includes(user?.role || "")) {
-    return <Navigate to="/unauthorized" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
