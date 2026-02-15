@@ -1,57 +1,99 @@
 # =============================================================================
-# ARQUIVOS DE AMBIENTE E VARIÁVEIS SENSÍVEIS
-# Nunca envie chaves de API, senhas de banco ou segredos para o repositório.
+# ENVIRONMENT FILES / VARIÁVEIS SENSÍVEIS
+# Nunca envie segredos, tokens ou configurações locais
 # =============================================================================
 .env
 .env.local
+.env.development
+.env.production
+.env.staging
 .env.*.local
+
+# certificados / chaves
 *.pem
 *.key
-# =============================================================================
-# DEPENDÊNCIAS
-# Ignora a pasta de pacotes instalados e o arquivo de lock do NPM,
-# pois o padrão do projeto será o Yarn (yarn.lock).
-# =============================================================================
-node_modules
-package-lock.json
 
 # =============================================================================
-# PASTAS DE BUILD E PRODUÇÃO
-# Ignora os arquivos gerados no processo de build e testes.
+# DEPENDÊNCIAS
 # =============================================================================
-dist
-dist-ssr
-build
-coverage
+node_modules/
+.pnp
+.pnp.js
+
+# usando yarn como padrão
+package-lock.json
+npm-shrinkwrap.json
+
+# =============================================================================
+# BUILD / OUTPUT
+# =============================================================================
+dist/
+dist-ssr/
+build/
+coverage/
+.out/
+.next/
+.vercel/
 
 # =============================================================================
 # LOGS
-# Ignora arquivos de log e debug de diferentes ferramentas.
 # =============================================================================
 logs
 *.log
-npm-debug.log
-yarn-debug.log
-yarn-error.log
-pnpm-debug.log
-lerna-debug.log
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # =============================================================================
-# ARQUIVOS DE SISTEMA OPERACIONAL
-# Ignora arquivos gerados automaticamente pelo macOS e Windows.
+# CACHE
+# =============================================================================
+.cache
+.eslintcache
+.vite
+
+# =============================================================================
+# OS FILES
 # =============================================================================
 .DS_Store
 Thumbs.db
 
 # =============================================================================
-# ARQUIVOS DE EDITOR E IDE
-# Ignora configurações específicas do ambiente de desenvolvimento de cada pessoa.
+# IDE / EDITOR
 # =============================================================================
-.vscode/*
-!.vscode/extensions.json
-.idea
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+.vscode/*
+!.vscode/extensions.json
+
+# =============================================================================
+# TESTES
+# =============================================================================
+__tests__/
+playwright-report/
+test-results/
+
+# =============================================================================
+# TYPESCRIPT
+# =============================================================================
+*.tsbuildinfo
+
+# =============================================================================
+# BACKEND
+# =============================================================================
+uploads/
+tmp/
+
+# =============================================================================
+# DEBUG
+# =============================================================================
+*.pid
+*.seed
+*.pid.lock
