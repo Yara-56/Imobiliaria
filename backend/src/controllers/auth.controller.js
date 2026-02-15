@@ -1,48 +1,67 @@
-import jwt from "jsonwebtoken";
+import {
+  registerUser,
+  loginUser,
+  generateAccessToken,
+  generateRefreshToken,
+} from '../services/auth.service.js';
 
-// ===================================================
-// LOGIN LIBERADO PARA TESTE
-// ===================================================
-export const login = async (req, res) => {
+//
+// REGISTER
+//
+export const register = async (req, res, next) => {
   try {
-    const { email } = req.body;
+    const user = await registerUser(req.body);
 
-    const user = {
-      _id: "teste-" + Date.now(),
-      name: email.split("@")[0] || "Usuário",
-      email,
-      role: "user",
-      status: "ATIVO",
-    };
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET || "segredoTemporario",
-      { expiresIn: "12h" }
-    );
-
-    res.json({
-      token,
-      user,
-      aviso: "⚠️ LOGIN LIBERADO (modo teste) — qualquer e-mail funciona",
-    });
-  } catch (err) {
-    console.error("Erro no login rápido:", err);
-    res.status(500).json({ error: "Erro interno no login teste." });
+    res
+      .cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+      })
+      .status(201)
+      .json({
+        success: true,
+        accessToken,
+        user,
+      });
+  } catch (error) {
+    next(error);
   }
 };
 
-// ===================================================
-// DUMMY EXPORTS PARA NÃO QUEBRAR ROTAS
-// ===================================================
-export const register = async (req, res) =>
-  res.status(200).json({ message: "Registro ok (modo teste)" });
+//
+// LOGIN
+//
+export const login = async (req, res, next) => {
+  try {
+    const user = await loginUser(req.body);
 
-export const activateAccount = async (req, res) =>
-  res.status(200).json({ message: "Conta ativada (modo teste)" });
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
-export const forgotPassword = async (req, res) =>
-  res.status(200).json({ message: "Reset enviado (modo teste)" });
+    res
+      .cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+      })
+      .json({
+        success: true,
+        accessToken,
+        user,
+      });
+  } catch (error) {
+    next(error);
+  }
+};
 
-export const resetPassword = async (req, res) =>
-  res.status(200).json({ message: "Senha redefinida (modo teste)" });
+//
+// LOGOUT
+//
+export const logout = async (req, res) => {
+  res.clearCookie('refreshToken');
+  res.json({ success: true, message: 'Logout realizado com sucesso' });
+};

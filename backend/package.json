@@ -2,20 +2,23 @@
   "name": "backend",
   "private": true,
   "version": "1.0.0",
+  "description": "API Backend - Imobiliária",
   "type": "module",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon server.js",
-    "start": "cross-env NODE_ENV=production node server.js",
+    "dev": "cross-env NODE_ENV=development nodemon src/server.js",
+    "start": "cross-env NODE_ENV=production node src/server.js",
     "seed": "node scripts/seedAdmin.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "disposable-email-domains": "^1.0.62",
     "dotenv": "^17.3.1",
     "express": "^4.19.2",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.23.0",
     "multer": "^2.0.2",
@@ -26,5 +29,8 @@
   "devDependencies": {
     "cross-env": "^10.1.0",
     "nodemon": "^3.1.10"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

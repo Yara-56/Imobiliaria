@@ -1,12 +1,12 @@
-import express from 'express';
+import express from "express";
 import {
   listTemplates,
   getTemplateById,
   createTemplate,
-  updateTemplate
-} from '../controllers/template.controller.js';
+  updateTemplate,
+} from "../controllers/template.controller.js";
 // CORREÇÃO: Importando a função com o nome correto
-import { verifyToken } from '../middlewares/auth.middleware.js';
+import { verifyToken } from "../src/middlewares/auth.middleware.js";
 
 const router = express.Router();
 
@@ -15,9 +15,9 @@ const router = express.Router();
 router.use(verifyToken);
 
 // Define as rotas e associa cada uma à sua função no controller
-router.get('/', listTemplates);
-router.get('/:id', getTemplateById);
-router.post('/', createTemplate);
-router.put('/:id', updateTemplate);
+router.get("/", listTemplates);
+router.get("/:id", getTemplateById);
+router.post("/", createTemplate);
+router.put("/:id", updateTemplate);
 
 export default router;

@@ -10,7 +10,7 @@ import {
 } from "../controllers/tenant.controller.js";
 
 // Middleware de upload (Multer)
-import upload from "../middlewares/upload.middleware.js";
+import upload from "../src/middlewares/upload.middleware.js";
 
 const router = express.Router();
 

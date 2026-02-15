@@ -1,9 +1,12 @@
 // routes/payment.routes.js
 
-import express from 'express';
-import { listPayments, createPayment } from '../controllers/payment.controller.js';
+import express from "express";
+import {
+  listPayments,
+  createPayment,
+} from "../controllers/payment.controller.js";
 // CORREÇÃO: Importando o middleware com o nome correto
-import { verifyToken } from '../middlewares/auth.middleware.js';
+import { verifyToken } from "../src/middlewares/auth.middleware.js";
 
 const router = express.Router();
 
@@ -16,13 +19,13 @@ router.use(verifyToken);
  * @desc    Lista todos os pagamentos realizados
  * @access  Privado (token necessário)
  */
-router.get('/', listPayments);
+router.get("/", listPayments);
 
 /**
  * @route   POST /api/pagamentos
  * @desc    Registra um novo pagamento (etapa: Receber Pagamento)
  * @access  Privado (token necessário)
  */
-router.post('/', createPayment);
+router.post("/", createPayment);
 
 export default router;

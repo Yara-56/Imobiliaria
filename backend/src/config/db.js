@@ -1,20 +1,12 @@
 import mongoose from 'mongoose';
-import { env } from './env.js';
-import logger from '../utils/logger.js';
 
 const connectDB = async () => {
   try {
-    mongoose.set('strictQuery', true);
-
-    const conn = await mongoose.connect(env.MONGO_URI, {
-      autoIndex: env.NODE_ENV !== 'production', // evita custo em prod
-    });
-
-    logger.info(`✅ MongoDB conectado: ${conn.connection.host}`);
-
+    const conn = await mongoose.connect(process.env.MONGO_URI);
+    console.log(`✅ Mongo conectado: ${conn.connection.host}`);
   } catch (error) {
-    logger.error('❌ Erro ao conectar no MongoDB', error);
-    process.exit(1); // Fail Fast real
+    console.error('Erro Mongo:', error.message);
+    process.exit(1);
   }
 };
 

@@ -1,13 +1,13 @@
-import express from 'express';
+import express from "express";
 // Importa as funções DIRETAMENTE do controller específico
 import {
   listContracts,
   createContract,
   getContractById,
-  updateContract
-} from '../controllers/contract.controller.js';
+  updateContract,
+} from "../controllers/contract.controller.js";
 // CORREÇÃO: Importa o middleware de segurança com o nome correto
-import { verifyToken } from '../middlewares/auth.middleware.js';
+import { verifyToken } from "../src/middlewares/auth.middleware.js";
 
 const router = express.Router();
 
@@ -15,9 +15,9 @@ const router = express.Router();
 router.use(verifyToken);
 
 // As chamadas agora são diretas, limpas e protegidas
-router.get('/', listContracts);
-router.post('/', createContract);
-router.get('/:id', getContractById);
-router.put('/:id', updateContract);
+router.get("/", listContracts);
+router.post("/", createContract);
+router.get("/:id", getContractById);
+router.put("/:id", updateContract);
 
 export default router;
