@@ -1,11 +1,28 @@
-import PropertiesList from "./pages/PropertiesList";
-import PropertyForm from "./pages/PropertyForm";
-import PropertyEdit from "./pages/PropertyEdit";
-import PropertyDetails from "./pages/PropertyDetails";
+import { lazy } from "react";
+import ProtectedRoute from "@/core/guards/ProtectedRoute";
+import AdminLayout from "@/core/layouts/AdminLayout";
 
-export default [
-  { path: "imoveis", element: <PropertiesList /> },
-  { path: "imoveis/novo", element: <PropertyForm /> },
-  { path: "imoveis/editar/:id", element: <PropertyEdit /> },
-  { path: "imoveis/:id", element: <PropertyDetails /> },
+const Dashboard = lazy(() =>
+  import("@/features/dashboard/pages/Dashboard")
+);
+
+const AdminRoutes = [
+  {
+    element: (
+      <ProtectedRoute allowedRoles={["ADMIN", "OWNER"]} />
+    ),
+    children: [
+      {
+        element: <AdminLayout />,
+        children: [
+          {
+            path: "/admin/dashboard",
+            element: <Dashboard />,
+          },
+        ],
+      },
+    ],
+  },
 ];
+
+export default AdminRoutes;

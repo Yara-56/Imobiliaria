@@ -1,57 +1,68 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useCallback, useMemo } from "react";
 
-export const AuthContext = createContext();
+export const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("user");
-
-    if (stored) {
-      try {
-        setUser(JSON.parse(stored));
-      } catch {
-        localStorage.removeItem("user");
-      }
-    }
-
-    setLoading(false);
+  // Memoizando o logout para evitar re-renderizações desnecessárias
+  const logout = useCallback(() => {
+    localStorage.removeItem("@Imobiliaria:user");
+    localStorage.removeItem("@Imobiliaria:token");
+    setUser(null);
   }, []);
 
-  const login = (data) => {
-    localStorage.setItem("user", JSON.stringify(data));
-    setUser(data);
-  };
+  useEffect(() => {
+    function loadStorageData() {
+      const storedUser = localStorage.getItem("@Imobiliaria:user");
+      const storedToken = localStorage.getItem("@Imobiliaria:token");
 
-  const logout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-  };
-
-  const hasRole = (roles) => {
-    if (!user) return false;
-    if (!roles) return true;
-
-    if (Array.isArray(roles)) {
-      return roles.includes(user.role);
+      if (storedUser && storedToken) {
+        try {
+          setUser(JSON.parse(storedUser));
+          // Aqui você configuraria o header do seu API (axios) com o token
+        } catch (error) {
+          logout();
+        }
+      }
+      setLoading(false);
     }
 
-    return user.role === roles;
-  };
+    loadStorageData();
+  }, [logout]);
+
+  const login = useCallback((userData, token) => {
+    // No SaaS, o userData deve vir com tenant_id (ex: id da imobiliária da sua avó)
+    localStorage.setItem("@Imobiliaria:user", JSON.stringify(userData));
+    localStorage.setItem("@Imobiliaria:token", token);
+    setUser(userData);
+  }, []);
+
+  const hasRole = useCallback((roles) => {
+    if (!user) return false;
+    const userRole = user.role?.toLowerCase();
+    
+    if (Array.isArray(roles)) {
+      return roles.map(r => r.toLowerCase()).includes(userRole);
+    }
+    return userRole === roles.toLowerCase();
+  }, [user]);
+
+  // useMemo para performance: só muda se o usuário ou loading mudar
+  const value = useMemo(() => ({
+    user,
+    loading,
+    isAuthenticated: !!user,
+    isAdmin: user?.role === 'ADMIN',
+    tenantId: user?.tenant_id, // Essencial para o Multi-tenant
+    login,
+    logout,
+    hasRole
+  }), [user, loading, login, logout, hasRole]);
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        login,
-        logout,
-        hasRole,
-        isAuthenticated: !!user,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
