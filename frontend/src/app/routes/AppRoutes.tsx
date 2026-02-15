@@ -1,42 +1,38 @@
-// src/app/routes/AppRoutes.tsx
 import React, { Suspense, FC } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import ProtectedRoute from "@/core/guards/ProtectedRoute";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import ProtectedRoute from "../../core/guards/ProtectedRoute";
+import MainLayout from "../../layouts/MainLayout";
 
-// Lazy loading - Removendo qualquer ambiguidade
-const HomePage = React.lazy(() => import("@/pages/public/home/HomePage"));
-const LoginPage = React.lazy(() => import("@/pages/public/LoginPage"));
-const Unauthorized = React.lazy(() => import("@/pages/public/Unauthorized"));
-
-// Tente usar o caminho relativo direto se o @/ ainda der erro
-const Dashboard = React.lazy(() => import("../../features/dashboard/pages/Dashboard"));
+// Carregamento preguiçoso para otimizar o sistema
+const LoginPage = React.lazy(() => import("../../pages/auth/LoginPage"));
+const Dashboard = React.lazy(() => import("../../pages/admin/dashboard/Dashboard"));
+const Unauthorized = React.lazy(() => import("../../pages/public/Unauthorized"));
 
 const Loading: FC = () => (
-  <div className="flex items-center justify-center min-h-screen text-indigo-500">
-    <span className="animate-pulse text-2xl font-bold text-center">
-      Carregando sistema...
-    </span>
+  <div className="flex items-center justify-center min-h-screen bg-slate-950">
+    <span className="text-blue-500 animate-pulse font-bold">Iniciando ImobiSys...</span>
   </div>
 );
 
-// Mudei para export default para casar com seu App.tsx
 const AppRoutes: FC = () => {
   return (
     <Suspense fallback={<Loading />}>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        {/* Rotas Públicas */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
 
-        <Route element={<ProtectedRoute />}>
-          <Route path="/profile" element={<div>Perfil</div>} />
-        </Route>
-
+        {/* Camada de Segurança Administrativa */}
         <Route element={<ProtectedRoute allowedRoles={["ADMIN", "OWNER"]} />}>
-          <Route path="/admin/dashboard" element={<Dashboard />} />
+          {/* O MainLayout envolve todas as rotas filhas logadas */}
+          <Route element={<MainLayout><Outlet /></MainLayout>}>
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+            {/* Adicione futuras rotas administrativas aqui */}
+          </Route>
         </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Fallback de Segurança: Redireciona para Dashboard ou Login */}
+        <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
       </Routes>
     </Suspense>
   );

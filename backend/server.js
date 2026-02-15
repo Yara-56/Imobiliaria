@@ -1,60 +1,66 @@
-// =====================================================
-// CARREGA VARIÁVEIS DE AMBIENTE (TEM QUE SER PRIMEIRO)
-// =====================================================
-import dotenv from "dotenv";
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import dotenv from 'dotenv';
+import winston from 'winston';
+
+// Import de Rotas (vamos criar abaixo)
+import authRoutes from './routes/authRoutes.js';
+
 dotenv.config();
 
-// =====================================================
-// IMPORTS PRINCIPAIS
-// =====================================================
-import app from "./app.js";
-import connectDB from "./src/config/db.js";
+const app = express();
 
-// =====================================================
-// FAIL FAST — NÃO SOBE SEM VARIÁVEIS IMPORTANTES
-// =====================================================
-if (!process.env.MONGO_URI || !process.env.JWT_SECRET) {
-  console.error("🔴 ERRO FATAL: MONGO_URI ou JWT_SECRET não definidos no .env");
-  process.exit(1);
+// --- CONFIGURAÇÃO DE LOGS (Winston) ---
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'combined.log' }),
+  ],
+});
+
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.simple(),
+  }));
 }
 
-const PORT = process.env.PORT || 5050;
+// --- MIDDLEWARES GLOBAIS ---
+app.use(cors({
+  origin: 'http://localhost:5173', // URL do seu Vite
+  credentials: true // Permite envio de cookies/headers de auth
+}));
+app.use(express.json()); // Body parser para JSON
+app.use(cookieParser()); // Parser de cookies para o JWT seguro
 
-// =====================================================
-// SAFETY NET — ERROS GLOBAIS
-// =====================================================
-process.on("uncaughtException", (err) => {
-  console.error("🔥 Uncaught Exception:");
-  console.error(err);
-  process.exit(1);
+// --- ROTAS ---
+app.use('/api/v1/auth', authRoutes);
+
+// Rota de Saúde (Health Check) - Padrão de mercado para monitoramento
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'UP', timestamp: new Date().toISOString() });
 });
 
-process.on("unhandledRejection", (reason) => {
-  console.error("🔥 Unhandled Rejection:");
-  console.error(reason);
+// --- TRATAMENTO DE ERROS GLOBAL ---
+app.use((err, req, res, next) => {
+  logger.error(err.stack);
+  res.status(err.status || 500).json({
+    status: 'error',
+    message: err.message || 'Erro interno no servidor',
+  });
 });
 
-// =====================================================
-// START SERVER
-// =====================================================
-const startServer = async () => {
-  try {
-    // Conecta no Mongo
-    await connectDB();
-
-    // Sobe Express
-    app.listen(PORT, () => {
-      console.log("=======================================");
-      console.log(`🚀 Backend rodando: http://localhost:${PORT}`);
-      console.log(`🛡️  Ambiente: ${process.env.NODE_ENV || "development"}`);
-      console.log("=======================================");
-    });
-
-  } catch (error) {
-    console.error("🔴 Falha crítica ao iniciar servidor:");
-    console.error(error);
+// --- INICIALIZAÇÃO ---
+const PORT = process.env.PORT || 3000;
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => {
+    logger.info('✅ Conectado ao MongoDB com sucesso');
+    app.listen(PORT, () => logger.info(`🚀 ImobiSys API rodando na porta ${PORT}`));
+  })
+  .catch((err) => {
+    logger.error('❌ Erro ao conectar ao MongoDB:', err);
     process.exit(1);
-  }
-};
-
-startServer();
+  });

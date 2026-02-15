@@ -1,18 +1,25 @@
-// src/core/guards/ProtectedRoute.tsx
-import React, { FC } from "react";
-import { Outlet, Navigate } from "react-router-dom";
+import React from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 interface ProtectedRouteProps {
   allowedRoles?: string[];
 }
 
-const ProtectedRoute: FC<ProtectedRouteProps> = ({ allowedRoles }) => {
-  const isAuthenticated = true; // só teste
-  const userRole = "USER";
+export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
+  const { user, isAuthenticated, loading } = useAuth();
+  const location = useLocation();
 
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (allowedRoles && !allowedRoles.includes(userRole)) return <Navigate to="/unauthorized" replace />;
+  if (loading) return null; // Aguarda a verificação do localStorage
+
+  if (!isAuthenticated) {
+    // Salva a página que a Yara tentou acessar para voltar após o login
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user?.role || "")) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
   return <Outlet />;
-};
-
-export default ProtectedRoute;
+}

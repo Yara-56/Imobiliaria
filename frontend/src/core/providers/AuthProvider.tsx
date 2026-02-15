@@ -1,33 +1,41 @@
-import { createContext, FC, ReactNode, useContext, useState } from "react";
-
-interface User {
-  name: string;
-  role: string;
-}
+// src/core/providers/AuthProvider.tsx
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface AuthContextType {
-  user: User | null;
-  login: (user: User) => void;
+  user: any;
+  login: (email: string, pass: string) => Promise<void>;
   logout: () => void;
+  isAuthenticated: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>(null!);
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<any>(null);
 
-export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  // Recupera o usuário ao carregar o app
+  useEffect(() => {
+    const savedUser = localStorage.getItem("@ImobiSys:user");
+    if (savedUser) setUser(JSON.parse(savedUser));
+  }, []);
 
-  const login = (u: User) => setUser(u);
-  const logout = () => setUser(null);
+  const login = async (email: string, pass: string) => {
+    // Aqui você chamaria sua API real
+    const mockUser = { email, role: "ADMIN", name: "Yara" }; 
+    setUser(mockUser);
+    localStorage.setItem("@ImobiSys:user", JSON.stringify(mockUser));
+  };
 
-  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("@ImobiSys:user");
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth deve ser usado dentro do AuthProvider");
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);

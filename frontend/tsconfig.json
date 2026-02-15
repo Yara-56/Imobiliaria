@@ -1,27 +1,40 @@
 {
   "compilerOptions": {
     "target": "ESNext",
+    "useDefineForClassFields": true,
     "module": "ESNext",
-    "moduleResolution": "Bundler", 
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "skipLibCheck": true,
+
+    /* Resolução de Módulos Moderna */
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
     "jsx": "react-jsx",
-    
-    /* Substituindo o baseUrl pelos caminhos relativos no paths */
+
+    /* Caminhos Relativos (Sem usar baseUrl) */
     "paths": {
       "@/*": ["./src/*"]
     },
 
-    "types": ["vite/client", "react", "react-dom", "node"],
+    /* Tipagem e Segurança */
     "strict": true,
-    "noEmit": true,
-    "skipLibCheck": true,
-    "isolatedModules": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "types": ["vite/client", "node"],
+
+    /* Interoperabilidade */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
-    "ignoreDeprecations": "6.0"
+    
+    /* Silenciando avisos de depreciação conforme sugerido */
+    "ignoreDeprecations": "5.0" 
   },
-  "include": ["src"],
+  "include": ["src", "src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules", "dist"]
 }

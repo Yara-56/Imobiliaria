@@ -1,22 +1,21 @@
-// src/app/App.tsx
-import React, { FC } from "react";
-// Corrigido: Importando sem chaves (default import) e sem a extensão .js
+import React from "react";
+import { BrowserRouter } from "react-router-dom";
+import { Provider } from "@/components/ui/provider"; 
+import { AuthProvider } from "@/core/contexts/AuthContext";
 import AppRoutes from "./routes/AppRoutes";
+import { Toaster } from "sonner";
 
-/**
- * Componente principal da aplicação.
- * Aqui você pode adicionar Providers globais que não dependam do Router,
- * ou layouts que devam aparecer em todas as páginas.
- */
-const App: FC = () => {
+const App = () => {
   return (
-    <div className="min-h-screen bg-slate-950 text-white antialiased">
-      {/* O AppRoutes contém toda a lógica de navegação. 
-          Certifique-se de que o BrowserRouter esteja no main.tsx 
-          envolvendo este componente App.
-      */}
-      <AppRoutes />
-    </div>
+    <BrowserRouter>
+      <Provider>
+        <AuthProvider>
+          {/* Toaster posicionado para ser visível sobre o tema dark */}
+          <Toaster richColors theme="dark" position="top-right" closeButton />
+          <AppRoutes />
+        </AuthProvider>
+      </Provider>
+    </BrowserRouter>
   );
 };
 
