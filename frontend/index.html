@@ -6,35 +6,53 @@
   <!-- RESPONSIVO -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- SEO BASE -->
-  <title>Imobiliária Digital</title>
-  <meta name="description" content="Sistema moderno de gestão imobiliária com painel administrativo e controle completo." />
+  <!-- SEO -->
+  <title>ImobiSys — Gestão Imobiliária Moderna</title>
+  <meta
+    name="description"
+    content="Plataforma moderna de gestão imobiliária. Centralize imóveis, contratos, clientes e financeiro em um único painel."
+  />
+  <meta name="keywords" content="Imobiliária, Gestão, Sistema, Dashboard, Contratos, Clientes" />
+  <meta name="author" content="Yara Moraes" />
 
-  <!-- THEME COLOR -->
-  <meta name="theme-color" content="#111827" />
+  <!-- THEME -->
+  <meta name="theme-color" content="#020617" />
+  <meta name="color-scheme" content="dark light" />
 
   <!-- FAVICON -->
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
 
-  <!-- PERFORMANCE FONT -->
+  <!-- PERFORMANCE FONT PRECONNECT -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-  <!-- FONT MODERNA PADRÃO MERCADO -->
+  <!-- FONT INTER -->
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   />
 
+  <!-- SOCIAL / OG (opcional mas profissional) -->
+  <meta property="og:title" content="ImobiSys — Gestão Imobiliária Moderna" />
+  <meta property="og:description" content="Plataforma moderna de gestão imobiliária com dashboards e controle completo." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.seusite.com.br" />
+  <meta property="og:image" content="https://www.seusite.com.br/preview.png" />
+
+  <!-- FAVICON ALTERNATIVOS (opcional) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
 </head>
 
-<body class="antialiased">
+<body class="antialiased bg-slate-950 text-white font-inter">
 
-  <!-- APP ROOT -->
+  <!-- ROOT REACT -->
   <div id="root"></div>
 
-  <!-- ENTRY DO REACT -->
-  <script type="module" src="/src/main.jsx"></script>
+  <!-- ENTRYPOINT (TSX) -->
+  <script type="module" src="/src/main.tsx"></script>
 
 </body>
 </html>

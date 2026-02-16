@@ -1,8 +1,0 @@
-.btn {
-    @apply px-4 py-2 rounded-md font-medium transition;
-  }
-  
-  .card {
-    @apply bg-white rounded-xl shadow-sm p-6;
-  }
-  

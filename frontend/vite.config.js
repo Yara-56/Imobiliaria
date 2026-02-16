@@ -1,16 +1,18 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
 
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/', // 🔹 garante que todas as rotas usem a raiz do domínio
-  build: {
-    rollupOptions: {
-      onwarn(warning, warn) {
-        // Ignora avisos específicos que o Vercel trata como erro
-        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return;
-        warn(warning);
-      },
+  resolve: {
+    alias: {
+      // Define que '@' aponta para a pasta 'src'
+      "@": path.resolve(__dirname, "./src"),
     },
+  },
+  // Otimização para garantir que dependências do Chakra UI v3 sejam processadas corretamente
+  optimizeDeps: {
+    include: ["@chakra-ui/react", "@emotion/react", "@emotion/styled", "framer-motion"],
   },
 });
