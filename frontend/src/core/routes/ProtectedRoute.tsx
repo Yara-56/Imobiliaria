@@ -1,21 +1,13 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "../auth/AuthContext";
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-export default function ProtectedRoute() {
-  const { user, loading } = useAuth();
-  const location = useLocation();
+const ProtectedRoute = () => {
+  const { isAuthenticated, loading } = useAuth();
 
-  if (loading) return <div>Carregando...</div>;
+  // Essencial: não redirecionar enquanto estiver checando o localStorage
+  if (loading) return <div>Carregando...</div>; 
 
-  if (!user) {
-    return (
-      <Navigate
-        to="/admin/login"
-        state={{ from: location }}
-        replace
-      />
-    );
-  }
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+};
 
-  return <Outlet />;
-}
+export default ProtectedRoute;

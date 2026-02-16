@@ -6,7 +6,7 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "skipLibCheck": true,
 
-    /* Resolução de Módulos Moderna */
+    /* Resolução de Módulos */
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
@@ -14,7 +14,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Caminhos Relativos (Sem usar baseUrl) */
+    /* ✅ A forma correta de mapear sem o aviso de 'baseUrl' */
     "paths": {
       "@/*": ["./src/*"]
     },
@@ -32,7 +32,7 @@
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     
-    /* Silenciando avisos de depreciação conforme sugerido */
+    /* ✅ Silencia os avisos de depreciação do TS 5.x/6.x */
     "ignoreDeprecations": "5.0" 
   },
   "include": ["src", "src/**/*.ts", "src/**/*.tsx"],

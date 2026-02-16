@@ -6,16 +6,13 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ErrorBoundary } from "react-error-boundary";
 import { Center, Heading, Button, VStack, Text } from "@chakra-ui/react";
 
-// 1. Estilos Globais
 import "./styles/index.css";
 
-/**
- * 🛠️ AJUSTE DE IMPORTS (Resolvendo o erro ts(2307))
- * Verifique no seu explorador: se a pasta 'ui' estiver dentro de 'components', o caminho é este:
- */
+// 🛠️ Ajuste nos Imports: Apontando para os arquivos específicos
 import { Provider as UIProvider } from "@/core/components/ui/provider"; 
-import { AuthProvider } from "@/core/context/AuthContext"; // Singular: context
-import AppRoutes from "@/core/routes/AppRoutes";
+import { AuthProvider } from "@/core/context/AuthContext";
+// Corrigido: Apontando para AppRoutes.tsx para o TS localizar o módulo
+import AppRoutes from "@/core/routes/AppRoutes"; 
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,7 +30,10 @@ function ErrorFallback() {
       <VStack gap={4} textAlign="center">
         <Heading size="lg" color="red.500">Ops! Algo deu errado.</Heading>
         <Text color="gray.600">Ocorreu um erro inesperado no ImobiSys.</Text>
-        <Button colorPalette="blue" onClick={() => window.location.assign("/")}>
+        <Button 
+          colorPalette="blue" 
+          onClick={() => window.location.href = "/"}
+        >
           Recarregar Sistema
         </Button>
       </VStack>
@@ -46,11 +46,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <QueryClientProvider client={queryClient}>
         <UIProvider>
-          <BrowserRouter>
-            <AuthProvider>
+          <AuthProvider>
+            <BrowserRouter>
               <AppRoutes />
-            </AuthProvider>
-          </BrowserRouter>
+            </BrowserRouter>
+          </AuthProvider>
         </UIProvider>
         {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
       </QueryClientProvider>
