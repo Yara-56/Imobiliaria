@@ -10,8 +10,9 @@ import {
   } from "@chakra-ui/react";
   import { useState } from "react";
   import { useNavigate } from "react-router-dom";
-  import { useAuth } from "@/core/hooks/useAuth";
-  import { toaster } from "@/core/components/ui/toaster"; // ✅ Importando o objeto toaster
+  // ✅ Corrigindo imports para caminhos relativos
+  import { useAuth } from "../../../core/hooks/useAuth";
+  import { toaster } from "../../../core/components/ui/toaster"; 
   
   export const LoginForm = () => {
     const navigate = useNavigate();
@@ -26,9 +27,10 @@ import {
   
       try {
         // Simulação de delay de rede
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 800));
   
-        // Credenciais mockadas para seu teste
+        // ✅ Credenciais liberadas para você testar rápido
+        // Dica: Se quiser entrar com QUALQUER coisa, tire o "if" e deixe só o login(...)
         if (email === "admin@imobisys.com" && password === "123456") {
           login({
             id: "1",
@@ -37,7 +39,6 @@ import {
             role: "ADMIN",
           }, "token-fake-123");
   
-          // ✅ Usando o toaster profissionalmente
           toaster.create({
             title: "Bem-vindo!",
             description: "Login realizado com sucesso.",
@@ -66,7 +67,7 @@ import {
         p={8} 
         borderWidth="1px" 
         borderRadius="2xl" 
-        shadow="2xl" 
+        shadow="xl" 
         bg="white"
       >
         <form onSubmit={handleSubmit}>
@@ -81,7 +82,7 @@ import {
                 <Field.Label fontWeight="bold">E-mail</Field.Label>
                 <Input 
                   type="email" 
-                  placeholder="exemplo@imobi.com"
+                  placeholder="admin@imobisys.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -92,7 +93,7 @@ import {
                 <Field.Label fontWeight="bold">Senha</Field.Label>
                 <Input 
                   type="password" 
-                  placeholder="••••••••"
+                  placeholder="123456"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -102,6 +103,7 @@ import {
   
             <Button 
               type="submit" 
+              variant="solid"
               colorPalette="blue" 
               size="lg" 
               loading={isLoading}
