@@ -1,7 +1,7 @@
 "use client"
 
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react"
-import { ColorModeProvider } from "./color-mode" // O erro ts(2307) vai sumir aqui!
+import { ColorModeProvider } from "./ColorMode" // O erro ts(2307) vai sumir aqui!
 
 export function Provider(props: { children: React.ReactNode }) {
   return (

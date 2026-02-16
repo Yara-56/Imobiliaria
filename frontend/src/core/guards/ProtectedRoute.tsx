@@ -1,4 +1,3 @@
-import React from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 // ✅ Ajustado: Apontando para o hook na pasta correta e usando o alias @
 import { useAuth } from "@/core/hooks/useAuth"; 

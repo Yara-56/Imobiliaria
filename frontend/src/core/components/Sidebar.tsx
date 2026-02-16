@@ -1,4 +1,4 @@
-import { Box, VStack, Text, Button, Icon, Flex, Separator } from "@chakra-ui/react";
+import { Box, VStack, Text, Button , Flex, Separator } from "@chakra-ui/react";
 import { LayoutDashboard, FileText, Users, LogOut, Home } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/core/hooks/useAuth";
