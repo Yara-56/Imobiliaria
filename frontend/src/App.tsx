@@ -1,7 +1,7 @@
 "use client"
 
 import { Suspense } from "react";
-import { AppProvider } from "./core/providers/AppProvider";
+import { AppProvider } from "./routes/AppProvider";
 import AppRoutes from "./routes/AppRoutes";
 import { Toaster } from "./components/ui/toaster"; 
 
