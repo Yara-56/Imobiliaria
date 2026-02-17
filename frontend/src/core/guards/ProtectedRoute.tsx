@@ -1,26 +1,47 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-// ✅ Ajustado: Apontando para o hook na pasta correta e usando o alias @
-import { useAuth } from "@/core/hooks/useAuth"; 
+import { Center, Spinner, Text, VStack } from "@chakra-ui/react";
+import { useAuth } from "@/core/hooks/auth/useAuth.ts";
 
 interface ProtectedRouteProps {
-  allowedRoles?: string[];
+  allowedRoles?: ("ADMIN" | "OWNER" | "USER")[];
 }
 
 export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
-  // Nota: Removi o 'loading' pois no nosso AuthContext simplificado 
-  // a verificação do localStorage é instantânea no useState.
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
+  /**
+   * ⏳ TRATAMENTO DE CARREGAMENTO
+   * Substituímos 'thickness' por 'borderWidth' e 'spacing' por 'gap'
+   * para total compatibilidade com Chakra UI v3.
+   */
+  if (loading) {
+    return (
+      <Center h="100vh">
+        <VStack gap={4}>
+          <Spinner 
+            size="xl" 
+            color="blue.500" 
+            borderWidth="4px" // ✅ CORREÇÃO: thickness -> borderWidth
+          />
+          <Text color="gray.500" fontWeight="medium">
+            Verificando segurança...
+          </Text>
+        </VStack>
+      </Center>
+    );
+  }
+
+  // 🛡️ 1. Proteção de Autenticação
   if (!isAuthenticated) {
-    // Redireciona para o login salvando a rota de origem
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Verifica se o usuário tem a permissão necessária
-  if (allowedRoles && !allowedRoles.includes(user?.role || "")) {
-    return <Navigate to="/" replace />;
+  // 🔑 2. Proteção de Cargo (Role)
+  if (allowedRoles && !allowedRoles.includes(user?.role as any)) {
+    return <Navigate to="/dashboard" replace />;
   }
 
+  // ✅ 3. Renderização das Rotas Filhas
   return <Outlet />;
 }

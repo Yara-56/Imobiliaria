@@ -1,21 +1,27 @@
-// src/services/tenantService.ts
-import type { Tenant } from "@/core/types/tenant";
+import api from "../../../core/api/api"; // ✅ Caminho relativo para evitar erro de alias
+import type { Tenant } from "../types/tenant"; // ✅ Aponta para a pasta que você criou
 
-// Mock de API, depois você pode substituir por Axios ou fetch real
-const API_BASE = "/api/tenants";
-
+/**
+ * 📡 Busca a lista de inquilinos da AuraImobi.
+ */
 export const listTenants = async (): Promise<Tenant[]> => {
-  const response = await fetch(API_BASE);
-  if (!response.ok) throw new Error("Erro ao buscar inquilinos");
-  return response.json();
+  // O seu backend Node retorna os dados em response.data.data
+  const response = await api.get("/tenants");
+  return response.data.data; 
 };
 
+/**
+ * ✍️ Cria um novo inquilino no banco de dados.
+ */
 export const createTenant = async (payload: Partial<Tenant>): Promise<Tenant> => {
-  const response = await fetch(API_BASE, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  if (!response.ok) throw new Error("Erro ao criar inquilino");
-  return response.json();
+  const response = await api.post("/tenants", payload);
+  return response.data.data;
+};
+
+/**
+ * 🔄 Atualiza um inquilino existente (Substitui o antigo Edit).
+ */
+export const updateTenant = async (id: string, payload: Partial<Tenant>): Promise<Tenant> => {
+  const response = await api.put(`/tenants/${id}`, payload);
+  return response.data.data;
 };
