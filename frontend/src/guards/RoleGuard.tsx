@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "@/core/context/AuthContext";
-import type { UserRole } from "@/core/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
+import type { UserRole } from "@/context/AuthContext";
 
 interface RoleGuardProps {
   roles: UserRole[];

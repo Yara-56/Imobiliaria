@@ -2,8 +2,8 @@
 
 import { Suspense } from "react";
 import { AppProvider } from "./core/providers/AppProvider";
-import AppRoutes from "./core/routes/AppRoutes";
-import { Toaster } from "./core/components/ui/toaster"; 
+import AppRoutes from "./routes/AppRoutes";
+import { Toaster } from "./components/ui/toaster"; 
 
 const App = () => {
   return (

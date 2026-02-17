@@ -4,8 +4,8 @@ import { VStack, Heading, Text, Stack, Box, Flex, Input, Button } from "@chakra-
 import { LuMail, LuLock, LuArrowRight } from "react-icons/lu";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/core/context/AuthContext";
-import { toaster } from "@/core/components/ui/toaster";
+import { useAuth } from "@/context/AuthContext";
+import { toaster } from "@/components/ui/toaster";
 
 export const LoginForm = () => {
   const navigate = useNavigate();

@@ -9,10 +9,10 @@ import { Center, Heading, Button, VStack, Text } from "@chakra-ui/react";
 import "./styles/index.css";
 
 // 🛠️ Ajuste nos Imports: Apontando para os arquivos específicos
-import { Provider as UIProvider } from "@/core/components/ui/provider"; 
-import { AuthProvider } from "@/core/context/AuthContext";
+import { Provider as UIProvider } from "@/components/ui/provider"; 
+import { AuthProvider } from "@/context/AuthContext";
 // Corrigido: Apontando para AppRoutes.tsx para o TS localizar o módulo
-import AppRoutes from "@/core/routes/AppRoutes"; 
+import AppRoutes from "@/routes/AppRoutes"; 
 
 const queryClient = new QueryClient({
   defaultOptions: {

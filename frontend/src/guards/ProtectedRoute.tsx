@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Center, Spinner, Text, VStack } from "@chakra-ui/react";
-import { useAuth } from "@/core/hooks/auth/useAuth.ts";
+import { useAuth } from "@/auth/useAuth";
 
 interface ProtectedRouteProps {
   allowedRoles?: ("ADMIN" | "OWNER" | "USER")[];

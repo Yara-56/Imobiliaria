@@ -1,33 +1,34 @@
 import { 
     Box, Flex, Heading, Text, Button, SimpleGrid, 
-    Badge, Spinner, Center, Icon, VStack 
+    Badge, Spinner, Center, Icon, VStack, Input
   } from "@chakra-ui/react";
-  import { useQuery } from "@tanstack/react-query";
-  import { LuPlus, LuUser, LuMail, LuPhone, LuRefreshCcw } from "react-icons/lu";
-  import api from "../../../core/api/api.ts";
-  
-  /**
-   * 📝 Interface do Inquilino
-   * Garante que o TypeScript entenda os dados vindos do seu Node
-   */
-  interface Tenant {
-    _id: string;
-    name: string;
-    email: string;
-    phone?: string;
-    status: "active" | "inactive";
-  }
+  import { useState, useMemo } from "react";
+  import { useNavigate } from "react-router-dom";
+  import { 
+    LuPlus, LuUser, LuMail, LuPhone, LuRefreshCcw, 
+    LuSearch, LuTrash2, LuEye 
+  } from "react-icons/lu";
+  import { useTenants } from "../hooks/useTenants";
+  import { toaster } from "../../../components/ui/toaster";
   
   export default function TenantsPage() {
-    // 📡 Conexão com o seu backend Node.js na porta 3001
-    const { data, isLoading, isError, refetch, isFetching } = useQuery({
-      queryKey: ["tenants"],
-      queryFn: async () => {
-        const response = await api.get("/tenants");
-        // O backend retorna os dados dentro de data.data
-        return response.data;
-      },
-    });
+    const navigate = useNavigate();
+    const [search, setSearch] = useState("");
+    
+    // ✅ Usando o seu hook completo que já tem isFetching e refetch
+    const { 
+      tenants, isLoading, isError, refetch, isFetching 
+    } = useTenants();
+  
+    // ✅ Filtro de busca otimizado com useMemo
+    const filteredTenants = useMemo(() => {
+      const needle = search.toLowerCase();
+      return tenants.filter((t) =>
+        [t.name, t.email, t.phone]
+          .filter(Boolean)
+          .some((v) => v!.toLowerCase().includes(needle))
+      );
+    }, [tenants, search]);
   
     if (isLoading) return (
       <Center h="60vh">
@@ -38,23 +39,36 @@ import {
       </Center>
     );
   
-    const tenants: Tenant[] = data?.data || [];
-  
     return (
       <Box p={8} bg="gray.50" minH="100vh">
-        {/* HEADER DO SISTEMA */}
-        <Flex justify="space-between" align="center" mb={10}>
+        {/* HEADER E BUSCA */}
+        <Flex justify="space-between" align="flex-end" mb={10} wrap="wrap" gap={4}>
           <VStack align="start" gap={0}>
             <Heading size="lg" fontWeight="black" color="slate.800">Inquilinos</Heading>
-            <Text color="gray.500" fontSize="sm">Clientes ativos na AuraImobi</Text>
+            <Text color="gray.500" fontSize="sm">Gestão de clientes AuraImobi</Text>
           </VStack>
           
-          <Flex gap={3}>
-            {/* ✅ 'loading' substituiu 'isLoading' no Chakra v3 */}
+          <Flex gap={3} w={{ base: "full", md: "auto" }}>
+            {/* ✅ Busca simplificada sem InputGroup para evitar erros de TS */}
+            <Box position="relative" flex="1">
+               <Input 
+                  placeholder="Buscar por nome, email..." 
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  bg="white"
+                  borderRadius="xl"
+                  pl="10"
+               />
+               <Center position="absolute" left="3" top="50%" transform="translateY(-50%)" color="gray.400">
+                  <LuSearch size={18} />
+               </Center>
+            </Box>
+            
             <Button 
               variant="outline" 
               onClick={() => refetch()} 
               loading={isFetching} 
+              bg="white" 
               borderRadius="xl"
             >
               <LuRefreshCcw />
@@ -63,57 +77,73 @@ import {
             <Button 
               colorPalette="blue" 
               borderRadius="xl" 
-              shadow="md"
+              shadow="md" 
+              onClick={() => navigate("/admin/tenants/novo")}
             >
-              <Flex align="center" gap={2}>
-                <LuPlus /> Novo Inquilino
-              </Flex>
+              <LuPlus /> Novo
             </Button>
           </Flex>
         </Flex>
   
-        {/* GRID DE RESULTADOS */}
+        {/* LISTAGEM EM GRID */}
         {isError ? (
-          <Center p={10} bg="red.50" borderRadius="2xl" color="red.500" border="1px solid" borderColor="red.100">
-            Erro ao conectar com o servidor na porta 3001. Verifique seu backend.
+          <Center p={10} bg="red.50" borderRadius="2xl" color="red.500">
+            Erro ao conectar com o servidor na porta 3001.
           </Center>
         ) : (
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
-            {tenants.map((tenant) => (
+            {filteredTenants.map((tenant) => (
               <Box 
                 key={tenant._id} 
-                bg="white" 
-                p={6} 
-                borderRadius="24px" 
-                shadow="sm" 
-                border="1px solid" 
-                borderColor="gray.100"
+                bg="white" p={6} borderRadius="24px" shadow="sm" border="1px solid" borderColor="gray.100"
                 _hover={{ shadow: "md", transform: "translateY(-2px)" }}
                 transition="all 0.2s"
               >
-                <Flex align="center" gap={4} mb={6}>
-                  <Center bg="blue.50" color="blue.600" p={3} borderRadius="xl">
-                    <Icon as={LuUser} boxSize={6} />
-                  </Center>
-                  <Box>
-                    {/* ✅ 'lineClamp' substituiu 'noOfLines' */}
-                    <Text fontWeight="black" fontSize="md" color="slate.800" lineClamp={1}>
-                      {tenant.name}
-                    </Text>
-                    <Badge colorPalette={tenant.status === "active" ? "green" : "red"} variant="surface" borderRadius="full">
-                      {tenant.status === "active" ? "Ativo" : "Inativo"}
-                    </Badge>
-                  </Box>
+                <Flex justify="space-between" align="flex-start" mb={6}>
+                  <Flex align="center" gap={4}>
+                    <Center bg="blue.50" color="blue.600" p={3} borderRadius="xl">
+                      <Icon as={LuUser} boxSize={5} />
+                    </Center>
+                    <Box>
+                      <Text fontWeight="black" color="slate.800" lineClamp={1}>{tenant.name}</Text>
+                      <Badge colorPalette={tenant.status === "active" ? "green" : "red"} variant="surface" borderRadius="full">
+                        {tenant.status === "active" ? "Ativo" : "Inativo"}
+                      </Badge>
+                    </Box>
+                  </Flex>
+                  
+                  <Flex gap={1}>
+                      <Button 
+                        size="xs" 
+                        variant="ghost" 
+                        onClick={() => navigate(`/admin/tenants/${tenant._id}`)}
+                      >
+                        <LuEye />
+                      </Button>
+                      <Button 
+                        size="xs" 
+                        variant="ghost" 
+                        colorPalette="red"
+                        onClick={() => {
+                          if(window.confirm("Deseja realmente remover?")) {
+                            // Aqui chamaremos a lógica de delete futuramente
+                            toaster.create({ title: "Ação em desenvolvimento", type: "info" });
+                          }
+                        }}
+                      >
+                        <LuTrash2 />
+                      </Button>
+                  </Flex>
                 </Flex>
   
-                <VStack align="start" gap={2}>
-                  <Flex align="center" gap={2} color="gray.500" fontSize="sm">
-                    <Icon as={LuMail} /> 
+                <VStack align="start" gap={2} fontSize="sm" color="gray.500">
+                  <Flex align="center" gap={2}>
+                    <LuMail size={14} /> 
                     <Text lineClamp={1}>{tenant.email}</Text>
                   </Flex>
-                  <Flex align="center" gap={2} color="gray.500" fontSize="sm">
-                    <Icon as={LuPhone} /> 
-                    <Text>{tenant.phone || "Não informado"}</Text>
+                  <Flex align="center" gap={2}>
+                    <LuPhone size={14} /> 
+                    {tenant.phone || "Não informado"}
                   </Flex>
                 </VStack>
               </Box>
@@ -121,13 +151,10 @@ import {
           </SimpleGrid>
         )}
   
-        {/* FEEDBACK VAZIO */}
-        {tenants.length === 0 && !isError && (
-          <Center h="250px" flexDir="column" bg="white" border="2px dashed" borderColor="gray.200" borderRadius="3xl">
-            <Text color="gray.400" fontWeight="medium">Nenhum inquilino encontrado para sua imobiliária.</Text>
-            <Button mt={4} variant="ghost" colorPalette="blue" size="sm">
-              Cadastrar primeiro cliente
-            </Button>
+        {/* ESTADO VAZIO */}
+        {filteredTenants.length === 0 && !isLoading && (
+          <Center h="200px" flexDir="column" bg="white" border="2px dashed" borderColor="gray.200" borderRadius="3xl">
+            <Text color="gray.400">Nenhum inquilino encontrado.</Text>
           </Center>
         )}
       </Box>

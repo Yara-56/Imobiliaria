@@ -3,5 +3,7 @@ export interface Tenant {
   name: string;
   email: string;
   phone?: string;
+  cpfCnpj?: string;
   status: "active" | "inactive";
+  tenantId: string; // Essencial para o isolamento de dados
 }

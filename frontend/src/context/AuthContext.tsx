@@ -9,7 +9,7 @@ import {
   useCallback,
   useMemo,
 } from "react";
-import api from "../api/api.ts"; // ✅ Importando sua instância configurada
+import api from "../core/api/api.ts"; // ✅ Importando sua instância configurada
 
 export type UserRole = "ADMIN" | "OWNER" | "USER";
 

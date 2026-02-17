@@ -8,7 +8,7 @@ import {
   LuFileText, LuPlus, LuRefreshCcw, LuCircleCheck, LuTriangleAlert, LuExternalLink, LuInbox, LuReceipt
 } from "react-icons/lu"; 
 import api from "../../../core/api/api";
-import { StatCard } from "../../../core/components/ui/StatCardTemp";
+import { StatCard } from "../../../components/ui/StatCardTemp";
 
 interface Contract {
   _id: string; 

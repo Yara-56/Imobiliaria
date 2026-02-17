@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { AuthContext } from "../../context/AuthContext.tsx"; // ✅ Use extensões .tsx
+import { AuthContext } from "../context/AuthContext.tsx"; // ✅ Use extensões .tsx
 
 /**
  * 🛡️ Hook profissional para acessar o estado global de autenticação.

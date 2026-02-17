@@ -2,21 +2,21 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { lazy, Suspense, ReactNode } from "react";
 import { Center, Spinner, Text, Button, VStack } from "@chakra-ui/react";
 import { ErrorBoundary } from "react-error-boundary";
-import { useAuth } from "@/core/hooks/auth/useAuth.ts";
+import { useAuth } from "@/auth/useAuth.ts";
 
 // Layouts e Guards
-import { AdminLayout } from "../../features/admin/layouts/AdminLayout";
+import { AdminLayout } from "../features/admin/layouts/AdminLayout.tsx";
 
 // Páginas de Carregamento Rápido
-import LoginPage from "../../features/auth/pages/LoginPage";
-import HomePage from "../../features/marketing/pages/HomePage";
+import LoginPage from "../features/auth/pages/LoginPage.tsx";
+import HomePage from "../features/marketing/pages/HomePage.tsx";
 
 // ✅ CORREÇÃO: Nome ajustado para 'PaymentPage' (singular) conforme seu arquivo físico
-const DashboardPage = lazy(() => import("../../features/dashboard/pages/DashboardPage.tsx"));
-const PropertiesPage = lazy(() => import("../../features/properties/pages/PropertiesPage.tsx"));
-const TenantsPage = lazy(() => import("../../features/tenants/pages/TenantsPage.tsx"));
-const ContractsPage = lazy(() => import("../../features/contracts/pages/ContractsPage.tsx"));
-const PaymentPage = lazy(() => import("../../features/payments/pages/PaymentPage.tsx"));
+const DashboardPage = lazy(() => import("../features/dashboard/pages/DashboardPage.tsx"));
+const PropertiesPage = lazy(() => import("../features/properties/pages/PropertiesPage.tsx"));
+const TenantsPage = lazy(() => import("../features/tenants/pages/TenantsPage.tsx"));
+const ContractsPage = lazy(() => import("../features/contracts/pages/ContractsPage.tsx"));
+const PaymentPage = lazy(() => import("../features/payments/pages/PaymentPage.tsx"));
 
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated, loading } = useAuth();

@@ -1,17 +1,16 @@
-import api from "../../../core/api/api"; // ✅ Caminho relativo para evitar erro de alias
-import type { Tenant } from "../types/tenant"; // ✅ Aponta para a pasta que você criou
+import api from "../../../core/api/api";
+import type { Tenant } from "../types/tenant";
 
 /**
- * 📡 Busca a lista de inquilinos da AuraImobi.
+ * 📡 Busca a lista de inquilinos.
  */
 export const listTenants = async (): Promise<Tenant[]> => {
-  // O seu backend Node retorna os dados em response.data.data
   const response = await api.get("/tenants");
   return response.data.data; 
 };
 
 /**
- * ✍️ Cria um novo inquilino no banco de dados.
+ * ✍️ Cria um novo inquilino.
  */
 export const createTenant = async (payload: Partial<Tenant>): Promise<Tenant> => {
   const response = await api.post("/tenants", payload);
@@ -19,7 +18,7 @@ export const createTenant = async (payload: Partial<Tenant>): Promise<Tenant> =>
 };
 
 /**
- * 🔄 Atualiza um inquilino existente (Substitui o antigo Edit).
+ * 🔄 Atualiza um inquilino existente.
  */
 export const updateTenant = async (id: string, payload: Partial<Tenant>): Promise<Tenant> => {
   const response = await api.put(`/tenants/${id}`, payload);

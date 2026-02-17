@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Box, Heading, Text, SimpleGrid, Flex, Stack, VStack, Skeleton, Icon } from "@chakra-ui/react";
 import { LuHouse, LuFileText, LuTrendingUp, LuDollarSign } from "react-icons/lu";
 import { ResponsiveContainer, AreaChart, Area, XAxis, Tooltip, CartesianGrid } from 'recharts';
-import { StatCard } from "@/core/components/ui/StatCardTemp"; 
+import { StatCard } from "@/components/ui/StatCardTemp"; 
 import api from "@/core/api/api"; 
 
 interface DashboardStats {
