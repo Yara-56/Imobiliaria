@@ -1,38 +1,49 @@
-import app from "./app"; // Removido .js
-import connectDB from "./core/config/db"; // Removido .js
-import { env } from "./config/env"; // Removido .js
+import "dotenv/config";
+import { type Server } from "node:http";
+import app from "./app.ts"; 
+import { connectDatabase } from "./config/database.ts"; 
+import { env } from "./config/env.ts";
+import { logger } from "./shared/utils/logger.ts";
 
-let server: any;
+let server: Server;
 
-const startServer = async () => {
+// 🛑 Captura erros fatais síncronos
+process.on("uncaughtException", (err: Error) => {
+  logger.fatal({ err }, `💥 UNCAUGHT EXCEPTION: ${err.message}`);
+  process.exit(1);
+});
+
+const startServer = async (): Promise<void> => {
   try {
-    // Conexão com o MongoDB para o sistema da sua avó
-    await connectDB();
+    await connectDatabase();
 
     server = app.listen(env.port, () => {
-      console.log(`🚀 Server running on port ${env.port}`);
-      console.log(`🌍 Environment: ${env.nodeEnv}`);
+      logger.info(`🚀 Engine rodando na porta ${env.port} [${env.nodeEnv}]`);
     });
 
-  } catch (error) {
-    console.error("❌ Failed to start server:", error);
+    // 🛡️ Captura promessas rejeitadas não tratadas
+    process.on("unhandledRejection", (reason: unknown) => {
+      logger.error({ err: reason instanceof Error ? reason : new Error(String(reason)) }, "💥 UNHANDLED REJECTION!");
+      if (server) server.close(() => process.exit(1));
+      else process.exit(1);
+    });
+
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    logger.fatal({ err }, "❌ Falha crítica no bootstrap");
     process.exit(1);
   }
 };
 
-startServer();
+void startServer();
 
-// Graceful Shutdown (Essencial para Cybersecurity/Integridade de dados)
+// 🔌 Encerramento Seguro (SIGINT/SIGTERM)
 const shutdown = (signal: string) => {
-  console.log(`👋 Received ${signal}. Closing server...`);
-  if (server) {
-    server.close(() => {
-      console.log("💤 Server closed.");
-      process.exit(0);
-    });
-  } else {
+  logger.info(`👋 Sinal ${signal} recebido.`);
+  if (server) server.close(() => {
+    logger.info("💤 Servidor encerrado.");
     process.exit(0);
-  }
+  });
 };
 
 process.on("SIGTERM", () => shutdown("SIGTERM"));

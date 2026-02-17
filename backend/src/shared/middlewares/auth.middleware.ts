@@ -1,33 +1,61 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { env } from "../../config/env.js";
-import { AppError } from "../errors/AppError.js";
+import { env } from "../../config/env.ts";
+import { AppError } from "../errors/AppError.ts";
 
-interface AuthUser {
+export type UserRole = "admin" | "corretor" | "cliente";
+
+export interface AuthUser {
   id: string;
-  role: string;
+  role: UserRole;
   tenantId: string;
 }
 
-declare module 'express-serve-static-core' {
-  interface Request {
-    user?: AuthUser;
-  }
+interface DecodedToken extends jwt.JwtPayload {
+  id: string;
+  role: UserRole;
+  tenantId: string;
 }
 
-export const protect = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * 🛡️ PROTECT: Valida o JWT e injeta o contexto do usuário
+ */
+export const protect = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
   try {
-    const token = req.headers.authorization?.startsWith("Bearer") 
+    // 1. Extração do Token (Header ou Cookie)
+    let token = req.headers.authorization?.startsWith("Bearer") 
       ? req.headers.authorization.split(" ")[1] 
       : req.cookies?.token;
 
-    if (!token) return next(new AppError("Acesso negado. Faça login.", 401));
+    if (!token) {
+      return next(new AppError("Acesso negado. Por favor, faça login.", 401));
+    }
 
-    const decoded = jwt.verify(token, env.jwtSecret) as any;
-    
-    req.user = { id: decoded.id, role: decoded.role, tenantId: decoded.tenantId };
+    // 2. Verificação do JWT
+    const decoded = jwt.verify(token, env.jwtSecret) as DecodedToken;
+
+    // 3. Injeção do Contexto (Multi-tenant ready)
+    req.user = { 
+      id: decoded.id, 
+      role: decoded.role, 
+      tenantId: decoded.tenantId 
+    };
+    req.tenantId = decoded.tenantId; 
+
     next();
   } catch (error) {
-    next(new AppError("Sessão inválida ou expirada.", 401));
+    next(new AppError("Sessão inválida ou expirada. Faça login novamente.", 401));
   }
+};
+
+/**
+ * 👮 AUTHORIZE: Controle de acesso baseado em cargos
+ */
+export const authorize = (...roles: UserRole[]) => {
+  return (req: Request, _res: Response, next: NextFunction): void => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return next(new AppError("Você não tem permissão para realizar esta ação.", 403));
+    }
+    next();
+  };
 };

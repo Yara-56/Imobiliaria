@@ -1,83 +1,54 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
-import bcrypt from 'bcrypt';
+import mongoose, { Schema, type Document, type Model } from "mongoose";
+import bcrypt from "bcryptjs";
 
-// 1. Interface para definir as propriedades do Usuário
+// Importamos o tipo UserRole para manter a consistência com os middlewares
+import { type UserRole } from "../../shared/middlewares/auth.middleware.ts";
+
 export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
   name: string;
   email: string;
   password?: string;
-  role: 'admin' | 'corretor' | 'user';
-  status: 'ativo' | 'inativo' | 'bloqueado';
+  role: UserRole;
+  tenantId: string;
+  status: "ativo" | "inativo" | "bloqueado";
   lastLogin?: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-// 2. Schema com Tipagem Genérica
 const userSchema = new Schema<IUser>(
   {
-    name: {
-      type: String,
-      required: [true, 'Nome é obrigatório'],
-      trim: true,
-      minlength: 2,
-      maxlength: 100,
-    },
-    email: {
-      type: String,
-      required: [true, 'Email é obrigatório'],
-      unique: true,
-      lowercase: true,
-      trim: true,
-      match: [/^\S+@\S+\.\S+$/, 'Email inválido'],
-      index: true,
-    },
-    password: {
-      type: String,
-      required: [true, 'Senha é obrigatória'],
-      minlength: 6,
-      select: false,
-    },
-    role: {
-      type: String,
-      enum: ['admin', 'corretor', 'user'],
-      default: 'user',
-    },
-    status: {
-      type: String,
-      enum: ['ativo', 'inativo', 'bloqueado'],
-      default: 'ativo',
-    },
-    lastLogin: {
-      type: Date,
-    },
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    password: { type: String, required: true, select: false },
+    role: { type: String, enum: ["admin", "corretor", "cliente"], default: "cliente" },
+    tenantId: { type: String, required: true, index: true },
+    status: { type: String, enum: ["ativo", "inativo", "bloqueado"], default: "ativo" },
+    lastLogin: { type: Date }
   },
-  {
+  { 
     timestamps: true,
+    toJSON: {
+      transform: (_, ret) => {
+        // ✅ Técnica de desestruturação para remover dados sensíveis sem usar 'delete'
+        const { password, __v, ...safeUser } = ret;
+        return safeUser;
+      }
+    }
   }
 );
 
-// 3. Hash Automático (Middleware Pre-save)
-userSchema.pre<IUser>('save', async function (next) {
-  if (!this.isModified('password')) return next();
-
-  const salt = await bcrypt.genSalt(12);
-  if (this.password) {
-    this.password = await bcrypt.hash(this.password, salt);
-  }
-
+// Middleware do Mongoose para Hashear a senha antes de salvar
+userSchema.pre<IUser>("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password!, 12);
   next();
 });
 
-// 4. Método de Comparação Tipado
+// Método para validar senha no login
 userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
-  return await bcrypt.compare(candidatePassword, this.password || '');
+  return await bcrypt.compare(candidatePassword, this.password || "");
 };
 
-// 5. 🔥 Solução Definitiva para ts(2790): Remoção Segura no toJSON
-userSchema.methods.toJSON = function () {
-  const obj = this.toObject();
-  const { password, ...userWithoutPassword } = obj;
-  return userWithoutPassword;
-};
-
-export default mongoose.model<IUser>('User', userSchema);
+const User = (mongoose.models.User as Model<IUser>) || mongoose.model<IUser>("User", userSchema);
+export default User;

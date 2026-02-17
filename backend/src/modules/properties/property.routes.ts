@@ -1,27 +1,57 @@
 import { Router } from "express";
-import * as propertyController from "./property.controller";
-/** * CORREÇÃO DE ROTA: 
- * O arquivo está em: backend/src/shared/middlewares/auth.middleware.ts
- * Como este arquivo de rotas está em: backend/src/modules/properties/
- * Precisamos subir dois níveis (../../) para chegar em src/ e entrar em shared.
- */
-import { protect } from "../../shared/middlewares/auth.middleware";
+import * as propertyController from "./property.controller.ts";
+import { protect, authorize } from "../../shared/middlewares/auth.middleware.ts";
+import { validate } from "../../shared/middlewares/validate.middleware.ts";
+import { 
+  createPropertySchema, 
+  updatePropertySchema, 
+  getPropertySchema 
+} from "./property.schema.ts";
 
 const router = Router();
 
-// Todas as rotas de imóveis exigem login (imobisys_token)
-// O middleware 'protect' garante a segurança que seu estágio exige.
+/**
+ * 🔒 Camada de Proteção Global
+ * Garante que ninguém acesse os imóveis sem um token JWT válido.
+ * O middleware 'protect' também injeta o tenantId no req para o controller usar.
+ */
 router.use(protect);
 
+/**
+ * 🏠 Rotas de Coleção
+ */
 router
   .route("/")
-  .get(propertyController.getAllProperties) // Lista todos os imóveis do dono logado
-  .post(propertyController.createProperty); // Cria um novo imóvel com o Schema completo
+  .get(
+    // Clientes, corretores e admins podem visualizar a lista (filtrada por tenantId no controller)
+    propertyController.getAllProperties
+  )
+  .post(
+    // Restrito a quem opera a imobiliária
+    authorize("admin", "corretor"),
+    validate(createPropertySchema),
+    propertyController.createProperty
+  );
 
+/**
+ * 🔍 Rotas por ID
+ */
 router
   .route("/:id")
-  .get(propertyController.getPropertyById)  // Busca um imóvel específico
-  .patch(propertyController.updateProperty)  // Atualiza (útil para mudar status: Alugado/Vendido)
-  .delete(propertyController.deleteProperty); // Remove o imóvel
+  .get(
+    validate(getPropertySchema),
+    propertyController.getPropertyById
+  )
+  .patch(
+    authorize("admin", "corretor"),
+    validate(updatePropertySchema),
+    propertyController.updateProperty
+  )
+  .delete(
+    // Segurança máxima: Apenas o dono/admin da imobiliária remove registros
+    authorize("admin"),
+    validate(getPropertySchema),
+    propertyController.deleteProperty
+  );
 
 export default router;

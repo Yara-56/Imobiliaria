@@ -1,47 +1,54 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import dotenv from "dotenv";
-import User from "./src/modules/users/user.model";
+import "dotenv/config";
+import User from "./src/modules/users/user.model.js";
+import Property from "./src/modules/properties/property.model.js";
 
-dotenv.config();
-
-const seedAdmin = async () => {
+const seedDatabase = async () => {
   try {
-    const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/imobiliaria";
-    
-    await mongoose.connect(mongoUri);
-    console.log("🔋 Conectado ao MongoDB para criação do Admin...");
+    // 1. Conexão
+    await mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/imobiliaria");
+    console.log("🔋 Conectado ao MongoDB!");
 
-    const adminEmail = "admin@imobisys.com";
-    const plainPassword = "Admin123";
+    // 2. Limpeza
+    await User.deleteMany({});
+    await Property.deleteMany({});
 
-    // Criptografia essencial para segurança
-    const hashedPassword = await bcrypt.hash(plainPassword, 10);
+    const hashedPassword = await bcrypt.hash("Admin123!", 10);
 
-    // Limpa registros anteriores para evitar erro de duplicata
-    await User.deleteOne({ email: adminEmail });
-
-    const admin = new User({
-      name: "Yara Administradora",
-      email: adminEmail,
+    // 3. Criar Admin (Consertando o erro 'password is required')
+    const admin = await User.create({
+      name: "Yara Founders",
+      email: "admin@auraimobi.com",
       password: hashedPassword,
-      role: "admin"
-      // O campo 'status' será preenchido automaticamente pelo Mongoose
+      role: "admin",
+      tenantId: "aura_main"
     });
 
-    await admin.save();
-    
-    console.log("------------------------------------------");
-    console.log("✅ USUÁRIO ADMIN CRIADO COM SUCESSO!");
-    console.log(`📧 Email: ${adminEmail}`);
-    console.log(`🔑 Senha: ${plainPassword}`);
-    console.log("------------------------------------------");
-    
+    // 4. Criar Imóvel (Consertando o erro 'title', 'price' e 'address' required)
+    await Property.create({
+      title: "Mansão Aura Itaim",
+      description: "Luxo e sofisticação no coração de SP.",
+      price: 15000,
+      type: "ALUGUEL",
+      address: {
+        street: "Rua Amauri",
+        number: "100",
+        city: "São Paulo",
+        state: "SP",
+        zipCode: "01448-000" // Campo exigido pelo seu terminal!
+      },
+      owner: admin._id,
+      tenantId: "aura_main",
+      status: "Disponível"
+    });
+
+    console.log("💎 AuraImobi: Banco populado com sucesso!");
     process.exit(0);
   } catch (error) {
-    console.error("❌ Erro ao criar admin:", error);
+    console.error("❌ Erro no seed:", error);
     process.exit(1);
   }
 };
 
-seedAdmin();
+seedDatabase();
