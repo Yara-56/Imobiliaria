@@ -1,4 +1,3 @@
-// ✅ Mudança: Importamos 'mongoose' como objeto principal para acessar o '.models'
 import mongoose, { Schema, type Document } from "mongoose";
 
 export interface IProperty extends Document {
@@ -32,7 +31,9 @@ const propertySchema = new Schema<IProperty>(
       state: { type: String, required: true },
       zipCode: { type: String, required: true },
     },
-    tenantId: { type: String, required: true, index: true }, // Essencial para filtrar os dados da sua avó
+    // ✅ CORREÇÃO: Removido 'index: true' daqui para usar apenas o índice composto abaixo.
+    // Isso mata o erro "Duplicate schema index" que aparece no seu console.
+    tenantId: { type: String, required: true }, 
     owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   { 
@@ -42,12 +43,9 @@ const propertySchema = new Schema<IProperty>(
   }
 );
 
+// ✅ ÍNDICE OTIMIZADO: Essencial para filtrar os imóveis da sua avó com alta performance.
 propertySchema.index({ tenantId: 1, type: 1 });
 
-/**
- * ✅ CORREÇÃO DEFINITIVA DO SyntaxError:
- * No Node 20+, usamos 'mongoose.models' em vez de importar 'models'.
- */
 const Property = mongoose.models.Property || mongoose.model<IProperty>("Property", propertySchema);
 
 export default Property;
