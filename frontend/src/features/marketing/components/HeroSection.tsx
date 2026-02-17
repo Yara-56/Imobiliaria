@@ -1,8 +1,9 @@
-// src/features/marketing/components/HeroSection.tsx
-import { Stack, Heading, Text, Button } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+"use client";
 
-// 💡 ISSO RESOLVE O ERRO: Define que o componente aceita isAuthenticated
+import { Stack, Heading, Text, Button, Icon } from "@chakra-ui/react";
+import { Link } from "react-router-dom";
+import { LuArrowRight } from "react-icons/lu";
+
 interface HeroSectionProps {
   isAuthenticated: boolean;
 }
@@ -15,9 +16,10 @@ export const HeroSection = ({ isAuthenticated }: HeroSectionProps) => (
     <Text fontSize="xl" color="gray.600" maxW="2xl">
       O IMOBISYS centraliza sua operação para você focar no que importa: fechar negócios.
     </Text>
-    <Button asChild size="xl" colorPalette="blue" px={10}>
-      <Link to={isAuthenticated ? "/admin/dashboard" : "/login"}>
-        {isAuthenticated ? "Ir para o Painel" : "Começar Agora"}
+    <Button size="lg" bg="blue.600" color="white" px={10} borderRadius="xl">
+      <Link to={isAuthenticated ? "/admin/dashboard" : "/login"} style={{ display: 'flex', alignItems: 'center' }}>
+        {isAuthenticated ? "Ir para o Painel" : "Começar Agora"} 
+        <Icon as={LuArrowRight} ml={2} />
       </Link>
     </Button>
   </Stack>

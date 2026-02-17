@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Container, Heading, Text, SimpleGrid, Stack, Avatar, Flex } from "@chakra-ui/react";
+// ✅ Adicione o Avatar à lista de imports do Chakra
+import { Box, Container, Heading, Text, SimpleGrid, Stack, Flex, Avatar } from "@chakra-ui/react";
 
 const testimonials = [
   {

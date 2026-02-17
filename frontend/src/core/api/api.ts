@@ -1,12 +1,12 @@
 import axios from 'axios';
 
 const api = axios.create({
-  // O Vite expõe as variáveis através do import.meta.env
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  // Sincronizado com o seu API_PREFIX do backend (v1)
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1',
 });
 
-// Adicione isso para enviar o token automaticamente em cada requisição
 api.interceptors.request.use((config) => {
+  // Use a mesma chave que você definiu no seu formulário de Login
   const token = localStorage.getItem("imobisys_token");
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
