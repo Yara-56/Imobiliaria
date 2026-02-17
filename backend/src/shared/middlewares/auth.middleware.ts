@@ -1,61 +1,83 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import { env } from "../../config/env.ts";
-import { AppError } from "../errors/AppError.ts";
+import jwt, { type JwtPayload } from "jsonwebtoken";
+import { env } from "../../config/env";
+import { AppError } from "../errors/AppError";
 
+/* ======================================================
+   TIPAGEM DO USUÁRIO AUTENTICADO
+====================================================== */
+
+// ✅ ADICIONADO: Exportando o tipo exato que o Model está tentando importar
 export type UserRole = "admin" | "corretor" | "cliente";
 
 export interface AuthUser {
   id: string;
-  role: UserRole;
+  role: UserRole; // Alterado de string para UserRole
   tenantId: string;
 }
 
-interface DecodedToken extends jwt.JwtPayload {
+interface DecodedToken extends JwtPayload {
   id: string;
-  role: UserRole;
+  role: UserRole; // Alterado de string para UserRole
   tenantId: string;
 }
 
-/**
- * 🛡️ PROTECT: Valida o JWT e injeta o contexto do usuário
- */
-export const protect = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-  try {
-    // 1. Extração do Token (Header ou Cookie)
-    let token = req.headers.authorization?.startsWith("Bearer") 
-      ? req.headers.authorization.split(" ")[1] 
-      : req.cookies?.token;
+/* ======================================================
+   MIDDLEWARE: PROTECT (JWT)
+====================================================== */
 
-    if (!token) {
-      return next(new AppError("Acesso negado. Por favor, faça login.", 401));
+export const protect = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): void => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      throw new AppError("Token não fornecido.", 401);
     }
 
-    // 2. Verificação do JWT
+    const token = authHeader.split(" ")[1];
+
     const decoded = jwt.verify(token, env.jwtSecret) as DecodedToken;
 
-    // 3. Injeção do Contexto (Multi-tenant ready)
-    req.user = { 
-      id: decoded.id, 
-      role: decoded.role, 
-      tenantId: decoded.tenantId 
+    if (!decoded.id || !decoded.role || !decoded.tenantId) {
+      throw new AppError("Token inválido.", 401);
+    }
+
+    req.user = {
+      id: decoded.id,
+      role: decoded.role,
+      tenantId: decoded.tenantId
     };
-    req.tenantId = decoded.tenantId; 
 
     next();
   } catch (error) {
-    next(new AppError("Sessão inválida ou expirada. Faça login novamente.", 401));
+    next(
+      error instanceof AppError
+        ? error
+        : new AppError("Não autorizado.", 401)
+    );
   }
 };
 
-/**
- * 👮 AUTHORIZE: Controle de acesso baseado em cargos
- */
-export const authorize = (...roles: UserRole[]) => {
-  return (req: Request, _res: Response, next: NextFunction): void => {
-    if (!req.user || !roles.includes(req.user.role)) {
-      return next(new AppError("Você não tem permissão para realizar esta ação.", 403));
+/* ======================================================
+   MIDDLEWARE: AUTHORIZE (ROLE-BASED)
+====================================================== */
+
+export const authorize =
+  (...roles: UserRole[]) => // Alterado para aceitar apenas os tipos definidos
+  (req: Request, _res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      return next(new AppError("Usuário não autenticado.", 401));
     }
+
+    if (!roles.includes(req.user.role as UserRole)) {
+      return next(
+        new AppError("Acesso negado. Permissão insuficiente.", 403)
+      );
+    }
+
     next();
   };
-};

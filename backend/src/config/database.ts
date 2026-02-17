@@ -1,26 +1,37 @@
 import mongoose from "mongoose";
-import { env } from "./env.ts";
+import { env } from "./env.js"; // ✅ SEMPRE .js em NodeNext
 
 export const connectDatabase = async (): Promise<void> => {
   try {
-    const options = {
-      autoIndex: true,
+    await mongoose.connect(env.mongoUri, {
+      autoIndex: env.nodeEnv === "development",
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 5000,
-    };
+    });
 
-    await mongoose.connect(env.mongoUri, options);
-    console.log("🍃 MongoDB Conectado com sucesso!");
+    console.log("🍃 MongoDB conectado com sucesso!");
   } catch (error) {
-    console.error("❌ Erro ao conectar ao MongoDB:");
+    console.error("❌ Falha ao conectar ao MongoDB:");
+
     if (error instanceof Error) {
       console.error(error.message);
     }
+
     process.exit(1);
   }
 };
 
-mongoose.connection.on("error", (err) => console.error(`🔴 Erro no MongoDB: ${err}`));
-mongoose.connection.on("disconnected", () => console.warn("⚠️ MongoDB desconectado."));
+// 🔁 Listeners globais (produção-ready)
+mongoose.connection.on("connected", () => {
+  console.log("🟢 MongoDB conectado");
+});
+
+mongoose.connection.on("error", (err) => {
+  console.error("🔴 Erro no MongoDB:", err);
+});
+
+mongoose.connection.on("disconnected", () => {
+  console.warn("🟡 MongoDB desconectado");
+});
 
 export default connectDatabase;

@@ -4,48 +4,68 @@ import { z } from "zod";
 dotenv.config();
 
 /**
- * 📝 Esquema de Validação (Zod)
- * Validamos as strings e definimos mensagens de erro claras para o terminal.
+ * 🔐 Schema de validação das variáveis de ambiente
+ * - Transforma PORT para number
+ * - Garante JWT mínimo seguro em produção
+ * - Fail-fast se algo estiver errado
  */
 const envSchema = z.object({
-  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-  PORT: z.string().default("3001"), 
-  
-  MONGO_URI: z.string({ 
-    message: "MONGO_URI é obrigatória para conectar ao banco de dados." 
-  }),
-  
-  FRONTEND_URL: z.string().default("http://localhost:5173"),
-  
-  JWT_SECRET: z.string({ 
-    message: "JWT_SECRET não foi informada. A segurança do sistema depende dela." 
-  }),
-  
-  JWT_REFRESH_SECRET: z.string({ 
-    message: "JWT_REFRESH_SECRET é necessária para a renovação de tokens." 
-  }),
+  NODE_ENV: z
+    .enum(["development", "production", "test"])
+    .default("development"),
+
+  PORT: z
+    .string()
+    .default("3001")
+    .transform((val) => Number(val))
+    .refine((val) => !Number.isNaN(val), {
+      message: "PORT deve ser um número válido",
+    }),
+
+  MONGO_URI: z
+    .string()
+    .min(1, "MONGO_URI é obrigatória para conectar ao banco."),
+
+  FRONTEND_URL: z
+    .string()
+    .url("FRONTEND_URL deve ser uma URL válida")
+    .default("http://localhost:5173"),
+
+  JWT_SECRET: z
+    .string()
+    .min(32, "JWT_SECRET deve ter no mínimo 32 caracteres."),
+
+  JWT_REFRESH_SECRET: z
+    .string()
+    .min(32, "JWT_REFRESH_SECRET deve ter no mínimo 32 caracteres."),
 });
 
-const _env = envSchema.safeParse(process.env);
+/**
+ * 🔎 Parse seguro
+ */
+const parsed = envSchema.safeParse(process.env);
 
-if (!_env.success) {
-  console.error("❌ Erro de configuração das variáveis de ambiente:");
-  console.error(_env.error.format());
+if (!parsed.success) {
+  console.error("❌ Erro nas variáveis de ambiente:");
+  console.error(parsed.error.flatten().fieldErrors);
   process.exit(1);
 }
 
 /**
- * 🚀 Exportação Tipada e Imutável
- * O uso do 'as const' garante que o TypeScript saiba que estes valores não mudam,
- * resolvendo problemas de tipagem nos middlewares que importam este arquivo.
+ * 🚀 Exportação imutável e tipada automaticamente
  */
-export const env = {
-  nodeEnv: _env.data.NODE_ENV,
-  port: Number(_env.data.PORT),
-  mongoUri: _env.data.MONGO_URI,
-  frontendUrl: _env.data.FRONTEND_URL,
-  jwtSecret: _env.data.JWT_SECRET,
-  jwtRefreshSecret: _env.data.JWT_REFRESH_SECRET,
-} as const;
+export const env = Object.freeze({
+  nodeEnv: parsed.data.NODE_ENV,
+  port: parsed.data.PORT,
+  mongoUri: parsed.data.MONGO_URI,
+  frontendUrl: parsed.data.FRONTEND_URL,
+  jwtSecret: parsed.data.JWT_SECRET,
+  jwtRefreshSecret: parsed.data.JWT_REFRESH_SECRET,
+});
+
+/**
+ * 📌 Tipo automático inferido do schema
+ */
+export type Env = typeof env;
 
 export default env;

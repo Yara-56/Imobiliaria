@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { AppError } from "../errors/AppError.ts"; // ✅ Import com .ts para NodeNext
+import { AppError } from "../errors/AppError"; // ✅ Import com .ts para NodeNext
 
 /**
  * 🛡️ Middleware: attachTenant

@@ -1,19 +1,22 @@
 import { Router } from "express";
-import authRoutes from "../../modules/auth/auth.routes.ts";
-import propertyRoutes from "../../modules/properties/property.routes.ts";
-import tenantRoutes from "../../modules/tenants/tenant.routes.ts";
-import contractRoutes from "../../modules/contracts/contract.routes.ts";
-import paymentRoutes from "../../modules/payments/payment.routes.ts"; // ✅ Novo módulo
 
-const apiRouter = Router();
+import authRoutes from "../../modules/auth/auth.routes";
+import propertyRoutes from "../../modules/properties/property.routes";
+import tenantRoutes from "../../modules/tenants/tenant.routes";
+import contractRoutes from "../../modules/contracts/contract.routes";
+import paymentRoutes from "../../modules/payments/payment.routes";
 
-// 🔑 Segurança
+import { protect } from "../middlewares/auth.middleware";
+
+// ✅ Exportando como constante nomeada
+export const apiRouter = Router();
+
 apiRouter.use("/auth", authRoutes);
 
-// 🏠 Gestão Imobiliária (AuraImobi)
-apiRouter.use("/properties", propertyRoutes); // Imóveis
-apiRouter.use("/tenants", tenantRoutes);       // Inquilinos
-apiRouter.use("/contracts", contractRoutes);   // Contratos
-apiRouter.use("/payments", paymentRoutes);     // Financeiro
+// Proteção global para as rotas abaixo
+apiRouter.use(protect); 
 
-export { apiRouter };
+apiRouter.use("/properties", propertyRoutes);
+apiRouter.use("/tenants", tenantRoutes);
+apiRouter.use("/contracts", contractRoutes);
+apiRouter.use("/payments", paymentRoutes);

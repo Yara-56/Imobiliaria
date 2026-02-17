@@ -1,4 +1,4 @@
-import { AuthUser } from "../shared/middlewares/auth.middleware.ts";
+import type { AuthUser } from "../shared/middlewares/auth.middleware.js";
 
 declare global {
   namespace Express {
@@ -8,3 +8,5 @@ declare global {
     }
   }
 }
+
+export {};
