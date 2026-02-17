@@ -2,130 +2,183 @@
 
 import { 
   Flex, Box, Text, Stack, Heading, 
-  Input, Button, VStack, Circle, Container 
+  Input, Button, VStack, Circle, Container
 } from "@chakra-ui/react";
-import { LuArrowRight, LuCheck, LuFingerprint } from "react-icons/lu";
+import { useState } from "react";
+import { LuArrowRight, LuCheck, LuFingerprint, LuMail, LuLock } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
+import api from "@/core/api/api"; 
+import { toaster } from "@/components/ui/toaster"; // Padrão v3 para notificações
+import { InputGroup } from "@/components/ui/input-group"; // Componente corrigido
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      toaster.create({ 
+        title: "Campos obrigatórios", 
+        description: "Por favor, insira seu e-mail e senha.",
+        type: "warning" 
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      // Chamada para o backend rodando na porta 3001
+      const response = await api.post("/auth/login", { email, password });
+      const { token, user } = response.data;
+
+      // Armazenamento seguro para o Interceptor do Axios
+      localStorage.setItem("imobisys_token", token);
+      localStorage.setItem("imobisys_user", JSON.stringify(user));
+
+      toaster.create({ 
+        title: `Bem-vinda, ${user.name}!`, 
+        type: "success" 
+      });
+
+      // Redirecionamento para a dashboard protegida
+      navigate("/dashboard"); 
+    } catch (error: any) {
+      toaster.create({ 
+        title: "Falha na autenticação", 
+        description: error.message || "E-mail ou senha incorretos.", 
+        type: "error"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Flex 
-      minH="100vh" 
-      w="100vw" 
-      bg="#f8fafc" 
-      position="relative" 
-      overflow="hidden"
-      align="center"
+      minH="100vh" w="100vw" bg="#020617" 
+      position="relative" overflow="hidden" align="center"
     >
-      {/* 🟢 Elementos de fundo para profundidade visual */}
+      {/* 🔮 Background Effects (Cybersecurity Style) */}
       <Circle 
-        size="600px" bg="blue.100" position="absolute" 
-        top="-200px" right="-100px" filter="blur(100px)" opacity="0.5" 
+        size="800px" bg="blue.900" position="absolute" 
+        top="-300px" left="-200px" filter="blur(140px)" opacity="0.4" 
       />
-      <Circle 
-        size="400px" bg="cyan.100" position="absolute" 
-        bottom="-100px" left="-50px" filter="blur(80px)" opacity="0.4" 
+      <Box 
+        w="500px" h="500px" bg="purple.900" position="absolute" 
+        bottom="-100px" right="-50px" filter="blur(120px)" opacity="0.3" borderRadius="full"
       />
 
-      <Container maxW="container.lg" position="relative" zIndex={1}>
+      <Container maxW="container.xl" position="relative" zIndex={1}>
         <Flex 
-          w="full" 
-          minH="600px" 
-          bg="white" 
-          borderRadius={{ base: "40px", md: "60px" }} 
-          shadow="0 50px 100px -20px rgba(0,0,0,0.12)"
+          w="full" minH="700px" 
+          bg="rgba(15, 23, 42, 0.7)" 
+          backdropFilter="blur(20px)"
+          borderRadius="40px" 
+          border="1px solid rgba(255, 255, 255, 0.1)"
+          shadow="2xl"
           overflow="hidden"
           direction={{ base: "column", md: "row" }}
         >
           
-          {/* 🚀 Lado de Impacto (Dinâmico) */}
+          {/* Lado Esquerdo: Branding */}
           <Flex 
-            flex={1} 
-            bg="blue.600" 
-            p={{ base: 10, md: 16 }} 
-            direction="column" 
-            justify="center"
+            flex={1} p={{ base: 10, md: 20 }} 
+            direction="column" justify="center"
             bgGradient="to-br" 
-            gradientFrom="blue.600" 
-            gradientTo="blue.800"
+            gradientFrom="blue.900" 
+            gradientTo="transparent"
           >
-            <VStack align="start" gap={8}>
-              <Box p={4} bg="whiteAlpha.200" borderRadius="2xl" backdropFilter="blur(10px)">
-                <LuFingerprint size={32} color="white" />
-              </Box>
+            <VStack align="start" gap={10}>
+              <Flex 
+                align="center" justify="center"
+                boxSize="70px" bg="blue.500" borderRadius="22px" 
+                shadow="0 0 40px rgba(59, 130, 246, 0.5)"
+              >
+                <LuFingerprint size={38} color="white" />
+              </Flex>
               
               <Box>
-                <Heading size="2xl" color="white" fontWeight="900" lineHeight="1.1" mb={4}>
-                  O futuro da <br /> 
-                  sua imobiliária.
+                <Heading size="3xl" color="white" fontWeight="900" mb={6} letterSpacing="-2px">
+                  Imobi<Text as="span" color="blue.400">Sys</Text>
                 </Heading>
-                <Text fontSize="lg" color="blue.100" opacity={0.9}>
-                  Acesse a plataforma de gestão mais fluida do mercado.
+                <Text fontSize="xl" color="slate.400" lineHeight="tall">
+                  Gestão imobiliária enterprise <br /> com foco em cibersegurança.
                 </Text>
               </Box>
 
-              <Stack direction="row" gap={4}>
-                <Flex align="center" gap={2} color="white" fontSize="xs" fontWeight="black" letterSpacing="widest">
-                  <LuCheck size={14} /> INTUITIVO
-                </Flex>
-                <Flex align="center" gap={2} color="white" fontSize="xs" fontWeight="black" letterSpacing="widest">
-                  <LuCheck size={14} /> RÁPIDO
-                </Flex>
-              </Stack>
+              <VStack align="start" gap={4}>
+                {["Acesso Multi-tenant", "Logs de Auditoria", "Dados Criptografados"].map((item) => (
+                  <Flex key={item} align="center" gap={3} color="blue.200" fontWeight="600" fontSize="sm">
+                    <LuCheck size={16} color="#60A5FA" />
+                    {item}
+                  </Flex>
+                ))}
+              </VStack>
             </VStack>
           </Flex>
 
-          {/* 🔐 Lado do Login (Fácil Leitura) */}
-          <Flex flex={1.2} bg="white" p={{ base: 10, md: 20 }} align="center">
+          {/* Lado Direito: Formulário */}
+          <Flex 
+            flex={1} bg="rgba(255, 255, 255, 0.02)" 
+            p={{ base: 10, md: 24 }} align="center"
+            borderLeft="1px solid rgba(255, 255, 255, 0.05)"
+          >
             <Stack gap={10} w="full">
               <Box>
-                <Heading size="xl" fontWeight="900" color="gray.800" mb={2} letterSpacing="tighter">
-                  Entrar no sistema
+                <Text color="blue.400" fontWeight="bold" letterSpacing="0.2em" mb={2}>PORTAL DO COLABORADOR</Text>
+                <Heading size="xl" fontWeight="800" color="white" letterSpacing="-1px">
+                  Bem-vinda de volta
                 </Heading>
-                <Text color="gray.400" fontWeight="medium">
-                  Seja bem-vinda ao seu novo workspace.
-                </Text>
               </Box>
 
               <Stack gap={6}>
                 <Box>
-                  <Text fontSize="xs" fontWeight="bold" color="blue.600" mb={2} ml={1} letterSpacing="wider">
-                    E-MAIL
-                  </Text>
-                  <Input 
-                    placeholder="email@imobiliaria.com" 
-                    bg="gray.50" border="2px solid" borderColor="transparent"
-                    h="60px" px={6} borderRadius="20px" fontSize="md"
-                    _focus={{ borderColor: "blue.500", bg: "white", shadow: "none" }}
-                    transition="all 0.3s"
-                  />
+                  <Text fontSize="xs" fontWeight="bold" color="slate.500" mb={3} ml={1}>E-MAIL CORPORATIVO</Text>
+                  {/* ✅ Usando a sintaxe v3 com startElement */}
+                  <InputGroup startElement={<LuMail color="#475569" />}>
+                    <Input 
+                      value={email} 
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="seu@imobiliaria.com" 
+                      bg="rgba(0, 0, 0, 0.2)" 
+                      border="1px solid rgba(255, 255, 255, 0.1)"
+                      h="64px" 
+                      borderRadius="18px" 
+                      color="white"
+                      _focus={{ borderColor: "blue.500", bg: "rgba(0, 0, 0, 0.4)" }}
+                    />
+                  </InputGroup>
                 </Box>
 
                 <Box>
-                  <Text fontSize="xs" fontWeight="bold" color="blue.600" mb={2} ml={1} letterSpacing="wider">
-                    SENHA
-                  </Text>
-                  <Input 
-                    type="password" placeholder="••••••••" 
-                    bg="gray.50" border="2px solid" borderColor="transparent"
-                    h="60px" px={6} borderRadius="20px"
-                    _focus={{ borderColor: "blue.500", bg: "white", shadow: "none" }}
-                    transition="all 0.3s"
-                  />
+                  <Text fontSize="xs" fontWeight="bold" color="slate.500" mb={3} ml={1}>SENHA DE ACESSO</Text>
+                  <InputGroup startElement={<LuLock color="#475569" />}>
+                    <Input 
+                      type="password" 
+                      value={password} 
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••" 
+                      bg="rgba(0, 0, 0, 0.2)" 
+                      border="1px solid rgba(255, 255, 255, 0.1)"
+                      h="64px" 
+                      borderRadius="18px" 
+                      color="white"
+                      _focus={{ borderColor: "blue.500", bg: "rgba(0, 0, 0, 0.4)" }}
+                    />
+                  </InputGroup>
                 </Box>
 
                 <Button 
-                  size="xl" h="64px" bg="blue.600" color="white" 
-                  borderRadius="22px" fontWeight="black" fontSize="md"
-                  _hover={{ transform: "translateY(-2px)", shadow: "xl", bg: "blue.700" }}
-                  onClick={() => {
-                    localStorage.setItem("token", "active");
-                    navigate("/admin/dashboard");
-                  }}
+                  loading={isLoading} // Propriedade v3
+                  size="xl" h="70px" bg="blue.500" color="white" 
+                  borderRadius="20px" fontWeight="800" fontSize="lg"
+                  _hover={{ bg: "blue.400", transform: "scale(1.02)" }}
+                  onClick={handleLogin}
                 >
-                  ACESSAR PAINEL <LuArrowRight size={20} style={{ marginLeft: '8px' }} />
+                  ACESSAR PAINEL <LuArrowRight size={22} style={{ marginLeft: '12px' }} />
                 </Button>
               </Stack>
             </Stack>

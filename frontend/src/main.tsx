@@ -8,10 +8,9 @@ import { Center, Heading, Button, VStack, Text } from "@chakra-ui/react";
 
 import "./styles/index.css";
 
-// 🛠️ Ajuste nos Imports: Apontando para os arquivos específicos
 import { Provider as UIProvider } from "@/components/ui/provider"; 
 import { AuthProvider } from "@/context/AuthContext";
-// Corrigido: Apontando para AppRoutes.tsx para o TS localizar o módulo
+import { Toaster } from "@/components/ui/toaster"; // ✅ Adicionado para v3
 import AppRoutes from "@/routes/AppRoutes"; 
 
 const queryClient = new QueryClient({
@@ -30,12 +29,7 @@ function ErrorFallback() {
       <VStack gap={4} textAlign="center">
         <Heading size="lg" color="red.500">Ops! Algo deu errado.</Heading>
         <Text color="gray.600">Ocorreu um erro inesperado no ImobiSys.</Text>
-        <Button 
-          colorPalette="blue" 
-          onClick={() => window.location.href = "/"}
-        >
-          Recarregar Sistema
-        </Button>
+        <Button onClick={() => window.location.href = "/"}>Recarregar Sistema</Button>
       </VStack>
     </Center>
   );
@@ -49,6 +43,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <AuthProvider>
             <BrowserRouter>
               <AppRoutes />
+              <Toaster /> {/* ✅ Renderização global do Toaster */}
             </BrowserRouter>
           </AuthProvider>
         </UIProvider>

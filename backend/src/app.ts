@@ -10,10 +10,7 @@ import { pinoHttp } from "pino-http";
 
 import { env } from "./config/env";
 import { logger } from "./shared/utils/logger";
-
-// ✅ Agora o import nomeado funciona perfeitamente
 import { apiRouter } from "./shared/routes/index"; 
-
 import { errorHandler } from "./shared/middlewares/error.middleware";
 import { notFound } from "./shared/middlewares/notFound.middleware";
 
@@ -23,9 +20,12 @@ app.use(helmet({ contentSecurityPolicy: env.nodeEnv === "production" }));
 app.use(compression());
 app.use(pinoHttp({ logger: logger as any, genReqId: () => crypto.randomUUID() }));
 
+// ✅ CORS Ajustado para permitir a comunicação com o Vite (5174)
 app.use(cors({
     origin: ["http://localhost:5173", "http://localhost:5174"],
-    credentials: true
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true 
 }));
 
 app.use(express.json());
@@ -34,9 +34,6 @@ app.use("/uploads", express.static(path.resolve("uploads")));
 
 app.use("/api", rateLimit({ windowMs: 15 * 60 * 1000, max: 200 }));
 
-/* ======================================================
-   ROTAS
-====================================================== */
 app.use("/api/v1", apiRouter);
 
 app.get("/health", (_, res) => {
