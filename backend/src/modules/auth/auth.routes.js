@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { login, logout } from "./auth.controller.js";
-import { validate } from "../../shared/middleware/validate.middleware.js";
+import { validate } from "../../shared/middlewares/validate.middleware.js";
 import { loginSchema } from "./auth.schema.js";
 import rateLimit from "express-rate-limit";
 

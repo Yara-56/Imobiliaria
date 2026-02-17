@@ -14,8 +14,8 @@ import authRoutes from "./modules/auth/auth.routes.js";
 import propertyRoutes from "./modules/properties/property.routes.js";
 
 // Middlewares
-import { errorHandler } from "./shared/middleware/error.middleware.js";
-import { notFound } from "./shared/middleware/notFound.middleware.js";
+import { errorHandler } from "./shared/middlewares/error.middleware.js";
+import { notFound } from "./shared/middlewares/notFound.middleware.js";
 
 const app = express();
 
@@ -53,7 +53,7 @@ app.use(express.json({ limit: "10kb" }));
  * Forçamos o retorno de cookieParser() como RequestHandler.
  * Isso elimina a ambiguidade de sobrecarga que causa o erro de 'PathParams'.
  */
-app.use(cookieParser() as RequestHandler); 
+app.use(cookieParser() as RequestHandler);
 
 /*
 |--------------------------------------------------------------------------
