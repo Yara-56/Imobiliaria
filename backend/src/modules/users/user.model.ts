@@ -1,54 +1,143 @@
-import mongoose, { Schema, type Document, type Model } from "mongoose";
+import mongoose, {
+  Schema,
+  Model,
+  HydratedDocument,
+} from "mongoose";
 import bcrypt from "bcryptjs";
 
-// Importamos o tipo UserRole para manter a consistência com os middlewares
-import { type UserRole } from "../../shared/middlewares/auth.middleware.ts";
+/* ======================================================
+   TYPES
+====================================================== */
 
-export interface IUser extends Document {
-  _id: mongoose.Types.ObjectId;
+export type UserRole = "admin" | "corretor" | "cliente";
+
+export interface IUser {
   name: string;
   email: string;
-  password?: string;
+  password: string;
   role: UserRole;
   tenantId: string;
   status: "ativo" | "inativo" | "bloqueado";
   lastLogin?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/* ======================================================
+   METHODS
+====================================================== */
+
+interface UserMethods {
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-const userSchema = new Schema<IUser>(
+export type UserDocument = HydratedDocument<IUser, UserMethods>;
+
+/* ======================================================
+   SCHEMA
+====================================================== */
+
+const userSchema = new Schema<
+  IUser,
+  Model<IUser, {}, UserMethods>,
+  UserMethods
+>(
   {
-    name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password: { type: String, required: true, select: false },
-    role: { type: String, enum: ["admin", "corretor", "cliente"], default: "cliente" },
-    tenantId: { type: String, required: true, index: true },
-    status: { type: String, enum: ["ativo", "inativo", "bloqueado"], default: "ativo" },
-    lastLogin: { type: Date }
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      index: true,
+    },
+
+    password: {
+      type: String,
+      required: true,
+      select: false,
+    },
+
+    role: {
+      type: String,
+      enum: ["admin", "corretor", "cliente"],
+      default: "cliente",
+    },
+
+    tenantId: {
+      type: String,
+      required: true,
+      index: true,
+    },
+
+    status: {
+      type: String,
+      enum: ["ativo", "inativo", "bloqueado"],
+      default: "ativo",
+      index: true,
+    },
+
+    lastLogin: Date,
   },
-  { 
+  {
     timestamps: true,
+
     toJSON: {
       transform: (_, ret) => {
-        // ✅ Técnica de desestruturação para remover dados sensíveis sem usar 'delete'
         const { password, __v, ...safeUser } = ret;
         return safeUser;
-      }
-    }
+      },
+    },
   }
 );
 
-// Middleware do Mongoose para Hashear a senha antes de salvar
-userSchema.pre<IUser>("save", async function (next) {
+/* ======================================================
+   🔐 HASH AUTOMÁTICO
+====================================================== */
+
+userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password!, 12);
-  next();
+
+  try {
+    const salt = await bcrypt.genSalt(12);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error as Error);
+  }
 });
 
-// Método para validar senha no login
-userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
-  return await bcrypt.compare(candidatePassword, this.password || "");
+/* ======================================================
+   🔎 COMPARE PASSWORD
+====================================================== */
+
+userSchema.methods.comparePassword = async function (
+  candidatePassword: string
+): Promise<boolean> {
+  if (!this.password) {
+    throw new Error(
+      "Password not selected. Use .select('+password')"
+    );
+  }
+
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
-const User = (mongoose.models.User as Model<IUser>) || mongoose.model<IUser>("User", userSchema);
+/* ======================================================
+   EXPORT MODEL
+====================================================== */
+
+export const User =
+  mongoose.models.User ||
+  mongoose.model<IUser, Model<IUser, {}, UserMethods>>(
+    "User",
+    userSchema
+  );
+
 export default User;

@@ -1,29 +1,28 @@
 import { Request, Response, NextFunction } from "express";
-import jwt, { type JwtPayload } from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { env } from "../../config/env";
 import { AppError } from "../errors/AppError";
 
 /* ======================================================
-   TIPAGEM DO USUÁRIO AUTENTICADO
+   TIPOS
 ====================================================== */
 
-// ✅ ADICIONADO: Exportando o tipo exato que o Model está tentando importar
 export type UserRole = "admin" | "corretor" | "cliente";
 
 export interface AuthUser {
   id: string;
-  role: UserRole; // Alterado de string para UserRole
+  role: UserRole;
   tenantId: string;
 }
 
 interface DecodedToken extends JwtPayload {
   id: string;
-  role: UserRole; // Alterado de string para UserRole
+  role: UserRole;
   tenantId: string;
 }
 
 /* ======================================================
-   MIDDLEWARE: PROTECT (JWT)
+   PROTECT - JWT AUTH
 ====================================================== */
 
 export const protect = (
@@ -34,7 +33,7 @@ export const protect = (
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (!authHeader?.startsWith("Bearer ")) {
       throw new AppError("Token não fornecido.", 401);
     }
 
@@ -49,12 +48,20 @@ export const protect = (
     req.user = {
       id: decoded.id,
       role: decoded.role,
-      tenantId: decoded.tenantId
+      tenantId: decoded.tenantId,
     };
 
     next();
   } catch (error) {
-    next(
+    if (error instanceof jwt.TokenExpiredError) {
+      return next(new AppError("Token expirado.", 401));
+    }
+
+    if (error instanceof jwt.JsonWebTokenError) {
+      return next(new AppError("Token inválido.", 401));
+    }
+
+    return next(
       error instanceof AppError
         ? error
         : new AppError("Não autorizado.", 401)
@@ -63,17 +70,17 @@ export const protect = (
 };
 
 /* ======================================================
-   MIDDLEWARE: AUTHORIZE (ROLE-BASED)
+   AUTHORIZE - ROLE BASED ACCESS
 ====================================================== */
 
 export const authorize =
-  (...roles: UserRole[]) => // Alterado para aceitar apenas os tipos definidos
+  (...roles: UserRole[]) =>
   (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) {
       return next(new AppError("Usuário não autenticado.", 401));
     }
 
-    if (!roles.includes(req.user.role as UserRole)) {
+    if (!roles.includes(req.user.role)) {
       return next(
         new AppError("Acesso negado. Permissão insuficiente.", 403)
       );
