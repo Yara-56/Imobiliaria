@@ -1,12 +1,10 @@
 "use client"
 
-// 1. Adicionado o VStack no import ou apenas use o Stack
 import { Box, Heading, Text, SimpleGrid, Flex, Stack, VStack } from "@chakra-ui/react";
 import { LuHouse, LuFileText, LuTrendingUp, LuDollarSign } from "react-icons/lu";
 
-// 2. Ajuste o caminho para o nome final do seu arquivo (statCard ou StatCard)
-// Se você seguiu o passo anterior de renomear, use o nome exato do arquivo aqui:
-import { StatCard } from "../../../core/components/ui/StatCardTemp"; 
+// ✅ Usando Alias '@' para evitar erros de contagem de '../'
+import { StatCard } from "@/core/components/ui/StatCardTemp"; 
 
 export default function DashboardPage() {
   return (
@@ -18,7 +16,6 @@ export default function DashboardPage() {
         <Text color="gray.500">Bem-vinda ao centro de controle do ImobiSys.</Text>
       </Stack>
 
-      {/* Grid de Métricas Principais */}
       <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={6} mb={10}>
         <StatCard 
           title="Total em Contratos" 
@@ -47,7 +44,6 @@ export default function DashboardPage() {
       </SimpleGrid>
 
       <Flex gap={6} direction={{ base: "column", xl: "row" }}>
-        {/* Placeholder para Gráfico */}
         <Box 
           flex="2" 
           bg="white" 
@@ -59,8 +55,8 @@ export default function DashboardPage() {
           display="flex"
           alignItems="center"
           justifyContent="center"
+          _dark={{ bg: "gray.800", borderColor: "gray.700" }}
         >
-          {/* Agora o VStack vai funcionar porque foi importado! */}
           <VStack color="gray.300" gap={2}>
             <LuTrendingUp size={48} />
             <Text fontWeight="bold" color="gray.400">Gráfico de Performance Mensal</Text>
@@ -68,7 +64,6 @@ export default function DashboardPage() {
           </VStack>
         </Box>
 
-        {/* Atividades Recentes */}
         <Box 
           flex="1" 
           bg="white" 
@@ -76,15 +71,16 @@ export default function DashboardPage() {
           borderRadius="3xl" 
           border="1px solid" 
           borderColor="gray.100"
+          _dark={{ bg: "gray.800", borderColor: "gray.700" }}
         >
           <Heading size="md" mb={6}>Ações Recentes</Heading>
           <Stack gap={4}>
             {[1, 2, 3].map((i) => (
-              <Flex key={i} align="center" gap={3} p={3} borderBottom="1px solid" borderColor="gray.50">
+              <Flex key={i} align="center" gap={3} p={3} borderBottom="1px solid" borderColor="gray.50" _dark={{ borderColor: "gray.700" }}>
                 <Box w={2} h={2} borderRadius="full" bg="blue.500" />
                 <Box>
                   <Text fontSize="sm" fontWeight="bold">Contrato Atualizado</Text>
-                  <Text fontSize="xs" color="gray.400">Há 2 horas • Edifício Horizon</Text>
+                  <Text fontSize="xs" color="gray.400">Há {i * 2} horas • Edifício Horizon</Text>
                 </Box>
               </Flex>
             ))}

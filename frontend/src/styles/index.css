@@ -1,21 +1,21 @@
-/* 1. Reset e Camadas do Tailwind (Essencial para o seu projeto) */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 2. Variáveis Globais e Design Tokens */
 :root {
   --font-main: 'Inter', system-ui, -apple-system, sans-serif;
-  --bg-app: #f8fafc; /* Um cinza bem clarinho para o fundo do sistema */
 }
 
-/* 3. Estilização Base Profissional */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 💡 A SOLUÇÃO: Definimos um fundo base que o Chakra vai sobrescrever */
+html {
+  background-color: #f8fafc; /* Um cinza bem claro para evitar o branco ofuscante */
+  color: #1a202c;
 }
 
 html, body, #root {
@@ -25,31 +25,21 @@ html, body, #root {
 
 body {
   font-family: var(--font-main);
-  background-color: var(--bg-app);
-  color: #1a202c;
+  -webkit-font-smoothing: antialiased;
   line-height: 1.5;
   overflow-x: hidden;
+  /* Garante que o fundo não fique transparente/preto se o Chakra falhar */
+  background-color: inherit; 
 }
 
-/* 4. Customização de Scrollbar (Toque de Sênior) */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 10px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* 5. Ajustes para o Chakra UI não conflitar com Tailwind */
+/* Remove conflitos de tema do Chakra */
 [data-theme] {
   background-color: transparent !important;
 }

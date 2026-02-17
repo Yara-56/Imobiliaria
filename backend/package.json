@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "disposable-email-domains": "^1.0.62",
@@ -28,8 +29,10 @@
     "zod": "^4.1.11"
   },
   "devDependencies": {
+    "@types/compression": "^1.8.1",
     "cross-env": "^10.1.0",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "tsx": "^4.21.0"
   },
   "engines": {
     "node": ">=20.0.0"

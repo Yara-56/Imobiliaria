@@ -1,9 +1,12 @@
-// src/core/providers/AppProvider.tsx
+"use client"
+
 import { ReactNode } from "react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { system } from "@/core/theme";
-import { AuthProvider } from "@/core/context/AuthContext";
+
+// ✅ Caminhos relativos para garantir que o TS encontre os arquivos
+import { system } from "../theme"; 
+import { AuthProvider } from "../context/AuthContext";
 
 const queryClient = new QueryClient();
 

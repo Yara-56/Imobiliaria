@@ -1,111 +1,86 @@
+"use client"
+import { useQuery } from "@tanstack/react-query";
+import api from "@/core/api/api"; // ✅ Agora o alias vai funcionar!
 import { 
-    Box, Flex, Heading, Text, SimpleGrid, Input, Button, Badge, Image, Stack 
-  } from "@chakra-ui/react";
-  import { LuPlus, LuSearch, LuMapPin, LuBed, LuMaximize, LuExternalLink } from "react-icons/lu";
-  
-  export default function PropertiesPage() {
-    // Dados mockados para o visual "uau"
-    const properties = [
-      {
-        id: 1,
-        title: "Edifício Horizon - Ap 402",
-        address: "Av. Beira Mar, 1200 - Centro",
-        price: "R$ 4.500/mês",
-        specs: { beds: 3, size: "120m²" },
-        status: "Disponível",
-        image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=400&auto=format&fit=crop"
-      },
-      {
-        id: 2,
-        title: "Casa Condomínio Solar",
-        address: "Rua das Palmeiras, 45 - Barra",
-        price: "R$ 8.200/mês",
-        specs: { beds: 4, size: "350m²" },
-        status: "Alugado",
-        image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=400&auto=format&fit=crop"
-      }
-    ];
-  
-    return (
-      <Box>
-        <Flex justify="space-between" align="flex-end" mb={8}>
-          <Stack gap={1}>
-            <Heading size="xl" fontWeight="black">Patrimônio Imobiliário</Heading>
-            <Text color="gray.500">Gerencie e visualize sua carteira de imóveis.</Text>
-          </Stack>
-          <Button colorPalette="blue" size="lg" borderRadius="xl" gap={2}>
-            <LuPlus /> Cadastrar Imóvel
-          </Button>
-        </Flex>
-  
-        {/* Barra de Busca Premium */}
-        <Box mb={10} position="relative">
-          <Flex align="center" position="absolute" left={4} h="full" color="gray.400">
-            <LuSearch />
-          </Flex>
-          <Input 
-            placeholder="Buscar por nome, bairro ou código..." 
-            pl="44px"
-            size="lg"
-            bg="white"
-            borderRadius="xl"
-            shadow="sm"
-            border="1px solid"
-            borderColor="gray.200"
-          />
-        </Box>
-  
-        <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={8}>
-          {properties.map((p) => (
-            <Box 
-              key={p.id} 
-              bg="white" 
-              borderRadius="3xl" 
-              overflow="hidden" 
-              shadow="sm" 
-              border="1px solid" 
-              borderColor="gray.100"
-              transition="all 0.3s"
-              _hover={{ shadow: "xl", transform: "translateY(-5px)" }}
-            >
-              <Box position="relative">
-                <Image src={p.image} w="full" h="200px" objectFit="cover" />
-                <Badge 
-                  position="absolute" top={4} right={4} 
-                  colorPalette={p.status === "Disponível" ? "green" : "gray"}
-                  variant="solid" borderRadius="full" px={3}
-                >
-                  {p.status}
-                </Badge>
-              </Box>
-  
-              <Stack p={6} gap={4}>
-                <Stack gap={1}>
-                  <Heading size="md" color="gray.800">{p.title}</Heading>
-                  <Flex align="center" gap={1} color="gray.500" fontSize="xs">
-                    <LuMapPin size={14} /> {p.address}
-                  </Flex>
-                </Stack>
-  
-                <Flex gap={4} py={2} borderY="1px solid" borderColor="gray.50">
-                  <Flex align="center" gap={1} fontSize="sm" color="gray.600">
-                    <LuBed size={16} /> {p.specs.beds} Quartos
-                  </Flex>
-                  <Flex align="center" gap={1} fontSize="sm" color="gray.600">
-                    <LuMaximize size={16} /> {p.specs.size}
-                  </Flex>
-                </Flex>
-  
-                <Flex align="center" justify="space-between">
-                  <Text fontWeight="black" fontSize="lg" color="blue.600">{p.price}</Text>
-                  <Button variant="ghost" size="sm" color="blue.500" gap={1}>
-                    Ver Detalhes <LuExternalLink size={14} />
-                  </Button>
-                </Flex>
-              </Stack>
-            </Box>
-          ))}
-        </SimpleGrid>
+  Box, Flex, Heading, Text, Button, Table, Badge, 
+  HStack, Spinner, Center, VStack, Icon 
+} from "@chakra-ui/react";
+import { LuPlus, LuHouse, LuMapPin, LuChevronRight } from "react-icons/lu";
+
+export default function PropertiesPage() {
+  // Conecta com o seu backend Node na porta 3001
+  const { data: properties, isLoading, error } = useQuery({
+    queryKey: ["properties"],
+    queryFn: async () => {
+      const response = await api.get("/properties");
+      return response.data;
+    }
+  });
+
+  if (isLoading) return <Center h="400px"><Spinner color="blue.500" size="xl" /></Center>;
+  if (error) return <Center h="400px"><Text color="red.500">Erro ao conectar com o servidor.</Text></Center>;
+
+  return (
+    <Box p={8} bg="white" minH="100vh">
+      {/* HEADER LIMPO */}
+      <Flex justify="space-between" align="center" mb={10}>
+        <VStack align="start" gap={1}>
+          <Heading size="2xl" fontWeight="900" letterSpacing="tighter" color="gray.800">
+            Imóveis
+          </Heading>
+          <Text color="gray.500">Gestão de {properties?.length || 0} ativos no MongoDB</Text>
+        </VStack>
+        
+        <Button 
+          bg="blue.600" color="white" h="56px" px={8} borderRadius="16px"
+          _hover={{ bg: "blue.700", transform: "translateY(-2px)" }}
+          shadow="0 10px 20px rgba(49, 130, 206, 0.2)"
+        >
+          <LuPlus /> <Text ml={2} fontWeight="bold">Novo Imóvel</Text>
+        </Button>
+      </Flex>
+
+      {/* TABELA PROFISSIONAL (Adeus fundo preto!) */}
+      <Box borderRadius="24px" border="1px solid" borderColor="gray.100" overflow="hidden" shadow="sm">
+        <Table.Root variant="line">
+          <Table.Header bg="gray.50/50">
+            <Table.Row>
+              <Table.ColumnHeader py={5} px={8} color="gray.400" fontSize="xs" fontWeight="black">PROPRIEDADE</Table.ColumnHeader>
+              <Table.ColumnHeader color="gray.400" fontSize="xs" fontWeight="black">VALOR</Table.ColumnHeader>
+              <Table.ColumnHeader color="gray.400" fontSize="xs" fontWeight="black">STATUS</Table.ColumnHeader>
+              <Table.ColumnHeader></Table.ColumnHeader>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {properties?.map((p: any) => (
+              <Table.Row key={p.id} _hover={{ bg: "blue.50/10" }} transition="0.2s">
+                <Table.Cell px={8} py={6}>
+                  <HStack gap={4}>
+                    <Center w="44px" h="44px" bg="blue.50" color="blue.600" borderRadius="12px">
+                      <LuHouse size={20} />
+                    </Center>
+                    <Box>
+                      <Text fontWeight="bold" color="gray.800">{p.name}</Text>
+                      <HStack gap={1} color="gray.400" fontSize="xs">
+                        <LuMapPin size={12} /> <Text>{p.address}</Text>
+                      </HStack>
+                    </Box>
+                  </HStack>
+                </Table.Cell>
+                <Table.Cell fontWeight="bold">R$ {p.price}</Table.Cell>
+                <Table.Cell>
+                  <Badge colorPalette={p.status === 'active' ? 'green' : 'blue'} variant="subtle" borderRadius="md">
+                    {p.status}
+                  </Badge>
+                </Table.Cell>
+                <Table.Cell textAlign="right" px={8}>
+                  <Icon as={LuChevronRight} color="gray.300" />
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table.Root>
       </Box>
-    );
-  }
+    </Box>
+  );
+}
