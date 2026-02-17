@@ -1,40 +1,44 @@
 import { Router } from "express";
-// Importamos tudo para usar o prefixo propertyController
-import * as propertyController from "./property.controller"; 
-import { verifyToken } from "../auth/auth.middleware"; 
-import { validate } from "../../shared/middlewares/validate.middleware"; 
+// ✅ Importação com .js para compatibilidade com ESM no Node 20
+import * as propertyController from "./property.controller.js"; 
+import { protect } from "../../shared/middlewares/auth.middleware.js"; 
+import { validate } from "../../shared/middlewares/validate.middleware.js"; 
 import { 
   createPropertySchema, 
   updatePropertySchema, 
   getPropertySchema 
-} from "./property.schema";
+} from "./property.schema.js";
 
 const router = Router();
 
-// 🛡️ Segurança: Protege todas as rotas de propriedades
-router.use(verifyToken);
+/**
+ * 🛡️ Camada de Proteção
+ * O middleware 'protect' garante que o tenantId e o userId estejam disponíveis
+ * para isolar os imóveis da imobiliária da sua avó.
+ */
+router.use(protect);
 
 router
   .route("/")
-  .get(propertyController.getAllProperties) // ✅ MUDOU AQUI: O nome deve ser igual ao exportado
+  .get(propertyController.getAllProperties) 
   .post(
     validate(createPropertySchema), 
-    propertyController.createProperty // ✅ MUDOU AQUI
+    propertyController.createProperty 
   );
 
 router
   .route("/:id")
   .get(
     validate(getPropertySchema), 
-    propertyController.getPropertyById // ✅ MUDOU AQUI
+    propertyController.getPropertyById 
   )
   .patch( 
     validate(updatePropertySchema), 
-    propertyController.updateProperty // ✅ MUDOU AQUI
+    propertyController.updateProperty 
   )
   .delete(
     validate(getPropertySchema), 
-    propertyController.deleteProperty // ✅ MUDOU AQUI
+    propertyController.deleteProperty 
   );
 
 export default router;

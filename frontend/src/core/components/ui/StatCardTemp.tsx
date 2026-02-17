@@ -7,18 +7,20 @@ interface StatCardProps {
   title: string;
   count: string | number;
   icon: ReactElement;
-  // ✅ Adicionado "red" para suportar inadimplência/atrasos
-  color: "blue" | "green" | "purple" | "orange" | "red";
+  // ✅ Adicionado "gray" para resolver o erro ts(2322) e "red" para atrasos
+  color: "blue" | "green" | "purple" | "orange" | "red" | "gray";
 }
 
 export const StatCard = ({ title, count, icon, color }: StatCardProps) => {
-  // Mapeamento de cores atualizado para o modo escuro e novos tons
+  // Mapeamento de cores expandido para suportar o estado "Total" (gray)
   const colorSchemes = {
     blue: { bg: "blue.50", text: "blue.600", darkBg: "blue.900/20", darkText: "blue.400" },
     green: { bg: "green.50", text: "green.600", darkBg: "green.900/20", darkText: "green.400" },
     purple: { bg: "purple.50", text: "purple.600", darkBg: "purple.900/20", darkText: "purple.400" },
     orange: { bg: "orange.50", text: "orange.600", darkBg: "orange.900/20", darkText: "orange.400" },
     red: { bg: "red.50", text: "red.600", darkBg: "red.900/20", darkText: "red.400" },
+    // ✅ Novo esquema cinza para o card de "Total"
+    gray: { bg: "gray.50", text: "gray.600", darkBg: "gray.800/40", darkText: "gray.400" },
   };
 
   const theme = colorSchemes[color];

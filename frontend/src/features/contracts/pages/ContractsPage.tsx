@@ -1,41 +1,43 @@
-"use client"
+"use client";
 
 import { useEffect, useState, useMemo } from "react";
 import { 
-  Box, Flex, Heading, Text, Stack, Table, Badge, Button, Spinner, Center, SimpleGrid, Input, Group
+  Box, Flex, Heading, Text, Stack, Table, Badge, Button, Spinner, Center, SimpleGrid, Input, Group, EmptyState, VStack
 } from "@chakra-ui/react";
 import { 
-  LuFileText, LuPlus, LuRefreshCcw, LuClock, LuCircleCheck, LuTriangleAlert, LuSearch, LuExternalLink
+  LuFileText, LuPlus, LuRefreshCcw, LuClock, LuCircleCheck, LuTriangleAlert, LuSearch, LuExternalLink, LuInbox, LuReceipt
 } from "react-icons/lu"; 
 import api from "../../../core/api/api";
 import { StatCard } from "../../../core/components/ui/StatCardTemp";
 
+// ✅ Interface Sincronizada com o MongoDB
 interface Contract {
-  id: string;
-  tenantName: string;
-  propertyTitle: string;
+  _id: string; 
+  landlordName: string;
+  landlordCPF: string;
+  propertyAddress: string;
+  rentAmount: number;
   startDate: string;
-  endDate: string;
-  rentValue: number;
   status: "Ativo" | "Encerrado" | "Renovação" | "Atrasado";
+  receiptUrl?: string; 
 }
 
 export default function ContractsPage() {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+
+  const currencyFormatter = Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+  const dateFormatter = Intl.DateTimeFormat('pt-BR');
 
   const fetchContracts = async () => {
     try {
       setLoading(true);
-      setError(false);
-      const response = await api.get("/contracts");
-      // ✅ Corrigido: Agora usa setContracts e não setProperties
-      setContracts(response.data);
+      // ✅ Conecta com o seu backend na porta 3001
+      const { data } = await api.get("/contracts");
+      setContracts(data);
     } catch (err) {
-      console.error("Erro ao carregar contratos:", err);
-      setError(true);
+      console.error("Erro na API:", err);
     } finally {
       setLoading(false);
     }
@@ -45,107 +47,106 @@ export default function ContractsPage() {
 
   const filteredContracts = useMemo(() => {
     return contracts.filter(c => 
-      c.tenantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.propertyTitle.toLowerCase().includes(searchTerm.toLowerCase())
+      c.landlordName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.propertyAddress.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [contracts, searchTerm]);
 
   if (loading) return (
     <Center h="60vh">
-      <Spinner size="xl" color="blue.500" borderWidth="4px" />
+      <VStack gap={4}>
+        <Spinner size="xl" color="blue.500" borderWidth="4px" />
+        <Text color="gray.500">Sincronizando com o banco de dados...</Text>
+      </VStack>
     </Center>
   );
 
   return (
     <Box pb={10}>
-      <Flex justify="space-between" align={{ base: "start", md: "center" }} mb={10} wrap="wrap" gap={6}>
+      <Flex justify="space-between" align="center" mb={10} wrap="wrap" gap={6}>
         <Stack gap={1}>
-          <Heading size="xl" fontWeight="900" letterSpacing="tight" color="gray.800" _dark={{ color: "white" }}>
-            Gestão de Contratos
-          </Heading>
-          <Text color="gray.500">Documentação e vigências jurídicas.</Text>
+          <Heading size="xl" fontWeight="900">Gestão de Contratos</Heading>
+          <Text color="gray.500">Administração de vigências e comprovantes.</Text>
         </Stack>
         <Flex gap={3}>
-          <Button variant="outline" onClick={fetchContracts} borderRadius="xl" borderColor="gray.200" _dark={{ borderColor: "gray.800" }}>
+          <Button variant="outline" onClick={fetchContracts} borderRadius="xl">
             <LuRefreshCcw />
           </Button>
-          <Button colorPalette="blue" size="lg" borderRadius="2xl" gap={2} px={8} shadow="md">
+          <Button colorPalette="blue" size="lg" borderRadius="2xl" px={8} gap={2}>
             <LuPlus size={20} /> Novo Contrato
           </Button>
         </Flex>
       </Flex>
 
-      {/* Grid de Estatísticas ✅ Corrigido: 'red' agora é válido */}
       <SimpleGrid columns={{ base: 1, md: 3 }} gap={6} mb={10}>
         <StatCard title="Vigentes" count={contracts.filter(c => c.status === "Ativo").length} color="green" icon={<LuCircleCheck size={26} />} />
-        <StatCard title="Em Renovação" count={contracts.filter(c => c.status === "Renovação").length} color="blue" icon={<LuClock size={26} />} />
-        <StatCard title="Atrasados" count={contracts.filter(c => c.status === "Atrasado").length} color="red" icon={<LuTriangleAlert size={26} />} />
+        <StatCard title="Pendências" count={contracts.filter(c => c.status === "Atrasado").length} color="red" icon={<LuTriangleAlert size={26} />} />
+        <StatCard title="Total" count={contracts.length} color="gray" icon={<LuFileText size={26} />} />
       </SimpleGrid>
 
-      {/* Busca */}
       <Box mb={8}>
-        <Group w="full" maxW="xl">
-          <Center pl={4} color="gray.400">
-            <LuSearch size={22} />
-          </Center>
-          <Input 
-            placeholder="Buscar por inquilino ou imóvel..." 
-            size="lg" h="56px" borderRadius="2xl" bg="white" border="1px solid" borderColor="gray.100"
-            _focus={{ borderColor: "blue.500", shadow: "md" }}
-            _dark={{ bg: "gray.900", borderColor: "gray.800" }}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </Group>
+        <Input 
+          placeholder="Buscar proprietário ou endereço..." 
+          size="lg" h="60px" borderRadius="2xl" bg="white"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </Box>
 
-      {/* Tabela Principal */}
-      <Box bg="white" borderRadius="3xl" shadow="sm" border="1px solid" borderColor="gray.100" overflow="hidden" _dark={{ bg: "gray.900", borderColor: "gray.800" }}>
-        <Table.Root variant="line" size="lg">
-          <Table.Header bg="gray.50/50" _dark={{ bg: "whiteAlpha.50" }}>
-            <Table.Row borderColor="gray.100" _dark={{ borderColor: "gray.800" }}>
-              <Table.ColumnHeader color="gray.500" py={6}>Inquilino & Imóvel</Table.ColumnHeader>
-              <Table.ColumnHeader color="gray.500">Vencimento</Table.ColumnHeader>
-              <Table.ColumnHeader color="gray.500">Valor</Table.ColumnHeader>
-              <Table.ColumnHeader color="gray.500">Status</Table.ColumnHeader>
-              <Table.ColumnHeader textAlign="right" color="gray.500">Ações</Table.ColumnHeader>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {filteredContracts.map((c) => (
-              <Table.Row key={c.id} _hover={{ bg: "gray.50/50" }} _dark={{ _hover: { bg: "whiteAlpha.50" } }} transition="0.3s">
-                <Table.Cell py={6}>
-                  <Flex align="center" gap={4}>
-                    <Center w="12" h="12" bg="blue.50" color="blue.600" borderRadius="2xl" _dark={{ bg: "blue.900/20", color: "blue.400" }}>
-                      <LuFileText size={22} />
-                    </Center>
-                    <Stack gap={0}>
-                      <Text fontWeight="bold">{c.tenantName}</Text>
-                      <Text fontSize="xs" color="gray.500">{c.propertyTitle}</Text>
-                    </Stack>
-                  </Flex>
-                </Table.Cell>
-                <Table.Cell>
-                  <Text fontWeight="semibold">{c.endDate}</Text>
-                  <Text fontSize="xs" color="gray.500">Início: {c.startDate}</Text>
-                </Table.Cell>
-                <Table.Cell fontWeight="900" fontSize="lg">
-                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(c.rentValue)}
-                </Table.Cell>
-                <Table.Cell>
-                  <Badge colorPalette={c.status === "Ativo" ? "green" : c.status === "Atrasado" ? "red" : "blue"} variant="surface" borderRadius="full" px={4}>
-                    {c.status}
-                  </Badge>
-                </Table.Cell>
-                <Table.Cell textAlign="right">
-                  <Button variant="ghost" colorPalette="blue" size="sm" borderRadius="lg" gap={2}>
-                    Detalhes <LuExternalLink size={16} />
-                  </Button>
-                </Table.Cell>
+      <Box bg="white" borderRadius="3xl" shadow="sm" border="1px solid" borderColor="gray.100" overflow="hidden">
+        {filteredContracts.length > 0 ? (
+          <Table.Root variant="line" size="lg">
+            <Table.Header bg="gray.50/50">
+              <Table.Row>
+                <Table.ColumnHeader py={6}>Inquilino / Imóvel</Table.ColumnHeader>
+                <Table.ColumnHeader>Status</Table.ColumnHeader>
+                <Table.ColumnHeader>Valor</Table.ColumnHeader>
+                <Table.ColumnHeader textAlign="right">Ações</Table.ColumnHeader>
               </Table.Row>
-            ))}
-          </Table.Body>
-        </Table.Root>
+            </Table.Header>
+            <Table.Body>
+              {filteredContracts.map((c) => (
+                <Table.Row key={c._id}>
+                  <Table.Cell py={5}>
+                    <Flex align="center" gap={4}>
+                      <Center w="10" h="10" bg="blue.50" color="blue.600" borderRadius="xl">
+                        <LuFileText size={20} />
+                      </Center>
+                      <Stack gap={0}>
+                        <Text fontWeight="bold">{c.landlordName}</Text>
+                        <Text fontSize="xs" color="gray.500">{c.propertyAddress}</Text>
+                      </Stack>
+                    </Flex>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Badge colorPalette={c.status === "Ativo" ? "green" : "red"} variant="surface">
+                      {c.status}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell fontWeight="bold">
+                    {currencyFormatter.format(c.rentAmount)}
+                  </Table.Cell>
+                  <Table.Cell textAlign="right">
+                    <Flex justify="flex-end" gap={2}>
+                      {/* ✅ CORREÇÃO ts(2322): Trocado isDisabled por disabled */}
+                      <Button variant="subtle" size="sm" borderRadius="xl" gap={2} disabled={!c.receiptUrl}>
+                        <LuReceipt size={16} /> PDF
+                      </Button>
+                      <Button variant="ghost" size="sm" borderRadius="xl">
+                        <LuExternalLink size={16} />
+                      </Button>
+                    </Flex>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Root>
+        ) : (
+          <EmptyState.Root py={20}>
+             <EmptyState.Indicator><LuInbox size={40} /></EmptyState.Indicator>
+             <Text>Nenhum contrato encontrado.</Text>
+          </EmptyState.Root>
+        )}
       </Box>
     </Box>
   );
