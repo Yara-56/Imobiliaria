@@ -1,44 +1,27 @@
 import { Router } from "express";
-// ✅ Importação com .js para compatibilidade com ESM no Node 20
-import * as propertyController from "./property.controller.js"; 
-import { protect } from "../../shared/middlewares/auth.middleware.js"; 
-import { validate } from "../../shared/middlewares/validate.middleware.js"; 
-import { 
-  createPropertySchema, 
-  updatePropertySchema, 
-  getPropertySchema 
-} from "./property.schema.js";
+import * as propertyController from "./property.controller";
+/** * CORREÇÃO DE ROTA: 
+ * O arquivo está em: backend/src/shared/middlewares/auth.middleware.ts
+ * Como este arquivo de rotas está em: backend/src/modules/properties/
+ * Precisamos subir dois níveis (../../) para chegar em src/ e entrar em shared.
+ */
+import { protect } from "../../shared/middlewares/auth.middleware";
 
 const router = Router();
 
-/**
- * 🛡️ Camada de Proteção
- * O middleware 'protect' garante que o tenantId e o userId estejam disponíveis
- * para isolar os imóveis da imobiliária da sua avó.
- */
+// Todas as rotas de imóveis exigem login (imobisys_token)
+// O middleware 'protect' garante a segurança que seu estágio exige.
 router.use(protect);
 
 router
   .route("/")
-  .get(propertyController.getAllProperties) 
-  .post(
-    validate(createPropertySchema), 
-    propertyController.createProperty 
-  );
+  .get(propertyController.getAllProperties) // Lista todos os imóveis do dono logado
+  .post(propertyController.createProperty); // Cria um novo imóvel com o Schema completo
 
 router
   .route("/:id")
-  .get(
-    validate(getPropertySchema), 
-    propertyController.getPropertyById 
-  )
-  .patch( 
-    validate(updatePropertySchema), 
-    propertyController.updateProperty 
-  )
-  .delete(
-    validate(getPropertySchema), 
-    propertyController.deleteProperty 
-  );
+  .get(propertyController.getPropertyById)  // Busca um imóvel específico
+  .patch(propertyController.updateProperty)  // Atualiza (útil para mudar status: Alugado/Vendido)
+  .delete(propertyController.deleteProperty); // Remove o imóvel
 
 export default router;

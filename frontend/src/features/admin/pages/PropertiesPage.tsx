@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { 
   Box, Flex, Heading, Text, Button, Table, Badge, 
@@ -6,11 +6,12 @@ import {
 } from "@chakra-ui/react";
 import { 
   LuPlus, LuSearch, LuHouse, LuMapPin, LuFilter, 
-  LuChevronRight, LuCircleAlert, LuDollarSign, LuInfo 
+  LuChevronRight, LuCircleAlert 
 } from "react-icons/lu";
 import { useState, useEffect, useMemo } from "react";
+import api from "@/core/api/api"; // ✅ Usando seu interceptor de autenticação
 
-// ✅ Componentes de UI (Certifique-se de ter rodado o npx @chakra-ui/cli snippet add drawer)
+// ✅ Componentes de UI do Chakra v3
 import {
   DrawerBackdrop, DrawerBody, DrawerCloseTrigger, DrawerContent,
   DrawerFooter, DrawerHeader, DrawerRoot, DrawerTitle,
@@ -22,31 +23,39 @@ export default function PropertiesPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    // Simulação rápida de API
-    setTimeout(() => {
-      setProperties([
-        { id: 1, name: "Residencial Jardins", address: "Rua das Palmeiras, 450", type: "Apartamento", status: "Disponível", value: "R$ 4.200" },
-        { id: 2, name: "Corporate Tower", address: "Av. Paulista, 1000", type: "Comercial", status: "Alugado", value: "R$ 12.500" },
-      ]);
+  const fetchProperties = async () => {
+    try {
+      setLoading(true);
+      // ✅ Chamada real para o seu backend na porta 3001
+      const { data } = await api.get("/properties");
+      setProperties(data);
+    } catch (err) {
+      console.error("Erro ao buscar imóveis:", err);
+    } finally {
       setLoading(false);
-    }, 600);
+    }
+  };
+
+  useEffect(() => {
+    fetchProperties();
   }, []);
 
   const filteredData = useMemo(() => {
-    return properties.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    return properties.filter(p => 
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      p.address.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   }, [searchTerm, properties]);
 
   return (
     <Box p={{ base: 4, md: 8 }} bg="gray.50/50" minH="100vh">
-      {/* HEADER: Mais espaçado e com hierarquia */}
-      <Flex justify="space-between" align="center" mb={10}>
+      <Flex justify="space-between" align="center" mb={10} wrap="wrap" gap={4}>
         <VStack align="start" gap={1}>
           <Heading size="2xl" fontWeight="800" letterSpacing="tight" color="gray.900">
             Imóveis
           </Heading>
           <Text color="gray.500" fontSize="md">
-            Gerencie e controle seu patrimônio imobiliário.
+            Gerencie o patrimônio imobiliário da imobiliária.
           </Text>
         </VStack>
         
@@ -60,31 +69,29 @@ export default function PropertiesPage() {
         </Button>
       </Flex>
 
-      {/* SEARCH BAR: Estilo "Floating" */}
       <HStack gap={4} mb={8}>
         <Flex flex={1} position="relative" align="center">
           <Box position="absolute" left={4} color="gray.400"><LuSearch size={18} /></Box>
           <Input 
             placeholder="Buscar por título ou endereço..." 
             pl="48px" h="52px" borderRadius="14px" bg="white" shadow="sm" border="1px solid" borderColor="gray.100"
-            _focus={{ borderColor: "blue.500", shadow: "none" }}
+            _focus={{ borderColor: "blue.500", outline: "none" }}
             value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
           />
         </Flex>
         <Button variant="outline" h="52px" w="52px" borderRadius="14px" bg="white"><LuFilter /></Button>
       </HStack>
 
-      {/* CONTEÚDO: Tabela com visual Clean/SaaS */}
       {loading ? (
         <Center h="200px"><Spinner color="blue.500" /></Center>
       ) : filteredData.length === 0 ? (
         <Center h="300px" flexDir="column" bg="white" borderRadius="24px" border="1px dashed" borderColor="gray.200">
           <Icon as={LuCircleAlert} boxSize={10} color="gray.300" mb={4} />
-          <Text fontWeight="bold" color="gray.600">Nenhum imóvel encontrado</Text>
+          <Text fontWeight="bold" color="gray.600">Nenhum imóvel encontrado no banco.</Text>
         </Center>
       ) : (
-        <Box bg="white" borderRadius="24px" shadow="sm" border="1px solid" borderColor="gray.100" overflow="hidden">
-          <Table.Root size="lg">
+        <Box bg="white" borderRadius="24px" shadow="sm" border="1px solid" borderColor="gray.100" overflowX="auto">
+          <Table.Root size="lg" variant="line">
             <Table.Header bg="gray.50/50">
               <Table.Row>
                 <Table.ColumnHeader py={5} px={8} color="gray.400" fontSize="xs" fontWeight="bold">PROPRIEDADE</Table.ColumnHeader>
@@ -95,7 +102,7 @@ export default function PropertiesPage() {
             </Table.Header>
             <Table.Body>
               {filteredData.map((p) => (
-                <Table.Row key={p.id} _hover={{ bg: "blue.50/30" }} transition="0.2s">
+                <Table.Row key={p._id || p.id} _hover={{ bg: "blue.50/30" }}>
                   <Table.Cell px={8} py={6}>
                     <HStack gap={4}>
                       <Center w="44px" h="44px" bg="blue.50" color="blue.600" borderRadius="12px">
@@ -103,18 +110,22 @@ export default function PropertiesPage() {
                       </Center>
                       <Box>
                         <Text fontWeight="bold" color="gray.800">{p.name}</Text>
-                        <Text fontSize="xs" color="gray.400">{p.address}</Text>
+                        <HStack gap={1} color="gray.400">
+                          {/* ✅ LuMapPin sendo usado aqui para resolver o ts(6133) */}
+                          <LuMapPin size={12} />
+                          <Text fontSize="xs">{p.address}</Text>
+                        </HStack>
                       </Box>
                     </HStack>
                   </Table.Cell>
                   <Table.Cell fontWeight="bold" color="gray.700">{p.value}</Table.Cell>
                   <Table.Cell>
-                    <Badge colorPalette={p.status === "Disponível" ? "green" : "blue"} variant="subtle" borderRadius="lg" px={3}>
+                    <Badge colorPalette={p.status === "Disponível" ? "green" : "blue"} variant="subtle" px={3}>
                       {p.status}
                     </Badge>
                   </Table.Cell>
                   <Table.Cell textAlign="right" px={8}>
-                    <Button variant="ghost" size="sm" borderRadius="full"><LuChevronRight color="gray.300" /></Button>
+                    <Button variant="ghost" size="sm"><LuChevronRight color="gray.300" /></Button>
                   </Table.Cell>
                 </Table.Row>
               ))}

@@ -1,40 +1,42 @@
-import mongoose, { Schema, Document, Types } from "mongoose";
-import { multiTenantPlugin } from "../../shared/plugins/multiTenant.plugin.js";
+import { Schema, model, Document } from "mongoose";
 
-// Interface que define a estrutura do documento no TS
 export interface IProperty extends Document {
   title: string;
+  description: string;
+  type: "Casa" | "Apartamento" | "Terreno" | "Comercial";
+  status: "Disponível" | "Alugado" | "Vendido";
   price: number;
-  address: string;
-  tenantId: Types.ObjectId; // Adicionado para compatibilidade com o plugin
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+  };
+  owner: Schema.Types.ObjectId;
   createdAt: Date;
-  updatedAt: Date;
 }
 
-const propertySchema = new Schema<IProperty>(
-  {
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    price: {
-      type: Number,
-      required: true,
-    },
-    address: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+const propertySchema = new Schema<IProperty>({
+  title: { type: String, required: [true, "O título é obrigatório"], trim: true },
+  description: { type: String, required: [true, "A descrição é obrigatória"] },
+  type: { 
+    type: String, 
+    enum: ["Casa", "Apartamento", "Terreno", "Comercial"], 
+    default: "Casa" 
   },
-  { timestamps: true }
-);
+  status: { 
+    type: String, 
+    enum: ["Disponível", "Alugado", "Vendido"], 
+    default: "Disponível" 
+  },
+  price: { type: Number, required: [true, "O valor é obrigatório"] },
+  address: {
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    zipCode: { type: String, required: true },
+  },
+  owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
+}, { timestamps: true });
 
-// Aplicação do plugin de multi-tenancy
-propertySchema.plugin(multiTenantPlugin);
-
-// Índice essencial para performance SaaS: otimiza buscas por dono e data
-propertySchema.index({ tenantId: 1, createdAt: -1 });
-
-export default mongoose.model<IProperty>("Property", propertySchema);
+export default model<IProperty>("Property", propertySchema);

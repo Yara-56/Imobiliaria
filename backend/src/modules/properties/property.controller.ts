@@ -2,32 +2,21 @@ import { Request, Response, NextFunction } from "express";
 import Property from "./property.model";
 import { AppError } from "../../shared/errors/AppError";
 
-// --- 1. LÓGICA DE NEGÓCIO (Internal Services) ---
-
-const internalCreate = async (data: any, ownerId: string) => {
-  return await Property.create({ ...data, owner: ownerId });
-};
-
-const internalGetAll = async (ownerId: string, query: any) => {
-  const page = parseInt(query.page as string) || 1;
-  const limit = parseInt(query.limit as string) || 10;
-  const skip = (page - 1) * limit;
-
-  const [properties, total] = await Promise.all([
-    Property.find({ owner: ownerId }).skip(skip).limit(limit).sort("-createdAt"),
-    Property.countDocuments({ owner: ownerId })
-  ]);
-
-  return { properties, total, pages: Math.ceil(total / limit) };
-};
-
-// --- 2. CONTROLLERS (Exports que o Router precisa) ---
-
 export const createProperty = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const ownerId = (req as any).user._id; 
-    const property = await internalCreate(req.body, ownerId);
-    res.status(201).json({ status: "success", data: property });
+    const ownerId = req.user?.id; 
+    if (!ownerId) throw new AppError("Usuário não autenticado", 401);
+
+    // Criando o imóvel com a estrutura completa (incluindo address)
+    const property = await Property.create({ 
+      ...req.body, 
+      owner: ownerId 
+    });
+
+    res.status(201).json({ 
+      status: "success", 
+      data: property 
+    });
   } catch (error) {
     next(error);
   }
@@ -35,45 +24,68 @@ export const createProperty = async (req: Request, res: Response, next: NextFunc
 
 export const getAllProperties = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const ownerId = (req as any).user._id;
-    const result = await internalGetAll(ownerId, req.query);
-    res.status(200).json({ status: "success", ...result });
+    const ownerId = req.user?.id;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const [properties, total] = await Promise.all([
+      Property.find({ owner: ownerId }).skip(skip).limit(limit).sort("-createdAt"),
+      Property.countDocuments({ owner: ownerId })
+    ]);
+
+    res.status(200).json({ 
+      status: "success", 
+      results: properties.length,
+      total, 
+      pages: Math.ceil(total / limit),
+      data: properties 
+    });
   } catch (error) {
     next(error);
   }
 };
 
-// ✅ Adicionando a função que faltava para resolver o erro ts(2339)
 export const getPropertyById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const property = await Property.findOne({ _id: req.params.id, owner: (req as any).user._id });
+    const property = await Property.findOne({ 
+      _id: req.params.id, 
+      owner: req.user?.id 
+    });
+
     if (!property) throw new AppError("Imóvel não encontrado", 404);
+
     res.status(200).json({ status: "success", data: property });
   } catch (error) {
     next(error);
   }
 };
 
-// ✅ Adicionando Update
 export const updateProperty = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const property = await Property.findOneAndUpdate(
-      { _id: req.params.id, owner: (req as any).user._id },
+      { _id: req.params.id, owner: req.user?.id },
       req.body,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true } // runValidators garante que o enum (Casa/Apto) seja respeitado
     );
-    if (!property) throw new AppError("Imóvel não encontrado ou sem permissão", 404);
+
+    if (!property) throw new AppError("Imóvel não encontrado", 404);
+
     res.status(200).json({ status: "success", data: property });
   } catch (error) {
     next(error);
   }
 };
 
-// ✅ Adicionando Delete
 export const deleteProperty = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const property = await Property.findOneAndDelete({ _id: req.params.id, owner: (req as any).user._id });
+    const property = await Property.findOneAndDelete({ 
+      _id: req.params.id, 
+      owner: req.user?.id 
+    });
+
     if (!property) throw new AppError("Imóvel não encontrado", 404);
+
     res.status(204).json({ status: "success", data: null });
   } catch (error) {
     next(error);
