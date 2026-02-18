@@ -1,103 +1,91 @@
-# 🏠 Sistema de Gestão para Imobiliária
+ 🏢 ImobiSys Pro
 
-Bem-vindo ao projeto do Sistema de Gestão da Imobiliária! Este documento contém tudo que você precisa para configurar e rodar o projeto na sua máquina.
+> **Sistema de Gestão Imobiliária de Alta Performance (SaaS Multi-tenant)**
 
-## ✅ Pré-requisitos
-
-Antes de começar, garanta que você tenha os seguintes programas instalados:
-
-* [Node.js](https://nodejs.org/) (versão 18 ou superior)
-* [Yarn](https://yarnpkg.com/getting-started/install) (gerenciador de pacotes que estamos usando)
-* [MongoDB](https://www.mongodb.com/try/download/community) (instalado localmente ou uma conta no MongoDB Atlas)
-* [Git](https://git-scm.com/)
+O **ImobiSys Pro** é uma plataforma robusta desenvolvida para imobiliárias que buscam escala, segurança e agilidade no provisionamento de instâncias. O sistema utiliza uma arquitetura moderna de isolamento de dados, permitindo que cada cliente (imobiliária) tenha seu ambiente configurado em milissegundos.
 
 ---
 
-## 🚀 Como Rodar o Projeto (Modo Fácil)
+## 🚀 Tecnologias Core
 
-Com a estrutura de Workspaces, o processo ficou muito mais simples.
+O projeto é construído sobre o que há de mais moderno no ecossistema de desenvolvimento:
 
-### 1. Clone o Repositório
-Abra seu terminal, navegue até a pasta onde guarda seus projetos e rode o comando:
-```bash
-git clone [https://github.com/SEU-USUARIO/imobiliaria.git](https://github.com/SEU-USUARIO/imobiliaria.git)
-cd imobiliaria
-```
-
-### 2. Instale TODAS as Dependências
-Com o Yarn Workspaces, você só precisa rodar um comando na pasta raiz do projeto. Ele instalará tudo para o back-end e para o front-end de uma vez só.
-```bash
-yarn install
-```
-
-### 3. Configure as Variáveis de Ambiente
-Você precisará criar dois arquivos `.env`, um para o back-end e outro para o front-end.
-
-**A) Para o Back-end:**
-Crie um arquivo chamado `.env` **dentro da pasta `backend`** com o seguinte conteúdo:
-```env
-# URL de conexão com o MongoDB
-MONGO_URI=mongodb://localhost:27017/imobiliaria
-
-# Chave secreta para gerar os tokens de autenticação
-JWT_SECRET=coloque-uma-frase-secreta-bem-longa-aqui
-
-# Porta onde o servidor back-end vai rodar
-PORT=5050
-```
-
-**B) Para o Front-end:**
-Crie um arquivo chamado `.env` **dentro da pasta `frontend`** com o seguinte conteúdo:
-```env
-# Endereço da API que o front-end vai consumir
-VITE_API_URL=http://localhost:5050
-```
-
-### 4. Inicie o Projeto Inteiro!
-Graças ao `concurrently`, você pode iniciar o back-end e o front-end com um único comando a partir da **pasta raiz `imobiliaria`**:
-```bash
-yarn dev
-```
-Isso iniciará os dois servidores ao mesmo tempo, no mesmo terminal. O back-end estará rodando em `http://localhost:5050` e o front-end em `http://localhost:5173`.
+* **Frontend:** React 19 com TypeScript.
+* **UI Framework:** Chakra UI v3 (Aura System) — Foco em acessibilidade e design "Clean Enterprise".
+* **Animações:** Framer Motion para transições fluidas de interface.
+* **Roteamento:** React Router Dom v7 com layouts protegidos.
+* **Gerenciamento de Estado:** Hooks customizados e Context API para autenticação.
+* **Ícones:** Lucide React (via `react-icons/lu`).
 
 ---
 
-## 🔁 Fluxo de Trabalho com Git (Workflow)
+## 🏗️ Arquitetura e Estrutura
 
-Para evitarmos conflitos e trabalharmos de forma organizada, vamos seguir um fluxo simples com branches.
+O sistema foi desenhado seguindo princípios de **Clean Architecture** e **Feature-based design**:
 
-### ☀️ Para Começar uma Nova Tarefa:
-1.  Garanta que sua branch `main` está atualizada:
-    ```bash
-    git switch main
-    git pull origin main
-    ```
-2.  Crie uma nova branch para a sua tarefa:
-    ```bash
-    git switch -c seu-nome/descricao-da-tarefa
-    ```
-    *Exemplo: `git switch -c yara/tela-de-login`*
+### 1. Provisionamento Multi-tenant
 
-### 🌙 Ao Terminar seu Trabalho na Tarefa:
-1.  Adicione e salve suas alterações:
-    ```bash
-    git add .
-    git commit -m "O que você fez (ex: feat: cria formulário de login)"
-    ```
-2.  Envie sua branch para o GitHub:
-    ```bash
-    git push origin seu-nome/descricao-da-tarefa
-    ```
-3.  **Abra um Pull Request (PR) no GitHub:** Vá até a página do repositório no GitHub, e você verá um aviso para criar um "Pull Request". Crie o PR para que os outros possam revisar seu código antes de uni-lo à branch `main`.
+Cada imobiliária cadastrada gera um `slug` único. O sistema garante o isolamento lógico:
+
+* **Separação de Dados:** Cada locatário visualiza apenas suas propriedades, contratos e leads.
+* **Modo Enterprise:** Suporte a provisionamento automatizado via infraestrutura AWS.
+
+### 2. Sistema de Layouts (Shell)
+
+Diferente de sistemas comuns, o ImobiSys utiliza múltiplos "shells" de interface:
+
+* **AdminLayout:** O painel principal com sidebar persistente e topbar com efeito *glassmorphism*.
+* **PublicLayout:** Páginas de login e marketing focadas em conversão.
+
+### 3. Toolkit de Componentes Customizados
+
+Devido à evolução para o **Chakra UI v3**, criamos wrappers de estabilidade:
+
+* **`Stack.tsx`**: Centraliza os componentes `VStack` e `HStack` para evitar erros de tipagem e garantir consistência visual.
 
 ---
 
-## 👨‍💻 Tecnologias Utilizadas
+## 🛠️ Como Executar o Projeto
 
-* **Front-end:** React, Vite, Tailwind CSS
-* **Back-end:** Node.js, Express
-* **Banco de Dados:** MongoDB com Mongoose
-* **Autenticação:** JWT (JSON Web Tokens)
-* **Gerenciamento do Projeto:** Yarn Workspaces, Concurrently
+1. **Clonar o repositório:**
+```bash
+git clone https://github.com/seu-usuario/imobisys-pro.git
 
-Feito com 💙 para o projeto da Imobiliária.
+```
+
+
+2. **Instalar dependências:**
+```bash
+npm install
+
+```
+
+
+3. **Configurar Variáveis de Ambiente:**
+Crie um arquivo `.env` na raiz seguindo o modelo `.env.example`.
+4. **Rodar em modo Desenvolvimento:**
+```bash
+npm run dev
+
+```
+
+---
+
+## 📈 Roadmap de Funcionalidades
+
+* [x] CRUD Completo de Locatários (Tenants).
+* [x] Dashboard de métricas financeiras.
+* [x] Sistema de Autenticação com bypass de desenvolvimento.
+* [ ] Módulo de gestão de contratos com assinatura digital.
+* [ ] Integração com gateways de pagamento (Boletos/Pix).
+* [ ] Gerador de relatórios PDF para proprietários.
+
+---
+
+## 🔐 Segurança
+
+O sistema implementa **Protected Routes** que verificam o estado de autenticação antes de renderizar qualquer componente sensível, garantindo que usuários não autorizados nunca acessem o "Core" administrativo.
+
+---
+
+**Desenvolvido por Yara — 2026**
