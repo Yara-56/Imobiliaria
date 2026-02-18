@@ -2,7 +2,7 @@ import { type Request, type Response, type NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { env } from "@config/env.js"; // ✅ Alias e extensão .js
 import { AppError } from "@shared/errors/AppError.js"; // ✅ Alias profissional
-import User from "../models/user.model.js"; // ✅ Ajustado para .js
+import User from "../modules/user.model.js"; // ✅ Ajustado para .js
 
 /**
  * 📝 REGISTER: Cria um novo usuário vinculado ao TenantId
@@ -98,10 +98,10 @@ export const getMe = async (
     if (!req.user) {
       return next(new AppError("Não autenticado.", 401));
     }
-    
-    res.status(200).json({ 
-      status: "success", 
-      data: { user: req.user } 
+
+    res.status(200).json({
+      status: "success",
+      data: { user: req.user },
     });
   } catch (error) {
     next(error);

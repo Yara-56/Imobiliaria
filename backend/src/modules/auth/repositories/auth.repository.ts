@@ -1,7 +1,7 @@
 import User, {
   type IUser,
   type UserDocument,
-} from "../../users/models/user.model.js";
+} from "../../users/modules/user.model.js";
 
 /**
  * 📦 Auth Repository
