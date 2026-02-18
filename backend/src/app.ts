@@ -57,10 +57,7 @@ const corsOptions: cors.CorsOptions = {
     }
 
     // Em produção, use variável de ambiente
-    if (
-      env.nodeEnv === "production" &&
-      origin === env.frontendUrl
-    ) {
+    if (env.nodeEnv === "production" && origin === env.frontendUrl) {
       return callback(null, true);
     }
 

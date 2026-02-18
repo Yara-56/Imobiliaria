@@ -1,16 +1,17 @@
 import { Request, Response, NextFunction } from "express";
 import { z, ZodError, type ZodSchema } from "zod";
-import { AppError } from "../errors/AppError";
+import { AppError } from "../errors/AppError.js";
 
-export const validate = (schema: ZodSchema) => 
+export const validate =
+  (schema: ZodSchema) =>
   async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
       // Validação assíncrona e higienização de dados
-      const validated = await schema.parseAsync({
+      const validated = (await schema.parseAsync({
         body: req.body,
         query: req.query,
         params: req.params,
-      }) as { body: any; query: any; params: any };
+      })) as { body: any; query: any; params: any };
 
       // Substituição pelos dados validados (proteção contra campos extras)
       req.body = validated.body;
@@ -22,7 +23,9 @@ export const validate = (schema: ZodSchema) =>
       if (error instanceof ZodError) {
         const message = error.issues
           .map((issue) => {
-            const field = String(issue.path.length > 1 ? issue.path[1] : issue.path[0]);
+            const field = String(
+              issue.path.length > 1 ? issue.path[1] : issue.path[0]
+            );
             return `${field}: ${issue.message}`;
           })
           .join(" | ");

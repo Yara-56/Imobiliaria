@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
-import Property from "../properties/property.model.js";
-import Contract from "../contracts/contract.model.js";
-import Payment from "../payments/payment.model.js";
+import Property from "../properties/models/property.model.js";
+import Contract from "../contracts/models/contract.model.js";
+import Payment from "../payments/models/payment.model.js";
 import { AppError } from "../../shared/errors/AppError.js";
 
 export const getStats = async (

@@ -1,10 +1,6 @@
 import api from "@/core/api/api";
-import type { Tenant, CreateTenantDTO, UpdateTenantDTO } from "../types/tenant";
+import type { Tenant, CreateTenantDTO, UpdateTenantDTO } from "../types/tenant.js"; // ✅ .js para NodeNext
 
-/**
- * Interface padrão de resposta do Backend Aura
- * Garante que o TypeScript entenda a estrutura { status, data, results }
- */
 interface ApiResponse<T> {
   status: string;
   data: T;
@@ -13,54 +9,97 @@ interface ApiResponse<T> {
 }
 
 /**
- * O MELHOR TENANTS API (PADRÃO PROFISSIONAL)
+ * Helper interno para converter DTO em FormData
+ * 🛡️ Garante a integridade do upload para a nuvem.
+ */
+function buildFormData(payload: any) {
+  // Se já for FormData (enviado pelo TenantForm), retornamos direto
+  if (payload instanceof FormData) return payload;
+
+  const formData = new FormData();
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+
+    if (key === "documentFile" && value instanceof File) {
+      // ✅ Alinhado com o campo 'documents' que o backend espera
+      formData.append("documents", value);
+    } else {
+      formData.append(key, String(value));
+    }
+  });
+
+  return formData;
+}
+
+/**
+ * TENANT API – PADRÃO PRODUÇÃO v3
  */
 export const tenantApi = {
   /**
-   * Lista todos os inquilinos
-   * @returns Lista de Tenant[] já extraída do envelope data
+   * LISTAR TODOS
    */
   list: async (): Promise<Tenant[]> => {
-    const { data } = await api.get<ApiResponse<Tenant[]>>("/tenants");
-    return data.data;
+    const { data } = await api.get<ApiResponse<{ tenants: Tenant[] }>>("/tenants");
+    return data.data.tenants; // ✅ Ajustado para o mapeamento do seu controller
   },
 
   /**
-   * Busca um inquilino específico por ID ou Slug
+   * BUSCAR POR ID (Nome corrigido para resolver ts(2339))
    */
-  get: async (idOrSlug: string): Promise<Tenant> => {
-    const { data } = await api.get<ApiResponse<Tenant>>(`/tenants/${idOrSlug}`);
-    return data.data;
+  getById: async (id: string): Promise<Tenant> => {
+    const { data } = await api.get<ApiResponse<{ tenant: Tenant }>>(`/tenants/${id}`);
+    return data.data.tenant;
   },
 
   /**
-   * Cria um novo inquilino (Instância)
+   * CRIAR (com suporte a upload)
    */
-  create: async (payload: CreateTenantDTO): Promise<Tenant> => {
-    const { data } = await api.post<ApiResponse<Tenant>>("/tenants", payload);
-    return data.data;
+  create: async (payload: CreateTenantDTO | FormData): Promise<Tenant> => {
+    const formData = buildFormData(payload);
+
+    const { data } = await api.post<ApiResponse<{ tenant: Tenant }>>(
+      "/tenants",
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+
+    return data.data.tenant;
   },
 
   /**
-   * Atualiza dados de um inquilino existente
+   * ATUALIZAR (PATCH com upload opcional)
    */
-  update: async (id: string, payload: UpdateTenantDTO): Promise<Tenant> => {
-    const { data } = await api.patch<ApiResponse<Tenant>>(`/tenants/${id}`, payload);
-    return data.data;
+  update: async (id: string, payload: UpdateTenantDTO | FormData): Promise<Tenant> => {
+    const formData = buildFormData(payload);
+
+    const { data } = await api.patch<ApiResponse<{ tenant: Tenant }>>(
+      `/tenants/${id}`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+
+    return data.data.tenant;
   },
 
   /**
-   * Remove um inquilino do sistema
+   * DELETAR
    */
   delete: async (id: string): Promise<void> => {
     await api.delete(`/tenants/${id}`);
   },
 
   /**
-   * Verificação de saúde/status da instância (Exclusivo Aura v3)
+   * STATUS / HEALTH CHECK
    */
-  checkStatus: async (id: string): Promise<'online' | 'offline'> => {
-    const { data } = await api.get<ApiResponse<{ status: 'online' | 'offline' }>>(`/tenants/${id}/health`);
+  checkStatus: async (id: string): Promise<"online" | "offline"> => {
+    const { data } = await api.get<
+      ApiResponse<{ status: "online" | "offline" }>
+    >(`/tenants/${id}/health`);
+
     return data.data.status;
-  }
+  },
 };

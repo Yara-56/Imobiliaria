@@ -1,17 +1,39 @@
 {
   "compilerOptions": {
+    /* 🎯 Engine & Resolução */
     "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    
+    /* 📂 Estrutura de Diretórios */
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "noEmit": false,
+
+    /* 🚀 Path Mapping (Moderno e Sem baseUrl) */
+    /* O uso de './' dentro dos arrays resolve o erro de caminhos não relativos */
+    "paths": {
+      "@/*": ["./src/*"],
+      "@modules/*": ["./src/modules/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@config/*": ["./src/config/*"]
+    },
+
+    /* 🛡️ Rigor Técnico (Nível Cybersecurity) */
     "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "isolatedModules": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "forceConsistentCasingInFileNames": true,
     
-    /* ✅ ADICIONE ESTAS DUAS LINHAS */
-    "allowImportingTsExtensions": true,
-    "noEmit": true
+    /* ⚙️ Compatibilidade e Performance */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "resolveJsonModule": true
   },
-  "include": ["src"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts"]
 }

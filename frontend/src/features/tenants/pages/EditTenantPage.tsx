@@ -7,28 +7,31 @@ import {
 } from "@chakra-ui/react";
 import { LuArrowLeft, LuShieldCheck, LuCircleAlert } from "react-icons/lu";
 
-// ✅ Importação unificada conforme sua nova estrutura
 import { useTenants } from "../hooks/useTenants";
 import TenantForm from "../components/TenantForm";
-import { UpdateTenantDTO } from "../types/tenant";
 
 export default function EditTenantPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  // ✅ Usando o hook unificado: gerencia Busca, Update e Loading em um só lugar
+  // ✅ Hook unificado que gerencia o estado do cluster
   const { tenant, isLoading, isError, updateTenant, isUpdating } = useTenants(id);
 
-  // 1. SUBMIT HANDLER - Tipado e seguro
-  const handleUpdate = (formData: UpdateTenantDTO) => {
+  /**
+   * 1. SUBMIT HANDLER - Corrigido para FormData
+   * ✅ O tipo agora coincide com o TenantFormProps.onSubmit
+   */
+  const handleUpdate = (formData: FormData) => {
     if (!id) return;
+    
+    // 🛡️ Segurança: Enviamos o FormData diretamente para o Hook tratar o multipart/form-data
     updateTenant(
       { id, data: formData }, 
       { onSuccess: () => navigate("/admin/tenants") }
     );
   };
 
-  // 2. LOADING STATE - Chakra v3 optimized
+  // 2. LOADING STATE
   if (isLoading) return (
     <Center h="100vh" bg="#F8FAFC">
       <VStack gap={6}>
@@ -40,7 +43,7 @@ export default function EditTenantPage() {
     </Center>
   );
 
-  // 3. ERROR STATE - UI Resiliente
+  // 3. ERROR STATE
   if (isError || !tenant) return (
     <Center h="100vh" bg="#F8FAFC">
       <Container maxW="md">
@@ -52,7 +55,7 @@ export default function EditTenantPage() {
             <Heading size="md" fontWeight="800">Node não identificado</Heading>
             <Text color="gray.500" fontSize="sm">A instância solicitada não existe ou o cluster está inacessível.</Text>
           </VStack>
-          <Button w="full" colorPalette="blue" size="lg" borderRadius="xl" onClick={() => navigate("/admin/tenants")}>
+          <Button w="full" bg="blue.600" color="white" size="lg" borderRadius="xl" onClick={() => navigate("/admin/tenants")}>
             Voltar ao Dashboard
           </Button>
         </VStack>
@@ -69,7 +72,7 @@ export default function EditTenantPage() {
           <Stack gap={1}>
             <Flex align="center" gap={2} color="blue.600">
               <LuShieldCheck size={18} />
-              <Badge variant="surface" colorPalette="blue" fontSize="10px" borderRadius="md" px={2}>
+              <Badge variant="subtle" colorPalette="blue" fontSize="10px" borderRadius="md" px={2}>
                 CONFIGURAÇÃO MASTER
               </Badge>
             </Flex>
@@ -77,7 +80,7 @@ export default function EditTenantPage() {
               Ajustar Locatário
             </Heading>
             <Text color="gray.500" fontSize="sm">
-              ID de Isolamento: <Text as="span" fontWeight="bold" color="slate.700">{tenant.tenantId}</Text>
+              ID de Isolamento: <Text as="span" fontWeight="bold" color="slate.700">{id}</Text>
             </Text>
           </Stack>
           

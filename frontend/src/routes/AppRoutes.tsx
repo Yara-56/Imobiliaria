@@ -6,7 +6,6 @@ import { Center, Spinner, Text, VStack } from "@chakra-ui/react";
 import { useAuth } from "@/context/AuthContext";
 
 // --- LAYOUTS ---
-// Certifique-se de que o AdminLayout não use "Center" ou "height=100vh" no conteúdo
 import { AdminLayout } from "../features/admin/layouts/AdminLayout";
 
 // --- AUTH & MARKETING ---
@@ -25,19 +24,19 @@ import NewTenantPage from "../features/tenants/pages/NewTenantPage";
 import EditTenantPage from "../features/tenants/pages/EditTenantPage";
 
 /**
- * 🛡️ ProtectedRoute: Garante acesso apenas a usuários autenticados.
- * Inclui o bypass de dev que você já estava usando.
+ * 🛡️ ProtectedRoute: Implementação de Segurança (Cybersecurity).
+ * Garante que apenas usuários autenticados acessem o cluster administrativo.
  */
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated, login, loading } = useAuth();
 
   useEffect(() => {
-    // Bypass de Desenvolvimento para agilizar o MVP
+    // 🛠️ DEV BYPASS: Agiliza o desenvolvimento no seu MacBook
     if (!isAuthenticated && !loading) {
       const devAdmin: any = {
         id: "dev-01",
         name: "Yara Admin",
-        email: "admin@imobisys.com",
+        email: "admin@auraimobi.com",
         role: "admin"
       };
       login(devAdmin, "dev-token-session");
@@ -50,7 +49,7 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
         <VStack gap={4}>
           <Spinner size="xl" color="blue.500" borderWidth="4px" />
           <Text color="gray.400" fontSize="xs" fontWeight="black" letterSpacing="widest">
-            SINCRONIZANDO IMOBISYS CORE...
+            SINCRONIZANDO AURA CORE...
           </Text>
         </VStack>
       </Center>
@@ -60,8 +59,10 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   return <>{children}</>;
 };
 
+
+
 /**
- * 🚀 AppRoutes: Configuração completa das rotas.
+ * 🚀 AppRoutes: Arquitetura Global de Navegação.
  */
 export default function AppRoutes() {
   return (
@@ -70,7 +71,7 @@ export default function AppRoutes() {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
 
-      {/* 🔐 ÁREA ADMINISTRATIVA (PROTEGIDA) */}
+      {/* 🔐 ÁREA ADMINISTRATIVA PROTEGIDA */}
       <Route 
         path="/admin" 
         element={
@@ -79,7 +80,7 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        {/* Redirecionamento Padrão: /admin vai direto para /admin/dashboard */}
+        {/* Redirecionamento Automático: /admin -> /admin/dashboard */}
         <Route index element={<Navigate to="dashboard" replace />} />
         
         {/* 📊 DASHBOARD & ANALYTICS */}
@@ -87,7 +88,7 @@ export default function AppRoutes() {
 
         {/* 🏢 MÓDULO DE LOCATÁRIOS (TENANTS) */}
         <Route path="tenants">
-          {/* Lista Geral: /admin/tenants */}
+          {/* Listagem: /admin/tenants */}
           <Route index element={<TenantsPage />} />
           
           {/* Cadastro: /admin/tenants/new */}
@@ -100,17 +101,16 @@ export default function AppRoutes() {
         {/* 🏠 MÓDULO DE IMÓVEIS (PROPERTIES) */}
         <Route path="properties">
           <Route index element={<PropertiesPage />} />
-          {/* Futuras rotas de imoveis entram aqui */}
         </Route>
 
         {/* 📄 CONTRATOS */}
         <Route path="contracts" element={<ContractsPage />} />
 
-        {/* 💰 FINANCEIRO */}
+        {/* 💰 FINANCEIRO E PAGAMENTOS */}
         <Route path="payments" element={<PaymentPage />} />
       </Route>
 
-      {/* 🛡️ CATCH-ALL: Qualquer erro de URL manda para o admin logado */}
+      {/* 🛡️ CATCH-ALL: Proteção contra 404 redirecionando para o Dashboard */}
       <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
     </Routes>
   );

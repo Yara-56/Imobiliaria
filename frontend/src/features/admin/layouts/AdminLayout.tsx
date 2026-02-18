@@ -6,11 +6,12 @@ import {
   LuLayoutDashboard, LuHouse, LuPenLine, LuUsers, LuWallet, LuLogOut 
 } from "react-icons/lu";
 
+// ✅ Traduzi para "Inquilinos" para alinhar com o negócio imobiliário
 const menuItems = [
   { name: "Dashboard", icon: LuLayoutDashboard, path: "/admin/dashboard" },
   { name: "Imóveis", icon: LuHouse, path: "/admin/properties" },
   { name: "Contratos", icon: LuPenLine, path: "/admin/contracts" },
-  { name: "Clientes", icon: LuUsers, path: "/admin/tenants" },
+  { name: "Inquilinos", icon: LuUsers, path: "/admin/tenants" }, // Mudado de Clientes para Inquilinos
   { name: "Financeiro", icon: LuWallet, path: "/admin/payments" },
 ];
 
@@ -18,7 +19,6 @@ export const AdminLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // ✅ Melhorei a lógica para encontrar a página atual mesmo em sub-rotas
   const currentPage = menuItems.find(i => 
     location.pathname.startsWith(i.path)
   )?.name || "Painel";
@@ -39,8 +39,6 @@ export const AdminLayout = () => {
           
           <Stack gap={1} flex={1}>
             {menuItems.map((item) => {
-              // ✅ LOGICA CORRIGIDA: Se a URL começa com o path do item, ele continua ativo
-              // Isso evita que o menu "apague" quando você entra em /new ou /edit
               const isActive = location.pathname.startsWith(item.path);
               
               return (
@@ -72,11 +70,10 @@ export const AdminLayout = () => {
         </Stack>
       </Box>
 
-      {/* CONTEÚDO */}
+      {/* CONTEÚDO PRINCIPAL */}
       <Box flex={1} display="flex" flexDirection="column" overflow="hidden">
         <Flex h="70px" bg="white" align="center" px={10} justify="space-between" borderBottom="1px solid" borderColor="gray.100">
           <Heading size="sm" color="slate.700" fontWeight="800">
-             {/* ✅ Agora mostra "Clientes" mesmo dentro de /tenants/new */}
             {currentPage}
           </Heading>
           
@@ -89,8 +86,8 @@ export const AdminLayout = () => {
           </Flex>
         </Flex>
 
-        {/* ✅ O Outlet renderiza as sub-rotas aqui dentro */}
         <Box flex={1} overflowY="auto" p={{ base: 6, md: 10 }}>
+          {/* ✅ Container agora está devidamente importado e configurado */}
           <Container maxW="7xl" p={0}>
             <Outlet />
           </Container>

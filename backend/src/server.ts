@@ -24,10 +24,7 @@ const startServer = async (): Promise<void> => {
 
     // 🛡️ Captura promessas rejeitadas não tratadas
     process.on("unhandledRejection", (reason: unknown) => {
-      const err =
-        reason instanceof Error
-          ? reason
-          : new Error(String(reason));
+      const err = reason instanceof Error ? reason : new Error(String(reason));
 
       logger.error({ err }, "💥 UNHANDLED REJECTION!");
 
@@ -37,12 +34,8 @@ const startServer = async (): Promise<void> => {
         process.exit(1);
       }
     });
-
   } catch (error: unknown) {
-    const err =
-      error instanceof Error
-        ? error
-        : new Error(String(error));
+    const err = error instanceof Error ? error : new Error(String(error));
 
     logger.fatal({ err }, "❌ Falha crítica no bootstrap");
     process.exit(1);

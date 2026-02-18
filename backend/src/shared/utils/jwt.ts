@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { env } from "../../config/env";
+import { env } from "../../config/env.js";
 
 type AccessTokenPayload = {
   id: string;
@@ -23,11 +23,6 @@ export const signRefreshToken = (payload: RefreshTokenPayload): string => {
   });
 };
 
-export const verifyRefreshToken = (
-  token: string
-): RefreshTokenPayload => {
-  return jwt.verify(
-    token,
-    env.jwtRefreshSecret
-  ) as RefreshTokenPayload;
+export const verifyRefreshToken = (token: string): RefreshTokenPayload => {
+  return jwt.verify(token, env.jwtRefreshSecret) as RefreshTokenPayload;
 };

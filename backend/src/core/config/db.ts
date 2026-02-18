@@ -22,18 +22,17 @@ const connectDB = async (): Promise<void> => {
     const conn = await mongoose.connect(env.mongoUri, connectionOptions);
 
     logger.info(`🍃 MongoDB Conectado: ${conn.connection.host}`);
-    
+
     // Identifica se estamos rodando na nuvem ou local
     if (env.nodeEnv === "development") {
       logger.info(`📊 Banco de Dados ativo: ${conn.connection.name}`);
     }
-
   } catch (error) {
     logger.error("❌ Erro fatal ao conectar no MongoDB:");
     if (error instanceof Error) {
       logger.error(`Mensagem: ${error.message}`);
     }
-    
+
     // Em produção, nunca deixe o servidor rodando sem banco de dados
     process.exit(1);
   }
@@ -47,7 +46,9 @@ const connectDB = async (): Promise<void> => {
   });
 
   mongoose.connection.on("disconnected", () => {
-    logger.warn("⚠️ Conexão com MongoDB perdida. O Mongoose tentará reconectar automaticamente.");
+    logger.warn(
+      "⚠️ Conexão com MongoDB perdida. O Mongoose tentará reconectar automaticamente."
+    );
   });
 
   mongoose.connection.on("reconnected", () => {

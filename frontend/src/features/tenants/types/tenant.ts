@@ -10,21 +10,36 @@ export interface TenantSettings {
   };
 }
 
+/**
+ * 🏢 Interface Master de Inquilinos
+ * Alinhada com os campos do seu TenantForm e o Schema do MongoDB.
+ */
 export interface Tenant {
-  _id: string;          // ID gerado pelo MongoDB
-  tenantId: string;     // ID de negócio usado pelo seu backend para isolamento
-  name: string;
-  slug: string;
+  _id: string;          
+  tenantId: string;     // ID de isolamento sistêmico
+  fullName: string;     // ✅ Alinhado com o Input name="fullName"
   email: string;
-  phone?: string;       // Opcional conforme seu formulário
-  cpfCnpj?: string;     // Opcional conforme seu formulário
+  phone?: string;
+  document: string;     // ✅ CPF/CNPJ (Alinhado com o formulário)
   status: TenantStatus;
   plan: TenantPlan;
+  
+  // Dados Financeiros (Vindos do seu formulário)
+  rentValue?: string;   
+  billingDay?: number;
+  paymentMethod?: "pix" | "boleto" | "cartao";
+  
   settings: TenantSettings;
   createdAt: string;
   updatedAt?: string;
 }
 
-// DTOs (Data Transfer Objects) para conversação com a API
-export type CreateTenantDTO = Omit<Tenant, "_id" | "tenantId" | "createdAt" | "updatedAt">;
+/** * 📝 DTOs para Comunicação API 
+ * No NodeNext, use export type para garantir que o compilador do seu MacBook 
+ * otimize a árvore de dependências (Tree Shaking).
+ */
+export type CreateTenantDTO = Omit<Tenant, "_id" | "tenantId" | "createdAt" | "updatedAt" | "settings"> & {
+  settings?: Partial<TenantSettings>; // Torna opcional na criação
+};
+
 export type UpdateTenantDTO = Partial<CreateTenantDTO>;

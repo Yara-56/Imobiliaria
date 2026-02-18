@@ -5,17 +5,19 @@ import "dotenv/config";
 
 // ✅ CORREÇÃO ts(2834): Adicionando a extensão .ts obrigatória para NodeNext
 // ✅ CORREÇÃO ts(2305): Usando importação nomeada com { } para dar match com o seu export
-import { apiRouter } from "./shared/routes/index.ts"; 
+import { apiRouter } from "./shared/routes/index.js";
 
 const app = express();
 
 /**
  * 🌐 MIDDLEWARES
  */
-app.use(cors({ 
-  origin: "http://localhost:5173", // URL do seu Vite
-  credentials: true 
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173", // URL do seu Vite
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 /**
@@ -29,7 +31,8 @@ app.use("/api/v1", apiRouter);
  */
 const PORT = process.env.PORT || 3001;
 
-mongoose.connect(process.env.MONGO_URI!)
+mongoose
+  .connect(process.env.MONGO_URI!)
   .then(() => {
     console.log("🔥 Conectado ao MongoDB - AuraImobi");
     app.listen(PORT, () => {

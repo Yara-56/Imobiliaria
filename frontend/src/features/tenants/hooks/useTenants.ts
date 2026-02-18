@@ -1,9 +1,18 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { tenantApi } from "../api/tenant.api";
+import { tenantApi } from "../api/tenant.api.js"; // ✅ Extensão .js para NodeNext
 import { toaster } from "@/components/ui/toaster";
-import type { Tenant, CreateTenantDTO, UpdateTenantDTO } from "../types/tenant";
+import type { Tenant, CreateTenantDTO, UpdateTenantDTO } from "../types/tenant.js";
+
+/**
+ * 🛡️ Interface de Parâmetros para Mutação
+ * Resolve o erro ts(2559) ao permitir que 'data' seja FormData ou DTO.
+ */
+interface UpdateMutationParams {
+  id: string;
+  data: UpdateTenantDTO | FormData; 
+}
 
 export const useTenants = (id?: string) => {
   const queryClient = useQueryClient();
@@ -18,22 +27,22 @@ export const useTenants = (id?: string) => {
 
   const singleQuery = useQuery<Tenant, Error>({
     queryKey: [...KEY, id],
-    queryFn: () => tenantApi.get(id!),
+    queryFn: () => tenantApi.getById(id!), // ✅ Nome corrigido para getById
     enabled: !!id,
   });
 
   // --- MUTATIONS (AÇÕES NO BANCO) ---
 
-  const createTenant = useMutation<Tenant, Error, CreateTenantDTO>({
-    mutationFn: tenantApi.create,
+  const createTenant = useMutation<Tenant, Error, CreateTenantDTO | FormData>({
+    mutationFn: (data) => tenantApi.create(data),
     onSuccess: (newTenant) => {
       queryClient.setQueryData<Tenant[]>(KEY, (old) => old ? [...old, newTenant] : [newTenant]);
       toaster.create({ title: "Node Provisionado", type: "success" });
     },
   });
 
-  const updateTenant = useMutation<Tenant, Error, { id: string; data: UpdateTenantDTO }>({
-    mutationFn: ({ id, data }) => tenantApi.update(id, data),
+  const updateTenant = useMutation<Tenant, Error, UpdateMutationParams>({
+    mutationFn: ({ id, data }) => tenantApi.update(id, data), // ✅ Agora aceita FormData
     onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: KEY });
       queryClient.setQueryData([...KEY, updated._id], updated);
