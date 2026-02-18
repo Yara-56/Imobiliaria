@@ -1,3 +1,5 @@
+import { PaymentMethodType } from "../../payments/types/mix.payment.type.js";
+
 export type TenantPlan = "BASIC" | "PRO" | "ENTERPRISE";
 export type TenantStatus = "ACTIVE" | "SUSPENDED" | "INACTIVE";
 
@@ -11,35 +13,44 @@ export interface TenantSettings {
 }
 
 /**
- * 🏢 Interface Master de Inquilinos
- * Alinhada com os campos do seu TenantForm e o Schema do MongoDB.
+ * 🏢 Interface Master de Inquilinos - Aura ImobiSys
+ * Alinhada com o MongoDB e a Inteligência de Negócio Brasileira.
  */
 export interface Tenant {
   _id: string;          
   tenantId: string;     // ID de isolamento sistêmico
-  fullName: string;     // ✅ Alinhado com o Input name="fullName"
+  fullName: string;     
   email: string;
   phone?: string;
-  document: string;     // ✅ CPF/CNPJ (Alinhado com o formulário)
+  document: string;     // CPF/CNPJ
   status: TenantStatus;
   plan: TenantPlan;
   
-  // Dados Financeiros (Vindos do seu formulário)
+  // --- Dados Financeiros & Inteligência de Contrato ---
   rentValue?: string;   
   billingDay?: number;
-  paymentMethod?: "pix" | "boleto" | "cartao";
   
+  /** * 🧠 Método Preferencial (Contratual)
+   * Define o padrão acordado na Lei do Inquilinato.
+   */
+  preferredPaymentMethod: PaymentMethodType; 
+
+  /**
+   * 🔄 Sincronização Automática
+   * Se true, mudanças no Financeiro atualizam este contrato.
+   */
+  autoUpdateContract: boolean;
+
   settings: TenantSettings;
   createdAt: string;
   updatedAt?: string;
 }
 
 /** * 📝 DTOs para Comunicação API 
- * No NodeNext, use export type para garantir que o compilador do seu MacBook 
- * otimize a árvore de dependências (Tree Shaking).
+ * Otimizados para Tree Shaking no seu MacBook.
  */
 export type CreateTenantDTO = Omit<Tenant, "_id" | "tenantId" | "createdAt" | "updatedAt" | "settings"> & {
-  settings?: Partial<TenantSettings>; // Torna opcional na criação
+  settings?: Partial<TenantSettings>;
 };
 
 export type UpdateTenantDTO = Partial<CreateTenantDTO>;
