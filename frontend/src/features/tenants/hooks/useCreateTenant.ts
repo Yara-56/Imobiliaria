@@ -1,53 +1,38 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTenant } from "../services/tenantService";
-import { Tenant } from "../types/tenant";
+import { tenantApi } from "../api/tenant.api";
+import { UpdateTenantDTO, Tenant } from "../types/tenant"; 
 import { toaster } from "@/components/ui/toaster";
 
-/**
- * Hook especializado para a criação de novos inquilinos (Tenants).
- * Separa a lógica de mutação da listagem geral para maior performance e clareza.
- */
-export const useCreateTenant = () => {
+export const useUpdateTenant = () => {
   const queryClient = useQueryClient();
 
-  const mutation = useMutation({
-    mutationFn: (data: Partial<Tenant>) => createTenant(data),
-    
-    // Antes de executar a função (opcional: pode ser usado para logs ou analytics)
-    onMutate: async (newTenant) => {
-      console.log("Iniciando provisionamento para:", newTenant.name);
+  return useMutation<Tenant, Error, { id: string; data: UpdateTenantDTO }>({
+    mutationFn: async ({ id, data }) => {
+      return tenantApi.update(id, data);
     },
 
-    onSuccess: (data) => {
-      // 1. Invalida o cache da lista para garantir que o novo apareça
+    onSuccess: (updatedTenant) => {
+      // ✅ Invalida a lista para atualizar tabelas
       queryClient.invalidateQueries({ queryKey: ["tenants"] });
+      
+      // ✅ Atualiza o cache individual usando o _id que você definiu na interface
+      queryClient.setQueryData(["tenants", updatedTenant._id], updatedTenant);
 
-      // 2. Feedback visual profissional
       toaster.create({
-        title: "Provisionamento Concluído",
-        description: `A instância para ${data.name} foi criada com sucesso na porta 3001.`,
+        title: "Sincronização Concluída",
+        description: `As configurações de ${updatedTenant.name} foram aplicadas com sucesso.`,
         type: "success",
       });
     },
 
-    onError: (error: any) => {
-      // Tratamento de erro detalhado vindo do backend
-      const errorMessage = error.response?.data?.message || "Erro ao conectar com o servidor.";
-      
+    onError: (error) => {
       toaster.create({
-        title: "Falha no Cadastro",
-        description: errorMessage,
+        title: "Falha na Atualização",
+        description: error.message || "Erro ao conectar com o cluster.",
         type: "error",
       });
     },
   });
-
-  return {
-    createTenant: mutation.mutate,
-    createTenantAsync: mutation.mutateAsync, // Útil para fluxos onde você precisa do await no componente
-    isPending: mutation.isPending,
-    isSuccess: mutation.isSuccess,
-    isError: mutation.isError,
-    error: mutation.error,
-  };
 };

@@ -1,119 +1,78 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "@/core/api/api";
-import { Tenant } from "../types/tenant";
+import { tenantApi } from "../api/tenant.api";
 import { toaster } from "@/components/ui/toaster";
+import type { Tenant, CreateTenantDTO, UpdateTenantDTO } from "../types/tenant";
 
-export const useTenants = (tenantId?: string) => {
+export const useTenants = (id?: string) => {
   const queryClient = useQueryClient();
+  const KEY = ["tenants"] as const;
 
-  // --- 1. BUSCA DE TODOS OS INQUILINOS ---
-  const tenantsQuery = useQuery<Tenant[], Error>({
-    queryKey: ["tenants"],
-    queryFn: async () => {
-      const { data } = await api.get("/tenants");
-      // Mapeia tanto data.data (padrão API) quanto data (fallback)
-      return data.data || data;
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutos de cache "fresco"
+  // --- QUERIES (BUSCA) ---
+  const listQuery = useQuery<Tenant[], Error>({
+    queryKey: KEY,
+    queryFn: tenantApi.list,
+    staleTime: 1000 * 60 * 5, // 5 min de cache "quente"
   });
 
-  // --- 2. BUSCA DE UM INQUILINO ESPECÍFICO (Para Edição/Detalhes) ---
-  const singleTenantQuery = useQuery<Tenant, Error>({
-    queryKey: ["tenants", tenantId],
-    queryFn: async () => {
-      const { data } = await api.get(`/tenants/${tenantId}`);
-      return data.data || data;
-    },
-    enabled: !!tenantId, // Só dispara se houver ID
+  const singleQuery = useQuery<Tenant, Error>({
+    queryKey: [...KEY, id],
+    queryFn: () => tenantApi.get(id!),
+    enabled: !!id,
   });
 
-  // --- 3. MUTACÃO: ADICIONAR ---
-  const addTenantMutation = useMutation({
-    mutationFn: async (newTenant: Partial<Tenant>) => {
-      const { data } = await api.post("/tenants", newTenant);
-      return data;
+  // --- MUTATIONS (AÇÕES NO BANCO) ---
+
+  const createTenant = useMutation<Tenant, Error, CreateTenantDTO>({
+    mutationFn: tenantApi.create,
+    onSuccess: (newTenant) => {
+      queryClient.setQueryData<Tenant[]>(KEY, (old) => old ? [...old, newTenant] : [newTenant]);
+      toaster.create({ title: "Node Provisionado", type: "success" });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tenants"] });
-      toaster.create({ 
-        title: "Sucesso!", 
-        description: "Nova imobiliária provisionada no ecossistema.", 
-        type: "success" 
-      });
-    },
-    onError: (error: any) => {
-      toaster.create({ 
-        title: "Erro ao cadastrar", 
-        description: error.response?.data?.message || "Erro na rede.", 
-        type: "error" 
-      });
-    }
   });
 
-  // --- 4. MUTACÃO: ATUALIZAR ---
-  const updateTenantMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<Tenant> }) => {
-      const response = await api.put(`/tenants/${id}`, data);
-      return response.data;
+  const updateTenant = useMutation<Tenant, Error, { id: string; data: UpdateTenantDTO }>({
+    mutationFn: ({ id, data }) => tenantApi.update(id, data),
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: KEY });
+      queryClient.setQueryData([...KEY, updated._id], updated);
+      toaster.create({ title: "Cluster Sincronizado", type: "success" });
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["tenants"] });
-      queryClient.invalidateQueries({ queryKey: ["tenants", variables.id] });
-      toaster.create({ title: "Dados atualizados!", type: "success" });
-    },
-    onError: (error: any) => {
-      toaster.create({ 
-        title: "Falha na atualização", 
-        description: error.response?.data?.message, 
-        type: "error" 
-      });
-    }
   });
 
-  // --- 5. MUTACÃO: REMOVER ---
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await api.delete(`/tenants/${id}`);
+  const removeTenant = useMutation<void, Error, string>({
+    mutationFn: tenantApi.delete,
+    onSuccess: (_, deletedId) => {
+      // ✅ OPTIMISTIC UI: Remove da lista instantaneamente no cache
+      queryClient.setQueryData<Tenant[]>(KEY, (old) => 
+        old?.filter((t) => t._id !== deletedId)
+      );
+      toaster.create({ title: "Instância Removida", type: "info" });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tenants"] });
-      toaster.create({ title: "Instância removida", type: "success" });
-    },
-    onError: (error: any) => {
-      toaster.create({ 
-        title: "Erro ao remover", 
-        description: error.response?.data?.message || "Não foi possível excluir.", 
-        type: "error" 
-      });
+    onError: (error) => {
+      toaster.create({ title: "Falha na Remoção", description: error.message, type: "error" });
     }
   });
 
   return {
     // Dados
-    tenants: tenantsQuery.data ?? [],
-    tenant: singleTenantQuery.data,
+    tenants: listQuery.data ?? [],
+    tenant: singleQuery.data,
     
-    // Estados de Queries (Resolvendo o erro ts(2339) da sua página)
-    isLoading: tenantsQuery.isLoading || singleTenantQuery.isLoading,
-    isFetching: tenantsQuery.isFetching, // ✅ Agora disponível para o seu botão de refresh
-    isError: tenantsQuery.isError,
-    refetch: tenantsQuery.refetch,
+    // Estados Globais
+    isLoading: listQuery.isLoading || (!!id && singleQuery.isLoading),
+    isError: listQuery.isError || singleQuery.isError,
+    isFetching: listQuery.isFetching,
 
-    // Ações de Adição
-    addTenant: addTenantMutation.mutate,
-    addTenantAsync: addTenantMutation.mutateAsync,
-    isAdding: addTenantMutation.isPending,
+    // Funções de Ação (Acessíveis na Page)
+    createTenant: createTenant.mutateAsync,
+    updateTenant: updateTenant.mutateAsync,
+    removeTenant: removeTenant.mutateAsync,
 
-    // Ações de Edição
-    updateTenant: updateTenantMutation.mutate,
-    updateTenantAsync: updateTenantMutation.mutateAsync,
-    isUpdating: updateTenantMutation.isPending,
-
-    // Ações de Deleção
-    deleteTenant: deleteMutation.mutate,
-    deleteTenantAsync: deleteMutation.mutateAsync,
-    isDeleting: deleteMutation.isPending
+    // Status das Ações
+    isCreating: createTenant.isPending,
+    isUpdating: updateTenant.isPending,
+    isRemoving: removeTenant.isPending,
   };
 };

@@ -1,29 +1,38 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "@/core/api/api";
-import { Tenant } from "../types/tenant";
+import { tenantApi } from "../api/tenant.api";
+import { UpdateTenantDTO, Tenant } from "../types/tenant"; 
 import { toaster } from "@/components/ui/toaster";
 
 export const useUpdateTenant = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<Tenant> }) => {
-      const response = await api.patch(`/tenants/${id}`, data);
-      return response.data;
+  return useMutation<Tenant, Error, { id: string; data: UpdateTenantDTO }>({
+    mutationFn: async ({ id, data }) => {
+      return tenantApi.update(id, data);
     },
+
     onSuccess: (updatedTenant) => {
-      // Atualiza o cache da lista e do tenant específico
+      // ✅ Invalida a lista para garantir que todos os componentes vejam a mudança
       queryClient.invalidateQueries({ queryKey: ["tenants"] });
-      queryClient.invalidateQueries({ queryKey: ["tenant", updatedTenant._id] });
       
+      // ✅ CORREÇÃO: Usando _id conforme definido na sua interface Tenant
+      queryClient.setQueryData(["tenants", updatedTenant._id], updatedTenant);
+
       toaster.create({
-        title: "Atualizado!",
-        description: "As configurações da instância foram salvas.",
+        title: "Sincronização Concluída",
+        description: `As configurações de ${updatedTenant.name} foram aplicadas.`,
         type: "success",
       });
     },
-    onError: () => {
-      toaster.create({ title: "Erro ao atualizar", type: "error" });
-    }
+
+    onError: (error) => {
+      toaster.create({
+        title: "Falha na Atualização",
+        description: error.message || "Erro ao conectar com o cluster.",
+        type: "error",
+      });
+    },
   });
 };

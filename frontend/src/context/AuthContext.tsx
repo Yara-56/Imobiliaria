@@ -1,101 +1,89 @@
 "use client";
 
-import {
-  createContext,
-  useState,
-  ReactNode,
-  FC,
-  useEffect,
-  useCallback,
-  useMemo,
-  useContext,
-} from "react";
-import api from "@/core/api/api";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-export type UserRole = "ADMIN" | "OWNER" | "USER";
-
-export interface User {
+interface User {
   id: string;
   name: string;
-  role: UserRole;
   email: string;
+  role: string;
   tenantId: string;
+  status: string;
+  plan: "FREE" | "PRO";
+  limits: {
+    tenants: number;
+    properties: number;
+  };
 }
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  loading: boolean; // ✅ Adicionado para resolver o erro no ProtectedRoute
   login: (userData: User, token: string) => void;
   logout: () => void;
-  isAuthenticated: boolean;
-  hasRole: (roles: UserRole[]) => boolean;
-  loading: boolean;
 }
 
-export const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true); // ✅ Começa como true
 
-  // Restore session on load
   useEffect(() => {
-    try {
-      const savedUser = localStorage.getItem("imobisys_user");
-      const savedToken = localStorage.getItem("imobisys_token");
+    const storedUser = localStorage.getItem("@ImobiSys:user");
+    const storedToken = localStorage.getItem("@ImobiSys:token");
 
-      if (savedUser && savedToken) {
-        const parsedUser = JSON.parse(savedUser) as User;
-        setUser(parsedUser);
-        api.defaults.headers.Authorization = `Bearer ${savedToken}`;
+    if (storedUser && storedToken) {
+      try {
+        setUser(JSON.parse(storedUser));
+        setToken(storedToken);
+      } catch (error) {
+        console.error("Erro ao restaurar sessão:", error);
+        localStorage.clear();
       }
-    } catch {
-      localStorage.clear();
-    } finally {
-      setLoading(false);
     }
+    
+    // ✅ Finaliza o carregamento após verificar o localStorage
+    setLoading(false); 
   }, []);
 
-  const login = useCallback((userData: User, token: string) => {
-    localStorage.setItem("imobisys_user", JSON.stringify(userData));
-    localStorage.setItem("imobisys_token", token);
-    api.defaults.headers.Authorization = `Bearer ${token}`;
+  const login = (userData: User, authToken: string) => {
     setUser(userData);
-  }, []);
+    setToken(authToken);
+    localStorage.setItem("@ImobiSys:user", JSON.stringify(userData));
+    localStorage.setItem("@ImobiSys:token", authToken);
+  };
 
-  const logout = useCallback(() => {
-    localStorage.removeItem("imobisys_user");
-    localStorage.removeItem("imobisys_token");
-    delete api.defaults.headers.Authorization;
+  const logout = () => {
     setUser(null);
-  }, []);
+    setToken(null);
+    localStorage.removeItem("@ImobiSys:user");
+    localStorage.removeItem("@ImobiSys:token");
+  };
 
-  const hasRole = useCallback(
-    (roles: UserRole[]) => !!user && roles.includes(user.role),
-    [user]
+  return (
+    <AuthContext.Provider 
+      value={{ 
+        user, 
+        token, 
+        isAuthenticated: !!token, 
+        loading, // ✅ Agora o ProtectedRoute consegue ler esta propriedade
+        login, 
+        logout 
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
   );
+}
 
-  const value = useMemo(
-    () => ({
-      user,
-      login,
-      logout,
-      isAuthenticated: !!user,
-      hasRole,
-      loading,
-    }),
-    [user, login, logout, hasRole, loading]
-  );
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-// ✅ Hook profissional
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error("useAuth deve ser usado dentro de AuthProvider");
+  if (context === undefined) {
+    throw new Error("useAuth deve ser usado dentro de um AuthProvider");
   }
-
   return context;
-};
+}

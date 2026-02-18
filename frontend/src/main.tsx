@@ -1,54 +1,62 @@
+"use client";
+
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ErrorBoundary } from "react-error-boundary";
 import { Center, Heading, Button, VStack, Text } from "@chakra-ui/react";
 
-import "./styles/index.css";
+// ✅ Importação do App principal (Maestro)
+import App from "./App";
 
-import { Provider as UIProvider } from "@/components/ui/provider"; 
-import { AuthProvider } from "@/context/AuthContext";
-import { Toaster } from "@/components/ui/toaster"; // ✅ Adicionado para v3
-import AppRoutes from "@/routes/AppRoutes"; 
+/**
+ * CONFIGURAÇÃO DE FUTURE FLAGS (Padrão de Mercado para React Router)
+ * Isso utiliza a tipagem definida no seu global.d.ts para silenciar avisos
+ * e preparar o ImobiSys para a próxima versão do Router.
+ */
+window.REACT_ROUTER_FUTURE_FLAGS = {
+  v7_startTransition: true,
+  v7_relativeSplatPath: true,
+};
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 5, 
-    },
-  },
-});
-
-function ErrorFallback() {
+/**
+ * Fallback para erros fatais (Tela de Emergência)
+ * Se o App não conseguir nem montar os Providers, esta tela aparece.
+ */
+function GlobalErrorFallback() {
   return (
-    <Center h="100vh" p={6} bg="gray.50">
-      <VStack gap={4} textAlign="center">
-        <Heading size="lg" color="red.500">Ops! Algo deu errado.</Heading>
-        <Text color="gray.600">Ocorreu um erro inesperado no ImobiSys.</Text>
-        <Button onClick={() => window.location.href = "/"}>Recarregar Sistema</Button>
+    <Center h="100vh" w="100vw" p={6} bg="#020617" color="white">
+      <VStack gap={6} textAlign="center">
+        <Heading size="2xl" color="red.400" fontWeight="900">
+          Imobi<Text as="span" color="white">Sys</Text>
+        </Heading>
+        <VStack gap={2}>
+          <Heading size="md">Sistema Temporariamente Indisponível</Heading>
+          <Text color="gray.400">
+            Houve um erro crítico na inicialização do painel.
+          </Text>
+        </VStack>
+        <Button 
+          colorScheme="blue" 
+          size="lg" 
+          onClick={() => window.location.reload()}
+          borderRadius="xl"
+        >
+          RECARREGAR SISTEMA
+        </Button>
       </VStack>
     </Center>
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+// ✅ Renderização Principal: Limpa e Robusta
+const rootElement = document.getElementById("root");
+
+if (!rootElement) throw new Error("Falha ao encontrar o elemento root");
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <QueryClientProvider client={queryClient}>
-        <UIProvider>
-          <AuthProvider>
-            <BrowserRouter>
-              <AppRoutes />
-              <Toaster /> {/* ✅ Renderização global do Toaster */}
-            </BrowserRouter>
-          </AuthProvider>
-        </UIProvider>
-        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
-      </QueryClientProvider>
+    <ErrorBoundary FallbackComponent={GlobalErrorFallback}>
+      <App />
     </ErrorBoundary>
   </React.StrictMode>
 );

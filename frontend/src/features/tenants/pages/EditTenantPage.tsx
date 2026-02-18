@@ -2,63 +2,45 @@
 
 import { useParams, useNavigate } from "react-router-dom";
 import { 
-  Box, 
-  Container, 
-  Heading, 
-  Text, 
-  VStack, 
-  Spinner, 
-  Center, 
-  Flex, 
-  IconButton,
-  Button,
-  Badge
+  Box, Container, Heading, Text, VStack, 
+  Spinner, Center, Flex, IconButton, Button, Badge, Stack 
 } from "@chakra-ui/react";
-import { 
-  LuArrowLeft, 
-  LuShieldCheck, 
-  LuCircleAlert 
-} from "react-icons/lu";
-import { useQuery } from "@tanstack/react-query";
-import api from "@/core/api/api";
-import { Tenant } from "../types/tenant";
-import { useUpdateTenant } from "../hooks/useUpdateTenant";
+import { LuArrowLeft, LuShieldCheck, LuCircleAlert } from "react-icons/lu";
+
+// ✅ Importação unificada conforme sua nova estrutura
+import { useTenants } from "../hooks/useTenants";
 import TenantForm from "../components/TenantForm";
+import { UpdateTenantDTO } from "../types/tenant";
 
 export default function EditTenantPage() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  const { mutate: updateTenant, isPending: isUpdating } = useUpdateTenant();
+  // ✅ Usando o hook unificado: gerencia Busca, Update e Loading em um só lugar
+  const { tenant, isLoading, isError, updateTenant, isUpdating } = useTenants(id);
 
-  const { data: tenant, isLoading, isError } = useQuery<Tenant>({
-    queryKey: ["tenant", id],
-    queryFn: async () => {
-      const { data } = await api.get(`/tenants/${id}`);
-      return data.data || data;
-    },
-    enabled: !!id,
-    retry: 1,
-  });
+  // 1. SUBMIT HANDLER - Tipado e seguro
+  const handleUpdate = (formData: UpdateTenantDTO) => {
+    if (!id) return;
+    updateTenant(
+      { id, data: formData }, 
+      { onSuccess: () => navigate("/admin/tenants") }
+    );
+  };
 
-  // 1. LOADING STATE - Corrigido para Chakra v3
+  // 2. LOADING STATE - Chakra v3 optimized
   if (isLoading) return (
     <Center h="100vh" bg="#F8FAFC">
       <VStack gap={6}>
-        {/* 'thickness' mudou para 'borderWidth' no Chakra v3 */}
-        <Spinner 
-          size="xl" 
-          color="blue.500" 
-          borderWidth="4px" 
-        />
+        <Spinner size="xl" color="blue.600" borderWidth="4px" />
         <Text fontWeight="black" color="gray.400" fontSize="xs" letterSpacing="widest">
-          SINCRONIZANDO DADOS DA INSTÂNCIA
+          SINCRONIZANDO INFRAESTRUTURA
         </Text>
       </VStack>
     </Center>
   );
 
-  // 2. ERROR STATE
+  // 3. ERROR STATE - UI Resiliente
   if (isError || !tenant) return (
     <Center h="100vh" bg="#F8FAFC">
       <Container maxW="md">
@@ -67,19 +49,11 @@ export default function EditTenantPage() {
             <LuCircleAlert size={40} />
           </Box>
           <VStack gap={2}>
-            <Heading size="md" fontWeight="800">Instância não localizada</Heading>
-            <Text color="gray.500" fontSize="sm">
-              Não conseguimos encontrar este locatário ou o servidor está offline.
-            </Text>
+            <Heading size="md" fontWeight="800">Node não identificado</Heading>
+            <Text color="gray.500" fontSize="sm">A instância solicitada não existe ou o cluster está inacessível.</Text>
           </VStack>
-          <Button 
-            w="full"
-            colorPalette="blue"
-            size="lg"
-            borderRadius="xl"
-            onClick={() => navigate("/admin/tenants")}
-          >
-            Voltar para a Listagem
+          <Button w="full" colorPalette="blue" size="lg" borderRadius="xl" onClick={() => navigate("/admin/tenants")}>
+            Voltar ao Dashboard
           </Button>
         </VStack>
       </Container>
@@ -90,24 +64,22 @@ export default function EditTenantPage() {
     <Box p={{ base: 4, md: 10 }} bg="#F8FAFC" minH="100vh">
       <Container maxW="2xl">
         
+        {/* HEADER SISTÊMICO */}
         <Flex align="center" justify="space-between" mb={10}>
-          <VStack align="start" gap={1}>
+          <Stack gap={1}>
             <Flex align="center" gap={2} color="blue.600">
               <LuShieldCheck size={18} />
               <Badge variant="surface" colorPalette="blue" fontSize="10px" borderRadius="md" px={2}>
-                AMBIENTE DE CONFIGURAÇÃO
+                CONFIGURAÇÃO MASTER
               </Badge>
             </Flex>
             <Heading size="xl" fontWeight="900" color="slate.800" letterSpacing="-1.5px">
               Ajustar Locatário
             </Heading>
             <Text color="gray.500" fontSize="sm">
-              Alterando dados master de: 
-              <Text as="span" fontWeight="900" color="blue.600" ml={1}>
-                {tenant.name}
-              </Text>
+              ID de Isolamento: <Text as="span" fontWeight="bold" color="slate.700">{tenant.tenantId}</Text>
             </Text>
-          </VStack>
+          </Stack>
           
           <IconButton
             aria-label="Voltar"
@@ -121,23 +93,24 @@ export default function EditTenantPage() {
           </IconButton>
         </Flex>
 
+        {/* FORMULÁRIO DE INFRAESTRUTURA */}
         <Box 
           bg="white" 
           p={{ base: 6, md: 10 }} 
-          borderRadius="3xl" 
+          borderRadius="4xl" 
           shadow="0 30px 60px -12px rgba(0, 0, 0, 0.05)" 
           border="1px solid" 
           borderColor="gray.100"
         >
           <TenantForm 
             initialData={tenant} 
-            onSubmit={(formData) => updateTenant({ id: id!, data: formData })}
+            onSubmit={handleUpdate}
             isLoading={isUpdating}
           />
         </Box>
 
-        <Text mt={8} textAlign="center" fontSize="xs" color="gray.400" fontWeight="bold" letterSpacing="0.5px">
-          SISTEMA DE GESTÃO PATRIMONIAL v2.0
+        <Text mt={8} textAlign="center" fontSize="xs" color="gray.400" fontWeight="bold" letterSpacing="1px">
+          SISTEMA AURA v3 • ADMIN CLUSTER
         </Text>
       </Container>
     </Box>

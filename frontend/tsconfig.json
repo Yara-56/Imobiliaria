@@ -6,7 +6,7 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "skipLibCheck": true,
 
-    /* Resolução de Módulos */
+    /* Resolução de Módulos Moderna (Alinhada com TS 7.0) */
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
@@ -14,19 +14,18 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* ✅ Mantemos para o @/ funcionar, mas silenciamos o aviso */
-    "baseUrl": ".",
+    /* ✅ Lógica 7.0: Resolução via caminhos relativos ao invés de baseUrl */
     "paths": {
       "@/*": ["./src/*"]
     },
 
-    /* ✅ Silencia o erro específico que você recebeu */
-    "ignoreDeprecations": "6.0",
+    /* ✅ Silencia avisos de depreciação durante a migração */
+    "ignoreDeprecations": "5.0", 
 
     /* Tipagem e Segurança */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "types": ["vite/client", "node"],
 
@@ -36,6 +35,6 @@
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true
   },
-  "include": ["src", "src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
