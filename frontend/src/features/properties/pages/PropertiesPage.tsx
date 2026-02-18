@@ -1,85 +1,112 @@
-"use client"
-import { useQuery } from "@tanstack/react-query";
-import api from "@/core/api/api"; // ✅ Agora o alias vai funcionar!
+"use client";
+
+import { useEffect, useState, useMemo } from "react";
 import { 
-  Box, Flex, Heading, Text, Button, Table, Badge, 
-  HStack, Spinner, Center, VStack, Icon 
+  Box, Flex, Heading, Text, Stack, Table, Badge, Button, Spinner, Center, SimpleGrid, Input, VStack
 } from "@chakra-ui/react";
-import { LuPlus, LuHouse, LuMapPin, LuChevronRight } from "react-icons/lu";
+import { 
+  LuFileText, LuPlus, LuRefreshCcw, LuCircleCheck, LuTriangleAlert, LuInbox, LuReceipt
+} from "react-icons/lu"; 
+import api from "@/core/api/api"; // ✅ Caminho alinhado com sua estrutura
+import { StatCard } from "@/components/ui/StatCardTemp";
 
-export default function PropertiesPage() {
-  // Conecta com o seu backend Node na porta 3001
-  const { data: properties, isLoading, error } = useQuery({
-    queryKey: ["properties"],
-    queryFn: async () => {
-      const response = await api.get("/properties");
-      return response.data;
+interface Contract {
+  _id: string; 
+  landlordName: string;
+  propertyAddress: string;
+  rentAmount: number;
+  status: "Ativo" | "Encerrado" | "Renovação" | "Atrasado";
+  receiptUrl?: string; 
+}
+
+export default function ContractsPage() {
+  const [contracts, setContracts] = useState<Contract[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const fetchContracts = async () => {
+    try {
+      setLoading(true);
+      const { data } = await api.get("/contracts");
+      setContracts(data?.data?.contracts || []); // ✅ Acessando via data.data
+    } catch (err) {
+      console.error("Erro ImobiSys:", err);
+    } finally {
+      setLoading(false);
     }
-  });
+  };
 
-  if (isLoading) return <Center h="400px"><Spinner color="blue.500" size="xl" /></Center>;
-  if (error) return <Center h="400px"><Text color="red.500">Erro ao conectar com o servidor.</Text></Center>;
+  useEffect(() => { fetchContracts(); }, []);
+
+  const filteredContracts = useMemo(() => {
+    return contracts.filter(c => 
+      c.landlordName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.propertyAddress?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [contracts, searchTerm]);
+
+  if (loading) return <Center h="60vh"><Spinner size="xl" color="blue.500" /></Center>;
 
   return (
-    <Box p={8} bg="white" minH="100vh">
-      {/* HEADER LIMPO */}
-      <Flex justify="space-between" align="center" mb={10}>
-        <VStack align="start" gap={1}>
-          <Heading size="2xl" fontWeight="900" letterSpacing="tighter" color="gray.800">
-            Imóveis
-          </Heading>
-          <Text color="gray.500">Gestão de {properties?.length || 0} ativos no MongoDB</Text>
-        </VStack>
-        
-        <Button 
-          bg="blue.600" color="white" h="56px" px={8} borderRadius="16px"
-          _hover={{ bg: "blue.700", transform: "translateY(-2px)" }}
-          shadow="0 10px 20px rgba(49, 130, 206, 0.2)"
-        >
-          <LuPlus /> <Text ml={2} fontWeight="bold">Novo Imóvel</Text>
+    <Box p={{ base: 4, md: 8 }} pb={10}>
+      <Flex justify="space-between" align="center" mb={10} wrap="wrap" gap={6}>
+        <Stack gap={1}>
+          <Heading size="xl" fontWeight="900">Gestão de Contratos</Heading>
+          <Text color="gray.500">Administração de vigências imobiliárias.</Text>
+        </Stack>
+        <Button bg="blue.500" color="white" h="50px" px={8} borderRadius="2xl" gap={2}>
+          <LuPlus size={20} /> Novo Contrato
         </Button>
       </Flex>
 
-      {/* TABELA PROFISSIONAL (Adeus fundo preto!) */}
-      <Box borderRadius="24px" border="1px solid" borderColor="gray.100" overflow="hidden" shadow="sm">
-        <Table.Root variant="line">
-          <Table.Header bg="gray.50/50">
-            <Table.Row>
-              <Table.ColumnHeader py={5} px={8} color="gray.400" fontSize="xs" fontWeight="black">PROPRIEDADE</Table.ColumnHeader>
-              <Table.ColumnHeader color="gray.400" fontSize="xs" fontWeight="black">VALOR</Table.ColumnHeader>
-              <Table.ColumnHeader color="gray.400" fontSize="xs" fontWeight="black">STATUS</Table.ColumnHeader>
-              <Table.ColumnHeader></Table.ColumnHeader>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {properties?.map((p: any) => (
-              <Table.Row key={p.id} _hover={{ bg: "blue.50/10" }} transition="0.2s">
-                <Table.Cell px={8} py={6}>
-                  <HStack gap={4}>
-                    <Center w="44px" h="44px" bg="blue.50" color="blue.600" borderRadius="12px">
-                      <LuHouse size={20} />
-                    </Center>
-                    <Box>
-                      <Text fontWeight="bold" color="gray.800">{p.name}</Text>
-                      <HStack gap={1} color="gray.400" fontSize="xs">
-                        <LuMapPin size={12} /> <Text>{p.address}</Text>
-                      </HStack>
-                    </Box>
-                  </HStack>
-                </Table.Cell>
-                <Table.Cell fontWeight="bold">R$ {p.price}</Table.Cell>
-                <Table.Cell>
-                  <Badge colorPalette={p.status === 'active' ? 'green' : 'blue'} variant="subtle" borderRadius="md">
-                    {p.status}
-                  </Badge>
-                </Table.Cell>
-                <Table.Cell textAlign="right" px={8}>
-                  <Icon as={LuChevronRight} color="gray.300" />
-                </Table.Cell>
+      {/* ✅ Cards de Resumo que aparecem no seu print */}
+      <SimpleGrid columns={{ base: 1, md: 3 }} gap={6} mb={10}>
+        <StatCard title="Vigentes" count={contracts.filter(c => c.status === "Ativo").length.toString()} color="green" icon={<LuCircleCheck size={26} />} />
+        <StatCard title="Pendências" count={contracts.filter(c => c.status === "Atrasado").length.toString()} color="red" icon={<LuTriangleAlert size={26} />} />
+        <StatCard title="Total" count={contracts.length.toString()} color="gray" icon={<LuFileText size={26} />} />
+      </SimpleGrid>
+
+      <Input 
+        placeholder="Buscar por proprietário ou endereço..." 
+        mb={8} h="60px" borderRadius="2xl" bg="white" 
+        value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} 
+      />
+
+      <Box bg="white" borderRadius="3xl" shadow="sm" border="1px solid" borderColor="gray.100" overflowX="auto">
+        {filteredContracts.length > 0 ? (
+          <Table.Root variant="line" size="lg">
+            <Table.Header bg="gray.50/50">
+              <Table.Row>
+                <Table.ColumnHeader py={6} px={8}>Proprietário / Imóvel</Table.ColumnHeader>
+                <Table.ColumnHeader>Status</Table.ColumnHeader>
+                <Table.ColumnHeader>Valor</Table.ColumnHeader>
+                <Table.ColumnHeader></Table.ColumnHeader>
               </Table.Row>
-            ))}
-          </Table.Body>
-        </Table.Root>
+            </Table.Header>
+            <Table.Body>
+              {filteredContracts.map((c) => (
+                <Table.Row key={c._id}>
+                  <Table.Cell py={5} px={8}>
+                    <VStack align="start" gap={0}>
+                      <Text fontWeight="bold" color="gray.800">{c.landlordName}</Text>
+                      <Text fontSize="xs" color="gray.500">{c.propertyAddress}</Text>
+                    </VStack>
+                  </Table.Cell>
+                  <Table.Cell><Badge colorPalette="green">{c.status}</Badge></Table.Cell>
+                  <Table.Cell fontWeight="bold">R$ {c.rentAmount?.toLocaleString()}</Table.Cell>
+                  <Table.Cell textAlign="right" px={8}>
+                    {c.receiptUrl && <LuReceipt color="gray.300" />}
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Root>
+        ) : (
+          <Center py={20} flexDirection="column" gap={4}>
+            <LuInbox size={40} color="#CBD5E0" />
+            <Text color="gray.500">Nenhum contrato encontrado.</Text>
+          </Center>
+        )}
       </Box>
     </Box>
   );

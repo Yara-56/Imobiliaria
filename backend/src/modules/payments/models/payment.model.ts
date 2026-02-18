@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 
 /**
  * 1️⃣ Interface de Dados Pura (POJO)
- * Define apenas a estrutura dos dados para uso no Frontend e Services.
+ * Centraliza a estrutura para o Frontend (React) e o Backend (NodeNext).
  */
 export interface IPayment {
   contractId: Types.ObjectId;
@@ -12,22 +12,18 @@ export interface IPayment {
   method: 'Pix' | 'Boleto' | 'Cartão' | 'Dinheiro' | 'Transferência';
   status: 'Pendente' | 'Pago' | 'Atrasado' | 'Cancelado';
   receiptUrl?: string; 
-  receiptKey?: string; 
   notes?: string;
   referenceMonth: string; // Ex: "02/2026"
-  owner: Types.ObjectId; // 🛡️ Cybersecurity: Isolamento (Multi-tenancy)
+  owner: Types.ObjectId; // 🛡️ Cybersecurity: Isolamento de dados (Multi-tenancy)
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-/**
- * 2️⃣ Interface do Documento (Mongoose)
- * Une os dados da interface pura com os métodos do Mongoose (.save, .populate).
- */
 export interface IPaymentDocument extends IPayment, Document {}
 
 /**
- * 3️⃣ Definição do Schema com Validações Rigorosas
+ * 2️⃣ Definição do Schema com Validações Rigorosas
+ * O uso de 'match' no referenceMonth garante a padronização no MongoDB.
  */
 const PaymentSchema = new Schema<IPaymentDocument>({
   contractId: { 
@@ -71,7 +67,7 @@ const PaymentSchema = new Schema<IPaymentDocument>({
     type: Schema.Types.ObjectId, 
     ref: 'User', 
     required: true,
-    index: true 
+    index: true // ✅ Otimiza buscas por admin logado no seu MacBook
   }
 }, { 
   timestamps: true,
@@ -80,13 +76,15 @@ const PaymentSchema = new Schema<IPaymentDocument>({
 });
 
 /**
- * 4️⃣ Regras de Negócio (Índices)
- * Garante que não haja duplicidade de cobrança no mesmo mês.
+ * 3️⃣ Regras de Negócio (Índices)
+ * 🛡️ Impede que o mesmo contrato gere dois pagamentos no mesmo mês.
  */
 PaymentSchema.index({ contractId: 1, referenceMonth: 1 }, { unique: true });
 
+
+
 /**
- * 5️⃣ Exportação do Modelo
+ * 4️⃣ Exportação do Modelo
  */
 const Payment = mongoose.model<IPaymentDocument>('Payment', PaymentSchema);
 export default Payment;
