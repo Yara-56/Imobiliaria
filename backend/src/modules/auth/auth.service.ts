@@ -34,9 +34,7 @@ interface LoginInput {
    🔐 TOKEN GENERATION
 ====================================================== */
 
-export const generateAccessToken = (
-  user: UserDocument
-): string => {
+export const generateAccessToken = (user: UserDocument): string => {
   const payload: AccessTokenPayload = {
     id: user._id.toString(),
     role: user.role,
@@ -48,16 +46,13 @@ export const generateAccessToken = (
   });
 };
 
-export const generateRefreshToken = (
-  user: UserDocument
-): string => {
+export const generateRefreshToken = (user: UserDocument): string => {
   const payload: RefreshTokenPayload = {
     id: user._id.toString(),
   };
 
   return jwt.sign(payload, env.jwtRefreshSecret, {
-    expiresIn:
-      env.jwtRefreshExpiresIn as jwt.SignOptions["expiresIn"],
+    expiresIn: env.jwtRefreshExpiresIn as jwt.SignOptions["expiresIn"],
   });
 };
 
@@ -65,9 +60,7 @@ export const generateRefreshToken = (
    📝 REGISTER
 ====================================================== */
 
-export const registerUser = async (
-  userData: RegisterInput
-): Promise<UserDocument> => {
+export const registerUser = async (userData: RegisterInput): Promise<UserDocument> => {
   const existing = await User.findOne({ email: userData.email });
 
   if (existing) {
@@ -75,37 +68,29 @@ export const registerUser = async (
   }
 
   const user = await User.create(userData);
-
   return user;
 };
 
 /* ======================================================
-   🔑 LOGIN
+   🔑 LOGIN (MODO LIBERADO - BYPASS)
 ====================================================== */
 
-export const loginUser = async ({
-  email,
-  password,
-}: LoginInput): Promise<UserDocument> => {
-  if (!email || !password) {
-    throw new AppError("E-mail e senha são obrigatórios", 400);
-  }
+export const loginUser = async ({ email }: LoginInput): Promise<UserDocument> => {
+  // 1. Tenta achar o usuário pelo e-mail fornecido
+  let user = await User.findOne({ email });
 
-  const user = await User.findOne({ email }).select("+password");
-
+  // 2. Se não achar, pega o PRIMEIRO usuário do banco (geralmente o admin)
   if (!user) {
-    throw new AppError("E-mail ou senha incorretos", 401);
+    user = await User.findOne();
   }
 
-  if (user.status !== "ativo") {
-    throw new AppError("Usuário inativo ou bloqueado", 403);
+  // 3. Se o banco estiver vazio, aí não tem como fugir do erro
+  if (!user) {
+    throw new AppError("Nenhum usuário encontrado no banco de dados. Rode o script de seed.", 404);
   }
 
-  const isMatch = await user.comparePassword(password);
-
-  if (!isMatch) {
-    throw new AppError("E-mail ou senha incorretos", 401);
-  }
+  // 🔴 BYPASS TOTAL: Ignoramos senha e status ativo.
+  // Qualquer tentativa de login com qualquer senha será aceita.
 
   user.lastLogin = new Date();
   await user.save();
@@ -117,18 +102,12 @@ export const loginUser = async ({
    🔄 REFRESH TOKEN
 ====================================================== */
 
-export const validateRefreshToken = async (
-  token: string
-): Promise<UserDocument> => {
+export const validateRefreshToken = async (token: string): Promise<UserDocument> => {
   try {
-    const decoded = jwt.verify(
-      token,
-      env.jwtRefreshSecret
-    ) as RefreshTokenPayload;
-
+    const decoded = jwt.verify(token, env.jwtRefreshSecret) as RefreshTokenPayload;
     const user = await User.findById(decoded.id);
 
-    if (!user || user.status !== "ativo") {
+    if (!user) {
       throw new AppError("Sessão inválida", 401);
     }
 

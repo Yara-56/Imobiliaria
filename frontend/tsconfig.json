@@ -15,13 +15,13 @@
     "jsx": "react-jsx",
 
     /* ✅ Mantemos para o @/ funcionar, mas silenciamos o aviso */
-    "baseUrl": ".", 
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
 
     /* ✅ Silencia o erro específico que você recebeu */
-    "ignoreDeprecations": "6.0", 
+    "ignoreDeprecations": "6.0",
 
     /* Tipagem e Segurança */
     "strict": true,

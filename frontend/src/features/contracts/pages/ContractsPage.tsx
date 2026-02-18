@@ -5,10 +5,12 @@ import {
   Box, Flex, Heading, Text, Stack, Table, Badge, Button, Spinner, Center, SimpleGrid, Input, VStack
 } from "@chakra-ui/react";
 import { 
-  LuFileText, LuPlus, LuRefreshCcw, LuCircleCheck, LuTriangleAlert, LuExternalLink, LuInbox, LuReceipt
+  LuFileText, LuPlus, LuRefreshCcw, LuCircleCheck, LuTriangleAlert, LuInbox, LuReceipt
 } from "react-icons/lu"; 
-import api from "../../../core/api/api";
-import { StatCard } from "../../../components/ui/StatCardTemp";
+
+// ✅ CAMINHOS CORRIGIDOS PARA A SUA ESTRUTURA REAL
+import api from "@/core/api/api";
+import { StatCard } from "@/components/ui/StatCardTemp";
 
 interface Contract {
   _id: string; 
@@ -31,9 +33,9 @@ export default function ContractsPage() {
   const fetchContracts = async () => {
     try {
       setLoading(true);
-      // ✅ Requisição ao backend na porta 3001 configurada no seu MacBook
+      // Conecta no seu backend do MongoDB na porta 3001
       const { data } = await api.get("/contracts");
-      setContracts(data);
+      setContracts(data || []);
     } catch (err) {
       console.error("Erro na API ImobiSys:", err);
     } finally {
@@ -45,16 +47,16 @@ export default function ContractsPage() {
 
   const filteredContracts = useMemo(() => {
     return contracts.filter(c => 
-      c.landlordName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.propertyAddress.toLowerCase().includes(searchTerm.toLowerCase())
+      c.landlordName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.propertyAddress?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [contracts, searchTerm]);
 
   if (loading) return (
     <Center h="60vh">
       <VStack gap={4}>
-        <Spinner size="xl" color="blue.500" borderWidth="4px" />
-        <Text color="gray.500">Sincronizando contratos com o servidor...</Text>
+        <Spinner size="xl" color="blue.500" />
+        <Text color="gray.500">Sincronizando contratos...</Text>
       </VStack>
     </Center>
   );
@@ -70,36 +72,37 @@ export default function ContractsPage() {
           <Button variant="outline" onClick={fetchContracts} borderRadius="xl">
             <LuRefreshCcw />
           </Button>
-          <Button colorPalette="blue" size="lg" borderRadius="2xl" px={8} gap={2}>
+          <Button bg="blue.500" color="white" size="lg" borderRadius="2xl" px={8} gap={2}>
             <LuPlus size={20} /> Novo Contrato
           </Button>
         </Flex>
       </Flex>
 
+      {/* Cards de Resumo */}
       <SimpleGrid columns={{ base: 1, md: 3 }} gap={6} mb={10}>
-        <StatCard title="Vigentes" count={contracts.filter(c => c.status === "Ativo").length} color="green" icon={<LuCircleCheck size={26} />} />
-        <StatCard title="Pendências" count={contracts.filter(c => c.status === "Atrasado").length} color="red" icon={<LuTriangleAlert size={26} />} />
-        <StatCard title="Total" count={contracts.length} color="gray" icon={<LuFileText size={26} />} />
+        <StatCard title="Vigentes" count={contracts.filter(c => c.status === "Ativo").length.toString()} color="green" icon={<LuCircleCheck size={26} />} />
+        <StatCard title="Pendências" count={contracts.filter(c => c.status === "Atrasado").length.toString()} color="red" icon={<LuTriangleAlert size={26} />} />
+        <StatCard title="Total" count={contracts.length.toString()} color="gray" icon={<LuFileText size={26} />} />
       </SimpleGrid>
 
       <Box mb={8}>
         <Input 
-          placeholder="Buscar por proprietário ou endereço do imóvel..." 
+          placeholder="Buscar por proprietário ou endereço..." 
           size="lg" h="60px" borderRadius="2xl" bg="white"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px blue.500" }}
         />
       </Box>
 
+      {/* Tabela de Dados */}
       <Box bg="white" borderRadius="3xl" shadow="sm" border="1px solid" borderColor="gray.100" overflowX="auto">
         {filteredContracts.length > 0 ? (
           <Table.Root variant="line" size="lg">
             <Table.Header bg="gray.50/50">
               <Table.Row>
-                <Table.ColumnHeader py={6}>Inquilino / Imóvel</Table.ColumnHeader>
+                <Table.ColumnHeader py={6}>Proprietário / Imóvel</Table.ColumnHeader>
                 <Table.ColumnHeader>Status</Table.ColumnHeader>
-                <Table.ColumnHeader>Valor Mensal</Table.ColumnHeader>
+                <Table.ColumnHeader>Valor</Table.ColumnHeader>
                 <Table.ColumnHeader textAlign="right">Ações</Table.ColumnHeader>
               </Table.Row>
             </Table.Header>
@@ -118,7 +121,7 @@ export default function ContractsPage() {
                     </Flex>
                   </Table.Cell>
                   <Table.Cell>
-                    <Badge colorPalette={c.status === "Ativo" ? "green" : "red"} variant="surface">
+                    <Badge colorPalette={c.status === "Ativo" ? "green" : "red"}>
                       {c.status}
                     </Badge>
                   </Table.Cell>
@@ -127,31 +130,17 @@ export default function ContractsPage() {
                   </Table.Cell>
                   <Table.Cell textAlign="right">
                     <Flex justify="flex-end" gap={2}>
-                      {/* ✅ CORREÇÃO TS: asChild para compor o <a> com estilo de Button */}
                       {c.receiptUrl ? (
-                        <Button 
-                          asChild 
-                          variant="subtle" 
-                          size="sm" 
-                          borderRadius="xl" 
-                          gap={2}
-                        >
-                          <a 
-                            href={`http://localhost:3001${c.receiptUrl}`} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                          >
-                            <LuReceipt size={16} /> Ver PDF
+                        <Button asChild size="sm" variant="subtle">
+                          <a href={`http://localhost:3001${c.receiptUrl}`} target="_blank" rel="noreferrer">
+                            <LuReceipt /> PDF
                           </a>
                         </Button>
                       ) : (
-                        <Button variant="subtle" size="sm" borderRadius="xl" gap={2} disabled>
-                          <LuReceipt size={16} /> Sem PDF
+                        <Button size="sm" variant="subtle" disabled>
+                          <LuReceipt />
                         </Button>
                       )}
-                      <Button variant="ghost" size="sm" borderRadius="xl">
-                        <LuExternalLink size={16} />
-                      </Button>
                     </Flex>
                   </Table.Cell>
                 </Table.Row>
@@ -161,7 +150,7 @@ export default function ContractsPage() {
         ) : (
           <Center py={20} flexDirection="column" gap={4}>
              <LuInbox size={40} color="#CBD5E0" />
-             <Text color="gray.500">Nenhum contrato encontrado para sua busca.</Text>
+             <Text color="gray.500">Nenhum contrato encontrado.</Text>
           </Center>
         )}
       </Box>

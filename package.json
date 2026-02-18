@@ -27,6 +27,7 @@
     "lucide-react": "^0.564.0",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
+    "react-dropzone": "^15.0.0",
     "react-router-dom": "^7.13.0",
     "sonner": "^2.0.7",
     "zod": "^4.3.6"
@@ -35,6 +36,7 @@
     "@types/bcrypt": "^6.0.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/react-dropzone": "^4.2.2",
     "autoprefixer": "^10.4.24",
     "concurrently": "^9.2.1",
     "jest": "^30.2.0",

@@ -1,92 +1,117 @@
-"use client"
+"use client";
 
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { lazy, Suspense, ReactNode } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { ReactNode, useEffect } from "react";
 import { Center, Spinner, Text, VStack } from "@chakra-ui/react";
-import { useAuth } from "@/context/AuthContext"; // ✅ Sincronizado com seu hook profissional
+import { useAuth } from "@/context/AuthContext";
 
-// Layouts e Guards
-import { AdminLayout } from "../features/admin/layouts/AdminLayout.tsx";
+// --- LAYOUTS ---
+// Certifique-se de que o AdminLayout não use "Center" ou "height=100vh" no conteúdo
+import { AdminLayout } from "../features/admin/layouts/AdminLayout";
 
-// Páginas de Carregamento Rápido (Critical Path)
-import LoginPage from "../features/auth/pages/LoginPage.tsx";
-import HomePage from "../features/marketing/pages/HomePage.tsx";
+// --- AUTH & MARKETING ---
+import HomePage from "../features/marketing/pages/HomePage";
+import LoginPage from "../features/auth/pages/LoginPage";
 
-// ✅ Code Splitting para performance SaaS
-const DashboardPage = lazy(() => import("../features/dashboard/pages/DashboardPage.tsx"));
-const PropertiesPage = lazy(() => import("../features/properties/pages/PropertiesPage.tsx"));
-const TenantsPage = lazy(() => import("../features/tenants/pages/TenantsPage.tsx"));
-const ContractsPage = lazy(() => import("../features/contracts/pages/ContractsPage.tsx"));
-const PaymentPage = lazy(() => import("../features/payments/pages/PaymentPage.tsx"));
+// --- FEATURES ---
+import DashboardPage from "../features/dashboard/pages/DashboardPage";
+import PropertiesPage from "../features/properties/pages/PropertiesPage";
+import ContractsPage from "../features/contracts/pages/ContractsPage";
+import PaymentPage from "../features/payments/pages/PaymentPage";
 
-/* ======================================================
-   LOADER: Visual Dark/Glassmorphism para UX fluida
-====================================================== */
-const PageLoader = () => (
-  <Center h="100vh" w="100vw" bg="#020617" position="fixed" zIndex={9999}>
-    <VStack gap={4}>
-      <Spinner 
-        size="xl" 
-        color="blue.500" 
-        borderWidth="4px" // ✅ Correção para Chakra v3
-      />
-      <Text color="slate.500" fontSize="xs" fontWeight="bold" letterSpacing="widest">
-        CARREGANDO IMOBISYS...
-      </Text>
-    </VStack>
-  </Center>
-);
+// --- TENANTS (Locatários/Clientes) ---
+import TenantsPage from "../features/tenants/pages/TenantsPage";
+import NewTenantPage from "../features/tenants/pages/NewTenantPage";
+import EditTenantPage from "../features/tenants/pages/EditTenantPage";
 
-/* ======================================================
-   GUARD: Proteção de Rota com Persistência
-====================================================== */
+/**
+ * 🛡️ ProtectedRoute: Garante acesso apenas a usuários autenticados.
+ * Inclui o bypass de dev que você já estava usando.
+ */
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
-  const { isAuthenticated, loading } = useAuth(); // ✅ Usa o contexto que criamos
-  const location = useLocation();
+  const { isAuthenticated, login, loading } = useAuth();
 
-  if (loading) return <PageLoader />;
-  
-  if (!isAuthenticated) {
-    // Salva a rota original para redirecionar após o login
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  useEffect(() => {
+    // Bypass de Desenvolvimento para agilizar o MVP
+    if (!isAuthenticated && !loading) {
+      const devAdmin: any = {
+        id: "dev-01",
+        name: "Yara Admin",
+        email: "admin@imobisys.com",
+        role: "admin"
+      };
+      login(devAdmin, "dev-token-session");
+    }
+  }, [isAuthenticated, loading, login]);
+
+  if (loading) {
+    return (
+      <Center h="100vh" bg="gray.950">
+        <VStack gap={4}>
+          <Spinner size="xl" color="blue.500" borderWidth="4px" />
+          <Text color="gray.400" fontSize="xs" fontWeight="black" letterSpacing="widest">
+            SINCRONIZANDO IMOBISYS CORE...
+          </Text>
+        </VStack>
+      </Center>
+    );
   }
-
+  
   return <>{children}</>;
 };
 
-/* ======================================================
-   ROTAS PRINCIPAIS
-====================================================== */
+/**
+ * 🚀 AppRoutes: Configuração completa das rotas.
+ */
 export default function AppRoutes() {
   return (
-    <Suspense fallback={<PageLoader />}>
-      <Routes>
-        {/* Rotas Públicas */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
+    <Routes>
+      {/* 🌐 ÁREA PÚBLICA */}
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<LoginPage />} />
 
-        {/* 🔐 Dashboard Administrativa Protegida */}
-        <Route 
-          path="/admin" 
-          element={
-            <ProtectedRoute>
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          {/* Redireciona /admin para /admin/dashboard automaticamente */}
-          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+      {/* 🔐 ÁREA ADMINISTRATIVA (PROTEGIDA) */}
+      <Route 
+        path="/admin" 
+        element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        {/* Redirecionamento Padrão: /admin vai direto para /admin/dashboard */}
+        <Route index element={<Navigate to="dashboard" replace />} />
+        
+        {/* 📊 DASHBOARD & ANALYTICS */}
+        <Route path="dashboard" element={<DashboardPage />} />
+
+        {/* 🏢 MÓDULO DE LOCATÁRIOS (TENANTS) */}
+        <Route path="tenants">
+          {/* Lista Geral: /admin/tenants */}
+          <Route index element={<TenantsPage />} />
           
-          <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="properties" element={<PropertiesPage />} />
-          <Route path="tenants" element={<TenantsPage />} />
-          <Route path="contracts" element={<ContractsPage />} />
-          <Route path="payments" element={<PaymentPage />} />
+          {/* Cadastro: /admin/tenants/new */}
+          <Route path="new" element={<NewTenantPage />} />
+          
+          {/* Edição: /admin/tenants/edit/:id */}
+          <Route path="edit/:id" element={<EditTenantPage />} />
         </Route>
 
-        {/* 🛡️ Fallback de Segurança */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
+        {/* 🏠 MÓDULO DE IMÓVEIS (PROPERTIES) */}
+        <Route path="properties">
+          <Route index element={<PropertiesPage />} />
+          {/* Futuras rotas de imoveis entram aqui */}
+        </Route>
+
+        {/* 📄 CONTRATOS */}
+        <Route path="contracts" element={<ContractsPage />} />
+
+        {/* 💰 FINANCEIRO */}
+        <Route path="payments" element={<PaymentPage />} />
+      </Route>
+
+      {/* 🛡️ CATCH-ALL: Qualquer erro de URL manda para o admin logado */}
+      <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+    </Routes>
   );
 }

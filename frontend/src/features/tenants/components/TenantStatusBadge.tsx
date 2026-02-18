@@ -1,27 +1,58 @@
-import { Badge } from "@chakra-ui/react";
+"use client";
+
+import { Badge, Flex, Icon } from "@chakra-ui/react";
+import { 
+  LuCircleCheck, 
+  LuCircleX, 
+  LuClock, 
+  LuCircleAlert // ✅ Corrigido
+} from "react-icons/lu";
 
 interface TenantStatusBadgeProps {
-  status: "active" | "inactive";
+  status: "ACTIVE" | "SUSPENDED" | "PENDING"; 
 }
 
-/**
- * ✅ Componente especializado para exibir o status do inquilino.
- * Utiliza o sistema de 'colorPalette' da v3 para garantir acessibilidade.
- */
 export const TenantStatusBadge = ({ status }: TenantStatusBadgeProps) => {
-  const isActive = status === "active";
+  const statusConfig = {
+    ACTIVE: {
+      label: "Ativo",
+      color: "green",
+      icon: LuCircleCheck,
+    },
+    SUSPENDED: {
+      label: "Suspenso",
+      color: "red",
+      icon: LuCircleX,
+    },
+    PENDING: {
+      label: "Pendente",
+      color: "orange",
+      icon: LuClock,
+    },
+  };
+
+  // Se o status for inválido ou vazio, usamos o LuCircleAlert como aviso
+  const config = statusConfig[status] || {
+    label: "Erro",
+    color: "gray",
+    icon: LuCircleAlert,
+  };
 
   return (
     <Badge 
-      colorPalette={isActive ? "green" : "red"} 
+      colorPalette={config.color} 
       variant="surface" 
       borderRadius="full"
       px={3}
-      py={0.5}
-      textTransform="capitalize"
-      fontWeight="bold"
+      py={1}
+      display="inline-flex"
+      alignItems="center"
+      gap={2}
     >
-      {isActive ? "Ativo" : "Inativo"}
+      <Icon as={config.icon} boxSize="14px" />
+      <Flex as="span" fontWeight="bold" fontSize="10px" textTransform="uppercase">
+        {config.label}
+      </Flex>
     </Badge>
   );
 };
