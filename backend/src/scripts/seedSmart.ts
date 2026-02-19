@@ -2,9 +2,9 @@ import { fakerPT_BR as faker } from '@faker-js/faker';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 // ✅ Caminhos ajustados para a sua estrutura modular real
-import User from '../src/modules/users/modules/user.model.js'; 
-import { Tenant } from '../src/modules/tenants/models/tenant.model.js';
-import { Payment } from '../src/modules/payments/models/payment.model.js';
+import User from '../modules/users/modules/user.model.js'; 
+import { Tenant } from '../modules/tenants/models/tenant.model.js';
+import { Payment } from '../modules/payments/models/payment.model.js';
 
 dotenv.config();
 

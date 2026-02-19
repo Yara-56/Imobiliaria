@@ -1,39 +1,47 @@
 {
   "compilerOptions": {
-    /* 🎯 Engine & Resolução */
+    /* 🎯 Motor e resolução */
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ES2022"],
-    
-    /* 📂 Estrutura de Diretórios */
+
+    /* 📁 Diretórios */
     "rootDir": "./src",
     "outDir": "./dist",
     "noEmit": false,
 
-    /* 🚀 Path Mapping (Moderno e Sem baseUrl) */
-    /* O uso de './' dentro dos arrays resolve o erro de caminhos não relativos */
+    /* 🔎 Caminhos e compatibilidade escalável */
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@modules/*": ["./src/modules/*"],
-      "@shared/*": ["./src/shared/*"],
-      "@config/*": ["./src/config/*"]
+      "@/*": ["src/*"],
+      "@modules/*": ["src/modules/*"],
+      "@shared/*": ["src/shared/*"],
+      "@config/*": ["src/config/*"]
     },
 
-    /* 🛡️ Rigor Técnico (Nível Cybersecurity) */
+    /* 🚫 Suprimir aviso de depreciação do baseUrl no TS7 */
+    "ignoreDeprecations": "6.0",
+
+    /* 🛡️ Qualidade e segurança */
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "forceConsistentCasingInFileNames": true,
-    
-    /* ⚙️ Compatibilidade e Performance */
+
+    /* ⚙️ Compatibilidade ESM */
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "resolveJsonModule": true
+
+    /* 📌 Tipos padrão */
+    "types": ["node"]
   },
-  "include": ["src/**/*"],
+
+  "include": ["src"],
   "exclude": ["node_modules", "dist", "**/*.spec.ts"]
 }

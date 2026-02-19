@@ -97,3 +97,4 @@ tmp/
 *.pid
 *.seed
 *.pid.lock
+/generated/prisma

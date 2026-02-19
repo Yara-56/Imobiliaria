@@ -1,130 +1,112 @@
 import jwt from "jsonwebtoken";
-import User, { UserDocument } from "../../users/modules/user.model.js";
-import { env } from "../../../config/env.js";
-import { AppError } from "../../../shared/errors/AppError.js";
+import bcrypt from "bcryptjs";
+import User from "../../users/modules/user.model.js";
+import { AppError } from "@shared/errors/AppError.js";
 
-/* ======================================================
-   TYPES
-====================================================== */
-
-interface AccessTokenPayload {
+interface JwtPayload {
   id: string;
-  role: string;
-  tenantId: string;
+  role: "ADMIN" | "USER";
+  companyId: string;
 }
 
-interface RefreshTokenPayload {
-  id: string;
-}
+/* =========================
+   REGISTER
+========================= */
 
-interface RegisterInput {
+export const registerUser = async (data: {
   name: string;
   email: string;
   password: string;
-  tenantId: string;
-  role?: "admin" | "corretor" | "cliente";
-}
+  companyId: string;
+  role?: "ADMIN" | "USER";
+}) => {
+  const { name, email, password, companyId, role = "USER" } = data;
 
-interface LoginInput {
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    throw new AppError("E-mail já cadastrado", 400);
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const user = await User.create({
+    name,
+    email,
+    password: hashedPassword,
+    companyId,
+    role,
+  });
+
+  return user;
+};
+
+/* =========================
+   LOGIN
+========================= */
+
+export const loginUser = async (data: {
   email: string;
   password: string;
-}
+}) => {
+  const { email, password } = data;
 
-/* ======================================================
-   🔐 TOKEN GENERATION
-====================================================== */
-
-export const generateAccessToken = (user: UserDocument): string => {
-  const payload: AccessTokenPayload = {
-    id: user._id.toString(),
-    role: user.role,
-    tenantId: user.tenantId,
-  };
-
-  return jwt.sign(payload, env.jwtSecret, {
-    expiresIn: env.jwtExpiresIn as jwt.SignOptions["expiresIn"],
-  });
-};
-
-export const generateRefreshToken = (user: UserDocument): string => {
-  const payload: RefreshTokenPayload = {
-    id: user._id.toString(),
-  };
-
-  return jwt.sign(payload, env.jwtRefreshSecret, {
-    expiresIn: env.jwtRefreshExpiresIn as jwt.SignOptions["expiresIn"],
-  });
-};
-
-/* ======================================================
-   📝 REGISTER
-====================================================== */
-
-export const registerUser = async (
-  userData: RegisterInput
-): Promise<UserDocument> => {
-  const existing = await User.findOne({ email: userData.email });
-
-  if (existing) {
-    throw new AppError("E-mail já cadastrado", 409);
-  }
-
-  const user = await User.create(userData);
-  return user;
-};
-
-/* ======================================================
-   🔑 LOGIN (MODO LIBERADO - BYPASS)
-====================================================== */
-
-export const loginUser = async ({
-  email,
-}: LoginInput): Promise<UserDocument> => {
-  // 1. Tenta achar o usuário pelo e-mail fornecido
-  let user = await User.findOne({ email });
-
-  // 2. Se não achar, pega o PRIMEIRO usuário do banco (geralmente o admin)
+  const user = await User.findOne({ email });
   if (!user) {
-    user = await User.findOne();
+    throw new AppError("Credenciais inválidas", 401);
   }
 
-  // 3. Se o banco estiver vazio, aí não tem como fugir do erro
-  if (!user) {
-    throw new AppError(
-      "Nenhum usuário encontrado no banco de dados. Rode o script de seed.",
-      404
-    );
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (!passwordMatch) {
+    throw new AppError("Credenciais inválidas", 401);
   }
-
-  // 🔴 BYPASS TOTAL: Ignoramos senha e status ativo.
-  // Qualquer tentativa de login com qualquer senha será aceita.
-
-  user.lastLogin = new Date();
-  await user.save();
 
   return user;
 };
 
-/* ======================================================
-   🔄 REFRESH TOKEN
-====================================================== */
+/* =========================
+   TOKEN GENERATION
+========================= */
 
-export const validateRefreshToken = async (
-  token: string
-): Promise<UserDocument> => {
+export const generateAccessToken = (user: any) => {
+  return jwt.sign(
+    {
+      id: user._id,
+      role: user.role,
+      companyId: user.companyId,
+    } as JwtPayload,
+    process.env.JWT_SECRET as string,
+    { expiresIn: "15m" }
+  );
+};
+
+export const generateRefreshToken = (user: any) => {
+  return jwt.sign(
+    {
+      id: user._id,
+    },
+    process.env.JWT_REFRESH_SECRET as string,
+    { expiresIn: "7d" }
+  );
+};
+
+/* =========================
+   REFRESH VALIDATION
+========================= */
+
+export const validateRefreshToken = async (token: string) => {
   try {
     const decoded = jwt.verify(
       token,
-      env.jwtRefreshSecret
-    ) as RefreshTokenPayload;
-    const user = await User.findById(decoded.id);
+      process.env.JWT_REFRESH_SECRET as string
+    ) as { id: string };
 
+    const user = await User.findById(decoded.id);
     if (!user) {
-      throw new AppError("Sessão inválida", 401);
+      throw new AppError("Usuário não encontrado", 404);
     }
 
     return user;
   } catch {
-    throw new AppError("Sessão expirada ou inválida", 401);
+    throw new AppError("Refresh token inválido ou expirado", 401);
   }
 };
