@@ -15,20 +15,26 @@ const random = (min: number, max: number) => Math.floor(Math.random() * (max - m
 
 async function seed() {
   try {
-    console.log("🚀 Iniciando Seed Yara Enterprise (Força Total)...");
+    console.log("🚀 Iniciando Seed Yara Enterprise (Versão Gráficos Ativos)...");
     await mongoose.connect(process.env.MONGO_URI!);
 
-    console.log("🧹 Limpando dados e resetando índices...");
+    console.log("🧹 Limpando dados antigos...");
     await Promise.all([
-      Company.deleteMany({}), User.deleteMany({}), Property.deleteMany({}),
-      Tenant.deleteMany({}), Contract.deleteMany({}), Payment.deleteMany({})
+      Company.deleteMany({}), 
+      User.deleteMany({}), 
+      Property.deleteMany({}),
+      Tenant.deleteMany({}), 
+      Contract.deleteMany({}), 
+      Payment.deleteMany({})
     ]);
 
-    // Tenta dropar o índice de slug se ele estiver corrompido ou travado com null
+    // Reset de índices para evitar erros de duplicidade residual
     try {
       await mongoose.connection.collection('tenants').dropIndex("slug_1");
-    } catch (e) { /* Índice não existe ou já removido */ }
+      await mongoose.connection.collection('tenants').dropIndex("cpf_1");
+    } catch (e) { /* Índices limpos */ }
 
+    // 🏢 1. EMPRESA ÚNICA (Garante que tudo pertença a este ID)
     const company = await Company.create({
       name: "Imobiliária Yara Lux",
       cnpj: `${random(10, 99)}.222.333/0001-44`
@@ -37,29 +43,43 @@ async function seed() {
     const password = await bcrypt.hash("123456", 10);
     const tempId = new mongoose.Types.ObjectId();
 
-    // 👤 USUÁRIOS
+    // 👤 2. USUÁRIOS
+    console.log("👤 Criando equipe...");
     const admin = new User({
-      name: "Yara CEO", email: "admin@yara.com", password, role: "admin",
-      companyId: company._id, tenantId: tempId
+      name: "Yara CEO", 
+      email: "admin@yara.com", 
+      password, 
+      role: "admin",
+      companyId: company._id, 
+      tenantId: tempId
     });
     await admin.save({ validateBeforeSave: false });
 
     const corretor = new User({
-      name: "Carlos Corretor", email: "carlos@yara.com", password, role: "corretor",
-      companyId: company._id, tenantId: tempId
+      name: "Carlos Corretor", 
+      email: "carlos@yara.com", 
+      password, 
+      role: "corretor",
+      companyId: company._id, 
+      tenantId: tempId
     });
     await corretor.save({ validateBeforeSave: false });
 
-    // 🏠 IMÓVEIS (20 unidades)
+    // 🏠 3. IMÓVEIS (Status em Inglês para compatibilidade de filtros)
     console.log("🏠 Criando 20 imóveis...");
     const propertyDocs = [];
     for (let i = 1; i <= 20; i++) {
       const p = new Property({
         title: `Imóvel Premium ${i}`,
-        description: `Imóvel exclusivo Yara número ${i}`,
+        description: `Imóvel exclusivo Yara número ${i} com acabamento de alto padrão.`,
         type: "APARTMENT",
-        price: random(2000, 9000),
-        address: { street: `Rua Principal, ${100 + i}`, city: "São Paulo", state: "SP", zipCode: "01310-100" },
+        price: random(2500, 9500),
+        address: { 
+          street: `Rua Principal, ${100 + i}`, 
+          city: "São Paulo", 
+          state: "SP", 
+          zipCode: "01310-100" 
+        },
         status: i <= 15 ? "RENTED" : "AVAILABLE",
         companyId: company._id,
         owner: admin._id,
@@ -69,7 +89,7 @@ async function seed() {
       propertyDocs.push(p);
     }
 
-    // 👥 INQUILINOS (Resolvendo Slug e CPF de uma vez)
+    // 👥 4. INQUILINOS (Garantindo Slugs e CPFs únicos)
     console.log("👥 Criando 30 inquilinos...");
     const tenantDocs = [];
     for (let i = 1; i <= 30; i++) {
@@ -84,17 +104,18 @@ async function seed() {
         owner: corretor._id,
         companyId: company._id,
         status: "ACTIVE",
-        rentValue: random(2000, 5000).toString(),
-        slug: `inquilino-${i}-${uniqueId.toString().slice(-6)}` // Injetando direto no construtor
+        rentValue: random(2500, 5000).toString(),
+        slug: `inquilino-${i}-${uniqueId.toString().slice(-6)}`
       });
-
       await t.save({ validateBeforeSave: false });
       tenantDocs.push(t);
     }
 
-    // 💰 FINANCEIRO (Histórico para o gráfico)
-    console.log("💰 Gerando histórico financeiro...");
+    // 💰 5. CONTRATOS E FINANCEIRO (O "Coração" do Dashboard)
+    console.log("💰 Gerando histórico financeiro de 6 meses...");
+    // Meses retroativos para gerar a linha do gráfico
     const months = ["09/2025", "10/2025", "11/2025", "12/2025", "01/2026", "02/2026"];
+    
     for (let i = 0; i < 15; i++) {
       const contract = new Contract({
         tenantId: tenantDocs[i]._id,
@@ -107,21 +128,26 @@ async function seed() {
       await contract.save({ validateBeforeSave: false });
 
       for (const m of months) {
-        await (new Payment({
+        const isLastMonth = m === "02/2026";
+        const payment = new Payment({
           contractId: contract._id,
           tenantId: tenantDocs[i]._id,
           amount: propertyDocs[i].price,
-          status: m === "02/2026" ? "PENDENTE" : "PAGO",
+          // Inserindo PAID (Inglês) para garantir que o Dashboard some os valores
+          status: isLastMonth ? "PENDING" : "PAID", 
           referenceMonth: m,
-          paymentDate: new Date(),
+          paymentDate: isLastMonth ? null : new Date(),
           companyId: company._id
-        })).save({ validateBeforeSave: false });
+        });
+        await payment.save({ validateBeforeSave: false });
       }
     }
 
-    console.log("\n" + "=".repeat(35));
+    console.log("\n" + "=".repeat(40));
     console.log("✅ SEED EXECUTADO COM SUCESSO!");
-    console.log("=".repeat(35));
+    console.log("🚀 Dados prontos para o Dashboard.");
+    console.log("👤 Login: admin@yara.com | Senha: 123456");
+    console.log("=".repeat(40));
     
     await mongoose.connection.close();
     process.exit(0);
