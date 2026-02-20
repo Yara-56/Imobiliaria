@@ -1,8 +1,16 @@
 import { Router } from "express";
 // ✅ IMPORTANTE: Em NodeNext, importe de .js mesmo o arquivo sendo .ts
 import * as propertyController from "../controllers/property.controller.js";
+
 import { protect, authorize } from "@shared/middlewares/auth.middleware.js";
 import { validate } from "@shared/middlewares/validate.middleware.js";
+
+// ✅ NOVO: parse do address quando vier como JSON string via multipart
+import { parseJsonFields } from "@shared/middlewares/parseJsonFields.middleware.js";
+
+// ✅ NOVO: upload específico de documents para properties
+import { uploadPropertyDocs } from "@shared/middlewares/upload.middleware.js";
+
 import {
   createPropertySchema,
   updatePropertySchema,
@@ -13,7 +21,6 @@ const router = Router();
 
 /**
  * 🔒 Camada de Proteção Global
- * Garante que ninguém acesse os imóveis sem um token JWT válido.
  */
 router.use(protect);
 
@@ -22,14 +29,20 @@ router.use(protect);
  */
 router
   .route("/")
-  .get(
-    // Clientes, corretores e admins podem visualizar a lista
-    propertyController.getAllProperties
-  )
+  .get(propertyController.getAllProperties)
   .post(
-    // Restrito a quem opera a imobiliária
     authorize("admin", "corretor"),
+
+    // ✅ 1) multer popula req.body + req.files (multipart/form-data)
+    uploadPropertyDocs,
+
+    // ✅ 2) address chega como string -> vira objeto
+    parseJsonFields(["address"]),
+
+    // ✅ 3) valida body (zod)
     validate(createPropertySchema),
+
+    // ✅ 4) controller salva tudo
     propertyController.createProperty
   );
 
@@ -38,17 +51,15 @@ router
  */
 router
   .route("/:id")
-  .get(
-    validate(getPropertySchema), 
-    propertyController.getPropertyById
-  )
+  .get(validate(getPropertySchema), propertyController.getPropertyById)
   .patch(
     authorize("admin", "corretor"),
+    uploadPropertyDocs,
+    parseJsonFields(["address"]),
     validate(updatePropertySchema),
     propertyController.updateProperty
   )
   .delete(
-    // Segurança máxima: Apenas o dono/admin da imobiliária remove registros
     authorize("admin"),
     validate(getPropertySchema),
     propertyController.deleteProperty
