@@ -35,3 +35,22 @@ export type CreatePropertyDTO = {
 
 // Para editar (muitas vezes parcial)
 export type UpdatePropertyDTO = Partial<CreatePropertyDTO>;
+
+// Para criar o tipo estável do front
+export type PropertyStatusPT = "Disponível" | "Alugado" | "Vendido" | "Manutenção";
+export type PropertyTypePT = "Casa" | "Apartamento" | "Comercial" | "Terreno";
+
+export type PropertyUI = {
+  id: string;
+  title: string;
+  addressText: string;   // pronto pra exibir na tabela
+  cep?: string;
+  price: number;
+  status: PropertyStatusPT;
+  type: PropertyTypePT;
+
+  // extras pra detalhes/edição
+  description?: string;
+  documents?: Array<{ id: string; name: string; url?: string }>;
+  createdAt?: string;
+};
