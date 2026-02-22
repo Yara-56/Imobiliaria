@@ -2,71 +2,53 @@ import { z } from "zod";
 
 /**
  * 🧱 Schema Base para Imóveis
- * (Obs.: anexos via multer ficam em req.files — não entram aqui no body)
  */
 const propertyBody = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(5, "O título deve ter no mínimo 5 caracteres")
-    .max(100, "O título deve ter no máximo 100 caracteres"),
-
-  description: z
-    .string()
-    .trim()
-    .min(10, "A descrição deve ser mais detalhada"),
-
-  price: z.coerce.number().positive("O preço deve ser um valor positivo"),
-
-  type: z.enum(["APARTMENT", "HOUSE", "COMMERCIAL", "LAND"], {
-    message: "Escolha um tipo válido: APARTMENT, HOUSE, COMMERCIAL ou LAND",
-  }),
-
-  // ✅ Endereço completo (alinhado ao model atualizado)
+  title: z.string().trim().min(5).max(100),
+  description: z.string().trim().min(10),
+  price: z.coerce.number().positive(),
+  type: z.enum(["APARTMENT", "HOUSE", "COMMERCIAL", "LAND"]),
   address: z.object({
-    street: z.string().min(1, "Rua é obrigatória"),
-    number: z.string().min(1, "Número é obrigatório"),
-    neighborhood: z.string().min(1, "Bairro é obrigatório"),
-    complement: z.string().trim().optional(),
-    city: z.string().min(1, "Cidade é obrigatória"),
-    state: z.string().min(2, "Estado é obrigatório"),
-    zipCode: z.string().min(8, "CEP inválido"),
+    street: z.string().min(1),
+    number: z.string().min(1),
+    neighborhood: z.string().min(1),
+    city: z.string().min(1),
+    state: z.string().length(2),
+    zipCode: z.string().min(8),
+    complement: z.string().optional().nullable(),
   }),
-
-  // ✅ Campo opcional (se vocês realmente usam)
-  sqls: z.string().trim().optional(),
-
-  bedrooms: z.coerce.number().int().nonnegative().optional(),
-  bathrooms: z.coerce.number().int().nonnegative().optional(),
+  bedrooms: z.coerce.number().int().nonnegative().default(0),
+  bathrooms: z.coerce.number().int().nonnegative().default(0),
   area: z.coerce.number().positive().optional(),
+  sqls: z.string().trim().optional(),
 });
 
-/**
- * 🚀 Schema para Criação
- */
+/* ======================================================
+   🚀 EXPORTAÇÃO DOS SCHEMAS (PARA AS ROTAS)
+====================================================== */
+
 export const createPropertySchema = z.object({
   body: propertyBody,
 });
 
-/**
- * 🔄 Schema para Atualização (parcial)
- */
+// ✅ CORREÇÃO: Aplicando o .partial() no SCHEMA do Zod antes de exportar
 export const updatePropertySchema = z.object({
   params: z.object({
-    id: z.string().regex(/^[0-9a-fA-F]{24}$/, "ID do imóvel inválido"),
+    id: z.string().regex(/^[0-9a-fA-F]{24}$/, "ID inválido"),
   }),
-  body: propertyBody.partial(),
+  body: propertyBody.partial(), // Aqui o Zod entende que os campos são opcionais no PATCH
 });
 
-/**
- * 🔍 Schema para Busca/Deleção
- */
 export const getPropertySchema = z.object({
   params: z.object({
-    id: z.string().regex(/^[0-9a-fA-F]{24}$/, "ID do imóvel inválido"),
+    id: z.string().regex(/^[0-9a-fA-F]{24}$/, "ID inválido"),
   }),
 });
 
-// Tipagens para os Controllers
-export type CreatePropertyInput = z.infer<typeof createPropertySchema>["body"];
-export type UpdatePropertyInput = z.infer<typeof updatePropertySchema>["body"];
+/* ======================================================
+   🔢 EXPORTAÇÃO DAS TIPAGENS (PARA O CONTROLLER)
+====================================================== */
+
+// ✅ RESOLVE TS(2339): Usando o utilitário Partial do TS ou inferindo do schema parcial
+export type CreatePropertyInput = z.infer<typeof propertyBody>;
+export type UpdatePropertyInput = z.infer<ReturnType<typeof propertyBody.partial>>;

@@ -6,34 +6,59 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { LuHouse, LuFileText, LuDollarSign, LuActivity, LuArrowRight, LuTrendingUp } from "react-icons/lu";
 import { ResponsiveContainer, AreaChart, Area, Tooltip, XAxis } from 'recharts';
-import api from "@/core/api/api"; 
+import api from "@/core/api/api"; // ✅ Usando o seu Aura V3
 
-// Criamos o componente motion de forma que aceite as props do Chakra sem conflito
 const MotionBox = motion(Box);
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ 
-    totalRevenue: 0, activeProperties: 0, activeContracts: 0, chartData: [] as any[] 
+    totalRevenue: 0, 
+    activeProperties: 0, 
+    activeContracts: 0, 
+    chartData: [] as any[] 
   });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [c, p] = await Promise.all([
-          api.get("/contracts").catch(() => ({data:[]})), 
-          api.get("/properties").catch(() => ({data:[]}))
+        
+        // 🔄 Chamada em paralelo para otimizar o carregamento
+        const [resContracts, resProperties] = await Promise.all([
+          api.get("/contracts").catch(() => ({ data: { data: [] } })), 
+          api.get("/properties").catch(() => ({ data: { data: [] } }))
         ]);
-        const total = c.data?.reduce((acc: any, curr: any) => acc + (Number(curr.rentValue) || 0), 0) || 0;
+
+        /**
+         * ✅ CONEXÃO SINCRONIZADA:
+         * Acessamos 'res.data.data' porque o seu backend retorna os registros 
+         * dentro da chave 'data'. Isso elimina o erro de '.reduce'.
+         */
+        const contractsList = resContracts.data.data || [];
+        const propertiesList = resProperties.data.data || [];
+
+        // Cálculo da receita baseado no valor de aluguel dos contratos
+        const total = contractsList.reduce((acc: any, curr: any) => 
+          acc + (Number(curr.rentValue) || 0), 0
+        ) || 0;
+
         setStats({
           totalRevenue: total,
-          activeProperties: p.data?.length || 0,
-          activeContracts: c.data?.length || 0,
-          chartData: [{n:'Jan', v: total*0.6}, {n:'Fev', v: total*0.8}, {n:'Mar', v: total}]
+          activeProperties: propertiesList.length || 0,
+          activeContracts: contractsList.length || 0,
+          chartData: [
+            { n: 'Jan', v: total * 0.6 }, 
+            { n: 'Fev', v: total * 0.8 }, 
+            { n: 'Mar', v: total }
+          ]
         });
-      } finally { setLoading(false); }
+      } catch (error) {
+        console.error("Erro na conexão com o ImobiSys:", error);
+      } finally { 
+        setLoading(false); 
+      }
     };
     fetchData();
   }, []);
@@ -46,8 +71,12 @@ export default function DashboardPage() {
     <Box w="full">
       <Flex justify="space-between" align="flex-end" mb={10}>
         <Stack gap={1}>
-          <Heading size="xl" fontWeight="900" color="slate.800" letterSpacing="-1px">Resumo Geral</Heading>
-          <Text color="gray.500" fontSize="sm">Acompanhe seus indicadores em tempo real.</Text>
+          <Heading size="xl" fontWeight="900" color="slate.800" letterSpacing="-1px">
+            Resumo Geral
+          </Heading>
+          <Text color="gray.500" fontSize="sm">
+            Acompanhe os indicadores da Imobiliária Lacerda em tempo real.
+          </Text>
         </Stack>
         <Badge colorPalette="blue" variant="subtle" px={4} py={1} borderRadius="full">
            <Flex align="center" gap={2}><LuActivity size={14} /> Sistema Ativo</Flex>
@@ -56,7 +85,7 @@ export default function DashboardPage() {
 
       <SimpleGrid columns={{ base: 1, md: 3 }} gap={8} mb={10}>
         {[
-          { label: "Receita", val: `R$ ${stats.totalRevenue.toLocaleString()}`, icon: LuDollarSign, col: "blue" },
+          { label: "Receita", val: `R$ ${stats.totalRevenue.toLocaleString('pt-BR')}`, icon: LuDollarSign, col: "blue" },
           { label: "Imóveis", val: stats.activeProperties, icon: LuHouse, col: "purple" },
           { label: "Contratos", val: stats.activeContracts, icon: LuFileText, col: "cyan" }
         ].map((item, i) => (
@@ -64,18 +93,20 @@ export default function DashboardPage() {
             key={i}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            whileHover={{ y: -5 }} // Removemos o shadow daqui para evitar o erro TS
+            whileHover={{ y: -5 }}
             p={8}
             borderRadius="2xl"
             bg="white"
-            boxShadow="sm" // Propriedade do Chakra
+            boxShadow="sm"
             cursor="pointer"
             border="1px solid"
             borderColor="gray.50"
           >
             <Flex justify="space-between" align="center">
               <Stack gap={0}>
-                <Text fontSize="xs" fontWeight="bold" color="gray.400" textTransform="uppercase">{item.label}</Text>
+                <Text fontSize="xs" fontWeight="bold" color="gray.400" textTransform="uppercase">
+                  {item.label}
+                </Text>
                 <Heading size="lg" color="slate.800" mt={1}>{item.val}</Heading>
               </Stack>
               <Center w={14} h={14} bg={`${item.col}.50`} color={`${item.col}.600`} borderRadius="2xl">
@@ -112,7 +143,7 @@ export default function DashboardPage() {
             cursor="pointer" _hover={{ bg: "blue.700" }} onClick={() => navigate("/admin/properties")}
           >
             <Heading size="sm" mb={2}>Novo Imóvel</Heading>
-            <Text fontSize="xs" opacity={0.8} mb={6}>Adicione unidades rapidamente.</Text>
+            <Text fontSize="xs" opacity={0.8} mb={6}>Adicione unidades rapidamente no Cariru.</Text>
             <LuArrowRight />
           </Box>
           <Box bg="white" p={8} borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.50">

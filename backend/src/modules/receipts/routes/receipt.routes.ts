@@ -8,7 +8,7 @@ import {
 } from "../controllers/receipt.controller.js";
 
 // ✅ Importamos o middleware de segurança usando o Path Alias configurado
-import { protect } from "@shared/middlewares/auth.middleware.js";
+import { protect } from "../../../shared/middlewares/auth.middleware.js";
 
 const router = Router();
 

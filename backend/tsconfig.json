@@ -1,47 +1,27 @@
 {
   "compilerOptions": {
-    /* 🎯 Motor e resolução */
     "target": "ES2022",
+
+    /* Node moderno real */
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "lib": ["ES2022"],
 
-    /* 📁 Diretórios */
     "rootDir": "./src",
     "outDir": "./dist",
-    "noEmit": false,
 
-    /* 🔎 Caminhos e compatibilidade escalável */
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@modules/*": ["src/modules/*"],
-      "@shared/*": ["src/shared/*"],
-      "@config/*": ["src/config/*"]
-    },
-
-    /* 🚫 Suprimir aviso de depreciação do baseUrl no TS7 */
-    "ignoreDeprecations": "6.0",
-
-    /* 🛡️ Qualidade e segurança */
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "forceConsistentCasingInFileNames": true,
 
-    /* ⚙️ Compatibilidade ESM */
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
 
-    /* 📌 Tipos padrão */
     "types": ["node"]
   },
 
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "**/*.spec.ts"]
+  "include": ["src", "src/testConnection.ts"],
+  "exclude": ["node_modules", "dist"]
 }

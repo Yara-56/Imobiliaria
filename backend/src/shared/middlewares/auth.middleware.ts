@@ -1,36 +1,74 @@
+// CAMINHO: backend/src/shared/middlewares/auth.middleware.ts
 import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import { env } from "../../config/env.js";
 import { AppError } from "../errors/AppError.js";
+import { HttpStatus } from "../errors/http-status.js";
 
 /* ======================================================
-   TIPOS
+   TIPOS - Sincronizados com o seu express.d.ts
 ====================================================== */
 export type UserRole = "admin" | "corretor" | "cliente";
 
+interface TokenPayload {
+  id: string;
+  role: UserRole;
+  tenantId: string;
+}
+
 /* ======================================================
-   PROTECT - VERSÃO LIBERADA (BYPASS)
+   🛡️ PROTECT - VALIDAÇÃO DE JWT
 ====================================================== */
-export const protect = (
+export const protect = async (
   req: Request,
   _res: Response,
   next: NextFunction
-): void => {
-  // 🔓 INJETANDO USUÁRIO FAKE PARA PULAR LOGIN
-  req.user = {
-    id: "65cd00000000000000000001",
-    role: "admin" as UserRole,
-    tenantId: "default",
-  };
+): Promise<void> => {
+  try {
+    let token: string | undefined;
 
-  // Pula todas as verificações de JWT e segue para a rota
-  next();
+    if (req.headers.authorization?.startsWith("Bearer")) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+
+    if (!token) {
+      throw new AppError({
+        message: "Acesso negado. Por favor, faça login.",
+        statusCode: HttpStatus.UNAUTHORIZED,
+      });
+    }
+
+    const decoded = jwt.verify(token, env.JWT_SECRET) as TokenPayload;
+
+    // ✅ Sincronizado com o seu global types (_id)
+    req.user = {
+      _id: decoded.id,
+      role: decoded.role,
+      tenantId: decoded.tenantId,
+    };
+
+    next();
+  } catch (error) {
+    next(new AppError({
+      message: "Token inválido ou expirado.",
+      statusCode: HttpStatus.UNAUTHORIZED,
+    }));
+  }
 };
 
 /* ======================================================
-   AUTHORIZE - VERSÃO LIBERADA
+   🔐 AUTHORIZE - CONTROLE DE ACESSO (RBAC)
+   ✅ Resolvendo o erro ts(2305): Exportação explícita
 ====================================================== */
-export const authorize =
-  (..._roles: UserRole[]) =>
-  (_req: Request, _res: Response, next: NextFunction): void => {
-    // 🔓 Permite acesso independente da role do usuário
+export const authorize = (...roles: UserRole[]) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
+    // 🛡️ Segurança: Verifica se o 'protect' já injetou o usuário
+    if (!req.user || !roles.includes(req.user.role as UserRole)) {
+      return next(new AppError({
+        message: "Você não tem permissão para realizar esta ação.",
+        statusCode: HttpStatus.FORBIDDEN,
+      }));
+    }
     next();
   };
+};

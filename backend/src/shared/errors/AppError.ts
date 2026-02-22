@@ -1,26 +1,33 @@
-export class AppError extends Error {
-  public readonly statusCode: number;
-  public readonly status: "fail" | "error";
-  public readonly isOperational: boolean;
-  public readonly code?: string;
-  public readonly details?: unknown;
+import { HttpStatus, type HttpStatusCode } from "./http-status.js";
+import { ErrorCodes, type ErrorCode } from "./error-codes.js";
 
-  constructor(
-    message: string,
-    statusCode: number = 500,
-    options?: {
-      code?: string;
-      details?: unknown;
-    }
-  ) {
+interface AppErrorOptions {
+  message: string;
+  statusCode?: HttpStatusCode;
+  errorCode?: ErrorCode;
+  details?: unknown;
+  isOperational?: boolean;
+}
+
+export class AppError extends Error {
+  public readonly statusCode: HttpStatusCode;
+  public readonly errorCode: ErrorCode;
+  public readonly details?: unknown;
+  public readonly isOperational: boolean;
+
+  constructor({
+    message,
+    statusCode = HttpStatus.BAD_REQUEST,
+    errorCode = ErrorCodes.INTERNAL_ERROR,
+    details,
+    isOperational = true,
+  }: AppErrorOptions) {
     super(message);
 
     this.statusCode = statusCode;
-    this.status = statusCode >= 400 && statusCode < 500 ? "fail" : "error";
-    this.isOperational = true;
-
-    this.code = options?.code;
-    this.details = options?.details;
+    this.errorCode = errorCode;
+    this.details = details;
+    this.isOperational = isOperational;
 
     Object.setPrototypeOf(this, new.target.prototype);
     Error.captureStackTrace(this);
