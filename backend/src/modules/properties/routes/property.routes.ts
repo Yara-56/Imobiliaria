@@ -1,15 +1,14 @@
+// CAMINHO: backend/src/modules/properties/routes/property.routes.ts
 import { Router } from "express";
-// ✅ IMPORTANTE: Em NodeNext, importe de .js mesmo o arquivo sendo .ts
 import * as propertyController from "../controllers/property.controller.js";
 
-import { protect, authorize } from "@shared/middlewares/auth.middleware.js";
-import { validate } from "@shared/middlewares/validate.middleware.js";
-
-// ✅ NOVO: parse do address quando vier como JSON string via multipart
-import { parseJsonFields } from "@shared/middlewares/parseJsonFields.middleware.js";
-
-// ✅ NOVO: upload específico de documents para properties
-import { uploadPropertyDocs } from "@shared/middlewares/upload.middleware.js";
+/** * ✅ RASTRO PROFISSIONAL:
+ * Sincronizado para acessar os middlewares globais na pasta shared.
+ */
+import { protect, authorize } from "../../../shared/middlewares/auth.middleware.js";
+import { validate } from "../../../shared/middlewares/validate.middleware.js";
+import { parseJsonFields } from "../../../shared/middlewares/parseJsonFields.middleware.js";
+import { uploadPropertyDocs } from "../../../shared/middlewares/upload.middleware.js";
 
 import {
   createPropertySchema,
@@ -20,34 +19,27 @@ import {
 const router = Router();
 
 /**
- * 🔒 Camada de Proteção Global
+ * 🔒 Cybersecurity: Bloqueio total para usuários não autenticados.
+ * Isso evita que o controlador tente ler 'req.user.tenantId' de um objeto vazio.
  */
 router.use(protect);
 
 /**
- * 🏠 Rotas de Coleção
+ * 🏠 Rotas de Coleção (Listagem e Cadastro)
  */
 router
   .route("/")
   .get(propertyController.getAllProperties)
   .post(
     authorize("admin", "corretor"),
-
-    // ✅ 1) multer popula req.body + req.files (multipart/form-data)
-    uploadPropertyDocs,
-
-    // ✅ 2) address chega como string -> vira objeto
-    parseJsonFields(["address"]),
-
-    // ✅ 3) valida body (zod)
-    validate(createPropertySchema),
-
-    // ✅ 4) controller salva tudo
+    uploadPropertyDocs,           // Processa imagens/documentos
+    parseJsonFields(["address"]), // Converte strings JSON para objetos TS
+    validate(createPropertySchema), // Valida o contrato de dados
     propertyController.createProperty
   );
 
 /**
- * 🔍 Rotas por ID
+ * 🔍 Rotas por ID (Detalhes, Edição e Exclusão)
  */
 router
   .route("/:id")
@@ -60,7 +52,7 @@ router
     propertyController.updateProperty
   )
   .delete(
-    authorize("admin"),
+    authorize("admin"), // Apenas admin pode excluir dados da Imobiliária Lacerda
     validate(getPropertySchema),
     propertyController.deleteProperty
   );

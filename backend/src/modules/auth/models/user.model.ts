@@ -1,31 +1,53 @@
-import mongoose from "mongoose"
-import bcrypt from "bcryptjs"
+// CAMINHO: backend/src/modules/users/modules/user.model.ts
+import mongoose, { Schema, Model, HydratedDocument } from "mongoose";
+import bcrypt from "bcryptjs";
 
-export type UserRole = "ADMIN" | "USER"
+/** * ✅ CORREÇÃO DE PAPÉIS: 
+ * Sincronizado com o seu auth.controller (minúsculo)
+ */
+export type UserRole = "admin" | "corretor" | "cliente";
 
-interface IUser extends mongoose.Document {
-  name: string
-  email: string
-  password: string
-  role: UserRole
-  companyId: mongoose.Types.ObjectId
-  comparePassword(password: string): Promise<boolean>
+export interface IUser {
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  tenantId: string; // ✅ MUDANÇA: De companyId para tenantId
+  status: "ativo" | "inativo" | "bloqueado";
 }
 
-const userSchema = new mongoose.Schema<IUser>(
+interface UserMethods {
+  comparePassword(password: string): Promise<boolean>;
+}
+
+export type UserDocument = HydratedDocument<IUser, UserMethods>;
+
+const userSchema = new Schema<IUser, Model<IUser, {}, UserMethods>, UserMethods>(
   {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true },
+    password: { 
+      type: String, 
+      required: true,
+      select: false // Cybersecurity: Não traz a senha em buscas comuns
+    },
     role: {
       type: String,
-      enum: ["ADMIN", "USER"],
-      default: "USER"
+      enum: ["admin", "corretor", "cliente"],
+      default: "cliente"
     },
-    companyId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Company",
-      required: true
+    /**
+     * ✅ CORREÇÃO DO ERRO 'REQUIRED': 
+     * O campo agora é tenantId para bater com o seu tests.http
+     */
+    tenantId: {
+      type: String,
+      required: [true, "O tenantId é obrigatório para o isolamento de dados"]
+    },
+    status: {
+      type: String,
+      enum: ["ativo", "inativo", "bloqueado"],
+      default: "ativo"
     }
   },
   { timestamps: true }
@@ -33,14 +55,24 @@ const userSchema = new mongoose.Schema<IUser>(
 
 // Hash automático antes de salvar
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next()
-  this.password = await bcrypt.hash(this.password, 10)
-  next()
-})
+  if (!this.isModified("password")) return next();
+  try {
+    const salt = await bcrypt.genSalt(12);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error as Error);
+  }
+});
 
 userSchema.methods.comparePassword = function (password: string) {
-  return bcrypt.compare(password, this.password)
-}
+  return bcrypt.compare(password, this.password);
+};
 
-const User = mongoose.model<IUser>("User", userSchema)
-export default User
+/**
+ * ✅ SOLUÇÃO OverwriteModelError: 
+ * Impede que o Nodemon crashe ao tentar recompilar o modelo
+ */
+export const User = mongoose.models.User || mongoose.model<IUser, Model<IUser, {}, UserMethods>>("User", userSchema);
+
+export default User;

@@ -1,59 +1,40 @@
+// CAMINHO: backend/src/shared/middlewares/upload.middleware.ts
 import multer from "multer";
-import path from "path";
-import fs from "fs";
-import crypto from "crypto";
+import { AppError } from "../errors/AppError.js";
+import { HttpStatus } from "../errors/http-status.js";
 
-// ✅ Garante que a estrutura de pastas existe na raiz do backend
-const tenantsUploadDir = path.resolve("uploads", "tenants");
-const propertiesUploadDir = path.resolve("uploads", "properties");
+/**
+ * Configuração do Multer para o ImobiSys
+ */
+const storage = multer.memoryStorage();
 
-if (!fs.existsSync(tenantsUploadDir)) fs.mkdirSync(tenantsUploadDir, { recursive: true });
-if (!fs.existsSync(propertiesUploadDir)) fs.mkdirSync(propertiesUploadDir, { recursive: true });
+/**
+ * 🛡️ Filtro de Segurança (Cybersecurity)
+ * Impede o upload de scripts maliciosos, aceitando apenas imagens e PDFs.
+ */
+const fileFilter = (req: any, file: any, cb: any) => {
+  const allowedMimetypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 
-// ✅ Função para gerar filename seguro e único
-const makeFilename = (file: Express.Multer.File) => {
-  const uniqueSuffix = crypto.randomBytes(4).toString("hex");
-  const ext = path.extname(file.originalname);
-  const name = path
-    .basename(file.originalname, ext)
-    .replace(/\s+/g, "_")
-    .toLowerCase();
-
-  return `${Date.now()}-${uniqueSuffix}-${name}${ext}`;
+  if (allowedMimetypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new AppError({ 
+      message: "Arquivo inválido. Envie apenas imagens (JPG, PNG, WebP) ou PDF.", 
+      statusCode: HttpStatus.BAD_REQUEST 
+    }), false);
+  }
 };
 
-// ✅ Filtro de Segurança (Apenas o que uma imobiliária real usa)
-const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  const allowedMimes = ["application/pdf", "image/jpeg", "image/png"];
-
-  if (allowedMimes.includes(file.mimetype)) cb(null, true);
-  else cb(new Error("Formato inválido. A AuraImobi aceita apenas PDF, JPG e PNG.") as any);
-};
-
-// ✅ Upload para TENANTS (mantém como está, mas organizado)
-const tenantsStorage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, tenantsUploadDir),
-  filename: (_req, file, cb) => cb(null, makeFilename(file)),
-});
-
-// ✅ Upload para PROPERTIES (novo)
-const propertiesStorage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, propertiesUploadDir),
-  filename: (_req, file, cb) => cb(null, makeFilename(file)),
-});
-
-export const uploadTenant = multer({
-  storage: tenantsStorage,
+const uploadConfig = multer({
+  storage,
   fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 },
+  limits: {
+    fileSize: 10 * 1024 * 1024, // Limite de 10MB por arquivo
+  },
 });
 
-export const uploadProperty = multer({
-  storage: propertiesStorage,
-  fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 },
-});
-
-// ✅ Exports semânticos para as rotas
-export const uploadTenantDocs = uploadTenant.array("documents", 5);
-export const uploadPropertyDocs = uploadProperty.array("documents", 10);
+/**
+ * ✅ CORREÇÃO TS2305: Exportando com o nome exato que o Router espera.
+ * O campo no formulário (multipart/form-data) deve se chamar "documents".
+ */
+export const uploadPropertyDocs = uploadConfig.array("documents", 10);

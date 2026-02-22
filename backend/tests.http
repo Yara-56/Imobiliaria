@@ -1,0 +1,98 @@
+### ⚙️ CONFIGURAÇÕES GLOBAIS
+@baseUrl = http://localhost:3001/api/v1
+@contentType = application/json
+@tenantLacerda = 65d5f1e8b3f1a2c3d4e5f6g7
+
+# =========================================================
+# 🔐 MÓDULO 0: ACESSO RÁPIDO (TRIAL)
+# =========================================================
+
+### 0. Entrar no Painel (Modo Demonstração)
+# Use este para testar o botão azul da sua tela de login!
+# @name trialLogin
+POST {{baseUrl}}/auth/trial
+Content-Type: {{contentType}}
+
+### Captura Automática do Token de Visitante
+@trialToken = {{trialLogin.response.body.token}}
+
+# =========================================================
+# 🔐 MÓDULO 1: AUTENTICAÇÃO REAL (IMOBILIÁRIA LACERDA)
+# =========================================================
+
+### 1. Registrar Administrador Real
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Iara Lacerda",
+  "email": "iara@imobiliarialacerda.com.br",
+  "password": "senha_segura_123",
+  "tenantId": "{{tenantLacerda}}",
+  "role": "admin"
+}
+
+### 2. Login Real
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "iara@imobiliarialacerda.com.br",
+  "password": "senha_segura_123"
+}
+
+### Captura Automática do Token Real
+@authToken = {{login.response.body.token}}
+
+# =========================================================
+# 🏠 MÓDULO 2: PROPRIEDADES (ISOLAMENTO DE DADOS)
+# =========================================================
+
+### 3. Listar Imóveis do MODO TRIAL
+# Deve retornar os imóveis do bairro Cariru/Bom Retiro criados no Seed
+GET {{baseUrl}}/properties
+Authorization: Bearer {{trialToken}}
+
+### 4. Listar Imóveis REAIS (Imobiliária Lacerda)
+# Deve retornar apenas o que você cadastrou no seu tenant real
+GET {{baseUrl}}/properties
+Authorization: Bearer {{authToken}}
+
+### 5. Cadastrar Imóvel (Como Admin Real)
+# @name createProperty
+POST {{baseUrl}}/properties
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "title": "Apartamento Luxo - Bairro Cariru",
+  "description": "3 quartos, suíte, 2 vagas, varanda gourmet.",
+  "price": 580000,
+  "type": "Venda",
+  "address": {
+    "neighborhood": "Cariru",
+    "city": "Ipatinga",
+    "state": "MG"
+  }
+}
+
+# =========================================================
+# 📄 MÓDULO 3: CONTRATOS (SEGURANÇA RBAC)
+# =========================================================
+
+### 6. Listar Contratos (Modo Trial)
+GET {{baseUrl}}/contracts
+Authorization: Bearer {{trialToken}}
+
+### 7. Ver Perfil (Get Me)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{authToken}}
+
+# =========================================================
+# 🚪 MÓDULO 4: LOGOUT
+# =========================================================
+
+### 8. Logout
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{authToken}}

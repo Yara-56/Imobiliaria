@@ -5,7 +5,7 @@ import "dotenv/config";
 
 // ✅ CORREÇÃO ts(2834): Adicionando a extensão .ts obrigatória para NodeNext
 // ✅ CORREÇÃO ts(2305): Usando importação nomeada com { } para dar match com o seu export
-import { apiRouter } from "./shared/routes/index.js";
+import { apiRouter } from "./main/routes.js";
 
 const app = express();
 

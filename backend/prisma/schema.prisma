@@ -8,35 +8,40 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  email     String   @unique
-  password  String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String     @unique
+  password    String
+  role        Role       @default(USER)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
-  properties Property[]
+  properties  Property[]
 }
 
 model Property {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  title     String
-  price     Float
-  ownerId   String   @db.ObjectId
-  owner     User     @relation(fields: [ownerId], references: [id])
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  price       Float
+  imageUrl    String?    // 🔥 para upload externo
+  ownerId     String     @db.ObjectId
+  owner       User       @relation(fields: [ownerId], references: [id])
 
-  tenants   Tenant[]
-  createdAt DateTime @default(now())
+  tenants     Tenant[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model Tenant {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  name       String
-  email      String
-  propertyId String   @db.ObjectId
-  property   Property @relation(fields: [propertyId], references: [id])
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String
+  documentUrl String?    // 🔥 upload de documentos
+  propertyId  String     @db.ObjectId
+  property    Property   @relation(fields: [propertyId], references: [id])
 
-  createdAt  DateTime @default(now())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 enum Role {

@@ -6,7 +6,7 @@ import {
   getContractById,
   updateContract,
 } from "../controllers/contract.controller.js"; 
-import { protect } from "@shared/middlewares/auth.middleware.js"; // ✅ Usando o alias configurado
+import { protect } from "../../../shared/middlewares/auth.middleware.js";
 
 const router = Router();
 
