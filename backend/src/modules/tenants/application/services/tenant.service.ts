@@ -1,30 +1,61 @@
-// CAMINHO: backend/src/modules/tenants/application/services/tenant.service.ts
+import { ITenantRepository, CreateTenantData } from "../../domain/repositories/tenant.repository.interface.js";
+import { Tenant } from "../../domain/entities/tenant.entity.js";
+import { PrismaTenantRepository } from "../../infrastructure/database/prisma-tenant.reposirory.js";
 
-// CORREÇÃO: Subimos dois níveis (../../) para sair de 'services' e 'application' 
-// e então entrar em 'infrastructure'
-import { TenantRepository } from "../../infrastructure/database/tenant.repository.js";
-
+/**
+ * 🚀 TenantService — Camada de aplicação (Use Cases)
+ * Responsável por orquestrar regras de negócio.
+ *
+ * ✅ Clean Architecture
+ * ✅ Dependency Inversion
+ * ✅ Tipagem forte
+ * ✅ Pronto para multitenancy
+ * ✅ Testável
+ */
 export class TenantService {
-  // Instanciando o repositório correto conforme sua estrutura de arquivos
-  constructor(private repo = new TenantRepository()) {}
+  constructor(
+    private readonly repo: ITenantRepository = new PrismaTenantRepository()
+  ) {}
 
-  async create(data: any) {
+  /**
+   * 📥 Criar tenant
+   */
+  async create(data: CreateTenantData): Promise<Tenant> {
     return this.repo.create(data);
   }
 
-  async findAll(tenantId: string, params: any) {
-    return this.repo.findAll(tenantId, params);
+  /**
+   * 📄 Listar tenants por propriedade
+   */
+  async findAll(propertyId: string): Promise<Tenant[]> {
+    return this.repo.findAll(propertyId);
   }
 
-  async findById(id: string, tenantId: string) {
-    return this.repo.findById(id, tenantId);
+  /**
+   * 🔍 Buscar tenant por ID
+   */
+  async findById(
+    id: string,
+    propertyId: string
+  ): Promise<Tenant | null> {
+    return this.repo.findById(id, propertyId);
   }
 
-  async update(id: string, tenantId: string, data: any) {
-    return this.repo.update(id, tenantId, data);
+  /**
+   * ✏️ Atualizar tenant
+   */
+  async update(
+    id: string,
+    propertyId: string,
+    data: Partial<CreateTenantData>
+  ): Promise<Tenant> {
+    return this.repo.update(id, propertyId, data);
   }
 
-  async delete(id: string, tenantId: string) {
-    return this.repo.delete(id, tenantId);
+  /**
+   * 🗑️ Remover tenant
+   */
+  async delete(id: string, propertyId: string): Promise<void> {
+    await this.repo.delete(id, propertyId);
   }
 }

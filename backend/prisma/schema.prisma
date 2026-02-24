@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("MONGO_URI")
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -23,7 +23,8 @@ model Property {
   id          String     @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   price       Float
-  imageUrl    String?    // 🔥 para upload externo
+  imageUrl    String?
+
   ownerId     String     @db.ObjectId
   owner       User       @relation(fields: [ownerId], references: [id])
 
@@ -36,7 +37,8 @@ model Tenant {
   id          String     @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   email       String
-  documentUrl String?    // 🔥 upload de documentos
+  documentUrl String?
+
   propertyId  String     @db.ObjectId
   property    Property   @relation(fields: [propertyId], references: [id])
 
