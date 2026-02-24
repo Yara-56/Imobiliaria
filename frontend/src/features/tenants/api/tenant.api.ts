@@ -1,117 +1,108 @@
 import api from "@/core/api/api";
-import type { Tenant, CreateTenantDTO, UpdateTenantDTO } from "../types/tenant.js"; // ✅ .js para NodeNext
+import type {
+  Tenant,
+  CreateTenantDTO,
+  UpdateTenantDTO,
+} from "../types/tenant.js";
 
+/**
+ * Envelope padrão do backend
+ */
 interface ApiResponse<T> {
   status: string;
   data: T;
-  results?: number;
+  meta?: unknown;
   message?: string;
 }
 
 /**
- * Helper interno para converter DTO em FormData
- * 🛡️ Refinado: Trata objetos aninhados (settings) e tipos financeiros.
+ * Transforma qualquer payload em FormData automaticamente
+ * - Mantém File
+ * - Serializa objetos
+ * - Remove null/undefined
  */
-function buildFormData(payload: any) {
+const toFormData = (payload: unknown): FormData => {
   if (payload instanceof FormData) return payload;
 
-  const formData = new FormData();
-  
-  Object.entries(payload).forEach(([key, value]) => {
-    if (value === undefined || value === null) return;
+  const form = new FormData();
 
-    // ✅ Tratamento especial para o upload de documentos do inquilino
-    if (key === "documentFile" && value instanceof File) {
-      formData.append("documents", value);
-    } 
-    // ✅ Tratamento para objetos aninhados (como o campo 'settings' do Tenant)
-    else if (typeof value === 'object' && !(value instanceof File)) {
-      formData.append(key, JSON.stringify(value));
-    }
-    else {
-      formData.append(key, String(value));
-    }
-  });
+  Object.entries(payload as Record<string, unknown>)
+    .filter(([, value]) => value !== null && value !== undefined)
+    .forEach(([key, value]) => {
+      if (value instanceof File) {
+        form.append(key, value);
+        return;
+      }
 
-  return formData;
-}
+      if (typeof value === "object") {
+        form.append(key, JSON.stringify(value));
+        return;
+      }
+
+      form.append(key, String(value));
+    });
+
+  return form;
+};
 
 /**
- * TENANT API – PADRÃO PRODUÇÃO v3 (Aura Engine)
- * Gerencia a inteligência contratual e o isolamento de inquilinos no MacBook.
+ * Request inteligente:
+ * Detecta automaticamente se deve enviar JSON ou multipart
+ */
+const smartRequest = async <T>(
+  method: "post" | "patch",
+  url: string,
+  payload: unknown
+): Promise<T> => {
+  const isMultipart =
+    payload instanceof FormData ||
+    Object.values(payload as Record<string, unknown>).some(
+      (v) => v instanceof File
+    );
+
+  const dataToSend = isMultipart ? toFormData(payload) : payload;
+
+  const response = await api.request<ApiResponse<T>>({
+    method,
+    url,
+    data: dataToSend,
+    headers: isMultipart
+      ? { "Content-Type": "multipart/form-data" }
+      : undefined,
+  });
+
+  return response.data.data;
+};
+
+/**
+ * TENANT API — Clean Architecture Version
  */
 export const tenantApi = {
-  /**
-   * LISTAR TODOS
-   */
   list: async (): Promise<Tenant[]> => {
-    const { data } = await api.get<ApiResponse<{ tenants: Tenant[] }>>("/tenants");
-    return data.data.tenants; // ✅ Mapeamento direto para o cluster
+    const { data } = await api.get<ApiResponse<Tenant[]>>("/tenants");
+    return data.data ?? [];
   },
 
-  /**
-   * BUSCAR POR ID
-   */
   getById: async (id: string): Promise<Tenant> => {
-    const { data } = await api.get<ApiResponse<{ tenant: Tenant }>>(`/tenants/${id}`);
-    return data.data.tenant;
-  },
-
-  /**
-   * CRIAR (Com suporte a upload de documentos e plano inicial)
-   */
-  create: async (payload: CreateTenantDTO | FormData): Promise<Tenant> => {
-    const formData = buildFormData(payload);
-
-    const { data } = await api.post<ApiResponse<{ tenant: Tenant }>>(
-      "/tenants",
-      formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-      }
+    const { data } = await api.get<ApiResponse<Tenant>>(
+      `/tenants/${id}`
     );
-
-    return data.data.tenant;
+    return data.data;
   },
 
-  /**
-   * ATUALIZAR (PATCH)
-   * ✅ Agora suporta a sincronização de preferredPaymentMethod vinda do Financeiro.
-   */
-  update: async (id: string, payload: UpdateTenantDTO | FormData): Promise<Tenant> => {
-    // Se não for FormData, enviamos como JSON para melhor performance do Node v20
-    if (!(payload instanceof FormData)) {
-      const { data } = await api.patch<ApiResponse<{ tenant: Tenant }>>(
-        `/tenants/${id}`,
-        payload
-      );
-      return data.data.tenant;
-    }
+  create: (payload: CreateTenantDTO | FormData) =>
+    smartRequest<Tenant>("post", "/tenants", payload),
 
-    const formData = buildFormData(payload);
-    const { data } = await api.patch<ApiResponse<{ tenant: Tenant }>>(
-      `/tenants/${id}`,
-      formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-      }
-    );
+  update: (id: string, payload: UpdateTenantDTO | FormData) =>
+    smartRequest<Tenant>("patch", `/tenants/${id}`, payload),
 
-    return data.data.tenant;
-  },
-
-  /**
-   * DELETAR (Remoção lógica ou física do cluster)
-   */
   delete: async (id: string): Promise<void> => {
     await api.delete(`/tenants/${id}`);
   },
 
-  /**
-   * STATUS / HEALTH CHECK
-   * Verifica se os serviços de automação (como envio de e-mail) estão ativos.
-   */
-  checkStatus: async (id: string): Promise<"online" | "offline"> => {
+  checkStatus: async (
+    id: string
+  ): Promise<"online" | "offline"> => {
     const { data } = await api.get<
       ApiResponse<{ status: "online" | "offline" }>
     >(`/tenants/${id}/health`);

@@ -1,24 +1,37 @@
-// CAMINHO REAL: backend/src/modules/tenants/routes/tenant.routes.ts
+// backend/src/modules/tenants/routes/tenant.routes.ts
 import { Router } from "express";
 import { tenantController } from "../controllers/tenant.controller.js";
-
-/** * ✅ CORREÇÃO DO RASTRO (Path):
- * 1. ../ (sai de routes)
- * 2. ../ (sai de tenants)
- * 3. ../ (sai de modules) 
- * Agora você está em 'src', onde pode acessar 'shared'.
- */
 import { protect } from "../../../../shared/middlewares/auth.middleware.js";
 
 const router = Router();
 
-// 🛡️ Segurança: Protege todas as rotas de Tenant da Imobiliária Lacerda
+/**
+ * 🛡️ Todas as rotas protegidas
+ */
 router.use(protect);
 
+/**
+ * 📦 CRUD — Tenants
+ */
+
+// CREATE
 router.post("/", tenantController.create);
+
+// READ ALL
 router.get("/", tenantController.findAll);
+
+// READ BY ID
 router.get("/:id", tenantController.findById);
-router.put("/:id", tenantController.update);
+
+// UPDATE (✅ alinhado com frontend PATCH)
+router.patch("/:id", tenantController.update);
+
+// DELETE
 router.delete("/:id", tenantController.delete);
+
+/**
+ * ❤️ Health do tenant (frontend usa)
+ */
+router.get("/:id/health", tenantController.healthCheck);
 
 export default router;
