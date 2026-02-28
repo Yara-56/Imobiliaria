@@ -1,45 +1,49 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { tenantApi } from "../api/tenant.api.js"; // ✅ .js para padrão NodeNext
-import { CreateTenantDTO, Tenant } from "../types/tenant.js"; 
+import { tenantApi } from "../api/tenant.api"; 
+import { CreateTenantDTO, Tenant } from "../types/tenant"; 
 import { toaster } from "@/components/ui/toaster";
 
 /**
  * 🚀 Hook para Criação de Inquilinos
- * Suporta tanto o DTO (JSON) quanto FormData (Arquivos binários).
- * Isso resolve o erro de incompatibilidade ts(2559).
+ * Aceita CreateTenantDTO (JSON) ou FormData (Upload de arquivos).
  */
 export const useCreateTenant = () => {
   const queryClient = useQueryClient();
 
   return useMutation<Tenant, Error, CreateTenantDTO | FormData>({
     mutationFn: async (data) => {
-      // 🛡️ O tenantApi.create já está preparado para tratar o FormData
+      // O tenantApi.create deve estar exportado corretamente no seu .api
       return tenantApi.create(data);
     },
 
     onSuccess: (newTenant) => {
-      // ✅ Invalida a lista para que o novo inquilino apareça na tabela
+      // ✅ Atualiza a lista de inquilinos automaticamente
       queryClient.invalidateQueries({ queryKey: ["tenants"] });
       
       toaster.create({
-        title: "Provisionamento Concluído",
+        title: "Cadastro Realizado!",
         /**
          * 🛡️ CORREÇÃO ts(2339): 
-         * Usando 'fullName' conforme definido na sua interface Tenant master.
+         * Usando fullName e garantindo que o TypeScript entenda o retorno.
          */
-        description: `A instância de ${newTenant.fullName} está ativa no cluster Aura.`,
+        description: `O inquilino ${newTenant.fullName} foi adicionado com sucesso.`,
         type: "success",
       });
     },
 
     onError: (error: any) => {
+      // 🛡️ Captura a mensagem vinda do seu Backend (Express/Nest)
+      const errorMessage = error.response?.data?.message || "Erro ao conectar com o servidor.";
+      
       toaster.create({
-        title: "Erro de Infraestrutura",
-        description: error.response?.data?.message || "Falha ao sincronizar com o banco de dados.",
+        title: "Falha no Cadastro",
+        description: errorMessage,
         type: "error",
       });
+      
+      console.error("Erro na mutação:", error);
     },
   });
 };
