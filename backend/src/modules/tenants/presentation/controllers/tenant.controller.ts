@@ -2,10 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import { BaseCrudController } from "../../../../shared/http/base-crud-controller.js";
 import { TenantService } from "../../application/services/tenant.service.js";
 import { HttpStatus } from "../../../../shared/errors/http-status.js";
+import { AppError } from "../../../../shared/errors/AppError.js";
 
 /**
  * 🏢 TenantController
- * Gerencia o CRUD de inquilinos com isolamento total entre imobiliárias (SaaS).
+ * Gerencia o CRUD de inquilinos (Renters) com isolamento Multi-tenant.
  */
 export class TenantController extends BaseCrudController<any> {
   constructor() {
@@ -14,11 +15,53 @@ export class TenantController extends BaseCrudController<any> {
   }
 
   /**
+   * ➕ CRIAR NOVO INQUILINO
+   */
+  create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { name, email, propertyId } = req.body;
+
+      // Validação defensiva para evitar erro 500 no Prisma
+      if (!name) {
+        throw new AppError({
+          message: "O campo 'name' (nome do inquilino) é obrigatório.",
+          statusCode: HttpStatus.BAD_REQUEST
+        });
+      }
+
+      if (!propertyId) {
+        throw new AppError({
+          message: "É necessário vincular o inquilino a um imóvel (propertyId).",
+          statusCode: HttpStatus.BAD_REQUEST
+        });
+      }
+
+      const tenantData = {
+        name,
+        email: email || null,
+        propertyId,
+        tenantId: req.user.tenantId, // ID da Imobiliária logada
+        userId: req.user.id,        // ID do usuário logado
+      };
+
+      const tenant = await this.service.create(tenantData);
+
+      res.status(HttpStatus.CREATED).json({
+        status: "success",
+        message: "Inquilino cadastrado com sucesso",
+        data: { tenant },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
    * 📥 LISTAR TODOS (Filtrado por Imobiliária)
    */
   findAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { tenantId } = req.user; // Extraído do Token pelo Middleware Protect
+      const { tenantId } = req.user;
       const tenants = await this.service.findAll(tenantId);
 
       res.status(HttpStatus.OK).json({
@@ -28,7 +71,7 @@ export class TenantController extends BaseCrudController<any> {
         },
         meta: {
           total: Array.isArray(tenants) ? tenants.length : 0,
-        },
+        }
       });
     } catch (error) {
       next(error);
@@ -36,7 +79,7 @@ export class TenantController extends BaseCrudController<any> {
   };
 
   /**
-   * 🔎 BUSCAR POR ID (Validando Posse)
+   * 🔎 BUSCAR POR ID
    */
   findById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -45,6 +88,13 @@ export class TenantController extends BaseCrudController<any> {
 
       const tenant = await this.service.findById(id, tenantId);
 
+      if (!tenant) {
+        throw new AppError({
+          message: "Inquilino não encontrado.",
+          statusCode: HttpStatus.NOT_FOUND
+        });
+      }
+
       res.status(HttpStatus.OK).json({
         status: "success",
         data: { tenant },
@@ -55,41 +105,18 @@ export class TenantController extends BaseCrudController<any> {
   };
 
   /**
-   * ➕ CRIAR NOVO INQUILINO
-   */
-  create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      // Injeta os IDs de segurança antes de mandar pro banco
-      const data = {
-        ...req.body,
-        tenantId: req.user.tenantId,
-        userId: req.user.id, 
-      };
-
-      const tenant = await this.service.create(data);
-
-      res.status(HttpStatus.CREATED).json({
-        status: "success",
-        data: { tenant },
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * ✏️ ATUALIZAR INQUILINO
+   * ✏️ ATUALIZAR
    */
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params;
       const { tenantId } = req.user;
 
-      const tenant = await this.service.update(id, tenantId, req.body);
+      const updatedTenant = await this.service.update(id, tenantId, req.body);
 
       res.status(HttpStatus.OK).json({
         status: "success",
-        data: { tenant },
+        data: { tenant: updatedTenant },
       });
     } catch (error) {
       next(error);
@@ -97,7 +124,7 @@ export class TenantController extends BaseCrudController<any> {
   };
 
   /**
-   * 🗑 DELETAR INQUILINO
+   * 🗑 DELETAR
    */
   delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -113,7 +140,8 @@ export class TenantController extends BaseCrudController<any> {
   };
 
   /**
-   * ❤️ HEALTH CHECK (Requisito do Frontend)
+   * ❤️ HEALTH CHECK
+   * Resolve o erro ts(2339) no arquivo de rotas
    */
   healthCheck = async (req: Request, res: Response): Promise<void> => {
     res.status(HttpStatus.OK).json({
@@ -127,5 +155,5 @@ export class TenantController extends BaseCrudController<any> {
   };
 }
 
-// Exporta a instância pronta para as rotas
+// Exporta a instância única para ser usada nas rotas
 export const tenantController = new TenantController();
