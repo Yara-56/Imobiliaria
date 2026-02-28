@@ -1,13 +1,12 @@
 import { Router } from "express";
-import { 
-  listPayments, 
-  createPayment, 
-  getPaymentById, 
-  updatePaymentStatus // ✅ Importação nomeada direta para maior clareza
-} from "../controllers/payment.controller.js";
+import {
+  listPayments,
+  createPayment,
+  getPaymentById,
+  updatePaymentStatus,
+  deletePayment,
+} from "../presentation/controllers/payment.controller.js"; // ✅ novo caminho
 import { protect } from "../../../shared/middlewares/auth.middleware.js";
-import { validate } from "../../../shared/middlewares/validate.middleware.js";
-import { createPaymentSchema } from "../schemas/payment.schema.js";
 
 const router = Router();
 
@@ -15,12 +14,13 @@ router.use(protect);
 
 router
   .route("/")
-  .get(listPayments) 
-  .post(validate(createPaymentSchema), createPayment);
+  .get(listPayments)
+  .post(createPayment);
 
 router
   .route("/:id")
   .get(getPaymentById)
-  .patch(updatePaymentStatus); // ✅ Agora o TS reconhecerá o membro diretamente
+  .patch(updatePaymentStatus)
+  .delete(deletePayment); // ✅ adicionado
 
 export default router;
