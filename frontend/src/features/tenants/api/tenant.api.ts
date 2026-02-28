@@ -5,9 +5,6 @@ import type {
   UpdateTenantDTO,
 } from "../types/tenant.js";
 
-/**
- * Envelope padrão do backend
- */
 interface ApiResponse<T> {
   status: string;
   data: T;
@@ -15,12 +12,6 @@ interface ApiResponse<T> {
   message?: string;
 }
 
-/**
- * Transforma qualquer payload em FormData automaticamente
- * - Mantém File
- * - Serializa objetos
- * - Remove null/undefined
- */
 const toFormData = (payload: unknown): FormData => {
   if (payload instanceof FormData) return payload;
 
@@ -33,22 +24,16 @@ const toFormData = (payload: unknown): FormData => {
         form.append(key, value);
         return;
       }
-
       if (typeof value === "object") {
         form.append(key, JSON.stringify(value));
         return;
       }
-
       form.append(key, String(value));
     });
 
   return form;
 };
 
-/**
- * Request inteligente:
- * Detecta automaticamente se deve enviar JSON ou multipart
- */
 const smartRequest = async <T>(
   method: "post" | "patch",
   url: string,
@@ -74,20 +59,18 @@ const smartRequest = async <T>(
   return response.data.data;
 };
 
-/**
- * TENANT API — Clean Architecture Version
- */
 export const tenantApi = {
   list: async (): Promise<Tenant[]> => {
     const { data } = await api.get<ApiResponse<Tenant[]>>("/tenants");
-    return data.data ?? [];
+    
+    // ✅ Suporta { data: [] } e também resposta direta []
+    const result = data?.data ?? data;
+    return Array.isArray(result) ? result : [];
   },
 
   getById: async (id: string): Promise<Tenant> => {
-    const { data } = await api.get<ApiResponse<Tenant>>(
-      `/tenants/${id}`
-    );
-    return data.data;
+    const { data } = await api.get<ApiResponse<Tenant>>(`/tenants/${id}`);
+    return data.data ?? data;
   },
 
   create: (payload: CreateTenantDTO | FormData) =>
@@ -100,13 +83,10 @@ export const tenantApi = {
     await api.delete(`/tenants/${id}`);
   },
 
-  checkStatus: async (
-    id: string
-  ): Promise<"online" | "offline"> => {
-    const { data } = await api.get<
-      ApiResponse<{ status: "online" | "offline" }>
-    >(`/tenants/${id}/health`);
-
+  checkStatus: async (id: string): Promise<"online" | "offline"> => {
+    const { data } = await api.get<ApiResponse<{ status: "online" | "offline" }>>(
+      `/tenants/${id}/health`
+    );
     return data.data.status;
   },
 };

@@ -1,15 +1,23 @@
 "use client";
 
 import { 
-  Box, Heading, Text, Button, Flex, VStack, 
-  Icon, Separator, IconButton, Badge 
+  Badge,
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Icon,
+  IconButton,
+  Separator,
+  Text,
+  VStack,
 } from "@chakra-ui/react";
 import { 
   LuMail, LuPhone, LuPencil, LuTrash2, 
   LuBuilding2, LuExternalLink 
 } from "react-icons/lu";
 import { Tenant } from "../types/tenant";
-import { TenantStatusBadge } from "./TenantStatusBadge"; // Importando o componente corrigido
+import { TenantStatusBadge } from "./TenantStatusBadge";
 import { motion } from "framer-motion";
 
 interface TenantCardProps {
@@ -17,7 +25,7 @@ interface TenantCardProps {
   onDelete: (id: string) => void;
 }
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
 
 export default function TenantCard({ tenant, onDelete }: TenantCardProps) {
   return (
@@ -35,23 +43,21 @@ export default function TenantCard({ tenant, onDelete }: TenantCardProps) {
       position="relative"
       overflow="hidden"
     >
-      {/* BACKGROUND DECORATIVO SUTIL */}
-      <Icon 
-        as={LuBuilding2} 
-        position="absolute" 
-        right="-10px" 
-        top="-10px" 
-        boxSize="100px" 
-        color="gray.50" 
+      <Icon
+        as={LuBuilding2}
+        position="absolute"
+        right="-10px"
+        top="-10px"
+        boxSize="100px"
+        color="gray.50"
         zIndex={0}
       />
 
       <VStack align="start" gap={4} position="relative" zIndex={1}>
-        {/* HEADER DO CARD */}
         <Flex w="full" justify="space-between" align="flex-start">
           <VStack align="start" gap={1}>
-            <Heading size="md" fontWeight="800" color="slate.800" lineClamp={1}>
-              {tenant.name}
+            <Heading size="md" fontWeight="800">
+              {tenant.fullName}
             </Heading>
             <Badge variant="subtle" colorPalette="blue" size="sm" borderRadius="md">
               ID: {tenant.tenantId || "---"}
@@ -60,18 +66,17 @@ export default function TenantCard({ tenant, onDelete }: TenantCardProps) {
           <TenantStatusBadge status={tenant.status} />
         </Flex>
 
-        <Separator borderColor="gray.50" />
+        <Separator />
 
-        {/* INFORMAÇÕES DE CONTATO */}
         <VStack align="start" gap={2} w="full">
-          <Flex align="center" gap={3} color="gray.500">
+          <Flex align="center" gap={3}>
             <Icon as={LuMail} boxSize={4} color="blue.400" />
-            <Text fontSize="sm" fontWeight="medium" lineClamp={1}>
+            <Text fontSize="sm" fontWeight="medium">
               {tenant.email}
             </Text>
           </Flex>
-          
-          <Flex align="center" gap={3} color="gray.500">
+
+          <Flex align="center" gap={3}>
             <Icon as={LuPhone} boxSize={4} color="blue.400" />
             <Text fontSize="sm" fontWeight="medium">
               {tenant.phone || "Não informado"}
@@ -79,25 +84,22 @@ export default function TenantCard({ tenant, onDelete }: TenantCardProps) {
           </Flex>
         </VStack>
 
-        {/* RODAPÉ DE AÇÕES */}
         <Flex mt={2} w="full" gap={2}>
-          <Button 
-            flex={1} 
-            size="sm" 
-            variant="subtle" 
+          <Button
+            flex={1}
+            size="sm"
+            variant="subtle"
             colorPalette="blue"
             borderRadius="xl"
-            gap={2}
           >
             <LuExternalLink size={14} /> Detalhes
           </Button>
-          
+
           <IconButton
             aria-label="Editar"
             size="sm"
             variant="outline"
             borderRadius="xl"
-            _hover={{ bg: "blue.50", color: "blue.600" }}
           >
             <LuPencil size={14} />
           </IconButton>
@@ -109,9 +111,9 @@ export default function TenantCard({ tenant, onDelete }: TenantCardProps) {
             colorPalette="red"
             borderRadius="xl"
             onClick={() => {
-               if(confirm(`Deseja realmente remover ${tenant.name}?`)) {
-                 onDelete(tenant._id);
-               }
+              if (confirm(`Deseja realmente remover ${tenant.fullName}?`)) {
+                onDelete(tenant._id);
+              }
             }}
           >
             <LuTrash2 size={14} />

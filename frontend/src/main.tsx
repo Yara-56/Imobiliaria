@@ -30,9 +30,9 @@ if (!rootElement) throw new Error("Root element não encontrado");
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ErrorBoundary FallbackComponent={GlobalErrorFallback}>
-        <App />
+        <App />  {/* ✅ ChakraProvider já está dentro do AppProvider */}
       </ErrorBoundary>
     </BrowserRouter>
   </React.StrictMode>

@@ -1,75 +1,125 @@
-import { Request, Response, NextFunction } from "express";
-import Contract from "../models/contract.model.js";
-import { HttpStatus } from "../../../shared/errors/http-status.js";
+import { Request, Response } from "express";
+import { prisma } from "../../../config/database.config.js";
 
-// ✅ LISTAR CONTRATOS
-export const listContracts = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+// 📌 Criar contrato
+export const createContract = async (req: Request, res: Response) => {
   try {
-    const contracts = await Contract.find({
-      tenantId: req.user.tenantId,
-    }).lean();
+    const { propertyId, landlordName, propertyAddress, rentAmount } = req.body;
 
-    res.status(HttpStatus.OK).json({ data: contracts });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// ✅ CRIAR CONTRATO
-export const createContract = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const contract = await Contract.create({
-      ...req.body,
-      tenantId: req.user.tenantId,
+    const contract = await prisma.contract.create({
+      data: {
+        landlordName,
+        propertyAddress,
+        rentAmount,
+        propertyId,
+        userId: req.user.id,         // ✅ era clientId/createdById
+        tenantId: req.user.tenantId,
+      },
     });
 
-    res.status(HttpStatus.CREATED).json({ data: contract });
+    return res.status(201).json(contract);
   } catch (error) {
-    next(error);
+    console.error("Erro ao criar contrato:", error);
+    return res.status(500).json({ message: "Erro interno do servidor" });
   }
 };
 
-// ✅ BUSCAR POR ID
-export const getContractById = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+// 📌 Listar contratos do tenant
+export const getContracts = async (req: Request, res: Response) => {
   try {
-    const contract = await Contract.findOne({
-      _id: req.params.id,
-      tenantId: req.user.tenantId,
-    }).lean();
+    const contracts = await prisma.contract.findMany({
+      where: {
+        tenantId: req.user.tenantId,
+      },
+      include: {
+        property: true,              // ✅ traz dados da propriedade
+        user: true,                  // ✅ traz dados do usuário
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-    res.status(HttpStatus.OK).json({ data: contract });
+    return res.json(contracts);
   } catch (error) {
-    next(error);
+    console.error("Erro ao buscar contratos:", error);
+    return res.status(500).json({ message: "Erro interno do servidor" });
   }
 };
 
-// ✅ ATUALIZAR CONTRATO
-export const updateContract = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+// 📌 Buscar contrato por ID
+export const getContractById = async (req: Request, res: Response) => {
   try {
-    const contract = await Contract.findOneAndUpdate(
-      { _id: req.params.id, tenantId: req.user.tenantId },
-      req.body,
-      { new: true }
-    );
+    const { id } = req.params;
 
-    res.status(HttpStatus.OK).json({ data: contract });
+    const contract = await prisma.contract.findFirst({
+      where: {
+        id,
+        tenantId: req.user.tenantId,
+      },
+      include: {
+        property: true,              // ✅ traz dados da propriedade
+        user: true,                  // ✅ traz dados do usuário
+      },
+    });
+
+    if (!contract) {
+      return res.status(404).json({ message: "Contrato não encontrado" });
+    }
+
+    return res.json(contract);
   } catch (error) {
-    next(error);
+    console.error("Erro ao buscar contrato:", error);
+    return res.status(500).json({ message: "Erro interno do servidor" });
+  }
+};
+
+// 📌 Atualizar status do contrato
+export const updateContractStatus = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const contract = await prisma.contract.updateMany({
+      where: {
+        id,
+        tenantId: req.user.tenantId,  // ✅ segurança multi-tenant
+      },
+      data: {
+        status,
+      },
+    });
+
+    if (contract.count === 0) {
+      return res.status(404).json({ message: "Contrato não encontrado" });
+    }
+
+    return res.json({ message: "Status atualizado com sucesso" });
+  } catch (error) {
+    console.error("Erro ao atualizar contrato:", error);
+    return res.status(500).json({ message: "Erro interno do servidor" });
+  }
+};
+
+// 📌 Deletar contrato
+export const deleteContract = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const deleted = await prisma.contract.deleteMany({
+      where: {
+        id,
+        tenantId: req.user.tenantId,  // ✅ segurança multi-tenant
+      },
+    });
+
+    if (deleted.count === 0) {
+      return res.status(404).json({ message: "Contrato não encontrado" });
+    }
+
+    return res.status(204).send();
+  } catch (error) {
+    console.error("Erro ao deletar contrato:", error);
+    return res.status(500).json({ message: "Erro interno do servidor" });
   }
 };
