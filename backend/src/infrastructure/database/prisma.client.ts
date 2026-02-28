@@ -1,5 +1,15 @@
-// CAMINHO: backend/src/infrastructure/database/prisma.client.ts
 import { PrismaClient } from "@prisma/client";
 
-// Instancia o cliente para uso global na aplicação
-export const prisma = new PrismaClient();
+declare global {
+  var prisma: PrismaClient | undefined;
+}
+
+export const prisma =
+  global.prisma ||
+  new PrismaClient({
+    log: ["error"],
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  global.prisma = prisma;
+}

@@ -14,7 +14,7 @@ export class PrismaTenantRepository implements ITenantRepository {
         email: data.email,
         documentUrl: data.documentUrl,
         propertyId: data.propertyId,
-        tenantId: data.tenantId, // ✅ segurança multi-tenant
+        tenantId: data.tenantId,
       },
     });
 

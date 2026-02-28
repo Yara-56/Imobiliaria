@@ -5,38 +5,24 @@ import {
   LuCircleCheck, 
   LuCircleX, 
   LuClock, 
-  LuCircleAlert // ✅ Corrigido
+  LuCircleAlert,
+  LuCircleMinus
 } from "react-icons/lu";
+import { TenantStatus } from "../types/tenant";
 
 interface TenantStatusBadgeProps {
-  status: "ACTIVE" | "SUSPENDED" | "PENDING"; 
+  status: TenantStatus;
 }
 
 export const TenantStatusBadge = ({ status }: TenantStatusBadgeProps) => {
   const statusConfig = {
-    ACTIVE: {
-      label: "Ativo",
-      color: "green",
-      icon: LuCircleCheck,
-    },
-    SUSPENDED: {
-      label: "Suspenso",
-      color: "red",
-      icon: LuCircleX,
-    },
-    PENDING: {
-      label: "Pendente",
-      color: "orange",
-      icon: LuClock,
-    },
+    ACTIVE:    { label: "Ativo",     color: "green",  icon: LuCircleCheck  },
+    SUSPENDED: { label: "Suspenso",  color: "red",    icon: LuCircleX      },
+    PENDING:   { label: "Pendente",  color: "orange", icon: LuClock        },
+    INACTIVE:  { label: "Inativo",   color: "gray",   icon: LuCircleMinus  },
   };
 
-  // Se o status for inválido ou vazio, usamos o LuCircleAlert como aviso
-  const config = statusConfig[status] || {
-    label: "Erro",
-    color: "gray",
-    icon: LuCircleAlert,
-  };
+  const config = statusConfig[status] || { label: "Erro", color: "gray", icon: LuCircleAlert };
 
   return (
     <Badge 

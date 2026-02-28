@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import Property from "../models/property.model.js";
+import { prisma } from "../../../config/database.config.js"; // ✅ Prisma, não Mongoose
 import { AppError } from "../../../shared/errors/AppError.js";
 import { HttpStatus } from "../../../shared/errors/http-status.js";
 
@@ -12,9 +12,9 @@ export const getAllProperties = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const properties = await Property.find({
-      tenantId: req.user.tenantId,
-    }).lean();
+    const properties = await prisma.property.findMany({
+      where: { tenantId: req.user.tenantId },
+    });
 
     res.status(HttpStatus.OK).json({ data: properties });
   } catch (error) {
@@ -31,10 +31,16 @@ export const createProperty = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const property = await Property.create({
-      ...req.body,
-      owner: req.user._id,
-      tenantId: req.user.tenantId,
+    const { title, address, price, status } = req.body;
+
+    const property = await prisma.property.create({
+      data: {
+        title,
+        address,
+        price,
+        status,
+        tenantId: req.user.tenantId, // ✅ era req.user._id
+      },
     });
 
     res.status(HttpStatus.CREATED).json({ data: property });
@@ -57,10 +63,12 @@ export const getPropertyById = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const property = await Property.findOne({
-      _id: req.params.id,
-      tenantId: req.user.tenantId,
-    }).lean();
+    const property = await prisma.property.findFirst({
+      where: {
+        id: req.params.id,
+        tenantId: req.user.tenantId,
+      },
+    });
 
     if (!property) {
       throw new AppError({
@@ -84,13 +92,17 @@ export const updateProperty = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const property = await Property.findOneAndUpdate(
-      { _id: req.params.id, tenantId: req.user.tenantId },
-      { $set: req.body },
-      { new: true }
-    ).lean();
+    const { title, address, price, status } = req.body;
 
-    if (!property) {
+    const property = await prisma.property.updateMany({
+      where: {
+        id: req.params.id,
+        tenantId: req.user.tenantId,
+      },
+      data: { title, address, price, status },
+    });
+
+    if (property.count === 0) {
       throw new AppError({
         message: "Imóvel não encontrado",
         statusCode: HttpStatus.NOT_FOUND,
@@ -112,12 +124,14 @@ export const deleteProperty = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const property = await Property.findOneAndDelete({
-      _id: req.params.id,
-      tenantId: req.user.tenantId,
+    const deleted = await prisma.property.deleteMany({
+      where: {
+        id: req.params.id,
+        tenantId: req.user.tenantId,
+      },
     });
 
-    if (!property) {
+    if (deleted.count === 0) {
       throw new AppError({
         message: "Imóvel não encontrado",
         statusCode: HttpStatus.NOT_FOUND,

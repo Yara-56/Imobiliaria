@@ -7,46 +7,92 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  email       String     @unique
-  password    String
-  role        Role       @default(USER)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  properties  Property[]
-}
-
-model Property {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  price       Float
-  imageUrl    String?
-
-  ownerId     String     @db.ObjectId
-  owner       User       @relation(fields: [ownerId], references: [id])
-
-  tenants     Tenant[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+enum ContractStatus {
+  ACTIVE
+  PENDING
+  CANCELLED
+  FINISHED
 }
 
 model Tenant {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  cnpj      String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  users      User[]
+  properties Property[]
+  contracts  Contract[]
+  renters    Renter[]   // ✅ inquilinos da imobiliária
+}
+
+model User {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String    @unique
+  password  String
+  role      String    @default("USER")
+
+  tenantId  String    @db.ObjectId
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+
+  contracts Contract[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Property {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  address   String
+  price     Float
+  status    String
+
+  tenantId  String    @db.ObjectId
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+
+  contracts Contract[]
+  renters   Renter[]  // ✅ inquilinos do imóvel
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// ✅ Inquilino do imóvel (antes chamado de Tenant no repository)
+model Renter {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   email       String
   documentUrl String?
 
-  propertyId  String     @db.ObjectId
-  property    Property   @relation(fields: [propertyId], references: [id])
+  propertyId  String    @db.ObjectId
+  property    Property  @relation(fields: [propertyId], references: [id])
 
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  tenantId    String    @db.ObjectId
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
-enum Role {
-  ADMIN
-  USER
+model Contract {
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  landlordName    String
+  propertyAddress String
+  rentAmount      Float
+  status          ContractStatus @default(PENDING)
+
+  tenantId        String         @db.ObjectId
+  tenant          Tenant         @relation(fields: [tenantId], references: [id])
+
+  propertyId      String         @db.ObjectId
+  property        Property       @relation(fields: [propertyId], references: [id])
+
+  userId          String         @db.ObjectId
+  user            User           @relation(fields: [userId], references: [id])
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 }
