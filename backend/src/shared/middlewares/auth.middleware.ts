@@ -1,18 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
+
+// ✅ CORREÇÃO: Usando caminho relativo para matar o erro ts(2307)
+// Como o middleware está em src/shared/middlewares/, subimos dois níveis para chegar em src/
 import { env } from "../../config/env.js";
 import { AppError } from "../errors/AppError.js";
 import { HttpStatus } from "../errors/http-status.js";
 
-/* ======================================================
-   🔧 IMPORT DO SEU ROLE REAL (AJUSTE O CAMINHO SE PRECISAR)
-   👉 você disse que está em modules/auth
-====================================================== */
 export type UserRole = "admin" | "corretor" | "cliente";
 
 /* ======================================================
-   🚀 BYPASS DEV (DESLIGUE DEPOIS)
+   🚀 BYPASS DEV (DESLIGUE QUANDO O FRONT ESTIVER LOGANDO)
 ====================================================== */
 const DEV_AUTH_BYPASS = true;
 
@@ -35,12 +33,12 @@ export const protect = async (
        🚀 MODO DEV — SEM LOGIN
     =============================== */
     if (DEV_AUTH_BYPASS) {
-      const fakeObjectId = new mongoose.Types.ObjectId().toString();
+      const fakeId = "65f1a2b3c4d5e6f7a8b9c0d1"; 
 
       req.user = {
-        _id: fakeObjectId,
+        id: fakeId,
         role: "admin",
-        tenantId: fakeObjectId, // ✅ agora é ObjectId válido
+        tenantId: fakeId, 
       };
 
       return next();
@@ -62,10 +60,11 @@ export const protect = async (
       });
     }
 
-    const decoded = jwt.verify(token, env.JWT_SECRET) as TokenPayload;
+    // ✅ CORREÇÃO: 'as string' evita o erro de sobrecarga no verify
+    const decoded = jwt.verify(token, env.JWT_SECRET as string) as TokenPayload;
 
     req.user = {
-      _id: decoded.id,
+      id: decoded.id,
       role: decoded.role,
       tenantId: decoded.tenantId,
     };

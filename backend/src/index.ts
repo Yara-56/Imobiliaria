@@ -1,46 +1,39 @@
-import express from "express";
-import mongoose from "mongoose";
-import cors from "cors";
-import "dotenv/config";
-
-// ✅ CORREÇÃO ts(2834): Adicionando a extensão .ts obrigatória para NodeNext
-// ✅ CORREÇÃO ts(2305): Usando importação nomeada com { } para dar match com o seu export
-import { apiRouter } from "./main/routes.js";
-
-const app = express();
+import { app } from "./main/app.js"; // Importa o app com Swagger/Helmet
+import { env } from "./config/env.js";
+import { connectDatabase, prisma } from "./config/database.config.js";
 
 /**
- * 🌐 MIDDLEWARES
+ * 🚀 Inicialização do Sistema
  */
-app.use(
-  cors({
-    origin: "http://localhost:5173", // URL do seu Vite
-    credentials: true,
-  })
-);
-app.use(express.json());
+async function bootstrap() {
+  try {
+    // 1️⃣ Conecta ao MongoDB via PRISMA (Não mais Mongoose)
+    await connectDatabase();
 
-/**
- * 🚀 ROTAS PRINCIPAIS
- * Centralizando tudo através do apiRouter em /api/v1
- */
-app.use("/api/v1", apiRouter);
+    const PORT = env.PORT || 3001;
 
-/**
- * 🗄️ CONEXÃO E BOOTSTRAP
- */
-const PORT = process.env.PORT || 3001;
-
-mongoose
-  .connect(process.env.MONGO_URI!)
-  .then(() => {
-    console.log("🔥 Conectado ao MongoDB - AuraImobi");
-    app.listen(PORT, () => {
-      console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+    // 2️⃣ Inicia o servidor usando as configurações do seu app.ts
+    const server = app.listen(PORT, () => {
+      console.log(`🚀 ImobiSys rodando em http://localhost:${PORT}`);
+      console.log(`📖 Documentação: http://localhost:${PORT}/docs`);
     });
-  })
-  .catch((err: Error) => {
-    console.error("❌ Erro ao conectar ao MongoDB:", err.message);
-  });
 
-export default app;
+    /**
+     * 🛑 Fechamento Limpo (Graceful Shutdown)
+     */
+    process.on("SIGINT", async () => {
+      console.log("\n⚠️ Encerrando conexões...");
+      await prisma.$disconnect();
+      server.close(() => {
+        console.log("🛑 Servidor finalizado com sucesso.");
+        process.exit(0);
+      });
+    });
+
+  } catch (error) {
+    console.error("❌ Falha crítica na inicialização:", error);
+    process.exit(1);
+  }
+}
+
+bootstrap();

@@ -1,4 +1,3 @@
-// backend/src/modules/tenants/routes/tenant.routes.ts
 import { Router } from "express";
 import { tenantController } from "../controllers/tenant.controller.js";
 import { protect } from "../../../../shared/middlewares/auth.middleware.js";
@@ -6,32 +5,35 @@ import { protect } from "../../../../shared/middlewares/auth.middleware.js";
 const router = Router();
 
 /**
- * 🛡️ Todas as rotas protegidas
+ * 🛡️ Middlewares de Proteção
+ * Garante que apenas usuários logados acessem as rotas de inquilinos
  */
 router.use(protect);
 
 /**
- * 📦 CRUD — Tenants
+ * 📦 CRUD - Inquilinos (Tenants)
  */
 
-// CREATE
-router.post("/", tenantController.create);
+// Listar todos os inquilinos da imobiliária logada
+router.get("/", (req, res, next) => tenantController.findAll(req, res, next));
 
-// READ ALL
-router.get("/", tenantController.findAll);
+// Buscar detalhes de um inquilino específico
+router.get("/:id", (req, res, next) => tenantController.findById(req, res, next));
 
-// READ BY ID
-router.get("/:id", tenantController.findById);
+// Criar novo inquilino (vinculado automaticamente ao tenantId do usuário)
+router.post("/", (req, res, next) => tenantController.create(req, res, next));
 
-// UPDATE (✅ alinhado com frontend PATCH)
-router.patch("/:id", tenantController.update);
+// Atualizar dados do inquilino (PATCH ou PUT)
+router.patch("/:id", (req, res, next) => tenantController.update(req, res, next));
 
-// DELETE
-router.delete("/:id", tenantController.delete);
+// Remover inquilino do sistema
+router.delete("/:id", (req, res, next) => tenantController.delete(req, res, next));
 
 /**
- * ❤️ Health do tenant (frontend usa)
+ * ❤️ Operações de Verificação
  */
-router.get("/:id/health", tenantController.healthCheck);
+
+// Rota de Health Check que o seu Frontend utiliza para validar o status
+router.get("/:id/health", (req, res) => tenantController.healthCheck(req, res));
 
 export default router;
