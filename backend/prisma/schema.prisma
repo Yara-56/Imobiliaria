@@ -7,6 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
 enum ContractStatus {
   ACTIVE
   PENDING
@@ -14,68 +18,104 @@ enum ContractStatus {
   FINISHED
 }
 
+enum PaymentMethod {
+  PIX
+  BOLETO
+  CARTAO_RECORRENTE
+  DINHEIRO
+  TRANSFERENCIA
+}
+
+enum PaymentStatus {
+  PENDENTE
+  PAGO
+  ATRASADO
+  CANCELADO
+}
+
+// ─────────────────────────────────────────────
+// TENANT (Imobiliária / Organização)
+// ─────────────────────────────────────────────
+
 model Tenant {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   cnpj      String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   users      User[]
   properties Property[]
   contracts  Contract[]
-  renters    Renter[]   // ✅ inquilinos da imobiliária
+  renters    Renter[]
+  payments   Payment[]
 }
+
+// ─────────────────────────────────────────────
+// USER
+// ─────────────────────────────────────────────
 
 model User {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  email     String    @unique
-  password  String
-  role      String    @default("USER")
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  email    String @unique
+  password String
+  role     String @default("USER")
 
-  tenantId  String    @db.ObjectId
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  tenantId String @db.ObjectId
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
 
   contracts Contract[]
+  payments  Payment[]
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+
+// ─────────────────────────────────────────────
+// PROPERTY (Imóvel)
+// ─────────────────────────────────────────────
 
 model Property {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  title     String
-  address   String
-  price     Float
-  status    String
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  title   String
+  address String
+  price   Float
+  status  String
 
-  tenantId  String    @db.ObjectId
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  tenantId String @db.ObjectId
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
 
   contracts Contract[]
-  renters   Renter[]  // ✅ inquilinos do imóvel
+  renters   Renter[]
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-// ✅ Inquilino do imóvel (antes chamado de Tenant no repository)
+// ─────────────────────────────────────────────
+// RENTER (Inquilino do imóvel)
+// ─────────────────────────────────────────────
+
 model Renter {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   email       String
   documentUrl String?
 
-  propertyId  String    @db.ObjectId
-  property    Property  @relation(fields: [propertyId], references: [id])
+  propertyId String   @db.ObjectId
+  property   Property @relation(fields: [propertyId], references: [id])
 
-  tenantId    String    @db.ObjectId
-  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  tenantId String @db.ObjectId
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+
+// ─────────────────────────────────────────────
+// CONTRACT (Contrato de aluguel)
+// ─────────────────────────────────────────────
 
 model Contract {
   id              String         @id @default(auto()) @map("_id") @db.ObjectId
@@ -84,15 +124,44 @@ model Contract {
   rentAmount      Float
   status          ContractStatus @default(PENDING)
 
-  tenantId        String         @db.ObjectId
-  tenant          Tenant         @relation(fields: [tenantId], references: [id])
+  tenantId String @db.ObjectId
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
 
-  propertyId      String         @db.ObjectId
-  property        Property       @relation(fields: [propertyId], references: [id])
+  propertyId String   @db.ObjectId
+  property   Property @relation(fields: [propertyId], references: [id])
 
-  userId          String         @db.ObjectId
-  user            User           @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
 
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  payments Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// PAYMENT (Pagamento)
+// ─────────────────────────────────────────────
+
+model Payment {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  amount         Float
+  paymentDate    DateTime      @default(now())
+  method         PaymentMethod
+  status         PaymentStatus @default(PENDENTE)
+  receiptUrl     String?
+  notes          String?
+  referenceMonth String
+
+  contractId String   @db.ObjectId
+  contract   Contract @relation(fields: [contractId], references: [id])
+
+  tenantId String @db.ObjectId
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
