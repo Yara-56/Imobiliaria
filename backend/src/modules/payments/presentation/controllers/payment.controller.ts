@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { AppError } from "../../../../shared/errors/AppError.js";
 import { HttpStatus } from "../../../../shared/errors/http-status.js";
 import { ErrorCodes } from "../../../../shared/errors/error-codes.js";
-import { PrismaPaymentRepository } from "../../infrastructure/repositories/prisma-payment.repository.js";
+import { PrismaPaymentRepository } from "../../infrastructure/repositories/prismapayment.repository.js";
 import { ListPaymentsUseCase } from "../../application/use-cases/list-payments.use-case.js";
 import { CreatePaymentUseCase } from "../../application/use-cases/create-payment.use-case.js";
 import { GetPaymentByIdUseCase } from "../../application/use-cases/get-payment-by-id.use-case.js";
