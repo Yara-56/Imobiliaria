@@ -7,11 +7,11 @@ import {
   VStack,
   SimpleGrid,
   Button,
-  Icon,
   Separator,
   Container,
   HStack,
   Spinner,
+  Center,
 } from "@chakra-ui/react";
 import {
   LuUserPlus,
@@ -21,7 +21,7 @@ import {
 } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import { useTenants } from "../hooks/useTenants";
-import TenantForm from "../components/TenantForm";
+import TenantForm from "../components/TenantForm"; // ✅ Verifique se o caminho está correto
 import { toaster } from "@/components/ui/toaster";
 
 export default function NewTenantPage() {
@@ -31,70 +31,70 @@ export default function NewTenantPage() {
   const handleCreateTenant = async (formData: FormData) => {
     try {
       await createTenant(formData);
-
       toaster.create({
-        title: "Inquilino criado com sucesso",
-        description: "Redirecionando para a listagem...",
+        title: "Inquilino cadastrado",
+        description: "Os dados foram salvos com sucesso.",
         type: "success",
       });
-
-      // 🔥 Redireciona para página principal
       navigate("/tenants");
     } catch (error: any) {
       toaster.create({
-        title: "Erro ao criar inquilino",
-        description:
-          error?.response?.data?.message ||
-          "Falha ao conectar com o servidor.",
+        title: "Erro no cadastro",
+        description: error?.response?.data?.message || "Erro ao conectar com o servidor.",
         type: "error",
       });
     }
   };
 
   return (
-    <Box p={{ base: 4, md: 10 }} bg="white" minH="100vh">
+    // ✅ Fundo levemente acinzentado para o card branco "saltar"
+    <Box p={{ base: 4, md: 10 }} bg="gray.50/50" minH="100vh">
       <Container maxW="4xl">
-        {/* BOTÃO VOLTAR */}
+        
+        {/* BOTÃO VOLTAR - Mais discreto */}
         <Button
           variant="ghost"
-          mb={6}
+          mb={8}
           onClick={() => navigate("/tenants")}
+          color="gray.500"
+          _hover={{ color: "blue.600", bg: "white" }}
         >
           <LuArrowLeft style={{ marginRight: "8px" }} />
-          Voltar
+          Voltar para listagem
         </Button>
 
-        {/* HEADER */}
+        {/* HEADER - Título em grafite (gray.700) em vez de preto */}
         <VStack align="start" gap={6} mb={10}>
-          <HStack gap={4}>
-            <Box bg="blue.50" p={3} borderRadius="2xl" color="blue.600">
-              <LuUserPlus size={32} />
-            </Box>
-            <VStack align="start" gap={0}>
-              <Heading size="xl" fontWeight="900">
+          <HStack gap={5}>
+            <Center bg="blue.600" p={4} borderRadius="2xl" color="white" shadow="md">
+              <LuUserPlus size={28} />
+            </Center>
+            <VStack align="start" gap={1}>
+              <Heading size="lg" fontWeight="800" color="gray.700" letterSpacing="tight">
                 Novo Inquilino
               </Heading>
-              <Text color="gray.500">
-                Cadastre o locatário para vincular a contratos e cobranças.
+              <Text color="gray.400" fontSize="sm">
+                Cadastre as informações para gerar o contrato.
               </Text>
             </VStack>
           </HStack>
         </VStack>
 
-        {/* LINHA DE ETAPAS */}
-        <SimpleGrid columns={3} gap={4} mb={12}>
-          <StatusStep icon={LuUserPlus} label="Dados Pessoais" active />
-          <StatusStep icon={LuFileText} label="Documentos" />
-          <StatusStep icon={LuCreditCard} label="Pagamento" />
+        {/* STEPPER - Suave */}
+        <SimpleGrid columns={3} gap={6} mb={12}>
+          <StatusStep icon={<LuUserPlus />} label="Identificação" active />
+          <StatusStep icon={<LuFileText />} label="Documentos" />
+          <StatusStep icon={<LuCreditCard />} label="Financeiro" />
         </SimpleGrid>
 
-        {/* FORM */}
+        {/* FORM CONTAINER - Aqui tiramos o peso do preto */}
         <Box
-          p={10}
+          p={{ base: 6, md: 12 }}
+          bg="white"
           borderRadius="3xl"
           border="1px solid"
-          borderColor="gray.100"
-          boxShadow="0 20px 40px rgba(0,0,0,0.02)"
+          borderColor="gray.100" // ✅ Borda muito clara
+          boxShadow="0 10px 40px rgba(0,0,0,0.03)" // ✅ Sombra muito sutil
         >
           <TenantForm
             onSubmit={handleCreateTenant}
@@ -102,12 +102,14 @@ export default function NewTenantPage() {
           />
 
           {isCreating && (
-            <HStack mt={6}>
-              <Spinner size="sm" />
-              <Text fontSize="sm" color="gray.500">
-                Salvando dados...
-              </Text>
-            </HStack>
+            <Center mt={8} p={4} bg="blue.50" borderRadius="xl">
+              <HStack gap={3}>
+                <Spinner size="sm" color="blue.500" />
+                <Text fontSize="xs" fontWeight="bold" color="blue.600" letterSpacing="widest">
+                  SALVANDO NO BANCO DE DADOS...
+                </Text>
+              </HStack>
+            </Center>
           )}
         </Box>
       </Container>
@@ -115,28 +117,23 @@ export default function NewTenantPage() {
   );
 }
 
+// ✅ Componente de Etapa com cores balanceadas
 function StatusStep({
-  icon: IconComp,
+  icon,
   label,
   active,
 }: {
-  icon: any;
+  icon: React.ReactNode;
   label: string;
   active?: boolean;
 }) {
   return (
-    <HStack
-      color={active ? "blue.600" : "gray.400"}
-      gap={3}
-      flex="1"
-    >
-      <Icon as={IconComp} />
-      <Text fontWeight="bold" fontSize="sm" whiteSpace="nowrap">
+    <HStack color={active ? "blue.600" : "gray.300"} gap={3} flex="1">
+      <Box fontSize="lg">{icon}</Box>
+      <Text fontWeight="800" fontSize="10px" textTransform="uppercase" letterSpacing="widest">
         {label}
       </Text>
-      <Separator
-        borderColor={active ? "blue.200" : "gray.100"}
-      />
+      <Box flex="1" h="1px" bg={active ? "blue.100" : "gray.50"} />
     </HStack>
   );
 }

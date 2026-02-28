@@ -1,10 +1,8 @@
+"use client"
+
 import { Group, InputElement } from "@chakra-ui/react"
 import * as React from "react"
 
-/**
- * ✅ CORREÇÃO ts(6133): Removido o 'Box' que não estava sendo utilizado.
- * ✅ CORREÇÃO ts(2304): Propriedades extraídas via React.ComponentProps.
- */
 export interface InputGroupProps extends React.ComponentProps<typeof Group> {
   startElement?: React.ReactNode
   endElement?: React.ReactNode
@@ -31,18 +29,26 @@ export const InputGroup = React.forwardRef<HTMLDivElement, InputGroupProps>(
             pointerEvents="none" 
             height="full" 
             ps="4" 
-            zIndex="1"
+            zIndex="2"
             display="flex"
             alignItems="center"
             justifyContent="center"
+            color="gray.400" // ✅ Ícone cinza suave, não preto
           >
             {startElement}
           </InputElement>
         )}
         
-        {React.cloneElement(children, {
+        {/* ✅ SOLUÇÃO DO ERRO ts(2769): Forçamos o tipo para aceitar as props do Chakra */}
+        {React.cloneElement(children as React.ReactElement<any>, {
           ...(startElement && { ps: startOffset }),
           ...(endElement && { pe: endOffset }),
+          // Estilização para tirar o "preto" e deixar clean:
+          variant: "subtle",
+          bg: "gray.50",
+          borderColor: "gray.100",
+          color: "gray.700", // Texto digitado em grafite
+          _focus: { borderColor: "blue.200", bg: "white" }
         })}
 
         {endElement && (
@@ -52,9 +58,11 @@ export const InputGroup = React.forwardRef<HTMLDivElement, InputGroupProps>(
             pe="4" 
             position="absolute" 
             right="0"
+            zIndex="2"
             display="flex"
             alignItems="center"
             justifyContent="center"
+            color="gray.400"
           >
             {endElement}
           </InputElement>

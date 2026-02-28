@@ -1,23 +1,28 @@
 "use client";
 
 import { 
-  Badge,
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Icon,
-  IconButton,
-  Separator,
-  Text,
-  VStack,
+  Badge, 
+  Box, 
+  Button, 
+  Flex, 
+  Heading, 
+  Icon, 
+  IconButton, 
+  Separator, 
+  Text, 
+  VStack, 
+  HStack, 
+  Center 
 } from "@chakra-ui/react";
 import { 
-  LuMail, LuPhone, LuPencil, LuTrash2, 
-  LuBuilding2, LuExternalLink 
+  LuMail, 
+  LuPhone, 
+  LuPencil, 
+  LuTrash2, 
+  LuBuilding2, 
+  LuExternalLink 
 } from "react-icons/lu";
 import { Tenant } from "../types/tenant";
-import { TenantStatusBadge } from "./TenantStatusBadge";
 import { motion } from "framer-motion";
 
 interface TenantCardProps {
@@ -25,95 +30,132 @@ interface TenantCardProps {
   onDelete: (id: string) => void;
 }
 
+// Criando o componente base para animação
 const MotionBox = motion.create(Box);
 
 export default function TenantCard({ tenant, onDelete }: TenantCardProps) {
+  // ✅ Cores profissionais: Adeus preto, olá Cinza Grafite e Azul Suave
+  const titleColor = "gray.700"; 
+  const infoColor = "gray.500";
+  const accentColor = "blue.500";
+  const iconBg = "blue.50";
+
+  // ✅ Lógica para capturar o ID independente se vier do Prisma (_id) ou API (id)
+  const tenantId = (tenant as any).id || (tenant as any)._id || "---";
+
+  // ✅ Lógica de Status Segura
+  const isActive = String(tenant.status || "").toLowerCase() === "active";
+
   return (
     <MotionBox
-      whileHover={{ y: -5 }}
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
+      // Animação de entrada e hover
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -8, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.05)" }}
+      transition={{ duration: 0.3 }}
+      // Estilos do Container
       bg="white"
       p={6}
       borderRadius="3xl"
-      shadow="sm"
       border="1px solid"
       borderColor="gray.100"
-      _hover={{ shadow: "xl", borderColor: "blue.200" }}
       position="relative"
       overflow="hidden"
     >
-      <Icon
-        as={LuBuilding2}
-        position="absolute"
-        right="-10px"
-        top="-10px"
-        boxSize="100px"
-        color="gray.50"
+      {/* Detalhe visual de fundo (Marca d'água) */}
+      <Box 
+        position="absolute" 
+        right="-10" 
+        top="-10" 
+        color="gray.50" 
         zIndex={0}
-      />
+        transform="rotate(-10deg)"
+      >
+        <LuBuilding2 size={130} />
+      </Box>
 
-      <VStack align="start" gap={4} position="relative" zIndex={1}>
+      <VStack align="start" gap={5} position="relative" zIndex={1}>
+        {/* HEADER DO CARD */}
         <Flex w="full" justify="space-between" align="flex-start">
-          <VStack align="start" gap={1}>
-            <Heading size="md" fontWeight="800">
+          <VStack align="start" gap={0}>
+            <Heading size="md" fontWeight="800" color={titleColor} letterSpacing="tight">
               {tenant.fullName}
             </Heading>
-            <Badge variant="subtle" colorPalette="blue" size="sm" borderRadius="md">
-              ID: {tenant.tenantId || "---"}
-            </Badge>
+            <Text fontSize="2xs" fontWeight="bold" color="blue.400" opacity={0.8}>
+              ID: {String(tenantId).slice(-6).toUpperCase()}
+            </Text>
           </VStack>
-          <TenantStatusBadge status={tenant.status} />
+          
+          <Badge 
+            colorPalette={isActive ? "green" : "orange"} 
+            variant="subtle" 
+            px={3} 
+            borderRadius="full"
+            fontSize="10px"
+            fontWeight="bold"
+          >
+            {isActive ? "ATIVO" : "PENDENTE"}
+          </Badge>
         </Flex>
 
-        <Separator />
+        <Separator opacity={0.3} />
 
-        <VStack align="start" gap={2} w="full">
-          <Flex align="center" gap={3}>
-            <Icon as={LuMail} boxSize={4} color="blue.400" />
-            <Text fontSize="sm" fontWeight="medium">
+        {/* INFORMAÇÕES DE CONTATO */}
+        <VStack align="start" gap={3} w="full">
+          <HStack gap={3}>
+            <Center bg={iconBg} boxSize={8} borderRadius="lg" color={accentColor}>
+              <LuMail size={14} />
+            </Center>
+            <Text fontSize="sm" color={infoColor} fontWeight="medium">
               {tenant.email}
             </Text>
-          </Flex>
+          </HStack>
 
-          <Flex align="center" gap={3}>
-            <Icon as={LuPhone} boxSize={4} color="blue.400" />
-            <Text fontSize="sm" fontWeight="medium">
-              {tenant.phone || "Não informado"}
+          <HStack gap={3}>
+            <Center bg={iconBg} boxSize={8} borderRadius="lg" color={accentColor}>
+              <LuPhone size={14} />
+            </Center>
+            <Text fontSize="sm" color={infoColor} fontWeight="medium">
+              {tenant.phone || "Telefone não informado"}
             </Text>
-          </Flex>
+          </HStack>
         </VStack>
 
-        <Flex mt={2} w="full" gap={2}>
+        {/* AÇÕES (BOTÕES) */}
+        <Flex w="full" gap={3} mt={2}>
           <Button
             flex={1}
-            size="sm"
             variant="subtle"
             colorPalette="blue"
+            size="sm"
             borderRadius="xl"
+            fontWeight="bold"
+            _hover={{ bg: "blue.600", color: "white" }}
           >
-            <LuExternalLink size={14} /> Detalhes
+            <LuExternalLink size={14} style={{ marginRight: '6px' }} />
+            Detalhes
           </Button>
 
           <IconButton
             aria-label="Editar"
-            size="sm"
             variant="outline"
+            size="sm"
             borderRadius="xl"
+            borderColor="gray.100"
+            color="gray.400"
+            _hover={{ color: "blue.500", borderColor: "blue.100", bg: "gray.50" }}
           >
             <LuPencil size={14} />
           </IconButton>
 
           <IconButton
             aria-label="Excluir"
-            size="sm"
             variant="ghost"
-            colorPalette="red"
+            size="sm"
             borderRadius="xl"
+            colorPalette="red"
             onClick={() => {
-              if (confirm(`Deseja realmente remover ${tenant.fullName}?`)) {
-                onDelete(tenant._id);
-              }
+              if (tenantId !== "---") onDelete(tenantId);
             }}
           >
             <LuTrash2 size={14} />
