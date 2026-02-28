@@ -12,6 +12,7 @@ datasource db {
 // ─────────────────────────────────────────────
 
 enum ContractStatus {
+  DRAFT
   ACTIVE
   PENDING
   CANCELLED
@@ -33,24 +34,40 @@ enum PaymentStatus {
   CANCELADO
 }
 
+enum PropertyStatus {
+  DISPONIVEL
+  ALUGADO
+  MANUTENCAO
+  INATIVO
+}
+
+enum RenterStatus {
+  ATIVO
+  INATIVO
+  BLOQUEADO
+}
+
 // ─────────────────────────────────────────────
-// TENANT (Imobiliária / Organização)
+// TENANT
 // ─────────────────────────────────────────────
 
 model Tenant {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
-  cnpj      String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  cnpj      String?  @unique
+  phone     String?
+  email     String?
+  logoUrl   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   users      User[]
   properties Property[]
-  contracts  Contract[]
   renters    Renter[]
+  contracts  Contract[]
   payments   Payment[]
 }
-
 // ─────────────────────────────────────────────
 // USER
 // ─────────────────────────────────────────────
@@ -61,68 +78,87 @@ model User {
   email    String @unique
   password String
   role     String @default("USER")
+  isActive Boolean @default(true)
 
   tenantId String @db.ObjectId
   tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   contracts Contract[]
   payments  Payment[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@index([tenantId])
 }
 
 // ─────────────────────────────────────────────
-// PROPERTY (Imóvel)
+// PROPERTY
 // ─────────────────────────────────────────────
 
 model Property {
-  id      String @id @default(auto()) @map("_id") @db.ObjectId
-  title   String
-  address String
-  price   Float
-  status  String
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  address     String
+  city        String?
+  state       String?
+  zipCode     String?
+
+  price       Float?
+  status      PropertyStatus @default(DISPONIVEL)
+
+  tenantId String @db.ObjectId
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  renters   Renter[]
+  contracts Contract[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+}
+
+// ─────────────────────────────────────────────
+// RENTER (PRÉ-CADASTRO)
+// ─────────────────────────────────────────────
+
+model Renter {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String?
+  phone       String?
+  cpf         String?
+  documentUrl String?
+  notes       String?
+
+  status RenterStatus @default(ATIVO)
+
+  propertyId String?   @db.ObjectId
+  property   Property? @relation(fields: [propertyId], references: [id])
 
   tenantId String @db.ObjectId
   tenant   Tenant @relation(fields: [tenantId], references: [id])
 
   contracts Contract[]
-  renters   Renter[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([cpf])
 }
 
 // ─────────────────────────────────────────────
-// RENTER (Inquilino do imóvel)
-// ─────────────────────────────────────────────
-
-model Renter {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  email       String
-  documentUrl String?
-
-  propertyId String   @db.ObjectId
-  property   Property @relation(fields: [propertyId], references: [id])
-
-  tenantId String @db.ObjectId
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// ─────────────────────────────────────────────
-// CONTRACT (Contrato de aluguel)
+// CONTRACT (FONTE DA VERDADE)
 // ─────────────────────────────────────────────
 
 model Contract {
-  id              String         @id @default(auto()) @map("_id") @db.ObjectId
-  landlordName    String
-  propertyAddress String
-  rentAmount      Float
-  status          ContractStatus @default(PENDING)
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  contractNumber String?
 
   tenantId String @db.ObjectId
   tenant   Tenant @relation(fields: [tenantId], references: [id])
@@ -130,28 +166,52 @@ model Contract {
   propertyId String   @db.ObjectId
   property   Property @relation(fields: [propertyId], references: [id])
 
+  renterId String @db.ObjectId
+  renter   Renter @relation(fields: [renterId], references: [id])
+
   userId String @db.ObjectId
   user   User   @relation(fields: [userId], references: [id])
+
+  // 🔥 financeiro oficial
+  rentAmount   Float
+  dueDay       Int
+  startDate    DateTime
+  endDate      DateTime?
+  depositValue Float?
+
+  paymentMethod PaymentMethod
+  status        ContractStatus @default(DRAFT)
+
+  notes String?
 
   payments Payment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([propertyId])
+  @@index([renterId])
+  @@index([status])
 }
 
 // ─────────────────────────────────────────────
-// PAYMENT (Pagamento)
+// PAYMENT
 // ─────────────────────────────────────────────
 
 model Payment {
-  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
   amount         Float
-  paymentDate    DateTime      @default(now())
-  method         PaymentMethod
-  status         PaymentStatus @default(PENDENTE)
-  receiptUrl     String?
-  notes          String?
   referenceMonth String
+  dueDate        DateTime
+  paymentDate    DateTime?
+
+  method PaymentMethod
+  status PaymentStatus @default(PENDENTE)
+
+  receiptUrl String?
+  notes      String?
 
   contractId String   @db.ObjectId
   contract   Contract @relation(fields: [contractId], references: [id])
@@ -164,4 +224,9 @@ model Payment {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([contractId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([referenceMonth])
 }
