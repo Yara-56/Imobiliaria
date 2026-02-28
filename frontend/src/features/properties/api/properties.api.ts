@@ -1,34 +1,82 @@
-import api from "@/core/api/api";
+import type { PropertyUI } from "../types/property";
 
-export const propertyApi = {
-  list: async (params?: any, signal?: AbortSignal) => {
-    const { data } = await api.get("/properties", { params, signal });
-    return data.data || data;
+// ✅ MOCK inicial (você pode ajustar à vontade)
+const mockProperties: PropertyUI[] = [
+  {
+    id: "p1",
+    title: "Casa - Centro",
+    addressText: "Rua A, 70 - Centro, Ipatinga/MG",
+    cep: "35160-133",
+    price: 2500,
+    status: "Disponível",
+    type: "Casa",
+    createdAt: "2026-02-20",
+  },
+  {
+    id: "p2",
+    title: "Apartamento - Cariru",
+    addressText: "Av. B, 120 - Cariru, Ipatinga/MG",
+    cep: "35160-000",
+    price: 1800,
+    status: "Alugado",
+    type: "Apartamento",
+    createdAt: "2026-02-18",
+  },
+];
+
+// simula “banco” em memória (pra create/edit/delete funcionarem na UI)
+let db = [...mockProperties];
+
+export const propertiesApi = {
+  list: async (_params?: any, _signal?: AbortSignal): Promise<PropertyUI[]> => {
+    // simula delay
+    await new Promise((r) => setTimeout(r, 250));
+    return [...db];
   },
 
-  create: async (data: Record<string, any>, files: File[]) => {
-    const formData = new FormData();
-
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) formData.append(key, String(value));
-    });
-
-    // aqui depende do back: você está usando 'images'
-    files.forEach((file) => formData.append("images", file));
-
-    const response = await api.post("/properties", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    return response.data;
+  getById: async (id: string): Promise<PropertyUI | null> => {
+    await new Promise((r) => setTimeout(r, 150));
+    return db.find((p) => p.id === id) ?? null;
   },
 
-  update: async (id: string, data: any) => {
-    const response = await api.patch(`/properties/${id}`, data);
-    return response.data;
+  create: async (payload: Partial<PropertyUI>, _files: File[] = []): Promise<PropertyUI> => {
+    await new Promise((r) => setTimeout(r, 250));
+
+    const newItem: PropertyUI = {
+      id: crypto.randomUUID(),
+      title: payload.title ?? "Novo Imóvel",
+      addressText: payload.addressText ?? "",
+      cep: payload.cep,
+      price: Number(payload.price ?? 0),
+      status: payload.status ?? "Disponível",
+      type: payload.type ?? "Casa",
+      description: payload.description,
+      documents: payload.documents ?? [],
+      createdAt: new Date().toISOString(),
+    };
+
+    db = [newItem, ...db];
+    return newItem;
   },
 
-  delete: async (id: string) => {
-    await api.delete(`/properties/${id}`);
+  update: async (id: string, payload: Partial<PropertyUI>, _files: File[] = []): Promise<PropertyUI> => {
+    await new Promise((r) => setTimeout(r, 250));
+
+    const idx = db.findIndex((p) => p.id === id);
+    if (idx === -1) throw new Error("Imóvel não encontrado");
+
+    const updated: PropertyUI = {
+      ...db[idx],
+      ...payload,
+      price: payload.price !== undefined ? Number(payload.price) : db[idx].price,
+    };
+
+    db[idx] = updated;
+    return updated;
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await new Promise((r) => setTimeout(r, 200));
+    db = db.filter((p) => p.id !== id);
   },
 };

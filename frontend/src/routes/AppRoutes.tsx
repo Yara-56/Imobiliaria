@@ -23,6 +23,10 @@ import TenantsPage from "../features/tenants/pages/TenantsPage";
 import NewTenantPage from "../features/tenants/pages/NewTenantPage";
 import EditTenantPage from "../features/tenants/pages/EditTenantPage";
 
+// --- PROPERTIES (Imóveis) ---
+import NewPropertyPage from "../features/properties/pages/NewPropertyPage";
+import EditPropertyPage from "../features/properties/pages/EditPropertyPage";
+
 /**
  * 🛡️ ProtectedRoute: Implementação de Segurança (Cybersecurity).
  * Garante que apenas usuários autenticados acessem o cluster administrativo.
@@ -37,7 +41,7 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
         id: "dev-01",
         name: "Yara Admin",
         email: "admin@auraimobi.com",
-        role: "admin"
+        role: "admin",
       };
       login(devAdmin, "dev-token-session");
     }
@@ -48,18 +52,21 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
       <Center h="100vh" bg="gray.950">
         <VStack gap={4}>
           <Spinner size="xl" color="blue.500" borderWidth="4px" />
-          <Text color="gray.400" fontSize="xs" fontWeight="black" letterSpacing="widest">
+          <Text
+            color="gray.400"
+            fontSize="xs"
+            fontWeight="black"
+            letterSpacing="widest"
+          >
             SINCRONIZANDO AURA CORE...
           </Text>
         </VStack>
       </Center>
     );
   }
-  
+
   return <>{children}</>;
 };
-
-
 
 /**
  * 🚀 AppRoutes: Arquitetura Global de Navegação.
@@ -72,8 +79,8 @@ export default function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
 
       {/* 🔐 ÁREA ADMINISTRATIVA PROTEGIDA */}
-      <Route 
-        path="/admin" 
+      <Route
+        path="/admin"
         element={
           <ProtectedRoute>
             <AdminLayout />
@@ -82,7 +89,7 @@ export default function AppRoutes() {
       >
         {/* Redirecionamento Automático: /admin -> /admin/dashboard */}
         <Route index element={<Navigate to="dashboard" replace />} />
-        
+
         {/* 📊 DASHBOARD & ANALYTICS */}
         <Route path="dashboard" element={<DashboardPage />} />
 
@@ -90,17 +97,24 @@ export default function AppRoutes() {
         <Route path="tenants">
           {/* Listagem: /admin/tenants */}
           <Route index element={<TenantsPage />} />
-          
+
           {/* Cadastro: /admin/tenants/new */}
           <Route path="new" element={<NewTenantPage />} />
-          
+
           {/* Edição: /admin/tenants/edit/:id */}
           <Route path="edit/:id" element={<EditTenantPage />} />
         </Route>
 
         {/* 🏠 MÓDULO DE IMÓVEIS (PROPERTIES) */}
         <Route path="properties">
+          {/* Listagem: /admin/properties */}
           <Route index element={<PropertiesPage />} />
+
+          {/* Cadastro: /admin/properties/new */}
+          <Route path="new" element={<NewPropertyPage />} />
+
+          {/* Edição: /admin/properties/edit/:id */}
+          <Route path="edit/:id" element={<EditPropertyPage />} />
         </Route>
 
         {/* 📄 CONTRATOS */}
