@@ -5,6 +5,7 @@ import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
 
+// ✅ CORREÇÃO: Certifique-se de que o arquivo físico seja 'routes.ts' na mesma pasta
 import { apiRouter } from "./routes.js";
 import { HttpStatus } from "../shared/errors/http-status.js";
 import { AppError } from "../shared/errors/AppError.js";
@@ -33,7 +34,8 @@ const specs = swaggerJsdoc({
       },
     ],
   },
-  apis: ["./src/modules/**/*.ts", "./src/modules/**/*.js"],
+  // ✅ DICA: Inclua o caminho da dist para produção
+  apis: ["./src/modules/**/*.ts", "./dist/modules/**/*.js"],
 });
 
 /**
@@ -79,7 +81,7 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/api/v1", apiRouter);
 
 /**
- * ❌ Rota não encontrada (MUITO IMPORTANTE)
+ * ❌ Rota não encontrada
  */
 app.use((req: Request, res: Response) => {
   res.status(404).json({
@@ -91,8 +93,9 @@ app.use((req: Request, res: Response) => {
 /**
  * 🚨 Error Handler Centralizado
  */
+// ✅ CORREÇÃO: Tipagem 'any' no erro evita conflitos de sobrecarga com bibliotecas externas
 app.use(
-  (err: Error, req: Request, res: Response, next: NextFunction) => {
+  (err: any, req: Request, res: Response, _next: NextFunction) => {
     if (err instanceof AppError) {
       return res.status(err.statusCode).json({
         status: "error",
@@ -103,7 +106,9 @@ app.use(
 
     console.error("🔥 INTERNAL ERROR:", err);
 
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+    const statusCode = err.statusCode || HttpStatus.INTERNAL_SERVER_ERROR;
+
+    return res.status(statusCode).json({
       status: "error",
       message: "Erro interno no servidor do ImobiSys",
       error:
