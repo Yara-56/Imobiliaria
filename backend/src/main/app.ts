@@ -5,7 +5,7 @@ import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
 
-// ✅ CORREÇÃO: Certifique-se de que o arquivo físico seja 'routes.ts' na mesma pasta
+// Importações internas
 import { apiRouter } from "./routes.js";
 import { HttpStatus } from "../shared/errors/http-status.js";
 import { AppError } from "../shared/errors/AppError.js";
@@ -34,7 +34,6 @@ const specs = swaggerJsdoc({
       },
     ],
   },
-  // ✅ DICA: Inclua o caminho da dist para produção
   apis: ["./src/modules/**/*.ts", "./dist/modules/**/*.js"],
 });
 
@@ -48,11 +47,12 @@ app.use(
 );
 
 /**
- * 🔓 CORS (production ready)
+ * 🔓 CORS (Ajustado para aceitar as portas do seu Vite)
+ * Liberamos a 5173 e a 5174 para evitar o erro "Origin not allowed"
  */
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://localhost:5174"], 
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -60,28 +60,28 @@ app.use(
 );
 
 /**
- * 📝 Logs
+ * 📝 Logs de requisição
  */
 app.use(morgan("dev"));
 
 /**
- * 📦 Body parsers (com limite anti-abuso)
+ * 📦 Body parsers (limite de 10mb para fotos de documentos)
  */
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 /**
- * 📖 Docs
+ * 📖 Documentação Swagger
  */
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 /**
- * 🚀 API v1
+ * 🚀 API v1 - Rotas principais
  */
 app.use("/api/v1", apiRouter);
 
 /**
- * ❌ Rota não encontrada
+ * ❌ Fallback para rotas inexistentes
  */
 app.use((req: Request, res: Response) => {
   res.status(404).json({
@@ -91,11 +91,11 @@ app.use((req: Request, res: Response) => {
 });
 
 /**
- * 🚨 Error Handler Centralizado
+ * 🚨 Error Handler Centralizado (O "Cérebro" do tratamento de erros)
  */
-// ✅ CORREÇÃO: Tipagem 'any' no erro evita conflitos de sobrecarga com bibliotecas externas
 app.use(
   (err: any, req: Request, res: Response, _next: NextFunction) => {
+    // Erros conhecidos da aplicação (ex: CPF duplicado, campos vazios)
     if (err instanceof AppError) {
       return res.status(err.statusCode).json({
         status: "error",
@@ -104,8 +104,10 @@ app.use(
       });
     }
 
+    // Log detalhado no console para o desenvolvedor
     console.error("🔥 INTERNAL ERROR:", err);
 
+    // Erros desconhecidos (ex: banco fora do ar)
     const statusCode = err.statusCode || HttpStatus.INTERNAL_SERVER_ERROR;
 
     return res.status(statusCode).json({
@@ -114,7 +116,7 @@ app.use(
       error:
         process.env.NODE_ENV === "development"
           ? err.message
-          : "Contate o suporte",
+          : "Contate o suporte técnico",
     });
   }
 );
