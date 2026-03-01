@@ -1,0 +1,232 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum ContractStatus {
+  DRAFT
+  ACTIVE
+  PENDING
+  CANCELLED
+  FINISHED
+}
+
+enum PaymentMethod {
+  PIX
+  BOLETO
+  CARTAO_RECORRENTE
+  DINHEIRO
+  TRANSFERENCIA
+}
+
+enum PaymentStatus {
+  PENDENTE
+  PAGO
+  ATRASADO
+  CANCELADO
+}
+
+enum PropertyStatus {
+  DISPONIVEL
+  ALUGADO
+  MANUTENCAO
+  INATIVO
+}
+
+enum RenterStatus {
+  ATIVO
+  INATIVO
+  BLOQUEADO
+}
+
+// ─────────────────────────────────────────────
+// TENANT
+// ─────────────────────────────────────────────
+
+model Tenant {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  cnpj      String?  @unique
+  phone     String?
+  email     String?
+  logoUrl   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users      User[]
+  properties Property[]
+  renters    Renter[]
+  contracts  Contract[]
+  payments   Payment[]
+}
+// ─────────────────────────────────────────────
+// USER
+// ─────────────────────────────────────────────
+
+model User {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  email    String @unique
+  password String
+  role     String @default("USER")
+  isActive Boolean @default(true)
+
+  tenantId String @db.ObjectId
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contracts Contract[]
+  payments  Payment[]
+
+  @@index([tenantId])
+}
+
+// ─────────────────────────────────────────────
+// PROPERTY
+// ─────────────────────────────────────────────
+
+model Property {
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  address     String
+  city        String?
+  state       String?
+  zipCode     String?
+
+  price       Float?
+  status      PropertyStatus @default(DISPONIVEL)
+
+  tenantId String @db.ObjectId
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  renters   Renter[]
+  contracts Contract[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+}
+
+// ─────────────────────────────────────────────
+// RENTER (PRÉ-CADASTRO)
+// ─────────────────────────────────────────────
+
+model Renter {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String?
+  phone       String?
+  cpf         String?
+  documentUrl String?
+  notes       String?
+
+  status RenterStatus @default(ATIVO)
+
+  propertyId String?   @db.ObjectId
+  property   Property? @relation(fields: [propertyId], references: [id])
+
+  tenantId String @db.ObjectId
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  contracts Contract[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([cpf])
+}
+
+// ─────────────────────────────────────────────
+// CONTRACT (FONTE DA VERDADE)
+// ─────────────────────────────────────────────
+
+model Contract {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  contractNumber String?
+
+  tenantId String @db.ObjectId
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  propertyId String   @db.ObjectId
+  property   Property @relation(fields: [propertyId], references: [id])
+
+  renterId String @db.ObjectId
+  renter   Renter @relation(fields: [renterId], references: [id])
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  // 🔥 financeiro oficial
+  rentAmount   Float
+  dueDay       Int
+  startDate    DateTime
+  endDate      DateTime?
+  depositValue Float?
+
+  paymentMethod PaymentMethod
+  status        ContractStatus @default(DRAFT)
+
+  notes String?
+
+  payments Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([propertyId])
+  @@index([renterId])
+  @@index([status])
+}
+
+// ─────────────────────────────────────────────
+// PAYMENT
+// ─────────────────────────────────────────────
+
+model Payment {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  amount         Float
+  referenceMonth String
+  dueDate        DateTime
+  paymentDate    DateTime?
+
+  method PaymentMethod
+  status PaymentStatus @default(PENDENTE)
+
+  receiptUrl String?
+  notes      String?
+
+  contractId String   @db.ObjectId
+  contract   Contract @relation(fields: [contractId], references: [id])
+
+  tenantId String @db.ObjectId
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([contractId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([referenceMonth])
+}

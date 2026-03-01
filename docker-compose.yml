@@ -1,0 +1,38 @@
+services:
+  # 🍃 Banco de Dados
+  database:
+    image: mongo:latest
+    container_name: imobisys-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # ⚙️ Backend (Sua API)
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: imobisys-api
+    ports:
+      - "3001:3333" # Mapeia a 3333 do container para a 3001 local
+    environment:
+      - DATABASE_URL=mongodb://database:27017/imobisys
+      - JWT_SECRET=sua_chave_ultra_secreta_yara
+      - NODE_ENV=development
+    depends_on:
+      - database
+
+  # 💻 Frontend (Vite)
+  frontend:
+    build: ./frontend
+    container_name: imobisys-client
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3001/api/v1
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:

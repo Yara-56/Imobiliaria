@@ -1,0 +1,46 @@
+/* Importação de Fonte Profissional (Inter é o padrão para Dashboards de elite) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --chakra-fonts-heading: 'Inter', sans-serif;
+  --chakra-fonts-body: 'Inter', sans-serif;
+}
+
+/* Reset e Suavização */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar Estilo "Aura V3" (Fina e Minimalista) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1; /* Slate 300 */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8; /* Slate 400 */
+}
+
+/* Seleção de Texto */
+::selection {
+  background: #2563EB; /* Blue 600 */
+  color: white;
+}
+
+body {
+  background-color: #F8FAFC; /* Fundo sutil para dashboards */
+  color: #0F172A;
+}
