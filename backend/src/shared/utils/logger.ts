@@ -1,24 +1,41 @@
-import pino, { type Logger, type LoggerOptions } from "pino";
-// ✅ IMPORTANTE: Se o env.ts estiver em src/config/env.ts
-// O caminho saindo de shared/utils para config é exatamente ../../config/env.js
+import pino, { type LoggerOptions } from "pino";
 import { env } from "../../config/env.js";
 
-const pinoOptions: LoggerOptions = {
-  // O TS só vai reconhecer NODE_ENV se o seu arquivo env.ts exportar exatamente esse nome
+/**
+ * Configuração base do logger
+ */
+const options: LoggerOptions = {
   level: env.NODE_ENV === "development" ? "debug" : "info",
+
+  base: {
+    service: "imobisys-api",
+    environment: env.NODE_ENV,
+  },
+
+  timestamp: pino.stdTimeFunctions.isoTime,
+
+  formatters: {
+    level(label) {
+      return { level: label };
+    },
+  },
 };
 
+/**
+ * Transport apenas em desenvolvimento
+ * (pretty logs)
+ */
 if (env.NODE_ENV === "development") {
-  pinoOptions.transport = {
+  options.transport = {
     target: "pino-pretty",
     options: {
       colorize: true,
-      translateTime: "HH:MM:ss Z",
+      translateTime: "HH:MM:ss",
       ignore: "pid,hostname",
     },
   };
 }
 
-export const logger: Logger = pino(pinoOptions);
+export const logger = pino(options);
 
 export default logger;

@@ -3,7 +3,11 @@ import { HttpStatus } from "../http/http-status.js";
 import { BaseResponse } from "../http/base-response.js";
 import { logger } from "../utils/logger.js";
 
-export const errorHandler = (
+/**
+ * 🚨 Middleware Global de Erros
+ * Exportado como 'errorMiddleware' para consistência no app.ts
+ */
+export const errorMiddleware = (
   err: any,
   req: Request,
   res: Response,
@@ -12,7 +16,7 @@ export const errorHandler = (
   logger.error({
     message: err.message,
     stack: err.stack,
-    requestId: req.requestId,
+    requestId: (req as any).requestId, // Cast para any se o tipo não estiver estendido
   });
 
   const status = err.statusCode || HttpStatus.INTERNAL_SERVER_ERROR;
@@ -25,7 +29,7 @@ export const errorHandler = (
         details: err.details,
       },
       {
-        requestId: req.requestId,
+        requestId: (req as any).requestId,
         timestamp: new Date().toISOString(),
         path: req.originalUrl,
       }
