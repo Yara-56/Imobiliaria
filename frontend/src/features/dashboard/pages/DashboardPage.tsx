@@ -12,7 +12,7 @@ import {
   LuArrowRight, LuTrendingUp, LuCircleCheck 
 } from "react-icons/lu";
 import { ResponsiveContainer, AreaChart, Area, Tooltip, XAxis, CartesianGrid } from 'recharts';
-import api from "@/core/api/api";
+import api from "@/core/api/apiResponse";
 
 // Importações corrigidas para bater com seus arquivos em minúsculo
 import { QuickActionCard } from "../components/quickActionCard";

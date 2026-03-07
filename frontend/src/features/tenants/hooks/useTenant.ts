@@ -2,12 +2,16 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { tenantApi } from "../api/tenant.api.js"; // ✅ Extensão .js para NodeNext
-import { CreateTenantDTO, UpdateTenantDTO, Tenant } from "../types/tenant.js";
+import {
+  CreateTenantDTO,
+  UpdateTenantDTO,
+  Tenant,
+} from "../types/tenant.enums.js";
 import { toaster } from "@/components/ui/toaster";
 
 interface UpdateParams {
   id: string;
-  data: UpdateTenantDTO | FormData; 
+  data: UpdateTenantDTO | FormData;
 }
 
 export const useTenants = (id?: string) => {
@@ -18,7 +22,11 @@ export const useTenants = (id?: string) => {
    * ✅ Resolvendo erro de sobrecarga: Definimos explicitamente o tipo do Query
    * para aceitar tanto Tenant[] quanto Tenant ou undefined.
    */
-  const { data: tenantData, isLoading: isFetching, isError } = useQuery<any, Error>({
+  const {
+    data: tenantData,
+    isLoading: isFetching,
+    isError,
+  } = useQuery<any, Error>({
     queryKey: id ? ["tenants", id] : ["tenants"],
     queryFn: async () => {
       if (id) return tenantApi.getById(id);
@@ -50,7 +58,7 @@ export const useTenants = (id?: string) => {
       // ✅ Invalidação inteligente do cache
       queryClient.invalidateQueries({ queryKey: ["tenants"] });
       queryClient.setQueryData(["tenants", updated._id], updated);
-      
+
       toaster.create({
         title: "Cluster Sincronizado",
         description: `As configurações de ${updated.fullName} foram aplicadas.`,
@@ -60,24 +68,25 @@ export const useTenants = (id?: string) => {
     onError: (error: any) => {
       toaster.create({
         title: "Erro de Sincronização",
-        description: error.response?.data?.message || "Falha ao conectar com o nó.",
+        description:
+          error.response?.data?.message || "Falha ao conectar com o nó.",
         type: "error",
       });
-    }
+    },
   });
 
   return {
     // Retornos tipados para as páginas de New e Edit
     tenant: id ? (tenantData as Tenant) : null,
     tenants: !id ? (tenantData as Tenant[]) : [],
-    
+
     isLoading: isFetching,
     isError,
-    
+
     createTenant: createMutation.mutateAsync,
     isCreating: createMutation.isPending,
-    
+
     updateTenant: updateMutation.mutate,
-    isUpdating: updateMutation.isPending
+    isUpdating: updateMutation.isPending,
   };
 };

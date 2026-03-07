@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { tenantApi } from "../api/tenant.api.js"; // ✅ Extensão .js para padrão NodeNext
-import { UpdateTenantDTO, Tenant } from "../types/tenant.js"; 
+import { UpdateTenantDTO, Tenant } from "../types/tenant.enums.js";
 import { toaster } from "@/components/ui/toaster";
 
 /**
@@ -12,7 +12,7 @@ import { toaster } from "@/components/ui/toaster";
  */
 interface UpdateParams {
   id: string;
-  data: UpdateTenantDTO | FormData; 
+  data: UpdateTenantDTO | FormData;
 }
 
 export const useUpdateTenant = () => {
@@ -26,14 +26,14 @@ export const useUpdateTenant = () => {
     onSuccess: (updatedTenant) => {
       // ✅ Invalida a lista para garantir que todos os componentes vejam a mudança
       queryClient.invalidateQueries({ queryKey: ["tenants"] });
-      
+
       // ✅ Atualiza o cache individual usando o _id do MongoDB
       queryClient.setQueryData(["tenants", updatedTenant._id], updatedTenant);
 
       toaster.create({
         title: "Sincronização Concluída",
         /**
-         * 🛡️ CORREÇÃO ts(2339): 
+         * 🛡️ CORREÇÃO ts(2339):
          * Usando 'fullName' conforme definido na sua interface Tenant master.
          */
         description: `As configurações de ${updatedTenant.fullName} foram aplicadas.`,
@@ -44,7 +44,8 @@ export const useUpdateTenant = () => {
     onError: (error: any) => {
       toaster.create({
         title: "Falha na Atualização",
-        description: error.response?.data?.message || "Erro ao conectar com o cluster.",
+        description:
+          error.response?.data?.message || "Erro ao conectar com o cluster.",
         type: "error",
       });
     },
