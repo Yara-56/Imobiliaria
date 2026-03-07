@@ -8,7 +8,7 @@ import {
   LuCircleAlert,
   LuCircleMinus
 } from "react-icons/lu";
-import { TenantStatus } from "../types/tenant";
+import { TenantStatus } from "../types/tenant.enums";
 
 interface TenantStatusBadgeProps {
   status: TenantStatus;

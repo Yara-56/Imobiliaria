@@ -2,7 +2,7 @@
 
 import { Box, Heading, Text, VStack, Button, Table, Badge, Center, Spinner, HStack, SimpleGrid } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import api from "@/core/api/api";
+import api from "@/core/api/apiResponse";
 import { LuFileText, LuPlus, LuCircleCheck, LuTriangleAlert } from "react-icons/lu";
 
 export default function ContractsPage() {

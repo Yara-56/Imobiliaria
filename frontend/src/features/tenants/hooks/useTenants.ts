@@ -6,7 +6,7 @@ import type {
   Tenant,
   CreateTenantDTO,
   UpdateTenantDTO,
-} from "../types/tenant.js";
+} from "../types/tenant.enums.js";
 import { toaster } from "@/components/ui/toaster";
 
 interface UpdateParams {
@@ -43,19 +43,21 @@ export const useTenants = (id?: string) => {
   // ======================
   // CREATE
   // ======================
-  const createMutation = useMutation<Tenant, Error, CreateTenantDTO | FormData>({
-    mutationFn: tenantApi.create,
-    onSuccess: (newTenant) => {
-      queryClient.setQueryData<Tenant[]>(BASE_KEY, (old) =>
-        old ? [...old, newTenant] : [newTenant]
-      );
+  const createMutation = useMutation<Tenant, Error, CreateTenantDTO | FormData>(
+    {
+      mutationFn: tenantApi.create,
+      onSuccess: (newTenant) => {
+        queryClient.setQueryData<Tenant[]>(BASE_KEY, (old) =>
+          old ? [...old, newTenant] : [newTenant]
+        );
 
-      toaster.create({
-        title: "Tenant criado com sucesso",
-        type: "success",
-      });
-    },
-  });
+        toaster.create({
+          title: "Tenant criado com sucesso",
+          type: "success",
+        });
+      },
+    }
+  );
 
   // ======================
   // UPDATE
@@ -79,12 +81,7 @@ export const useTenants = (id?: string) => {
   // ======================
   // DELETE (Optimistic UI)
   // ======================
-  const deleteMutation = useMutation<
-    void,
-    Error,
-    string,
-    DeleteContext
-  >({
+  const deleteMutation = useMutation<void, Error, string, DeleteContext>({
     mutationFn: tenantApi.delete,
 
     onMutate: async (deletedId) => {
@@ -124,10 +121,8 @@ export const useTenants = (id?: string) => {
     tenant: singleQuery.data,
 
     // Estados
-    isLoading:
-      listQuery.isLoading || (!!id && singleQuery.isLoading),
-    isError:
-      listQuery.isError || singleQuery.isError,
+    isLoading: listQuery.isLoading || (!!id && singleQuery.isLoading),
+    isError: listQuery.isError || singleQuery.isError,
     isFetching: listQuery.isFetching,
 
     // Ações

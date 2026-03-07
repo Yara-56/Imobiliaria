@@ -22,7 +22,7 @@ import {
   LuBuilding2, 
   LuExternalLink 
 } from "react-icons/lu";
-import { Tenant } from "../types/tenant";
+import { Tenant } from "../types/tenant.enums";
 import { motion } from "framer-motion";
 
 interface TenantCardProps {

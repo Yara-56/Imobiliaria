@@ -1,6 +1,10 @@
-import api from "@/core/api/api";
+import api from "@/core/api/apiResponse.js";
 // ✅ Corrigido: Importando do arquivo HUB (mix) e não apenas do método PIX
-import type { Payment, CreatePaymentDTO, UpdatePaymentDTO } from "../types/mix.payment.type.js";
+import type {
+  Payment,
+  CreatePaymentDTO,
+  UpdatePaymentDTO,
+} from "../types/mix.payment.type.js";
 
 interface ApiResponse<T> {
   status: string;
@@ -13,7 +17,9 @@ interface ApiResponse<T> {
  */
 export const paymentApi = {
   list: async (): Promise<Payment[]> => {
-    const { data } = await api.get<ApiResponse<{ payments: Payment[] }>>("/payments");
+    const { data } = await api.get<ApiResponse<{ payments: Payment[] }>>(
+      "/payments"
+    );
     return data.data.payments;
   },
 
@@ -21,7 +27,7 @@ export const paymentApi = {
     const formData = new FormData();
     Object.entries(payload).forEach(([key, value]) => {
       if (value === undefined || value === null) return;
-      
+
       if (key === "receiptFile" && value instanceof File) {
         formData.append("receipt", value);
       } else if (typeof value === "object") {
@@ -32,7 +38,10 @@ export const paymentApi = {
       }
     });
 
-    const { data } = await api.post<ApiResponse<{ payment: Payment }>>("/payments", formData);
+    const { data } = await api.post<ApiResponse<{ payment: Payment }>>(
+      "/payments",
+      formData
+    );
     return data.data.payment;
   },
 
@@ -40,7 +49,7 @@ export const paymentApi = {
     const formData = new FormData();
     Object.entries(payload).forEach(([key, value]) => {
       if (value === undefined || value === null) return;
-      
+
       if (key === "receiptFile" && value instanceof File) {
         formData.append("receipt", value);
       } else if (typeof value === "object") {
@@ -50,11 +59,14 @@ export const paymentApi = {
       }
     });
 
-    const { data } = await api.patch<ApiResponse<{ payment: Payment }>>(`/payments/${id}`, formData);
+    const { data } = await api.patch<ApiResponse<{ payment: Payment }>>(
+      `/payments/${id}`,
+      formData
+    );
     return data.data.payment;
   },
 
   delete: async (id: string): Promise<void> => {
     await api.delete(`/payments/${id}`);
-  }
+  },
 };

@@ -9,7 +9,7 @@ import {
   LuChevronRight, LuCircleAlert 
 } from "react-icons/lu";
 import { useState, useEffect, useMemo } from "react";
-import api from "@/core/api/api"; // ✅ Usando seu interceptor de autenticação
+import api from "@/core/api/apiResponse"; // ✅ Usando seu interceptor de autenticação
 
 // ✅ Componentes de UI do Chakra v3
 import {

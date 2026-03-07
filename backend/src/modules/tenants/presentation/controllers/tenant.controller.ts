@@ -5,43 +5,66 @@ import { HttpStatus } from "../../../../shared/errors/http-status.js";
 import { AppError } from "../../../../shared/errors/AppError.js";
 
 /**
- * 🏢 TenantController
- * Gerencia o CRUD de inquilinos (Renters) com isolamento Multi-tenant.
+ * Tipagem do usuário autenticado no request
  */
-export class TenantController extends BaseCrudController<any> {
+interface AuthUser {
+  id: string;
+  tenantId: string;
+}
+
+/**
+ * DTO de criação de inquilino
+ */
+interface CreateTenantDTO {
+  name: string;
+  email?: string | null;
+  propertyId: string;
+  tenantId: string;
+  userId: string;
+}
+
+/**
+ * 🏢 TenantController
+ * Gerencia o CRUD de inquilinos com isolamento Multi-tenant
+ */
+export class TenantController extends BaseCrudController<CreateTenantDTO> {
   constructor() {
-    // Injeta o serviço especializado
     super(new TenantService());
   }
 
   /**
-   * ➕ CRIAR NOVO INQUILINO
+   * ➕ CRIAR INQUILINO
    */
-  create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  create = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
+      const user = req.user as AuthUser;
+
       const { name, email, propertyId } = req.body;
 
-      // Validação defensiva para evitar erro 500 no Prisma
-      if (!name) {
+      if (!name || typeof name !== "string") {
         throw new AppError({
           message: "O campo 'name' (nome do inquilino) é obrigatório.",
-          statusCode: HttpStatus.BAD_REQUEST
+          statusCode: HttpStatus.BAD_REQUEST,
         });
       }
 
-      if (!propertyId) {
+      if (!propertyId || typeof propertyId !== "string") {
         throw new AppError({
           message: "É necessário vincular o inquilino a um imóvel (propertyId).",
-          statusCode: HttpStatus.BAD_REQUEST
+          statusCode: HttpStatus.BAD_REQUEST,
         });
       }
 
-      const tenantData = {
+      const tenantData: CreateTenantDTO = {
         name,
-        email: email || null,
+        email: email ?? null,
         propertyId,
-        tenantId: req.user.tenantId, // ID da Imobiliária logada
-        userId: req.user.id,        // ID do usuário logado
+        tenantId: user.tenantId,
+        userId: user.id,
       };
 
       const tenant = await this.service.create(tenantData);
@@ -57,12 +80,17 @@ export class TenantController extends BaseCrudController<any> {
   };
 
   /**
-   * 📥 LISTAR TODOS (Filtrado por Imobiliária)
+   * 📥 LISTAR TODOS
    */
-  findAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  findAll = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
-      const { tenantId } = req.user;
-      const tenants = await this.service.findAll(tenantId);
+      const user = req.user as AuthUser;
+
+      const tenants = await this.service.findAll(user.tenantId);
 
       res.status(HttpStatus.OK).json({
         status: "success",
@@ -71,7 +99,7 @@ export class TenantController extends BaseCrudController<any> {
         },
         meta: {
           total: Array.isArray(tenants) ? tenants.length : 0,
-        }
+        },
       });
     } catch (error) {
       next(error);
@@ -81,17 +109,21 @@ export class TenantController extends BaseCrudController<any> {
   /**
    * 🔎 BUSCAR POR ID
    */
-  findById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  findById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
+      const user = req.user as AuthUser;
       const { id } = req.params;
-      const { tenantId } = req.user;
 
-      const tenant = await this.service.findById(id, tenantId);
+      const tenant = await this.service.findById(id, user.tenantId);
 
       if (!tenant) {
         throw new AppError({
           message: "Inquilino não encontrado.",
-          statusCode: HttpStatus.NOT_FOUND
+          statusCode: HttpStatus.NOT_FOUND,
         });
       }
 
@@ -107,12 +139,20 @@ export class TenantController extends BaseCrudController<any> {
   /**
    * ✏️ ATUALIZAR
    */
-  update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  update = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
+      const user = req.user as AuthUser;
       const { id } = req.params;
-      const { tenantId } = req.user;
 
-      const updatedTenant = await this.service.update(id, tenantId, req.body);
+      const updatedTenant = await this.service.update(
+        id,
+        user.tenantId,
+        req.body
+      );
 
       res.status(HttpStatus.OK).json({
         status: "success",
@@ -126,12 +166,16 @@ export class TenantController extends BaseCrudController<any> {
   /**
    * 🗑 DELETAR
    */
-  delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  delete = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
+      const user = req.user as AuthUser;
       const { id } = req.params;
-      const { tenantId } = req.user;
 
-      await this.service.delete(id, tenantId);
+      await this.service.delete(id, user.tenantId);
 
       res.status(HttpStatus.NO_CONTENT).send();
     } catch (error) {
@@ -141,19 +185,22 @@ export class TenantController extends BaseCrudController<any> {
 
   /**
    * ❤️ HEALTH CHECK
-   * Resolve o erro ts(2339) no arquivo de rotas
    */
   healthCheck = async (req: Request, res: Response): Promise<void> => {
+    const user = req.user as AuthUser | undefined;
+
     res.status(HttpStatus.OK).json({
       status: "success",
       data: {
         status: "online",
         timestamp: new Date().toISOString(),
-        tenantContext: req.user?.tenantId || "unknown"
+        tenantContext: user?.tenantId ?? "unknown",
       },
     });
   };
 }
 
-// Exporta a instância única para ser usada nas rotas
+/**
+ * Instância única do controller
+ */
 export const tenantController = new TenantController();

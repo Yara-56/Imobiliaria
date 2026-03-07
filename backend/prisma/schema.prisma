@@ -7,9 +7,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─────────────────────────────────────────────
+//////////////////////////////////////////////////
 // ENUMS
-// ─────────────────────────────────────────────
+//////////////////////////////////////////////////
 
 enum ContractStatus {
   DRAFT
@@ -47,9 +47,9 @@ enum RenterStatus {
   BLOQUEADO
 }
 
-// ─────────────────────────────────────────────
-// TENANT
-// ─────────────────────────────────────────────
+//////////////////////////////////////////////////
+// TENANT (IMOBILIÁRIA)
+//////////////////////////////////////////////////
 
 model Tenant {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -67,34 +67,38 @@ model Tenant {
   renters    Renter[]
   contracts  Contract[]
   payments   Payment[]
+
+  @@index([cnpj])
 }
-// ─────────────────────────────────────────────
+
+//////////////////////////////////////////////////
 // USER
-// ─────────────────────────────────────────────
+//////////////////////////////////////////////////
 
 model User {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
   name     String
-  email    String @unique
+  email    String  @unique
   password String
-  role     String @default("USER")
+  role     String  @default("USER")
   isActive Boolean @default(true)
 
   tenantId String @db.ObjectId
   tenant   Tenant @relation(fields: [tenantId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
   contracts Contract[]
   payments  Payment[]
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([tenantId])
+  @@index([email])
 }
 
-// ─────────────────────────────────────────────
-// PROPERTY
-// ─────────────────────────────────────────────
+//////////////////////////////////////////////////
+// PROPERTY (IMÓVEL)
+//////////////////////////////////////////////////
 
 model Property {
   id          String         @id @default(auto()) @map("_id") @db.ObjectId
@@ -105,8 +109,8 @@ model Property {
   state       String?
   zipCode     String?
 
-  price       Float?
-  status      PropertyStatus @default(DISPONIVEL)
+  price  Float?
+  status PropertyStatus @default(DISPONIVEL)
 
   tenantId String @db.ObjectId
   tenant   Tenant @relation(fields: [tenantId], references: [id])
@@ -121,9 +125,9 @@ model Property {
   @@index([status])
 }
 
-// ─────────────────────────────────────────────
-// RENTER (PRÉ-CADASTRO)
-// ─────────────────────────────────────────────
+//////////////////////////////////////////////////
+// RENTER (INQUILINO)
+//////////////////////////////////////////////////
 
 model Renter {
   id          String       @id @default(auto()) @map("_id") @db.ObjectId
@@ -151,9 +155,9 @@ model Renter {
   @@index([cpf])
 }
 
-// ─────────────────────────────────────────────
-// CONTRACT (FONTE DA VERDADE)
-// ─────────────────────────────────────────────
+//////////////////////////////////////////////////
+// CONTRACT (CONTRATO)
+//////////////////////////////////////////////////
 
 model Contract {
   id String @id @default(auto()) @map("_id") @db.ObjectId
@@ -172,7 +176,6 @@ model Contract {
   userId String @db.ObjectId
   user   User   @relation(fields: [userId], references: [id])
 
-  // 🔥 financeiro oficial
   rentAmount   Float
   dueDay       Int
   startDate    DateTime
@@ -195,9 +198,9 @@ model Contract {
   @@index([status])
 }
 
-// ─────────────────────────────────────────────
-// PAYMENT
-// ─────────────────────────────────────────────
+//////////////////////////////////////////////////
+// PAYMENT (PAGAMENTO)
+//////////////////////////////////////////////////
 
 model Payment {
   id String @id @default(auto()) @map("_id") @db.ObjectId
