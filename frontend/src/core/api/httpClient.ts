@@ -1,11 +1,12 @@
 import axios, {
   AxiosError,
   InternalAxiosRequestConfig,
+  AxiosResponse,
 } from "axios";
 
 /**
  * ====================================================
- * Configurações vindas do .env
+ * Variáveis de ambiente (.env)
  * ====================================================
  */
 
@@ -18,11 +19,35 @@ const API_VERSION =
 const API_TIMEOUT =
   Number(import.meta.env.VITE_API_TIMEOUT) || 15000;
 
+/**
+ * ====================================================
+ * Token
+ * ====================================================
+ */
+
 const TOKEN_KEY = "imobisys_token";
 
 /**
  * ====================================================
- * Instância central do Axios
+ * Helpers de Token
+ * ====================================================
+ */
+
+export function getToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function setToken(token: string) {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function removeToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
+/**
+ * ====================================================
+ * Instância principal do Axios
  * ====================================================
  */
 
@@ -44,7 +69,7 @@ export const api = axios.create({
 
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem(TOKEN_KEY);
+    const token = getToken();
 
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -63,13 +88,15 @@ api.interceptors.request.use(
  */
 
 api.interceptors.response.use(
-  (response) => response,
+  (response: AxiosResponse) => {
+    return response;
+  },
   (error: AxiosError<{ message?: string }>) => {
     /**
      * Sessão expirada
      */
     if (error.response?.status === 401) {
-      localStorage.removeItem(TOKEN_KEY);
+      removeToken();
 
       if (window.location.pathname !== "/login") {
         window.location.replace("/login?sessao=expirada");
@@ -90,15 +117,41 @@ api.interceptors.response.use(
     }
 
     /**
-     * Erro retornado pela API
+     * Mensagem retornada pela API
      */
     const mensagem =
       error.response.data?.message ||
       "Erro interno no servidor.";
 
+    console.error("Erro API:", mensagem);
+
     return Promise.reject(new Error(mensagem));
   }
 );
+
+/**
+ * ====================================================
+ * Métodos auxiliares
+ * Facilita uso no projeto
+ * ====================================================
+ */
+
+export const http = {
+  get: <T = unknown>(url: string, params?: object) =>
+    api.get<T>(url, { params }).then((res) => res.data),
+
+  post: <T = unknown>(url: string, data?: object) =>
+    api.post<T>(url, data).then((res) => res.data),
+
+  put: <T = unknown>(url: string, data?: object) =>
+    api.put<T>(url, data).then((res) => res.data),
+
+  patch: <T = unknown>(url: string, data?: object) =>
+    api.patch<T>(url, data).then((res) => res.data),
+
+  delete: <T = unknown>(url: string) =>
+    api.delete<T>(url).then((res) => res.data),
+};
 
 /**
  * ====================================================

@@ -1,11 +1,12 @@
-import pino, { type LoggerOptions } from "pino";
-import { env } from "../../config/env.js";
+import pino from "pino";
+import { env, isDev } from "../../config/env.js";
 
 /**
  * Configuração base do logger
  */
-const options: LoggerOptions = {
-  level: env.NODE_ENV === "development" ? "debug" : "info",
+const baseConfig: pino.LoggerOptions = {
+
+  level: isDev ? "debug" : env.LOG_LEVEL ?? "info",
 
   base: {
     service: "imobisys-api",
@@ -19,23 +20,45 @@ const options: LoggerOptions = {
       return { level: label };
     },
   },
+
+  redact: {
+    paths: [
+      "req.headers.authorization",
+      "password",
+      "token",
+      "refreshToken",
+    ],
+    remove: true,
+  },
+
 };
 
 /**
- * Transport apenas em desenvolvimento
- * (pretty logs)
+ * Logger para desenvolvimento
+ * (logs bonitos no terminal)
  */
-if (env.NODE_ENV === "development") {
-  options.transport = {
+const devLogger = pino({
+  ...baseConfig,
+  transport: {
     target: "pino-pretty",
     options: {
       colorize: true,
       translateTime: "HH:MM:ss",
       ignore: "pid,hostname",
+      singleLine: false,
     },
-  };
-}
+  },
+});
 
-export const logger = pino(options);
+/**
+ * Logger para produção
+ * (logs JSON estruturados)
+ */
+const prodLogger = pino(baseConfig);
+
+/**
+ * Exporta logger correto baseado no ambiente
+ */
+export const logger = isDev ? devLogger : prodLogger;
 
 export default logger;

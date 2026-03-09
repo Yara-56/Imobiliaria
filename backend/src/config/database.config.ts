@@ -1,33 +1,94 @@
-import { PrismaClient } from "@prisma/client";
-// ✅ Mudamos para caminho relativo para o VS Code parar de dar erro de 'módulo não encontrado'
-import { env } from "./env.js"; 
+import { PrismaClient, Prisma } from "@prisma/client";
+import { env } from "./env.js";
 import { logger } from "../shared/utils/logger.js";
 
 /**
- * 💡 Padrão Singleton para o Prisma:
- * Evita criar múltiplas conexões com o MongoDB durante o 'hot reload' do nodemon.
+ * Evita múltiplas instâncias do Prisma durante hot reload
  */
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
-
-export const prisma =
-  globalForPrisma.prisma ||
-  new PrismaClient({
-    log: env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
-  });
-
-if (env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+declare global {
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined;
+}
 
 /**
- * 🍃 Conexão explícita com o banco de dados
+ * Configuração de logs do Prisma
+ */
+const prismaLogs: Prisma.LogLevel[] =
+  env.NODE_ENV === "development"
+    ? ["query", "info", "warn", "error"]
+    : ["error"];
+
+/**
+ * Instância única do Prisma
+ */
+export const prisma =
+  global.prisma ??
+  new PrismaClient({
+    log: prismaLogs,
+  });
+
+/**
+ * Salva instância global em desenvolvimento
+ */
+if (env.NODE_ENV !== "production") {
+  global.prisma = prisma;
+}
+
+/**
+ * Conectar ao banco
  */
 export const connectDatabase = async (): Promise<void> => {
   try {
+    logger.info("🔌 Conectando ao banco de dados...");
+
     await prisma.$connect();
-    logger.info("🍃 Prisma conectado com sucesso ao MongoDB!");
+
+    logger.info("🍃 Banco conectado com sucesso!");
   } catch (error) {
-    logger.error({ err: error }, "❌ Erro crítico ao conectar no MongoDB. Verifique se o banco está rodando e a DATABASE_URL no .env");
-    
-    // Encerra o processo se não houver banco, pois a API não funciona sem ele
+    logger.error(
+      { err: error },
+      "❌ Falha ao conectar ao banco. Verifique DATABASE_URL."
+    );
+
     process.exit(1);
   }
+};
+
+/**
+ * Desconectar banco
+ */
+export const disconnectDatabase = async (): Promise<void> => {
+  try {
+    await prisma.$disconnect();
+    logger.info("🔌 Banco desconectado");
+  } catch (error) {
+    logger.error(
+      { err: error },
+      "❌ Erro ao desconectar banco"
+    );
+  }
+};
+
+/**
+ * Shutdown gracioso da aplicação
+ */
+export const setupDatabaseShutdown = (): void => {
+  const shutdown = async (signal: string) => {
+    logger.info({ signal }, "🛑 Encerrando aplicação...");
+    await disconnectDatabase();
+    process.exit(0);
+  };
+
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
+};
+
+/**
+ * Export da configuração
+ */
+export const databaseConfig = {
+  prisma,
+  connectDatabase,
+  disconnectDatabase,
+  setupDatabaseShutdown,
 };

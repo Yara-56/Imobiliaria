@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { tenantApi } from "../api/tenant.api.js"; // ✅ Extensão .js para NodeNext
+import { tenantApi } from "../api/tenant.api.js";
 import {
   CreateTenantDTO,
   UpdateTenantDTO,
@@ -18,69 +18,101 @@ export const useTenants = (id?: string) => {
   const queryClient = useQueryClient();
 
   /**
-   * 🔍 1. BUSCA (Read)
-   * ✅ Resolvendo erro de sobrecarga: Definimos explicitamente o tipo do Query
-   * para aceitar tanto Tenant[] quanto Tenant ou undefined.
+   * ===============================
+   * 🔎 QUERY
+   * ===============================
    */
+
   const {
-    data: tenantData,
-    isLoading: isFetching,
+    data,
+    isLoading,
     isError,
-  } = useQuery<any, Error>({
+  } = useQuery<Tenant | Tenant[], Error>({
     queryKey: id ? ["tenants", id] : ["tenants"],
-    queryFn: async () => {
-      if (id) return tenantApi.getById(id);
+    queryFn: () => {
+      if (id) {
+        return tenantApi.getById(id);
+      }
       return tenantApi.list();
     },
-    // Mantém o cache por 5 minutos para performance no seu MacBook
     staleTime: 1000 * 60 * 5,
   });
 
-  // 🚀 2. CRIAÇÃO (Create)
+  /**
+   * ===============================
+   * 🚀 CREATE
+   * ===============================
+   */
+
   const createMutation = useMutation({
-    mutationFn: (data: FormData | CreateTenantDTO) => tenantApi.create(data),
+    mutationFn: (data: CreateTenantDTO | FormData) => {
+      return tenantApi.create(data);
+    },
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tenants"] });
+
       toaster.create({
-        title: "Provisionamento Concluído",
-        description: "Nova instância ativa no cluster.",
+        title: "Tenant criado",
+        description: "Novo tenant provisionado com sucesso.",
         type: "success",
       });
     },
-  });
 
-  // 📝 3. ATUALIZAÇÃO (Update)
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: UpdateParams) => {
-      return tenantApi.update(id, data);
-    },
-    onSuccess: (updated) => {
-      // ✅ Invalidação inteligente do cache
-      queryClient.invalidateQueries({ queryKey: ["tenants"] });
-      queryClient.setQueryData(["tenants", updated._id], updated);
-
-      toaster.create({
-        title: "Cluster Sincronizado",
-        description: `As configurações de ${updated.fullName} foram aplicadas.`,
-        type: "success",
-      });
-    },
     onError: (error: any) => {
       toaster.create({
-        title: "Erro de Sincronização",
+        title: "Erro ao criar tenant",
         description:
-          error.response?.data?.message || "Falha ao conectar com o nó.",
+          error?.response?.data?.message || "Falha ao criar tenant.",
         type: "error",
       });
     },
   });
 
-  return {
-    // Retornos tipados para as páginas de New e Edit
-    tenant: id ? (tenantData as Tenant) : null,
-    tenants: !id ? (tenantData as Tenant[]) : [],
+  /**
+   * ===============================
+   * ✏️ UPDATE
+   * ===============================
+   */
 
-    isLoading: isFetching,
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: UpdateParams) => {
+      return tenantApi.update(id, data);
+    },
+
+    onSuccess: (updated: Tenant) => {
+      queryClient.invalidateQueries({ queryKey: ["tenants"] });
+
+      queryClient.setQueryData(["tenants", updated._id], updated);
+
+      toaster.create({
+        title: "Tenant atualizado",
+        description: `Dados de ${updated.fullName} atualizados.`,
+        type: "success",
+      });
+    },
+
+    onError: (error: any) => {
+      toaster.create({
+        title: "Erro ao atualizar",
+        description:
+          error?.response?.data?.message || "Falha na atualização.",
+        type: "error",
+      });
+    },
+  });
+
+  /**
+   * ===============================
+   * 📦 RETURN
+   * ===============================
+   */
+
+  return {
+    tenant: id ? (data as Tenant | undefined) : undefined,
+    tenants: !id ? (data as Tenant[] | undefined) : undefined,
+
+    isLoading,
     isError,
 
     createTenant: createMutation.mutateAsync,
