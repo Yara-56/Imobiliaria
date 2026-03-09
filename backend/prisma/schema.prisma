@@ -52,12 +52,12 @@ enum RenterStatus {
 //////////////////////////////////////////////////
 
 model Tenant {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  cnpj      String?  @unique
-  phone     String?
-  email     String?
-  logoUrl   String?
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  name    String
+  cnpj    String? @unique // @unique já cria o índice automaticamente
+  phone   String?
+  email   String?
+  logoUrl String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -68,7 +68,7 @@ model Tenant {
   contracts  Contract[]
   payments   Payment[]
 
-  @@index([cnpj])
+  // Removido @@index([cnpj]) para evitar erro P1012
 }
 
 //////////////////////////////////////////////////
@@ -78,7 +78,7 @@ model Tenant {
 model User {
   id       String  @id @default(auto()) @map("_id") @db.ObjectId
   name     String
-  email    String  @unique
+  email    String  @unique // @unique já cria o índice automaticamente
   password String
   role     String  @default("USER")
   isActive Boolean @default(true)
@@ -93,7 +93,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@index([tenantId])
-  @@index([email])
+  // Removido @@index([email]) para evitar erro P1012
 }
 
 //////////////////////////////////////////////////
@@ -101,7 +101,7 @@ model User {
 //////////////////////////////////////////////////
 
 model Property {
-  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   description String?
   address     String
@@ -130,11 +130,11 @@ model Property {
 //////////////////////////////////////////////////
 
 model Renter {
-  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   email       String?
   phone       String?
-  cpf         String?
+  cpf         String? @unique // Adicionado unique para evitar inquilinos duplicados
   documentUrl String?
   notes       String?
 
@@ -152,7 +152,6 @@ model Renter {
   updatedAt DateTime @updatedAt
 
   @@index([tenantId])
-  @@index([cpf])
 }
 
 //////////////////////////////////////////////////
@@ -160,8 +159,7 @@ model Renter {
 //////////////////////////////////////////////////
 
 model Contract {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
   contractNumber String?
 
   tenantId String @db.ObjectId
@@ -203,18 +201,15 @@ model Contract {
 //////////////////////////////////////////////////
 
 model Payment {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
   amount         Float
   referenceMonth String
   dueDate        DateTime
   paymentDate    DateTime?
-
-  method PaymentMethod
-  status PaymentStatus @default(PENDENTE)
-
-  receiptUrl String?
-  notes      String?
+  method         PaymentMethod
+  status         PaymentStatus @default(PENDENTE)
+  receiptUrl     String?
+  notes          String?
 
   contractId String   @db.ObjectId
   contract   Contract @relation(fields: [contractId], references: [id])
