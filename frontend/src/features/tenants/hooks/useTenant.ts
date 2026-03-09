@@ -1,12 +1,8 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { tenantApi } from "../api/tenant.api.js";
-import {
-  CreateTenantDTO,
-  UpdateTenantDTO,
-  Tenant,
-} from "../types/tenant.enums.js";
+import { tenantApi } from "../api/tenant.api";
+import type { CreateTenantDTO, UpdateTenantDTO, Tenant } from "../types/tenant.types";
 import { toaster } from "@/components/ui/toaster";
 
 interface UpdateParams {
@@ -19,23 +15,21 @@ export const useTenants = (id?: string) => {
 
   /**
    * ===============================
-   * 🔎 QUERY
+   * 🔎 QUERY — Lista ou busca por ID
    * ===============================
    */
-
-  const {
-    data,
-    isLoading,
-    isError,
-  } = useQuery<Tenant | Tenant[], Error>({
-    queryKey: id ? ["tenants", id] : ["tenants"],
-    queryFn: () => {
-      if (id) {
-        return tenantApi.getById(id);
-      }
-      return tenantApi.list();
-    },
+  const listQuery = useQuery<Tenant[], Error>({
+    queryKey: ["tenants"],
+    queryFn: () => tenantApi.list(),
     staleTime: 1000 * 60 * 5,
+    enabled: !id,
+  });
+
+  const singleQuery = useQuery<Tenant, Error>({
+    queryKey: ["tenants", id],
+    queryFn: () => tenantApi.getById(id!),
+    staleTime: 1000 * 60 * 5,
+    enabled: !!id,
   });
 
   /**
@@ -43,27 +37,22 @@ export const useTenants = (id?: string) => {
    * 🚀 CREATE
    * ===============================
    */
-
-  const createMutation = useMutation({
-    mutationFn: (data: CreateTenantDTO | FormData) => {
-      return tenantApi.create(data);
-    },
+  const createMutation = useMutation<Tenant, Error, CreateTenantDTO | FormData>({
+    mutationFn: (data) => tenantApi.create(data),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tenants"] });
-
       toaster.create({
-        title: "Tenant criado",
-        description: "Novo tenant provisionado com sucesso.",
+        title: "Inquilino cadastrado",
+        description: "Novo inquilino adicionado com sucesso.",
         type: "success",
       });
     },
 
     onError: (error: any) => {
       toaster.create({
-        title: "Erro ao criar tenant",
-        description:
-          error?.response?.data?.message || "Falha ao criar tenant.",
+        title: "Erro ao cadastrar",
+        description: error?.response?.data?.message || "Falha ao criar inquilino.",
         type: "error",
       });
     },
@@ -74,19 +63,14 @@ export const useTenants = (id?: string) => {
    * ✏️ UPDATE
    * ===============================
    */
+  const updateMutation = useMutation<Tenant, Error, UpdateParams>({
+    mutationFn: ({ id, data }) => tenantApi.update(id, data),
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: UpdateParams) => {
-      return tenantApi.update(id, data);
-    },
-
-    onSuccess: (updated: Tenant) => {
+    onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: ["tenants"] });
-
       queryClient.setQueryData(["tenants", updated._id], updated);
-
       toaster.create({
-        title: "Tenant atualizado",
+        title: "Inquilino atualizado",
         description: `Dados de ${updated.fullName} atualizados.`,
         type: "success",
       });
@@ -95,8 +79,7 @@ export const useTenants = (id?: string) => {
     onError: (error: any) => {
       toaster.create({
         title: "Erro ao atualizar",
-        description:
-          error?.response?.data?.message || "Falha na atualização.",
+        description: error?.response?.data?.message || "Falha na atualização.",
         type: "error",
       });
     },
@@ -107,18 +90,29 @@ export const useTenants = (id?: string) => {
    * 📦 RETURN
    * ===============================
    */
-
   return {
-    tenant: id ? (data as Tenant | undefined) : undefined,
-    tenants: !id ? (data as Tenant[] | undefined) : undefined,
+    tenant: singleQuery.data,
+    tenants: listQuery.data ?? [],
 
-    isLoading,
-    isError,
+    isLoading: listQuery.isLoading || singleQuery.isLoading,
+    isError: listQuery.isError || singleQuery.isError,
 
     createTenant: createMutation.mutateAsync,
     isCreating: createMutation.isPending,
 
     updateTenant: updateMutation.mutate,
     isUpdating: updateMutation.isPending,
+
+    // Compatibilidade com useTenants antigo
+    actions: {
+      create: createMutation.mutateAsync,
+      update: updateMutation.mutateAsync,
+    },
+    status: {
+      isCreating: createMutation.isPending,
+      isUpdating: updateMutation.isPending,
+      isLoading: listQuery.isLoading,
+      isError: listQuery.isError,
+    },
   };
 };

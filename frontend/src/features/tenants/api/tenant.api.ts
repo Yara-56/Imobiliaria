@@ -4,7 +4,7 @@ import type {
   Tenant,
   CreateTenantDTO,
   UpdateTenantDTO,
-} from "../types/tenant.enums";
+} from "../types/tenant.types";
 
 import { mapTenantToApi } from "../mappers/tenant.mapper";
 
@@ -13,22 +13,17 @@ import { mapTenantToApi } from "../mappers/tenant.mapper";
  * 📦 Padrão de resposta da API
  * ======================================================
  */
-
-interface ApiResponse<T> {
+interface ApiResponse {
   status?: string;
-  data: T;
+  data: any;
   meta?: unknown;
   message?: string;
 }
 
 /**
  * ======================================================
- * 🛠 Utils
+ * 🛠 Utils — FormData
  * ======================================================
- */
-
-/**
- * 🔄 Converte objeto para FormData
  */
 const toFormData = (payload: Record<string, unknown>): FormData => {
   const form = new FormData();
@@ -36,71 +31,66 @@ const toFormData = (payload: Record<string, unknown>): FormData => {
   Object.entries(payload)
     .filter(([, value]) => value !== null && value !== undefined)
     .forEach(([key, value]) => {
-      if (value instanceof File) {
-        form.append(key, value);
-        return;
-      }
-
-      if (typeof value === "object") {
-        form.append(key, JSON.stringify(value));
-        return;
-      }
-
+      if (value instanceof File) { form.append(key, value); return; }
+      if (typeof value === "object") { form.append(key, JSON.stringify(value)); return; }
       form.append(key, String(value));
     });
 
   return form;
 };
 
-/**
- * 🔎 Detecta se payload precisa ser multipart
- */
 const isMultipartPayload = (payload: unknown): boolean => {
   if (payload instanceof FormData) return true;
-
   if (typeof payload === "object" && payload !== null) {
-    return Object.values(payload).some((v) => v instanceof File);
+    return Object.values(payload as object).some((v) => v instanceof File);
   }
-
   return false;
 };
 
 /**
  * ======================================================
- * 🚀 Smart Request
+ * 🔎 Normaliza resposta de lista
+ * Suporta: { data: [] } | { data: { tenants: [] } }
  * ======================================================
  */
+const extractTenantList = (responseData: any): Tenant[] => {
+  const data = responseData?.data;
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.tenants)) return data.tenants;
+  if (Array.isArray(responseData)) return responseData;
+  return [];
+};
 
-const smartRequest = async <T>(
+/**
+ * ======================================================
+ * 🚀 Smart Request — POST / PATCH
+ * Detecta multipart automaticamente
+ * ======================================================
+ */
+const smartRequest = async (
   method: "post" | "patch",
   url: string,
   payload: Record<string, unknown> | FormData
-): Promise<T> => {
+): Promise<Tenant> => {
   try {
     const multipart = isMultipartPayload(payload);
-
     const dataToSend =
-      payload instanceof FormData
-        ? payload
-        : multipart
-        ? toFormData(payload)
-        : payload;
+      payload instanceof FormData ? payload
+      : multipart ? toFormData(payload)
+      : payload;
 
-    const response = await api.request<ApiResponse<T>>({
+    const response = await api.request<ApiResponse>({
       method,
       url,
       data: dataToSend,
-      headers: multipart
-        ? { "Content-Type": "multipart/form-data" }
-        : undefined,
+      headers: multipart ? { "Content-Type": "multipart/form-data" } : undefined,
     });
 
-    /**
-     * Proteção contra APIs que retornam formato diferente
-     */
-    const result = response.data?.data ?? response.data;
-
-    return result as T;
+    return (
+      response.data?.data?.tenant ??
+      response.data?.data ??
+      response.data
+    );
   } catch (error: any) {
     console.error("❌ Tenant API Error:", error?.response?.data || error);
     throw error;
@@ -112,20 +102,20 @@ const smartRequest = async <T>(
  * 🏢 Tenant API
  * ======================================================
  */
-
 export const tenantApi = {
+
   /**
-   * ======================================================
-   * 📄 Lista todos os tenants
-   * ======================================================
+   * 📄 Lista todos os inquilinos
    */
   list: async (): Promise<Tenant[]> => {
     try {
-      const response = await api.get<ApiResponse<Tenant[]>>("/tenants");
+      const response = await api.get<ApiResponse>("/tenants");
 
-      const result = response.data?.data ?? response.data;
+      if (import.meta.env.DEV) {
+        console.log("📋 Tenant list response:", response.data);
+      }
 
-      return Array.isArray(result) ? result : [];
+      return extractTenantList(response.data);
     } catch (error: any) {
       console.error("❌ Error loading tenants:", error?.response?.data);
       throw error;
@@ -133,15 +123,17 @@ export const tenantApi = {
   },
 
   /**
-   * ======================================================
-   * 🔎 Busca tenant por ID
-   * ======================================================
+   * 🔎 Busca inquilino por ID
    */
   getById: async (id: string): Promise<Tenant> => {
     try {
-      const response = await api.get<ApiResponse<Tenant>>(`/tenants/${id}`);
+      const response = await api.get<ApiResponse>(`/tenants/${id}`);
 
-      return response.data?.data ?? (response.data as unknown as Tenant);
+      return (
+        response.data?.data?.tenant ??
+        response.data?.data ??
+        response.data
+      );
     } catch (error: any) {
       console.error("❌ Error loading tenant:", error?.response?.data);
       throw error;
@@ -149,31 +141,21 @@ export const tenantApi = {
   },
 
   /**
-   * ======================================================
-   * ➕ Cria tenant
-   * ======================================================
+   * ➕ Cria inquilino
    */
-  create: async (
-    payload: CreateTenantDTO | FormData
-  ): Promise<Tenant> => {
+  create: async (payload: CreateTenantDTO | FormData): Promise<Tenant> => {
     try {
       if (payload instanceof FormData) {
-        return smartRequest<Tenant>("post", "/tenants", payload);
+        return smartRequest("post", "/tenants", payload);
       }
 
-      /**
-       * 🔹 Converte DTO do frontend → formato da API
-       */
       const mappedPayload = mapTenantToApi(payload);
 
-      /**
-       * 🧠 Debug opcional
-       */
       if (import.meta.env.DEV) {
         console.log("📤 Tenant payload:", mappedPayload);
       }
 
-      return smartRequest<Tenant>("post", "/tenants", mappedPayload);
+      return smartRequest("post", "/tenants", mappedPayload);
     } catch (error: any) {
       console.error("❌ Error creating tenant:", error?.response?.data);
       throw error;
@@ -181,9 +163,7 @@ export const tenantApi = {
   },
 
   /**
-   * ======================================================
-   * ✏️ Atualiza tenant
-   * ======================================================
+   * ✏️ Atualiza inquilino
    */
   update: async (
     id: string,
@@ -191,7 +171,7 @@ export const tenantApi = {
   ): Promise<Tenant> => {
     try {
       if (payload instanceof FormData) {
-        return smartRequest<Tenant>("patch", `/tenants/${id}`, payload);
+        return smartRequest("patch", `/tenants/${id}`, payload);
       }
 
       const mappedPayload = mapTenantToApi(payload as CreateTenantDTO);
@@ -200,11 +180,7 @@ export const tenantApi = {
         console.log("📤 Tenant update payload:", mappedPayload);
       }
 
-      return smartRequest<Tenant>(
-        "patch",
-        `/tenants/${id}`,
-        mappedPayload
-      );
+      return smartRequest("patch", `/tenants/${id}`, mappedPayload);
     } catch (error: any) {
       console.error("❌ Error updating tenant:", error?.response?.data);
       throw error;
@@ -212,9 +188,7 @@ export const tenantApi = {
   },
 
   /**
-   * ======================================================
-   * ❌ Remove tenant
-   * ======================================================
+   * ❌ Remove inquilino
    */
   delete: async (id: string): Promise<void> => {
     try {
@@ -226,18 +200,11 @@ export const tenantApi = {
   },
 
   /**
-   * ======================================================
-   * ❤️ Health check do tenant
-   * ======================================================
+   * ❤️ Health check
    */
-  checkStatus: async (
-    id: string
-  ): Promise<"online" | "offline"> => {
+  checkStatus: async (id: string): Promise<"online" | "offline"> => {
     try {
-      const response = await api.get<
-        ApiResponse<{ status: "online" | "offline" }>
-      >(`/tenants/${id}/health`);
-
+      const response = await api.get<ApiResponse>(`/tenants/${id}/health`);
       return response.data?.data?.status ?? "offline";
     } catch (error: any) {
       console.error("❌ Error checking tenant status:", error?.response?.data);
