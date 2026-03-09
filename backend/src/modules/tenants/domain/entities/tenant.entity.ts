@@ -1,9 +1,13 @@
 export class Tenant {
   id?: string;
-  name!: string;
-  email!: string;
-  documentUrl?: string; 
-  propertyId!: string;  
+  fullName!: string;
+  email?: string | null;
+  phone?: string | null;
+  cpf?: string | null;
+  documentUrl?: string | null;
+  notes?: string | null;
+  propertyId?: string | null;
+  tenantId!: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

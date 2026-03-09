@@ -7,100 +7,67 @@ import {
 import { Tenant } from "../../domain/entities/tenant.entity.js";
 
 export class PrismaTenantRepository implements ITenantRepository {
-  
-  /**
-   * 📝 Cria um novo locatário (Renter) vinculado a um Imóvel e a um Tenant (SaaS)
-   */
   async create(data: CreateTenantData): Promise<Tenant> {
-    // ✅ Garantimos que o 'name' existe antes de enviar ao Prisma para evitar crash
-    if (!data.name) {
+    if (!data.fullName?.trim()) {
       throw new Error("O nome do locatário é obrigatório para criação.");
     }
 
     const result = await prisma.renter.create({
       data: {
-        name: data.name,
-        email: data.email || null, // Se não vier, salva como null no banco
-        documentUrl: data.documentUrl || null,
-        propertyId: data.propertyId,
-        tenantId: data.tenantId, // 🔒 Isolamento multi-tenant
+        fullName: data.fullName.trim(),
+        email: data.email ?? null,
+        phone: data.phone ?? null,
+        cpf: data.cpf ?? null,
+        documentUrl: data.documentUrl ?? null,
+        notes: data.notes ?? null,
+        propertyId: data.propertyId ?? null,
+        tenantId: data.tenantId,
       },
     });
 
-    return result as Tenant;
+    return result as unknown as Tenant;
   }
 
-  /**
-   * 🔍 Lista locatários de um imóvel específico com paginação
-   */
-  async findAll(propertyId: string, query?: PaginationQuery): Promise<Tenant[]> {
-    const page = Math.max(1, query?.page ?? 1);
-    const limit = Math.max(1, query?.limit ?? 10);
+  async findAll(tenantId: string, query?: PaginationQuery): Promise<Tenant[]> {
+    const page = query?.page ?? 1;
+    const limit = query?.limit ?? 10;
     const skip = (page - 1) * limit;
 
     const renters = await prisma.renter.findMany({
-      where: { propertyId },
+      where: {
+        tenantId,
+        ...(query?.search && {
+          fullName: { contains: query.search, mode: "insensitive" },
+        }),
+      },
       skip,
       take: limit,
       orderBy: { createdAt: "desc" },
     });
 
-    return renters as Tenant[];
+    return renters as unknown as Tenant[];
   }
 
-  /**
-   * 🆔 Busca um locatário específico garantindo que pertence ao imóvel correto
-   */
-  async findById(id: string, propertyId: string): Promise<Tenant | null> {
+  async findById(id: string, tenantId: string): Promise<Tenant | null> {
     const renter = await prisma.renter.findFirst({
-      where: { 
-        id, 
-        propertyId // ✅ Segurança: impede que um usuário acesse dados de outro imóvel via ID
-      },
+      where: { id, tenantId },
     });
 
-    return (renter as Tenant) || null;
+    return renter as unknown as Tenant | null;
   }
 
-  /**
-   * 🔄 Atualiza dados do locatário
-   */
-  async update(
-    id: string,
-    propertyId: string,
-    data: Partial<CreateTenantData>
-  ): Promise<Tenant> {
-    // 1️⃣ Verificamos a existência e a posse do dado
-    const existing = await this.findById(id, propertyId);
+  async update(id: string, tenantId: string, data: Partial<CreateTenantData>): Promise<Tenant> {
+    const existing = await prisma.renter.findFirst({ where: { id, tenantId } });
+    if (!existing) throw new Error("Inquilino não encontrado");
 
-    if (!existing) {
-      throw new Error("Locatário não encontrado ou você não tem permissão para editá-lo.");
-    }
-
-    // 2️⃣ Atualizamos apenas os campos permitidos
-    const updated = await prisma.renter.update({
-      where: { id },
-      data: {
-        ...data,
-        updatedAt: new Date(), // Força a atualização do timestamp se necessário
-      },
-    });
-
-    return updated as Tenant;
+    const updated = await prisma.renter.update({ where: { id }, data });
+    return updated as unknown as Tenant;
   }
 
-  /**
-   * 🗑️ Remove o locatário do sistema
-   */
-  async delete(id: string, propertyId: string): Promise<void> {
-    const existing = await this.findById(id, propertyId);
+  async delete(id: string, tenantId: string): Promise<void> {
+    const existing = await prisma.renter.findFirst({ where: { id, tenantId } });
+    if (!existing) throw new Error("Inquilino não encontrado");
 
-    if (!existing) {
-      throw new Error("Não foi possível excluir: Locatário não encontrado.");
-    }
-
-    await prisma.renter.delete({
-      where: { id },
-    });
+    await prisma.renter.delete({ where: { id } });
   }
 }

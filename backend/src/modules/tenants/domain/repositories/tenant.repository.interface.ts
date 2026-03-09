@@ -7,17 +7,21 @@ export interface PaginationQuery {
 }
 
 export type CreateTenantData = {
-  name: string;
-  email: string;
-  documentUrl?: string;
-  propertyId: string;
+  fullName: string;
+  email?: string | null;
+  phone?: string | null;
+  cpf?: string | null;
+  documentUrl?: string | null;
+  notes?: string | null;
+  propertyId?: string | null;
   tenantId: string;
+  userId?: string;
 };
 
 export interface ITenantRepository {
   create(data: CreateTenantData): Promise<Tenant>;
-  findAll(propertyId: string, query?: PaginationQuery): Promise<Tenant[]>;
-  findById(id: string, propertyId: string): Promise<Tenant | null>;
-  update(id: string, propertyId: string, data: Partial<CreateTenantData>): Promise<Tenant>;
-  delete(id: string, propertyId: string): Promise<void>;
+  findAll(tenantId: string, query?: PaginationQuery): Promise<Tenant[]>;
+  findById(id: string, tenantId: string): Promise<Tenant | null>;
+  update(id: string, tenantId: string, data: Partial<CreateTenantData>): Promise<Tenant>;
+  delete(id: string, tenantId: string): Promise<void>;
 }

@@ -8,12 +8,19 @@ import { Tenant } from "../../domain/entities/tenant.entity.js";
 
 export class PrismaTenantRepository implements ITenantRepository {
   async create(data: CreateTenantData): Promise<Tenant> {
+    if (!data.fullName?.trim()) {
+      throw new Error("O nome do locatário é obrigatório para criação.");
+    }
+
     const result = await prisma.renter.create({
       data: {
-        name: data.name,
-        email: data.email,
-        documentUrl: data.documentUrl,
-        propertyId: data.propertyId,
+        fullName: data.fullName.trim(),
+        email: data.email ?? null,
+        phone: data.phone ?? null,
+        cpf: data.cpf ?? null,
+        documentUrl: data.documentUrl ?? null,
+        notes: data.notes ?? null,
+        propertyId: data.propertyId ?? null,
         tenantId: data.tenantId,
       },
     });
@@ -21,13 +28,18 @@ export class PrismaTenantRepository implements ITenantRepository {
     return result as unknown as Tenant;
   }
 
-  async findAll(propertyId: string, query?: PaginationQuery): Promise<Tenant[]> {
+  async findAll(tenantId: string, query?: PaginationQuery): Promise<Tenant[]> {
     const page = query?.page ?? 1;
     const limit = query?.limit ?? 10;
     const skip = (page - 1) * limit;
 
     const renters = await prisma.renter.findMany({
-      where: { propertyId },
+      where: {
+        tenantId,
+        ...(query?.search && {
+          fullName: { contains: query.search, mode: "insensitive" },
+        }),
+      },
       skip,
       take: limit,
       orderBy: { createdAt: "desc" },
@@ -36,9 +48,9 @@ export class PrismaTenantRepository implements ITenantRepository {
     return renters as unknown as Tenant[];
   }
 
-  async findById(id: string, propertyId: string): Promise<Tenant | null> {
+  async findById(id: string, tenantId: string): Promise<Tenant | null> {
     const renter = await prisma.renter.findFirst({
-      where: { id, propertyId },
+      where: { id, tenantId },
     });
 
     return renter as unknown as Tenant | null;
@@ -46,15 +58,15 @@ export class PrismaTenantRepository implements ITenantRepository {
 
   async update(
     id: string,
-    propertyId: string,
+    tenantId: string,
     data: Partial<CreateTenantData>
   ): Promise<Tenant> {
     const existing = await prisma.renter.findFirst({
-      where: { id, propertyId },
+      where: { id, tenantId },
     });
 
     if (!existing) {
-      throw new Error("Inquilino não encontrado para este imóvel");
+      throw new Error("Inquilino não encontrado");
     }
 
     const updated = await prisma.renter.update({
@@ -65,13 +77,13 @@ export class PrismaTenantRepository implements ITenantRepository {
     return updated as unknown as Tenant;
   }
 
-  async delete(id: string, propertyId: string): Promise<void> {
+  async delete(id: string, tenantId: string): Promise<void> {
     const existing = await prisma.renter.findFirst({
-      where: { id, propertyId },
+      where: { id, tenantId },
     });
 
     if (!existing) {
-      throw new Error("Inquilino não encontrado para este imóvel");
+      throw new Error("Inquilino não encontrado");
     }
 
     await prisma.renter.delete({

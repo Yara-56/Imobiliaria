@@ -3,9 +3,13 @@ import { BaseCrudController } from "../../../../shared/http/base-crud-controller
 import { TenantService } from "../../application/services/tenant.service.js";
 import { HttpStatus } from "../../../../shared/errors/http-status.js";
 import { AppError } from "../../../../shared/errors/AppError.js";
+import { logger } from "../../../../shared/utils/logger.js";
+import type { CreateTenantData } from "../../domain/repositories/tenant.repository.interface.js";
 
 /**
- * Tipagem do usuário autenticado no request
+ * ======================================================
+ * 🔐 Tipagem do usuário autenticado
+ * ======================================================
  */
 interface AuthUser {
   id: string;
@@ -13,27 +17,29 @@ interface AuthUser {
 }
 
 /**
- * DTO de criação de inquilino
- */
-interface CreateTenantDTO {
-  name: string;
-  email?: string | null;
-  propertyId: string;
-  tenantId: string;
-  userId: string;
-}
-
-/**
+ * ======================================================
  * 🏢 TenantController
- * Gerencia o CRUD de inquilinos com isolamento Multi-tenant
+ * ------------------------------------------------------
+ * Gerencia o CRUD de inquilinos (Renters) com isolamento
+ * multi-tenant. Cada operação filtra por tenantId do
+ * usuário autenticado via JWT.
+ *
+ * ✅ Clean Architecture
+ * ✅ Multi-tenant isolation
+ * ✅ Tipagem forte
+ * ✅ Logs estruturados
+ * ======================================================
  */
-export class TenantController extends BaseCrudController<CreateTenantDTO> {
+export class TenantController extends BaseCrudController<CreateTenantData> {
   constructor() {
     super(new TenantService());
   }
 
   /**
+   * ======================================================
    * ➕ CRIAR INQUILINO
+   * POST /api/v1/tenants
+   * ======================================================
    */
   create = async (
     req: Request,
@@ -43,31 +49,37 @@ export class TenantController extends BaseCrudController<CreateTenantDTO> {
     try {
       const user = req.user as AuthUser;
 
-      const { name, email, propertyId } = req.body;
+      logger.info({ body: req.body }, "📥 Dados recebidos para novo inquilino");
 
-      if (!name || typeof name !== "string") {
+      const {
+        fullName,
+        email,
+        phone,
+        document,
+      } = req.body;
+
+      if (!fullName || typeof fullName !== "string" || !fullName.trim()) {
         throw new AppError({
-          message: "O campo 'name' (nome do inquilino) é obrigatório.",
+          message: "O campo 'fullName' (nome do inquilino) é obrigatório.",
           statusCode: HttpStatus.BAD_REQUEST,
         });
       }
 
-      if (!propertyId || typeof propertyId !== "string") {
-        throw new AppError({
-          message: "É necessário vincular o inquilino a um imóvel (propertyId).",
-          statusCode: HttpStatus.BAD_REQUEST,
-        });
-      }
-
-      const tenantData: CreateTenantDTO = {
-        name,
-        email: email ?? null,
-        propertyId,
+      // Mapeia explicitamente para CreateTenantData (tipos do repository)
+      const tenantData: CreateTenantData = {
+        fullName: fullName.trim(),
+        email: email?.trim() || null,
+        phone: phone?.trim() || null,
+        cpf: document?.trim() || null,  // document do frontend → cpf no banco
         tenantId: user.tenantId,
         userId: user.id,
       };
 
+      logger.info({ tenantData }, "📤 Dados mapeados para repository");
+
       const tenant = await this.service.create(tenantData);
+
+      logger.info({ tenantId: user.tenantId }, "✅ Inquilino criado com sucesso");
 
       res.status(HttpStatus.CREATED).json({
         status: "success",
@@ -80,7 +92,10 @@ export class TenantController extends BaseCrudController<CreateTenantDTO> {
   };
 
   /**
-   * 📥 LISTAR TODOS
+   * ======================================================
+   * 📄 LISTAR TODOS
+   * GET /api/v1/tenants
+   * ======================================================
    */
   findAll = async (
     req: Request,
@@ -90,7 +105,13 @@ export class TenantController extends BaseCrudController<CreateTenantDTO> {
     try {
       const user = req.user as AuthUser;
 
-      const tenants = await this.service.findAll(user.tenantId);
+      const query = {
+        page: req.query.page ? Number(req.query.page) : 1,
+        limit: req.query.limit ? Number(req.query.limit) : 10,
+        search: req.query.search as string | undefined,
+      };
+
+      const tenants = await this.service.findAll(user.tenantId, query);
 
       res.status(HttpStatus.OK).json({
         status: "success",
@@ -99,6 +120,8 @@ export class TenantController extends BaseCrudController<CreateTenantDTO> {
         },
         meta: {
           total: Array.isArray(tenants) ? tenants.length : 0,
+          page: query.page,
+          limit: query.limit,
         },
       });
     } catch (error) {
@@ -107,7 +130,10 @@ export class TenantController extends BaseCrudController<CreateTenantDTO> {
   };
 
   /**
+   * ======================================================
    * 🔎 BUSCAR POR ID
+   * GET /api/v1/tenants/:id
+   * ======================================================
    */
   findById = async (
     req: Request,
@@ -137,7 +163,10 @@ export class TenantController extends BaseCrudController<CreateTenantDTO> {
   };
 
   /**
+   * ======================================================
    * ✏️ ATUALIZAR
+   * PATCH /api/v1/tenants/:id
+   * ======================================================
    */
   update = async (
     req: Request,
@@ -148,6 +177,8 @@ export class TenantController extends BaseCrudController<CreateTenantDTO> {
       const user = req.user as AuthUser;
       const { id } = req.params;
 
+      logger.info({ id, body: req.body }, "📝 Atualizando inquilino");
+
       const updatedTenant = await this.service.update(
         id,
         user.tenantId,
@@ -156,6 +187,7 @@ export class TenantController extends BaseCrudController<CreateTenantDTO> {
 
       res.status(HttpStatus.OK).json({
         status: "success",
+        message: "Inquilino atualizado com sucesso",
         data: { tenant: updatedTenant },
       });
     } catch (error) {
@@ -164,7 +196,10 @@ export class TenantController extends BaseCrudController<CreateTenantDTO> {
   };
 
   /**
+   * ======================================================
    * 🗑 DELETAR
+   * DELETE /api/v1/tenants/:id
+   * ======================================================
    */
   delete = async (
     req: Request,
@@ -177,6 +212,8 @@ export class TenantController extends BaseCrudController<CreateTenantDTO> {
 
       await this.service.delete(id, user.tenantId);
 
+      logger.info({ id, tenantId: user.tenantId }, "🗑 Inquilino removido");
+
       res.status(HttpStatus.NO_CONTENT).send();
     } catch (error) {
       next(error);
@@ -184,7 +221,10 @@ export class TenantController extends BaseCrudController<CreateTenantDTO> {
   };
 
   /**
+   * ======================================================
    * ❤️ HEALTH CHECK
+   * GET /api/v1/tenants/health
+   * ======================================================
    */
   healthCheck = async (req: Request, res: Response): Promise<void> => {
     const user = req.user as AuthUser | undefined;
@@ -201,6 +241,8 @@ export class TenantController extends BaseCrudController<CreateTenantDTO> {
 }
 
 /**
- * Instância única do controller
+ * ======================================================
+ * Instância única do controller (Singleton)
+ * ======================================================
  */
 export const tenantController = new TenantController();

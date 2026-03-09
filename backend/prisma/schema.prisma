@@ -54,7 +54,7 @@ enum RenterStatus {
 model Tenant {
   id      String  @id @default(auto()) @map("_id") @db.ObjectId
   name    String
-  cnpj    String? @unique // @unique já cria o índice automaticamente
+  cnpj    String? @unique
   phone   String?
   email   String?
   logoUrl String?
@@ -67,8 +67,6 @@ model Tenant {
   renters    Renter[]
   contracts  Contract[]
   payments   Payment[]
-
-  // Removido @@index([cnpj]) para evitar erro P1012
 }
 
 //////////////////////////////////////////////////
@@ -78,7 +76,7 @@ model Tenant {
 model User {
   id       String  @id @default(auto()) @map("_id") @db.ObjectId
   name     String
-  email    String  @unique // @unique já cria o índice automaticamente
+  email    String  @unique
   password String
   role     String  @default("USER")
   isActive Boolean @default(true)
@@ -93,7 +91,6 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@index([tenantId])
-  // Removido @@index([email]) para evitar erro P1012
 }
 
 //////////////////////////////////////////////////
@@ -131,10 +128,10 @@ model Property {
 
 model Renter {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
+  fullName    String                    // ← única mudança
   email       String?
   phone       String?
-  cpf         String? @unique // Adicionado unique para evitar inquilinos duplicados
+  cpf         String? @unique
   documentUrl String?
   notes       String?
 
