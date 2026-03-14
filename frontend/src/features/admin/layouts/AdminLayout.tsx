@@ -1,17 +1,20 @@
-"use client";
-
-import { Box, Flex, Stack, Text, Container, Heading, Icon, Center } from "@chakra-ui/react";
-import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
-import { 
-  LuLayoutDashboard, LuHouse, LuPenLine, LuUsers, LuWallet, LuLogOut 
+import { Box, Flex, Text, Container, Heading, Center } from "@chakra-ui/react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import {
+  LuLayoutDashboard,
+  LuHouse,
+  LuPenLine,
+  LuUsers,
+  LuWallet,
+  LuLogOut,
 } from "react-icons/lu";
+import { Sidebar } from "../../../components/shared/Sidebar";
 
-// ✅ Traduzi para "Inquilinos" para alinhar com o negócio imobiliário
 const menuItems = [
   { name: "Dashboard", icon: LuLayoutDashboard, path: "/admin/dashboard" },
   { name: "Imóveis", icon: LuHouse, path: "/admin/properties" },
   { name: "Contratos", icon: LuPenLine, path: "/admin/contracts" },
-  { name: "Inquilinos", icon: LuUsers, path: "/admin/tenants" }, // Mudado de Clientes para Inquilinos
+  { name: "Inquilinos", icon: LuUsers, path: "/admin/tenants" },
   { name: "Financeiro", icon: LuWallet, path: "/admin/payments" },
 ];
 
@@ -19,75 +22,115 @@ export const AdminLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const currentPage = menuItems.find(i => 
-    location.pathname.startsWith(i.path)
-  )?.name || "Painel";
+  const currentPage =
+    menuItems.find((i) => location.pathname.startsWith(i.path))?.name || "Painel";
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
 
   return (
-    <Flex h="100vh" w="100vw" bg="#F8FAFC" overflow="hidden">
+    <Flex h="100vh" w="100vw" bg="#FAFBFC" overflow="hidden">
       {/* SIDEBAR */}
-      <Box w="280px" bg="white" p={6} borderRight="1px solid" borderColor="gray.100" display={{ base: "none", md: "block" }}>
-        <Stack h="full" gap={10}>
-          <Flex align="center" gap={3} px={2}>
-            <Center bg="blue.600" w="10" h="10" borderRadius="xl">
-               <LuHouse color="white" size={20} />
-            </Center>
-            <Text fontSize="xl" fontWeight="900" color="slate.900" letterSpacing="-1px">
-              Imobi<Text as="span" color="blue.600">Sys</Text>
-            </Text>
-          </Flex>
-          
-          <Stack gap={1} flex={1}>
-            {menuItems.map((item) => {
-              const isActive = location.pathname.startsWith(item.path);
-              
-              return (
-                <Link key={item.path} to={item.path} style={{ textDecoration: 'none' }}>
-                  <Flex 
-                    align="center" gap={4} p={3.5} borderRadius="xl"
-                    bg={isActive ? "blue.50" : "transparent"}
-                    color={isActive ? "blue.600" : "slate.500"}
-                    _hover={{ bg: "gray.50", color: "blue.600" }}
-                    transition="0.2s"
-                    cursor="pointer"
-                  >
-                    <Icon as={item.icon} boxSize={5} />
-                    <Text fontWeight={isActive ? "bold" : "semibold"} fontSize="sm">{item.name}</Text>
-                  </Flex>
-                </Link>
-              );
-            })}
-          </Stack>
-
-          <Flex 
-            align="center" gap={4} p={4} borderRadius="xl" cursor="pointer" color="gray.400" 
-            _hover={{ bg: "red.50", color: "red.500" }} 
-            onClick={() => { localStorage.clear(); navigate("/login"); }}
+      <Sidebar
+        menuItems={menuItems}
+        logo={{
+          icon: LuHouse,
+          text: "ImobiSys",
+          accent: "Sys",
+        }}
+        footer={
+          <Flex
+            align="center"
+            gap={3}
+            p={3.5}
+            borderRadius="12px"
+            cursor="pointer"
+            color="gray.500"
+            _hover={{ bg: "red.50", color: "red.600" }}
+            transition="all 0.2s"
+            onClick={handleLogout}
           >
             <LuLogOut size={20} />
-            <Text fontWeight="bold" fontSize="sm">Sair da conta</Text>
+            <Text fontWeight="600" fontSize="15px">
+              Sair
+            </Text>
           </Flex>
-        </Stack>
-      </Box>
+        }
+      />
 
       {/* CONTEÚDO PRINCIPAL */}
       <Box flex={1} display="flex" flexDirection="column" overflow="hidden">
-        <Flex h="70px" bg="white" align="center" px={10} justify="space-between" borderBottom="1px solid" borderColor="gray.100">
-          <Heading size="sm" color="slate.700" fontWeight="800">
+        {/* HEADER */}
+        <Flex
+          h="72px"
+          bg="white"
+          align="center"
+          px={{ base: 6, md: 10 }}
+          justify="space-between"
+          borderBottom="1px solid"
+          borderColor="gray.100"
+          boxShadow="0 1px 3px rgba(0,0,0,0.02)"
+        >
+          <Heading
+            size="md"
+            color="slate.800"
+            fontWeight="800"
+            letterSpacing="-0.5px"
+          >
             {currentPage}
           </Heading>
-          
+
           <Flex align="center" gap={3}>
-            <Box textAlign="right">
-                <Text fontSize="xs" fontWeight="bold">Yara Oliveira</Text>
-                <Text fontSize="10px" color="gray.500">Administradora</Text>
+            <Box textAlign="right" display={{ base: "none", sm: "block" }}>
+              <Text fontSize="14px" fontWeight="700" color="slate.800">
+                Yara Oliveira
+              </Text>
+              <Text fontSize="12px" color="gray.500" fontWeight="500">
+                Administradora
+              </Text>
             </Box>
-            <Center w="10" h="10" borderRadius="full" bg="blue.50" fontWeight="bold" color="blue.600">YO</Center>
+            <Center
+              w="42px"
+              h="42px"
+              borderRadius="full"
+              bg="gradient-to-br from-blue.400 to-blue.600"
+              fontWeight="700"
+              color="white"
+              fontSize="15px"
+              boxShadow="0 4px 14px rgba(59, 130, 246, 0.25)"
+              cursor="pointer"
+              _hover={{ transform: "scale(1.05)" }}
+              transition="transform 0.2s"
+            >
+              YO
+            </Center>
           </Flex>
         </Flex>
 
-        <Box flex={1} overflowY="auto" p={{ base: 6, md: 10 }}>
-          {/* ✅ Container agora está devidamente importado e configurado */}
+        {/* CONTEÚDO */}
+        <Box
+          flex={1}
+          overflowY="auto"
+          p={{ base: 4, md: 8 }}
+          bg="#FAFBFC"
+          css={{
+            "&::-webkit-scrollbar": {
+              width: "8px",
+            },
+            "&::-webkit-scrollbar-track": {
+              background: "transparent",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              background: "#CBD5E0",
+              borderRadius: "4px",
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              background: "#A0AEC0",
+            },
+          }}
+        >
           <Container maxW="7xl" p={0}>
             <Outlet />
           </Container>
