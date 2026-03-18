@@ -1,22 +1,52 @@
-import type { CreateTenantDTO } from "../types/tenant.types";
+import type { CreateTenantDTO, TenantSettings } from "../types/tenant.types";
 
-/**
- * ======================================================
- * 🔄 Tenant Mapper
- * Converte DTO do frontend → payload esperado pela API
- * ======================================================
- */
 export const mapTenantToApi = (data: CreateTenantDTO) => {
+  const defaultSettings: TenantSettings = {
+    limits: {
+      maxUsers: 1,
+      maxProperties: 5,
+    },
+    features: {
+      crm: false,
+      automation: false,
+    },
+  };
+
   return {
-    fullName: data.fullName,
-    email: data.email,
-    phone: data.phone,
-    document: data.document,
-    plan: data.plan,
-    rentValue: data.rentValue,
-    billingDay: data.billingDay,
+    fullName: data.fullName.trim(),
+    email: data.email.toLowerCase().trim(),
+    phone: data.phone?.trim(),
+    document: data.document.trim(),
+
+    plan: data.plan ?? "BASIC",
+
+    rentValue: data.rentValue ?? 0,
+    billingDay: data.billingDay ?? 5,
+
     preferredPaymentMethod: data.preferredPaymentMethod,
-    autoUpdateContract: data.autoUpdateContract ?? false,
-    settings: data.settings,
+
+    autoUpdateContract: data.autoUpdateContract ?? true,
+
+    settings: {
+      limits: {
+        maxUsers:
+          data.settings?.limits?.maxUsers ??
+          defaultSettings.limits.maxUsers,
+
+        maxProperties:
+          data.settings?.limits?.maxProperties ??
+          defaultSettings.limits.maxProperties,
+      },
+
+      features: {
+        crm:
+          data.settings?.features?.crm ??
+          defaultSettings.features.crm,
+
+        automation:
+          data.settings?.features?.automation ??
+          defaultSettings.features.automation,
+      },
+    },
   };
 };

@@ -1,24 +1,294 @@
-import { Box, VStack, HStack, Text, Circle, Heading, Icon } from "@chakra-ui/react";
-import { LuCircleDot } from "react-icons/lu";
+"use client";
 
-export const RecentActivity = () => (
-  <Box bg="gray.800" p={8} borderRadius="3xl" shadow="2xl" color="white">
-    <Heading size="md" mb={8} fontWeight="900">Atividades</Heading>
-    <VStack align="start" gap={6}>
-      {[
-        { t: "Novo Contrato", d: "Imóvel #402 cadastrado", time: "2 min atrás", c: "blue.400" },
-        { t: "Pagamento", d: "Referente ao Inquilino João", time: "1h atrás", c: "green.400" },
-        { t: "Visita Agendada", d: "Rua das Flores, 123", time: "3h atrás", c: "orange.400" }
-      ].map((item, i) => (
-        <HStack key={i} gap={4} w="full">
-          <Circle size="10px" bg={item.c} shadow={`0 0 10px ${item.c}`} />
-          <VStack align="start" gap={0} flex={1}>
-            <Text fontWeight="bold" fontSize="sm">{item.t}</Text>
-            <Text fontSize="xs" color="gray.400">{item.d}</Text>
-          </VStack>
-          <Text fontSize="10px" color="gray.500">{item.time}</Text>
+import React from "react";
+import { Box, HStack, VStack, Text, Icon, Avatar } from "@chakra-ui/react";
+import {
+  LuUserPlus,
+  LuFileText,
+  LuDollarSign,
+  LuHome,
+  LuAlertCircle,
+  LuCheckCircle2,
+  LuClock,
+} from "react-icons/lu";
+import { motion } from "framer-motion";
+
+// ═══════════════════════════════════════════════════════════════════════
+// TYPES
+// ═══════════════════════════════════════════════════════════════════════
+
+type ActivityType =
+  | "tenant_added"
+  | "contract_signed"
+  | "payment_received"
+  | "property_added"
+  | "payment_overdue"
+  | "contract_expiring";
+
+interface Activity {
+  id: string;
+  type: ActivityType;
+  title: string;
+  description: string;
+  timestamp: Date;
+  user?: {
+    name: string;
+    avatar?: string;
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// MOCK DATA (substitua pelos dados reais)
+// ═══════════════════════════════════════════════════════════════════════
+
+const mockActivities: Activity[] = [
+  {
+    id: "1",
+    type: "tenant_added",
+    title: "Novo inquilino cadastrado",
+    description: "Maria Silva foi adicionada ao sistema",
+    timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 min atrás
+    user: { name: "Maria Silva" },
+  },
+  {
+    id: "2",
+    type: "payment_received",
+    title: "Pagamento recebido",
+    description: "R$ 2.500,00 - Apto 301, Edifício Central",
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2h atrás
+  },
+  {
+    id: "3",
+    type: "contract_signed",
+    title: "Contrato assinado",
+    description: "João Santos - Casa no Jardim das Flores",
+    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5h atrás
+    user: { name: "João Santos" },
+  },
+  {
+    id: "4",
+    type: "payment_overdue",
+    title: "Pagamento em atraso",
+    description: "Apto 102 - Vencimento há 3 dias",
+    timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 dia atrás
+  },
+  {
+    id: "5",
+    type: "contract_expiring",
+    title: "Contrato próximo do vencimento",
+    description: "Casa Rua das Acácias - Vence em 15 dias",
+    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 dias atrás
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════
+
+const getActivityIcon = (type: ActivityType) => {
+  const iconMap: Record<ActivityType, React.ElementType> = {
+    tenant_added: LuUserPlus,
+    contract_signed: LuFileText,
+    payment_received: LuDollarSign,
+    property_added: LuHome,
+    payment_overdue: LuAlertCircle,
+    contract_expiring: LuClock,
+  };
+  return iconMap[type] || LuCheckCircle2;
+};
+
+const getActivityColor = (type: ActivityType) => {
+  const colorMap: Record<ActivityType, { bg: string; color: string; border: string }> = {
+    tenant_added: {
+      bg: "blue.50",
+      color: "blue.600",
+      border: "blue.200",
+    },
+    contract_signed: {
+      bg: "green.50",
+      color: "green.600",
+      border: "green.200",
+    },
+    payment_received: {
+      bg: "green.50",
+      color: "green.600",
+      border: "green.200",
+    },
+    property_added: {
+      bg: "purple.50",
+      color: "purple.600",
+      border: "purple.200",
+    },
+    payment_overdue: {
+      bg: "red.50",
+      color: "red.600",
+      border: "red.200",
+    },
+    contract_expiring: {
+      bg: "orange.50",
+      color: "orange.600",
+      border: "orange.200",
+    },
+  };
+  return colorMap[type] || { bg: "gray.50", color: "gray.600", border: "gray.200" };
+};
+
+const formatRelativeTime = (date: Date): string => {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return "Agora";
+  if (diffMins < 60) return `${diffMins} min atrás`;
+  if (diffHours < 24) return `${diffHours}h atrás`;
+  if (diffDays === 1) return "Ontem";
+  if (diffDays < 7) return `${diffDays} dias atrás`;
+  return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+// COMPONENT
+// ═══════════════════════════════════════════════════════════════════════
+
+export function RecentActivity() {
+  // Em produção, substitua por dados reais do backend
+  const activities = mockActivities;
+
+  return (
+    <Box
+      bg="white"
+      borderRadius="2xl"
+      p={6}
+      border="1px solid"
+      borderColor="gray.100"
+      w="full"
+      h="full"
+    >
+      {/* Header */}
+      <HStack justify="space-between" mb={5}>
+        <VStack align="start" gap={0}>
+          <Text
+            fontSize="11px"
+            fontWeight="800"
+            color="gray.400"
+            letterSpacing="0.08em"
+            textTransform="uppercase"
+          >
+            Atividade Recente
+          </Text>
+          <Text fontSize="lg" fontWeight="800" color="gray.900">
+            Últimas {activities.length}
+          </Text>
+        </VStack>
+
+        {/* Badge "Ao vivo" */}
+        <HStack gap={2} px={2.5} py={1} bg="green.50" borderRadius="full" border="1px solid" borderColor="green.200">
+          <Box w={2} h={2} borderRadius="full" bg="green.500">
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              style={{ width: "100%", height: "100%", borderRadius: "inherit", background: "inherit" }}
+            />
+          </Box>
+          <Text fontSize="10px" fontWeight="800" color="green.700" letterSpacing="0.05em">
+            AO VIVO
+          </Text>
         </HStack>
-      ))}
-    </VStack>
-  </Box>
-);
+      </HStack>
+
+      {/* Lista de atividades */}
+      <VStack gap={3} align="stretch" maxH="400px" overflowY="auto" pr={2}>
+        {activities.map((activity, idx) => {
+          const IconComponent = getActivityIcon(activity.type);
+          const colors = getActivityColor(activity.type);
+
+          return (
+            <motion.div
+              key={activity.id}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: idx * 0.05, duration: 0.3 }}
+            >
+              <HStack
+                gap={3}
+                p={3}
+                borderRadius="xl"
+                bg="gray.50"
+                _hover={{ bg: "gray.100" }}
+                transition="all 0.2s"
+                cursor="pointer"
+              >
+                {/* Ícone */}
+                <Box
+                  w={10}
+                  h={10}
+                  borderRadius="lg"
+                  bg={colors.bg}
+                  border="1px solid"
+                  borderColor={colors.border}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  flexShrink={0}
+                >
+                  <Icon as={IconComponent} boxSize={5} color={colors.color} />
+                </Box>
+
+                {/* Conteúdo */}
+                <VStack align="start" gap={0.5} flex={1} overflow="hidden">
+                  <Text fontSize="sm" fontWeight="700" color="gray.900" noOfLines={1}>
+                    {activity.title}
+                  </Text>
+                  <Text fontSize="xs" color="gray.500" noOfLines={1}>
+                    {activity.description}
+                  </Text>
+                  <Text fontSize="10px" color="gray.400" fontWeight="600">
+                    {formatRelativeTime(activity.timestamp)}
+                  </Text>
+                </VStack>
+
+                {/* Avatar (se tiver) */}
+                {activity.user && (
+                  <Avatar.Root size="sm" flexShrink={0}>
+                    {activity.user.avatar ? (
+                      <Avatar.Image src={activity.user.avatar} alt={activity.user.name} />
+                    ) : (
+                      <Avatar.Fallback>
+                        {activity.user.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .toUpperCase()
+                          .slice(0, 2)}
+                      </Avatar.Fallback>
+                    )}
+                  </Avatar.Root>
+                )}
+              </HStack>
+            </motion.div>
+          );
+        })}
+      </VStack>
+
+      {/* Footer com link "Ver todas" */}
+      <Box mt={4} pt={4} borderTop="1px solid" borderColor="gray.100">
+        <Text
+          fontSize="xs"
+          fontWeight="700"
+          color="blue.600"
+          textAlign="center"
+          cursor="pointer"
+          _hover={{ color: "blue.700", textDecoration: "underline" }}
+          onClick={() => {
+            // Navegar para página de atividades completas
+            console.log("Ver todas as atividades");
+          }}
+        >
+          Ver todas as atividades →
+        </Text>
+      </Box>
+    </Box>
+  );
+}
