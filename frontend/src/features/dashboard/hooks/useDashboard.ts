@@ -1,3 +1,5 @@
+// hooks/useDashboard.ts
+
 import { useMemo } from "react";
 import { usePayments } from "../../payments/hooks/usePayments";
 import { useTenants } from "../../tenants/hooks/useTenants";
@@ -6,7 +8,7 @@ import { useProperties } from "../../properties/hooks/useProperties";
 
 export const useDashboard = () => {
   const { payments, isLoading: loadingPayments } = usePayments();
-  const { tenants, status } = useTenants();
+  const { tenants, isLoading: loadingTenants } = useTenants(); // ✅ CORRIGIDO: status → isLoading
   const { contracts, isLoading: loadingContracts } = useContracts();
   const { properties, isLoading: loadingProperties } = useProperties();
 
@@ -117,7 +119,7 @@ export const useDashboard = () => {
     ...stats,
     isLoading:
       loadingPayments  ||
-      status.isLoading ||
+      loadingTenants   || // ✅ CORRIGIDO: status.isLoading → loadingTenants
       loadingContracts ||
       loadingProperties,
   };

@@ -1,139 +1,154 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { tenantApi } from "../api/tenant.api.js";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+
+import { tenantApi } from "../api/tenant.api";
+import { tenantKeys } from "../keys/tenant.keys";
+import { normalizeSettings } from "../mappers/tenant.mapper";
+import { tenantMappers, type TenantFormData } from "../utils/form.utils";
+
 import { toaster } from "@/components/ui/toaster";
 
-import type { 
-  Tenant, 
-  CreateTenantDTO, 
-  UpdateTenantDTO 
-} from "../types/tenant.enums.js";
+import type {
+  Tenant,
+  TenantStatus,
+  UpdateTenantDTO,
+} from "../types/tenant.types";
 
-/**
- * Hook profissional para gestão de Inquilinos (Tenants)
- * - Cache inteligente
- * - UI otimista (UX instantânea)
- * - Preparado para escala SaaS
- */
-export const useTenants = (id?: string) => {
+export const useTenants = (
+  id?: string,
+  filters: Record<string, any> = {}
+) => {
   const queryClient = useQueryClient();
-  const TENANTS_KEY = ["tenants"] as const;
 
-  // ================================
-  // 📦 LISTAGEM
-  // ================================
+  // ── LISTAGEM ──────────────────────────────────────────────────
   const listQuery = useQuery({
-    queryKey: TENANTS_KEY,
-    queryFn: tenantApi.list,
-    staleTime: 1000 * 60 * 5, // 5 minutos
+    queryKey: tenantKeys.list(filters),
+    queryFn: () => tenantApi.list(filters),
+    staleTime: 1000 * 60 * 5,
   });
 
-  // ================================
-  // 🔍 BUSCA UNITÁRIA
-  // ================================
+  // ── DETALHE ───────────────────────────────────────────────────
   const singleQuery = useQuery({
-    queryKey: [...TENANTS_KEY, id],
+    queryKey: id ? tenantKeys.detail(id) : [],
     queryFn: () => tenantApi.getById(id!),
     enabled: !!id,
   });
 
-  // ================================
-  // 🧠 CRIAÇÃO (COM UI OTIMISTA)
-  // ================================
+  // ── CREATE (Optimistic UI) ────────────────────────────────────
   const createMutation = useMutation({
-    mutationFn: async (data: CreateTenantDTO | FormData) => {
-      const payload = data instanceof FormData 
-        ? Object.fromEntries(data.entries()) 
-        : data;
-
-      return tenantApi.create(payload as CreateTenantDTO);
+    mutationFn: async (data: TenantFormData) => {
+      const payload = tenantMappers.toPayload(data);
+      return tenantApi.create(payload);
     },
 
-    // ⚡ Antes da API responder
-    onMutate: async (newTenant) => {
-      await queryClient.cancelQueries({ queryKey: TENANTS_KEY });
+    onMutate: async (newTenantData: TenantFormData) => {
+      await queryClient.cancelQueries({ queryKey: tenantKeys.lists() });
 
-      const previous = queryClient.getQueryData<Tenant[]>(TENANTS_KEY);
+      const previous = queryClient.getQueryData<Tenant[]>(
+        tenantKeys.list(filters)
+      );
 
-      // 🧪 Criação otimista
+      const now = Date.now();
+      const payload = tenantMappers.toPayload(newTenantData);
+
       const optimisticTenant: Tenant = {
-        _id: `temp-${Date.now()}`,
-        ...(newTenant as CreateTenantDTO),
-        status: (newTenant as any)?.status || "lead",
-        createdAt: new Date().toISOString()
-      } as Tenant;
+        _id: `temp-${now}`,
+        tenantId: `temp-${now}`,
+        fullName: payload.fullName,
+        email: payload.email,
+        document: payload.document,
+        phone: payload.phone,
+        rentValue: payload.rentValue,
+        billingDay: payload.billingDay,
+        autoUpdateContract: payload.autoUpdateContract ?? false,
+        status: "ACTIVE" as TenantStatus, 
+        plan: payload.plan || "BASIC",
+        preferredPaymentMethod: payload.preferredPaymentMethod || "PIX",
+        createdAt: new Date().toISOString(),
+        settings: normalizeSettings(payload.settings),
+      };
 
-      queryClient.setQueryData<Tenant[]>(TENANTS_KEY, (old = []) => [
-        optimisticTenant,
-        ...old
-      ]);
+      queryClient.setQueryData<Tenant[]>(
+        tenantKeys.list(filters),
+        (old = []) => [optimisticTenant, ...old]
+      );
 
       return { previous };
     },
 
-    // ❌ rollback
-    onError: (error: any, _data, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(TENANTS_KEY, context.previous);
+    onError: (err: any, _data, ctx) => {
+      if (ctx?.previous) {
+        queryClient.setQueryData(tenantKeys.list(filters), ctx.previous);
       }
 
-      const message = error.response?.data?.message || "Erro ao criar inquilino.";
-
       toaster.create({
-        title: "Falha no cadastro",
-        description: message,
+        title: "Erro ao criar",
+        description: err?.response?.data?.message || "Falha ao cadastrar",
         type: "error",
       });
     },
 
-    // ✅ sucesso real
     onSuccess: (created) => {
-      queryClient.setQueryData<Tenant[]>(TENANTS_KEY, (old = []) =>
-        old.map((t) =>
-          t._id.startsWith("temp-") ? created : t
-        )
+      queryClient.setQueryData<Tenant[]>(
+        tenantKeys.list(filters),
+        (old = []) => old.map((t) => (t._id.startsWith("temp-") ? created : t))
       );
+    },
 
-      toaster.create({
-        title: "Inquilino cadastrado",
-        description: "Criado com sucesso.",
-        type: "success",
-      });
-    }
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: tenantKeys.lists() });
+    },
   });
 
-  // ================================
-  // ✏️ ATUALIZAÇÃO
-  // ================================
+  // ── UPDATE ────────────────────────────────────────────────────
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateTenantDTO | FormData }) => {
-      const payload = data instanceof FormData 
-        ? Object.fromEntries(data.entries()) 
-        : data;
-
-      return tenantApi.update(id, payload as UpdateTenantDTO);
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: UpdateTenantDTO; // ✅ Mudou aqui: usar UpdateTenantDTO ao invés de TenantFormData
+    }) => {
+      return tenantApi.update(id, data);
     },
 
     onMutate: async ({ id, data }) => {
-      await queryClient.cancelQueries({ queryKey: TENANTS_KEY });
+      await queryClient.cancelQueries({ queryKey: tenantKeys.list(filters) });
 
-      const previous = queryClient.getQueryData<Tenant[]>(TENANTS_KEY);
+      const previous = queryClient.getQueryData<Tenant[]>(
+        tenantKeys.list(filters)
+      );
 
-      queryClient.setQueryData<Tenant[]>(TENANTS_KEY, (old = []) =>
-        old.map((tenant) =>
-          tenant._id === id
-            ? { ...tenant, ...(data as UpdateTenantDTO) }
-            : tenant
-        )
+      // ✅ Não incluir campos de arquivo no update otimista
+      const { profilePhoto, documents, ...updateData } = data;
+
+      queryClient.setQueryData<Tenant[]>(
+        tenantKeys.list(filters),
+        (old = []) =>
+          old.map((t) =>
+            t._id === id
+              ? {
+                  ...t,
+                  ...updateData,
+                  settings: updateData.settings 
+                    ? normalizeSettings(updateData.settings) 
+                    : t.settings,
+                }
+              : t
+          )
       );
 
       return { previous };
     },
 
-    onError: (_err, _data, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(TENANTS_KEY, context.previous);
+    onError: (_err, _data, ctx) => {
+      if (ctx?.previous) {
+        queryClient.setQueryData(tenantKeys.list(filters), ctx.previous);
       }
 
       toaster.create({
@@ -143,36 +158,33 @@ export const useTenants = (id?: string) => {
     },
 
     onSuccess: (updated) => {
-      queryClient.setQueryData([...TENANTS_KEY, updated._id], updated);
-
-      toaster.create({
-        title: "Dados atualizados",
-        type: "success",
-      });
-    }
+      queryClient.setQueryData(tenantKeys.detail(updated._id), updated);
+      queryClient.invalidateQueries({ queryKey: tenantKeys.lists() });
+    },
   });
 
-  // ================================
-  // 🗑️ REMOÇÃO (UI OTIMISTA)
-  // ================================
+  // ── DELETE ────────────────────────────────────────────────────
   const deleteMutation = useMutation({
-    mutationFn: tenantApi.delete,
+    mutationFn: (id: string) => tenantApi.delete(id),
 
-    onMutate: async (deletedId) => {
-      await queryClient.cancelQueries({ queryKey: TENANTS_KEY });
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: tenantKeys.list(filters) });
 
-      const previous = queryClient.getQueryData<Tenant[]>(TENANTS_KEY);
+      const previous = queryClient.getQueryData<Tenant[]>(
+        tenantKeys.list(filters)
+      );
 
-      queryClient.setQueryData<Tenant[]>(TENANTS_KEY, (old = []) =>
-        old.filter((t) => t._id !== deletedId)
+      queryClient.setQueryData<Tenant[]>(
+        tenantKeys.list(filters),
+        (old = []) => old.filter((t) => t._id !== id)
       );
 
       return { previous };
     },
 
-    onError: (_err, _id, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(TENANTS_KEY, context.previous);
+    onError: (_err, _id, ctx) => {
+      if (ctx?.previous) {
+        queryClient.setQueryData(tenantKeys.list(filters), ctx.previous);
       }
 
       toaster.create({
@@ -181,40 +193,30 @@ export const useTenants = (id?: string) => {
       });
     },
 
-    onSuccess: () => {
-      toaster.create({
-        title: "Inquilino removido",
-        type: "success",
-      });
-    },
-
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: TENANTS_KEY });
-    }
+      queryClient.invalidateQueries({ queryKey: tenantKeys.lists() });
+    },
   });
 
-  // ================================
-  // 📤 RETORNO PADRONIZADO
-  // ================================
+  // ── RETURN ────────────────────────────────────────────────────
   return {
-    // 📊 Dados
     tenants: listQuery.data ?? [],
     tenant: singleQuery.data,
+    isLoading: listQuery.isLoading,
+    isFetching: listQuery.isFetching,
 
-    // 📡 Estados globais
-    status: {
-      isLoading: listQuery.isLoading,
-      isCreating: createMutation.isPending,
-      isUpdating: updateMutation.isPending,
-      isRemoving: deleteMutation.isPending,
-      isError: listQuery.isError || singleQuery.isError
-    },
-
-    // ⚙️ Ações
     actions: {
       create: createMutation.mutateAsync,
+      quickAdd: createMutation.mutateAsync,
       update: updateMutation.mutateAsync,
-      remove: deleteMutation.mutateAsync
+      remove: deleteMutation.mutateAsync,
+      refetch: listQuery.refetch,
+    },
+
+    mutations: {
+      isCreating: createMutation.isPending,
+      isUpdating: updateMutation.isPending,
+      isDeleting: deleteMutation.isPending,
     }
   };
 };

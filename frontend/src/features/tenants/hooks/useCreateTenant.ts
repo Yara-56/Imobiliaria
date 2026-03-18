@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { tenantApi } from "../api/tenant.api";
-import type { CreateTenantDTO, Tenant } from "../types/tenant.types"; // ← era tenant.enums
+import type { CreateTenantDTO, Tenant } from "../types/tenant.types";
 import { toaster } from "@/components/ui/toaster";
 
 /**
@@ -11,7 +11,7 @@ import { toaster } from "@/components/ui/toaster";
 export const useCreateTenant = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<Tenant, Error, CreateTenantDTO | FormData>({
+  return useMutation<Tenant, Error, CreateTenantDTO>({
     mutationFn: async (data) => {
       return tenantApi.create(data);
     },

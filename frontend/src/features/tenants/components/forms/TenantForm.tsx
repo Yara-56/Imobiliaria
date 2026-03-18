@@ -16,7 +16,7 @@ import {
 import { useForm } from "react-hook-form";
 import { LuBadgeCheck, LuUser, LuWallet } from "react-icons/lu";
 import { Field } from "@/components/ui/field";
-import type { CreateTenantDTO } from "../types/tenant.types";
+import type { CreateTenantDTO } from "../../types/tenant.types";
 
 interface TenantFormProps {
   onSubmit: (data: CreateTenantDTO) => void;
@@ -28,7 +28,18 @@ export default function TenantForm({ onSubmit, isLoading }: TenantFormProps) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<CreateTenantDTO>();
+  } = useForm<CreateTenantDTO>({
+    defaultValues: {
+      fullName: "",
+      email: "",
+      phone: "",
+      document: "",
+      rentValue: 0,
+      billingDay: 1,
+      preferredPaymentMethod: "PIX",
+      plan: "BASIC",
+    },
+  });
 
   const inputStyle = {
     h: "56px",
@@ -69,6 +80,7 @@ export default function TenantForm({ onSubmit, isLoading }: TenantFormProps) {
           </HStack>
 
           <SimpleGrid columns={{ base: 1, md: 2 }} gap={5} w="full">
+
             <Field
               label={fieldLabel("Nome Completo")}
               invalid={!!errors.fullName}
@@ -101,10 +113,7 @@ export default function TenantForm({ onSubmit, isLoading }: TenantFormProps) {
               <Input
                 {...register("email", {
                   required: true,
-                  pattern: {
-                    value: /^\S+@\S+\.\S+$/,
-                    message: "E-mail inválido",
-                  },
+                  pattern: /^\S+@\S+\.\S+$/,
                 })}
                 type="email"
                 placeholder="joao@email.com"
@@ -119,6 +128,7 @@ export default function TenantForm({ onSubmit, isLoading }: TenantFormProps) {
                 {...inputStyle}
               />
             </Field>
+
           </SimpleGrid>
         </VStack>
 
@@ -136,6 +146,7 @@ export default function TenantForm({ onSubmit, isLoading }: TenantFormProps) {
           </HStack>
 
           <SimpleGrid columns={{ base: 1, md: 2 }} gap={5} w="full">
+
             <Field
               label={fieldLabel("Valor do Aluguel")}
               invalid={!!errors.rentValue}
@@ -190,6 +201,7 @@ export default function TenantForm({ onSubmit, isLoading }: TenantFormProps) {
                 </NativeSelect.Field>
               </NativeSelect.Root>
             </Field>
+
           </SimpleGrid>
         </VStack>
 
@@ -205,9 +217,7 @@ export default function TenantForm({ onSubmit, isLoading }: TenantFormProps) {
           fontSize="sm"
           fontWeight="bold"
           letterSpacing="wide"
-          _hover={{ bg: "blue.700", transform: "translateY(-1px)", shadow: "md" }}
-          _active={{ transform: "translateY(0)" }}
-          transition="all 0.15s ease"
+          _hover={{ bg: "blue.700" }}
         >
           <LuBadgeCheck style={{ marginRight: "10px" }} size={20} />
           FINALIZAR CADASTRO

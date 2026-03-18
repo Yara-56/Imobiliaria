@@ -7,7 +7,7 @@ import {
 import { LuArrowLeft, LuUserPlus } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import { useTenants } from "../hooks/useTenants";
-import TenantForm from "../components/TenantForm";
+import TenantForm from "../components/forms/TenantForm";
 import type { CreateTenantDTO } from "../types/tenant.types";
 
 export default function NewTenantPage() {

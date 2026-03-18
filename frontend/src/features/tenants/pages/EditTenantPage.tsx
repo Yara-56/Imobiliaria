@@ -8,7 +8,7 @@ import {
 import { LuArrowLeft, LuShieldCheck, LuCircleAlert } from "react-icons/lu";
 
 import { useTenants } from "../hooks/useTenants";
-import TenantForm from "../components/TenantForm";
+import TenantForm from "../components/forms/TenantForm";
 
 export default function EditTenantPage() {
   const { id } = useParams<{ id: string }>();

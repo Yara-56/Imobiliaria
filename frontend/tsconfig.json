@@ -6,7 +6,7 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "skipLibCheck": true,
 
-    /* Resolução de Módulos Moderna (Alinhada com TS 7.0) */
+    /* Resolução de Módulos Moderna */
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
@@ -14,12 +14,12 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* ✅ Lógica 7.0: Resolução via caminhos relativos ao invés de baseUrl */
+    /* ✅ Solução p/ TS 7.0: Paths relativos à raiz sem baseUrl */
     "paths": {
       "@/*": ["./src/*"]
     },
 
-    /* ✅ Silencia avisos de depreciação durante a migração */
+    /* ✅ Silencia o aviso de depreciação */
     "ignoreDeprecations": "5.0", 
 
     /* Tipagem e Segurança */
