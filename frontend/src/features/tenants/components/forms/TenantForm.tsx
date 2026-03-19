@@ -1,228 +1,189 @@
 "use client";
 
 import {
-  Stack,
-  Input,
-  Button,
-  SimpleGrid,
-  Text,
-  VStack,
-  HStack,
-  Separator,
-  Center,
-  Span,
-  NativeSelect,
+  Stack, Button, SimpleGrid, Text, VStack, HStack, Separator, Center, Input,
+  NativeSelectRoot, NativeSelectField, Box
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
-import { LuBadgeCheck, LuUser, LuWallet } from "react-icons/lu";
+import { 
+  LuBadgeCheck, LuUser, LuWallet, LuMail, 
+  LuPhone, LuFileDigit, LuCalendar 
+} from "react-icons/lu";
+
 import { Field } from "@/components/ui/field";
+import { useMaskedInput } from "../../../../hooks/useMaskedInput";
+import { parseCurrencyToNumber } from "@/core/utils/masks";
 import type { CreateTenantDTO } from "../../types/tenant.types";
+
+type FormData = {
+  fullName: string;
+  email: string;
+  phone: string;
+  document: string;
+  rentValue: string; 
+  billingDay: number;
+  preferredPaymentMethod: string;
+  plan: string;
+};
 
 interface TenantFormProps {
   onSubmit: (data: CreateTenantDTO) => void;
   isLoading: boolean;
+  initialData?: any;
 }
 
-export default function TenantForm({ onSubmit, isLoading }: TenantFormProps) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CreateTenantDTO>({
-    defaultValues: {
-      fullName: "",
-      email: "",
-      phone: "",
-      document: "",
-      rentValue: 0,
-      billingDay: 1,
-      preferredPaymentMethod: "PIX",
-      plan: "BASIC",
+export default function TenantForm({ onSubmit, isLoading, initialData }: TenantFormProps) {
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>({
+    defaultValues: initialData || {
+      fullName: "", email: "", phone: "", document: "",
+      rentValue: "", billingDay: 1, preferredPaymentMethod: "PIX", plan: "BASIC",
     },
   });
 
-  const inputStyle = {
-    h: "56px",
-    borderRadius: "xl",
+  const { handleMask } = useMaskedInput<FormData>({ setValue });
+
+  const onSubmitForm = (data: FormData) => {
+    onSubmit({
+      ...data,
+      rentValue: parseCurrencyToNumber(data.rentValue),
+      billingDay: Number(data.billingDay),
+      preferredPaymentMethod: data.preferredPaymentMethod as any,
+      plan: data.plan as any,
+    });
+  };
+
+  const Label = ({ icon: Icon, text }: { icon: any, text: string }) => (
+    <HStack gap={2} mb={1} color="gray.500">
+      <Icon size={14} />
+      <Text fontSize="xs" fontWeight="bold" letterSpacing="widest">{text.toUpperCase()}</Text>
+    </HStack>
+  );
+
+  // Estilo comum para inputs e selects para manter a consistência
+  const fieldStyle = {
     bg: "gray.50",
-    border: "1px solid",
-    borderColor: "gray.200",
+    borderWidth: "1px",
+    borderColor: "gray.100",
+    borderRadius: "xl",
+    h: "55px",
+    fontSize: "md",
     color: "gray.700",
-    fontSize: "sm",
     _focus: {
       bg: "white",
       borderColor: "blue.500",
-      shadow: "0 0 0 3px rgba(59,130,246,0.1)",
+      boxShadow: "0 0 0 1px var(--chakra-colors-blue-500)"
     },
-    _placeholder: { color: "gray.400" },
-    _invalid: { borderColor: "red.400", bg: "red.50" },
+    _hover: {
+      borderColor: "gray.300"
+    }
   };
 
-  const fieldLabel = (text: string) => (
-    <Span color="gray.500" fontWeight="bold" fontSize="xs" letterSpacing="wide">
-      {text}
-    </Span>
-  );
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
+    <form onSubmit={handleSubmit(onSubmitForm)}>
       <Stack gap={10}>
-
-        {/* ── DADOS PESSOAIS ─────────────────────────── */}
-        <VStack align="start" gap={5}>
-          <HStack gap={3}>
-            <Center bg="blue.50" w="10" h="10" borderRadius="xl" color="blue.600">
-              <LuUser size={18} />
+        
+        {/* SEÇÃO: IDENTIFICAÇÃO */}
+        <VStack align="start" gap={6}>
+          <HStack gap={3} w="full">
+            <Center bg="blue.50" color="blue.600" p={3} borderRadius="xl">
+              <LuUser size={20} />
             </Center>
-            <Text fontWeight="black" fontSize="xs" letterSpacing="widest" color="gray.400">
-              DADOS PESSOAIS
-            </Text>
+            <Box>
+              <Text fontWeight="900" fontSize="md" color="gray.800">Identificação do Locatário</Text>
+              <Text fontSize="xs" color="gray.400">Dados fundamentais para o contrato</Text>
+            </Box>
           </HStack>
 
-          <SimpleGrid columns={{ base: 1, md: 2 }} gap={5} w="full">
-
-            <Field
-              label={fieldLabel("Nome Completo")}
-              invalid={!!errors.fullName}
-              errorText="O nome é obrigatório"
-            >
-              <Input
-                {...register("fullName", { required: true })}
-                placeholder="Ex: João Silva"
-                {...inputStyle}
-              />
+          <SimpleGrid columns={{ base: 1, md: 2 }} gap={6} w="full">
+            <Field label={<Label icon={LuUser} text="Nome Completo" />} invalid={!!errors.fullName} errorText="Campo obrigatório">
+              <Input {...fieldStyle} placeholder="Ex: João Silva" {...register("fullName", { required: true })} />
             </Field>
 
-            <Field
-              label={fieldLabel("CPF / CNPJ")}
-              invalid={!!errors.document}
-              errorText="Documento é obrigatório"
-            >
-              <Input
-                {...register("document", { required: true })}
-                placeholder="000.000.000-00"
-                {...inputStyle}
-              />
+            <Field label={<Label icon={LuFileDigit} text="CPF / CNPJ" />} invalid={!!errors.document} errorText="Documento inválido">
+              <Input {...fieldStyle} placeholder="000.000.000-00" {...register("document", { required: true })} onChange={handleMask("document", "document")} />
             </Field>
 
-            <Field
-              label={fieldLabel("E-mail")}
-              invalid={!!errors.email}
-              errorText="E-mail inválido"
-            >
-              <Input
-                {...register("email", {
-                  required: true,
-                  pattern: /^\S+@\S+\.\S+$/,
-                })}
-                type="email"
-                placeholder="joao@email.com"
-                {...inputStyle}
-              />
+            <Field label={<Label icon={LuMail} text="E-mail" />} invalid={!!errors.email} errorText="E-mail inválido">
+              <Input {...fieldStyle} type="email" placeholder="email@exemplo.com" {...register("email", { required: true })} />
             </Field>
 
-            <Field label={fieldLabel("Telefone")}>
-              <Input
-                {...register("phone")}
-                placeholder="(11) 99999-9999"
-                {...inputStyle}
-              />
+            <Field label={<Label icon={LuPhone} text="Telefone" />}>
+              <Input {...fieldStyle} placeholder="(00) 00000-0000" {...register("phone")} onChange={handleMask("phone", "phone")} />
             </Field>
-
           </SimpleGrid>
         </VStack>
 
-        <Separator opacity={0.2} />
+        <Separator opacity={0.5} />
 
-        {/* ── FINANCEIRO ─────────────────────────────── */}
-        <VStack align="start" gap={5}>
-          <HStack gap={3}>
-            <Center bg="green.50" w="10" h="10" borderRadius="xl" color="green.600">
-              <LuWallet size={18} />
+        {/* SEÇÃO: FINANCEIRO */}
+        <VStack align="start" gap={6}>
+          <HStack gap={3} w="full">
+            <Center bg="green.50" color="green.600" p={3} borderRadius="xl">
+              <LuWallet size={20} />
             </Center>
-            <Text fontWeight="black" fontSize="xs" letterSpacing="widest" color="gray.400">
-              FINANCEIRO
-            </Text>
+            <Box>
+              <Text fontWeight="900" fontSize="md" color="gray.800">Parâmetros de Cobrança</Text>
+              <Text fontSize="xs" color="gray.400">Configuração financeira do imóvel</Text>
+            </Box>
           </HStack>
 
-          <SimpleGrid columns={{ base: 1, md: 2 }} gap={5} w="full">
-
-            <Field
-              label={fieldLabel("Valor do Aluguel")}
-              invalid={!!errors.rentValue}
-              errorText="Valor é obrigatório"
-            >
-              <Input
-                {...register("rentValue", { required: true, valueAsNumber: true })}
-                type="number"
-                placeholder="0.00"
-                {...inputStyle}
-              />
+          <SimpleGrid columns={{ base: 1, md: 2 }} gap={6} w="full">
+            <Field label={<Label icon={LuWallet} text="Aluguel Mensal" />} invalid={!!errors.rentValue} errorText="Valor obrigatório">
+              <Input {...fieldStyle} fontWeight="bold" color="green.700" placeholder="R$ 0,00" {...register("rentValue", { required: true })} onChange={handleMask("rentValue", "currency")} />
             </Field>
 
-            <Field label={fieldLabel("Método de Pagamento")}>
-              <NativeSelect.Root {...inputStyle}>
-                <NativeSelect.Field
+            {/* ✅ CORREÇÃO DO SELECT PRETO: Agora forçamos o BG gray.50 e removemos o visual padrão */}
+            <Field label={<Label icon={LuBadgeCheck} text="Método Principal" />}>
+              <NativeSelectRoot size="lg" borderRadius="xl">
+                <NativeSelectField 
+                  {...fieldStyle}
                   {...register("preferredPaymentMethod")}
-                  bg="transparent"
-                  border="none"
-                  h="full"
+                  cursor="pointer"
                 >
-                  <option value="PIX">PIX Automático</option>
-                  <option value="BOLETO">Boleto Bancário</option>
-                  <option value="CARTAO_RECORRENTE">Cartão Recorrente</option>
-                  <option value="DINHEIRO">Dinheiro</option>
-                </NativeSelect.Field>
-              </NativeSelect.Root>
+                  <option style={{ backgroundColor: "white" }} value="PIX">PIX</option>
+                  <option style={{ backgroundColor: "white" }} value="BOLETO">Boleto Bancário</option>
+                  <option value="CARTAO">Cartão Recorrente</option>
+                </NativeSelectField>
+              </NativeSelectRoot>
             </Field>
 
-            <Field label={fieldLabel("Dia de Vencimento")}>
-              <Input
-                {...register("billingDay", { valueAsNumber: true })}
-                type="number"
-                placeholder="Ex: 10"
-                min={1}
-                max={31}
-                {...inputStyle}
-              />
+            <Field label={<Label icon={LuCalendar} text="Dia do Vencimento" />}>
+               <Input {...fieldStyle} type="number" min={1} max={31} {...register("billingDay")} />
             </Field>
 
-            <Field label={fieldLabel("Plano")}>
-              <NativeSelect.Root {...inputStyle}>
-                <NativeSelect.Field
+            <Field label={<Label icon={LuBadgeCheck} text="Plano de Gestão" />}>
+              <NativeSelectRoot size="lg" borderRadius="xl">
+                <NativeSelectField 
+                  {...fieldStyle}
                   {...register("plan")}
-                  bg="transparent"
-                  border="none"
-                  h="full"
+                  cursor="pointer"
                 >
-                  <option value="BASIC">Básico</option>
-                  <option value="PRO">Pro</option>
-                  <option value="ENTERPRISE">Enterprise</option>
-                </NativeSelect.Field>
-              </NativeSelect.Root>
+                  <option style={{ backgroundColor: "white" }} value="BASIC">Básico (Aura v3)</option>
+                  <option style={{ backgroundColor: "white" }} value="PRO">Profissional</option>
+                  <option value="ENTERPRISE">Enterprise Cloud</option>
+                </NativeSelectField>
+              </NativeSelectRoot>
             </Field>
-
           </SimpleGrid>
         </VStack>
 
-        {/* ── SUBMIT ─────────────────────────────────── */}
-        <Button
-          type="submit"
-          loading={isLoading}
-          loadingText="Salvando..."
-          bg="blue.600"
-          color="white"
-          h="64px"
-          borderRadius="2xl"
-          fontSize="sm"
-          fontWeight="bold"
-          letterSpacing="wide"
-          _hover={{ bg: "blue.700" }}
+        <Button 
+          type="submit" 
+          loading={isLoading} 
+          bg="blue.600" 
+          color="white" 
+          h="70px" 
+          borderRadius="2xl" 
+          fontSize="md" 
+          fontWeight="900" 
+          boxShadow="0 15px 30px -10px rgba(49, 130, 206, 0.4)"
+          _hover={{ bg: "blue.700", transform: "translateY(-2px)" }}
+          transition="all 0.2s"
+          w="full"
         >
-          <LuBadgeCheck style={{ marginRight: "10px" }} size={20} />
-          FINALIZAR CADASTRO
+          <LuBadgeCheck size={24} style={{ marginRight: 12 }} />
+          CONSOLIDAR CADASTRO
         </Button>
-
       </Stack>
     </form>
   );

@@ -28,15 +28,14 @@ interface SmartInsightsProps {
 }
 
 /**
- * SmartInsights - Versão Acessível (UX para Idosos)
- * Fundo claro, bordas nítidas e textos com alto contraste.
+ * SmartInsights - Versão Compacta e Proporcional
  */
 export const SmartInsights = ({ data }: SmartInsightsProps) => {
   // Dados calculados para os cartões
   const insights = [
     {
       id: 1,
-      title: "SUGESTÃO DE CRESCIMENTO",
+      title: "Sugestão de Crescimento",
       message: `Sua ocupação é de ${data?.occupancyRate ?? 0}%. É um ótimo momento para valorizar seus imóveis disponíveis.`,
       icon: LuTrendingUp,
       bg: "blue.50",
@@ -45,7 +44,7 @@ export const SmartInsights = ({ data }: SmartInsightsProps) => {
     },
     {
       id: 2,
-      title: "AVISO FINANCEIRO",
+      title: "Aviso Financeiro",
       message: (data?.defaultRate ?? 0) > 5 
         ? "Atenção: A inadimplência subiu um pouco. Verifique os pagamentos pendentes."
         : "Tudo certo! Seus recebimentos estão estáveis e dentro do esperado.",
@@ -59,30 +58,30 @@ export const SmartInsights = ({ data }: SmartInsightsProps) => {
   return (
     <Box 
       w="full" 
-      p={8} 
-      borderRadius="3xl" 
+      p={5} 
+      borderRadius="2xl" 
       bg="white" 
-      border="2px solid" 
-      borderColor="blue.500" // Borda azul forte para guiar o olhar
+      border="1px solid" 
+      borderColor="blue.200"
       boxShadow="sm"
-      mb={10}
+      mb={8}
     >
-      {/* HEADER DO CARD - CORES FORTES E FONTES GRANDES */}
-      <HStack mb={8} gap={5}>
+      {/* HEADER DO CARD */}
+      <HStack mb={5} gap={3}>
         <Center 
-          p={3} 
+          p={2} 
           bg="blue.600" 
-          borderRadius="2xl" 
+          borderRadius="xl" 
           color="white"
-          boxShadow="lg"
+          boxShadow="sm"
         >
-          <Icon as={LuSparkles} boxSize={8} />
+          <Icon as={LuSparkles} boxSize={5} />
         </Center>
         <VStack align="start" gap={0}>
-          <Text fontWeight="900" fontSize="2xl" color="gray.900" letterSpacing="-0.5px">
+          <Text fontWeight="700" fontSize="lg" color="gray.900">
             Dicas Inteligentes
           </Text>
-          <Text fontSize="md" color="gray.500" fontWeight="600">
+          <Text fontSize="xs" color="gray.500" fontWeight="500">
             Análise automática para facilitar sua gestão
           </Text>
         </VStack>
@@ -90,8 +89,8 @@ export const SmartInsights = ({ data }: SmartInsightsProps) => {
           ml="auto" 
           colorPalette="blue" 
           variant="solid" 
-          fontSize="md" 
-          px={4} 
+          fontSize="xs" 
+          px={3} 
           py={1} 
           borderRadius="full"
         >
@@ -99,35 +98,36 @@ export const SmartInsights = ({ data }: SmartInsightsProps) => {
         </Badge>
       </HStack>
 
-      {/* GRID DE INSIGHTS - ACESSIBILIDADE TOTAL */}
-      <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+      {/* GRID DE INSIGHTS */}
+      <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
         {insights.map((insight) => (
           <Box 
             key={insight.id}
-            p={6}
+            p={4}
             bg={insight.bg}
-            borderRadius="2xl"
-            border="2px solid"
+            borderRadius="xl"
+            border="1px solid"
             borderColor={insight.borderColor}
             transition="transform 0.2s"
             _hover={{ transform: "scale(1.01)" }}
           >
-            <HStack align="start" gap={5}>
+            <HStack align="start" gap={3}>
               <Center 
-                p={3} 
+                p={2} 
                 bg="white" 
-                borderRadius="xl" 
+                borderRadius="lg" 
                 border="1px solid" 
                 borderColor={insight.borderColor}
                 boxShadow="sm"
+                flexShrink={0}
               >
-                <Icon as={insight.icon} boxSize={7} color={insight.iconColor} />
+                <Icon as={insight.icon} boxSize={5} color={insight.iconColor} />
               </Center>
-              <VStack align="start" gap={1}>
-                <Text fontWeight="900" fontSize="sm" color="gray.800" letterSpacing="0.5px">
+              <VStack align="start" gap={0.5}>
+                <Text fontWeight="700" fontSize="xs" color="gray.800" letterSpacing="wide" textTransform="uppercase">
                   {insight.title}
                 </Text>
-                <Text fontSize="lg" color="gray.700" fontWeight="500" lineHeight="1.4">
+                <Text fontSize="sm" color="gray.700" fontWeight="500" lineHeight="1.5">
                   {insight.message}
                 </Text>
               </VStack>

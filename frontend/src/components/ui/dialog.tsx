@@ -1,46 +1,74 @@
-"use client"
+"use client";
 
-import { Dialog as ChakraDialog, Portal } from "@chakra-ui/react"
-import * as React from "react"
+import * as React from "react";
+import {
+  DialogRoot,
+  DialogContent as ChakraDialogContent,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogBackdrop,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+  DialogActionTrigger,
+  DialogCloseTrigger as ChakraDialogCloseTrigger,
+  DialogPositioner,
+  Portal,
+  type DialogContentProps,
+  type DialogCloseTriggerProps,
+} from "@chakra-ui/react";
 
-export const DialogRoot = ChakraDialog.Root
-export const DialogFooter = ChakraDialog.Footer
-export const DialogHeader = ChakraDialog.Header
-export const DialogBody = ChakraDialog.Body
-export const DialogBackdrop = ChakraDialog.Backdrop
-export const DialogTitle = ChakraDialog.Title
-export const DialogDescription = ChakraDialog.Description
-export const DialogTrigger = ChakraDialog.Trigger
-export const DialogActionTrigger = ChakraDialog.ActionTrigger
+// ===============================
+// REEXPORTS
+// ===============================
+export {
+  DialogRoot,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogBackdrop,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+  DialogActionTrigger,
+};
 
+// ===============================
+// CONTENT CUSTOM
+// ===============================
 export const DialogContent = React.forwardRef<
   HTMLDivElement,
-  ChakraDialog.ContentProps
+  DialogContentProps
 >(function DialogContent(props, ref) {
-  const { children, ...rest } = props
+  const { children, ...rest } = props;
+
   return (
     <Portal>
       <DialogBackdrop />
-      <ChakraDialog.Positioner>
-        <ChakraDialog.Content ref={ref} {...rest}>
+      <DialogPositioner>
+        <ChakraDialogContent ref={ref} {...rest}>
           {children}
-        </ChakraDialog.Content>
-      </ChakraDialog.Positioner>
+        </ChakraDialogContent>
+      </DialogPositioner>
     </Portal>
-  )
-})
+  );
+});
 
+// ===============================
+// CLOSE BUTTON
+// ===============================
 export const DialogCloseTrigger = React.forwardRef<
   HTMLButtonElement,
-  ChakraDialog.CloseTriggerProps
+  DialogCloseTriggerProps
 >(function DialogCloseTrigger(props, ref) {
   return (
-    <ChakraDialog.CloseTrigger
+    <ChakraDialogCloseTrigger
       ref={ref}
       {...props}
       position="absolute"
       top="2"
       right="2"
     />
-  )
-})
+  );
+});

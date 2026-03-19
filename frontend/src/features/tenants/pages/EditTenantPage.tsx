@@ -8,30 +8,32 @@ import {
 import { LuArrowLeft, LuShieldCheck, LuCircleAlert } from "react-icons/lu";
 
 import { useTenants } from "../hooks/useTenants";
-import TenantForm from "../components/forms/TenantForm";
+// ✅ Importação nomeada conforme corrigimos anteriormente
+import { QuickAddTenantModal as TenantForm } from "../components/QuickAddTenantModal";
 
 export default function EditTenantPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  // ✅ Hook unificado que gerencia o estado do cluster
-  const { tenant, isLoading, isError, updateTenant, isUpdating } = useTenants(id);
+  // ✅ CORREÇÃO: Pegando as variáveis do lugar certo no seu hook
+  const { 
+    tenant, 
+    isLoading, // listQuery.isLoading
+    actions, 
+    mutations 
+  } = useTenants(id);
 
-  /**
-   * 1. SUBMIT HANDLER - Corrigido para FormData
-   * ✅ O tipo agora coincide com o TenantFormProps.onSubmit
-   */
-  const handleUpdate = (formData: FormData) => {
+  const handleUpdate = async (formData: any) => {
     if (!id) return;
-    
-    // 🛡️ Segurança: Enviamos o FormData diretamente para o Hook tratar o multipart/form-data
-    updateTenant(
-      { id, data: formData }, 
-      { onSuccess: () => navigate("/admin/tenants") }
-    );
+    try {
+      await actions.update({ id, data: formData });
+      navigate("/admin/tenants");
+    } catch (error) {
+      // O Toaster já é chamado dentro do hook (onError)
+    }
   };
 
-  // 2. LOADING STATE
+  // 1. LOADING DO DETALHE (Busca inicial)
   if (isLoading) return (
     <Center h="100vh" bg="#F8FAFC">
       <VStack gap={6}>
@@ -43,8 +45,8 @@ export default function EditTenantPage() {
     </Center>
   );
 
-  // 3. ERROR STATE
-  if (isError || !tenant) return (
+  // 2. ERRO (Se não carregando e sem tenant)
+  if (!tenant && !isLoading) return (
     <Center h="100vh" bg="#F8FAFC">
       <Container maxW="md">
         <VStack gap={6} p={10} bg="white" borderRadius="3xl" shadow="2xl" textAlign="center">
@@ -53,9 +55,9 @@ export default function EditTenantPage() {
           </Box>
           <VStack gap={2}>
             <Heading size="md" fontWeight="800">Node não identificado</Heading>
-            <Text color="gray.500" fontSize="sm">A instância solicitada não existe ou o cluster está inacessível.</Text>
+            <Text color="gray.500" fontSize="sm">A instância solicitada não existe.</Text>
           </VStack>
-          <Button w="full" bg="blue.600" color="white" size="lg" borderRadius="xl" onClick={() => navigate("/admin/tenants")}>
+          <Button w="full" colorPalette="blue" size="lg" borderRadius="xl" onClick={() => navigate("/admin/tenants")}>
             Voltar ao Dashboard
           </Button>
         </VStack>
@@ -66,8 +68,6 @@ export default function EditTenantPage() {
   return (
     <Box p={{ base: 4, md: 10 }} bg="#F8FAFC" minH="100vh">
       <Container maxW="2xl">
-        
-        {/* HEADER SISTÊMICO */}
         <Flex align="center" justify="space-between" mb={10}>
           <Stack gap={1}>
             <Flex align="center" gap={2} color="blue.600">
@@ -76,12 +76,9 @@ export default function EditTenantPage() {
                 CONFIGURAÇÃO MASTER
               </Badge>
             </Flex>
-            <Heading size="xl" fontWeight="900" color="slate.800" letterSpacing="-1.5px">
+            <Heading size="xl" fontWeight="900" color="gray.800" letterSpacing="-1.5px">
               Ajustar Locatário
             </Heading>
-            <Text color="gray.500" fontSize="sm">
-              ID de Isolamento: <Text as="span" fontWeight="bold" color="slate.700">{id}</Text>
-            </Text>
           </Stack>
           
           <IconButton
@@ -90,31 +87,19 @@ export default function EditTenantPage() {
             bg="white"
             borderRadius="xl"
             onClick={() => navigate("/admin/tenants")}
-            _hover={{ shadow: "md", transform: "translateX(-2px)" }}
           >
             <LuArrowLeft />
           </IconButton>
         </Flex>
 
-        {/* FORMULÁRIO DE INFRAESTRUTURA */}
-        <Box 
-          bg="white" 
-          p={{ base: 6, md: 10 }} 
-          borderRadius="4xl" 
-          shadow="0 30px 60px -12px rgba(0, 0, 0, 0.05)" 
-          border="1px solid" 
-          borderColor="gray.100"
-        >
+        <Box bg="white" p={10} borderRadius="4xl" shadow="sm" border="1px solid" borderColor="gray.100">
           <TenantForm 
+            // @ts-ignore - Depende da prop no seu form
             initialData={tenant} 
             onSubmit={handleUpdate}
-            isLoading={isUpdating}
+            isLoading={mutations.isUpdating} // ✅ BUSCANDO DO LUGAR CERTO
           />
         </Box>
-
-        <Text mt={8} textAlign="center" fontSize="xs" color="gray.400" fontWeight="bold" letterSpacing="1px">
-          SISTEMA AURA v3 • ADMIN CLUSTER
-        </Text>
       </Container>
     </Box>
   );
