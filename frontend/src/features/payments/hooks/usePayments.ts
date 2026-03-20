@@ -1,39 +1,74 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { paymentApi } from "../api/payment.api.js";
-import { useTenants } from "../../tenants/hooks/useTenants.js";
+import { useQuery, useMutation, useQueryClient, QueryObserverResult } from "@tanstack/react-query";
+import { paymentApi } from "../api/payment.api";
+import { CreatePaymentDTO, Payment, Tenant, Contract } from "../types/payment.types";
 
-export function usePayments() {
+interface UsePaymentsReturn {
+  payments: Payment[];
+  tenants: Tenant[];
+  contracts: Contract[];
+  isLoading: boolean;
+  refetch: () => Promise<QueryObserverResult<Payment[], Error>>;
+  create: (data: CreatePaymentDTO) => Promise<Payment>;
+  update: (params: { id: string; data: Partial<CreatePaymentDTO> }) => Promise<Payment>;
+  delete: (id: string) => Promise<void>;
+}
+
+export function usePayments(): UsePaymentsReturn {
   const queryClient = useQueryClient();
-  const { tenants } = useTenants();
 
-  const query = useQuery({
+  const { data: payments = [], isLoading, refetch } = useQuery({
     queryKey: ["payments"],
-    queryFn: paymentApi.list,
+    queryFn: paymentApi.getAll,
+  });
+
+  const { data: tenants = [] } = useQuery({
+    queryKey: ["tenants"],
+    queryFn: paymentApi.getTenants,
+  });
+
+  const { data: contracts = [] } = useQuery({
+    queryKey: ["contracts"],
+    queryFn: paymentApi.getContracts,
   });
 
   const createMutation = useMutation({
     mutationFn: paymentApi.create,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["payments"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["payments"] });
+    },
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: any }) => paymentApi.update(id, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["payments"] }),
+    mutationFn: ({ id, data }: { id: string; data: Partial<CreatePaymentDTO> }) =>
+      paymentApi.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["payments"] });
+    },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => paymentApi.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["payments"] }),
+    mutationFn: paymentApi.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["payments"] });
+    },
   });
 
   return {
-    payments: query.data ?? [],
+    payments,
     tenants,
-    isLoading: query.isLoading,
-    createPayment: createMutation.mutateAsync,
-    updatePayment: updateMutation.mutateAsync,
-    deletePayment: deleteMutation.mutateAsync,
-    isSaving: createMutation.isPending || updateMutation.isPending,
-    refetch: query.refetch
+    contracts,
+    isLoading,
+    refetch,
+    create: createMutation.mutateAsync,
+    update: updateMutation.mutateAsync,
+    delete: deleteMutation.mutateAsync,
   };
+}
+
+export function usePayment(id: string) {
+  return useQuery({
+    queryKey: ["payment", id],
+    queryFn: () => paymentApi.getById(id),
+    enabled: !!id,
+  });
 }
