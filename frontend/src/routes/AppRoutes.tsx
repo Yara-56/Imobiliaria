@@ -14,32 +14,36 @@ import LoginPage from "../features/auth/pages/LoginPage";
 
 // --- FEATURES ---
 import DashboardPage from "../features/dashboard/pages/DashboardPage";
-import PropertiesPage from "../features/properties/pages/PropertiesPage";
-import ContractsPage from "../features/contracts/pages/ContractsPage";
 import PaymentPage from "../features/payments/pages/PaymentPage";
 
-// --- TENANTS (Locatários/Clientes) ---
+// --- TENANTS (Locatários) ---
 import TenantsPage from "../features/tenants/pages/TenantsPage";
 import NewTenantPage from "../features/tenants/pages/NewTenantPage";
 import EditTenantPage from "../features/tenants/pages/EditTenantPage";
 
 // --- PROPERTIES (Imóveis) ---
+import PropertiesPage from "../features/properties/pages/PropertiesPage";
 import NewPropertyPage from "../features/properties/pages/NewPropertyPage";
 import EditPropertyPage from "../features/properties/pages/EditPropertyPage";
 
+// --- CONTRACTS (Módulo Interligado) ---
+import ContractDashboardPage from "../features/contracts/pages/ContractDashboardPage"; 
+import ContractsListPage from "../features/contracts/pages/ContractsListPage"; // ✅ Importado corretamente
+import CreateContractTemplate from "../features/contracts/templates/CreateContractTemplate";
+
 /**
- * 🛡️ ProtectedRoute: Implementação de Segurança (Cybersecurity).
- * Garante que apenas usuários autenticados acessem o cluster administrativo.
+ * 🛡️ ProtectedRoute: Cybersecurity Layer.
+ * Garante que o acesso ao cluster administrativo exija autenticação.
  */
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated, login, loading } = useAuth();
 
   useEffect(() => {
-    // 🛠️ DEV BYPASS: Agiliza o desenvolvimento no seu MacBook
+    // 🛠️ DEV BYPASS: Agiliza o desenvolvimento no seu ambiente local
     if (!isAuthenticated && !loading) {
       const devAdmin: any = {
         id: "dev-01",
-        name: "Yara Admin",
+        name: "Iara Oliveira",
         email: "admin@auraimobi.com",
         role: "admin",
       };
@@ -52,12 +56,7 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
       <Center h="100vh" bg="gray.950">
         <VStack gap={4}>
           <Spinner size="xl" color="blue.500" borderWidth="4px" />
-          <Text
-            color="gray.400"
-            fontSize="xs"
-            fontWeight="black"
-            letterSpacing="widest"
-          >
+          <Text color="gray.400" fontSize="xs" fontWeight="black" letterSpacing="widest">
             SINCRONIZANDO AURA CORE...
           </Text>
         </VStack>
@@ -69,7 +68,7 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
 };
 
 /**
- * 🚀 AppRoutes: Arquitetura Global de Navegação.
+ * 🚀 AppRoutes: Arquitetura Global de Navegação SaaS.
  */
 export default function AppRoutes() {
   return (
@@ -90,41 +89,40 @@ export default function AppRoutes() {
         {/* Redirecionamento Automático: /admin -> /admin/dashboard */}
         <Route index element={<Navigate to="dashboard" replace />} />
 
-        {/* 📊 DASHBOARD & ANALYTICS */}
+        {/* 📊 DASHBOARD PRINCIPAL */}
         <Route path="dashboard" element={<DashboardPage />} />
 
         {/* 🏢 MÓDULO DE LOCATÁRIOS (TENANTS) */}
         <Route path="tenants">
-          {/* Listagem: /admin/tenants */}
           <Route index element={<TenantsPage />} />
-
-          {/* Cadastro: /admin/tenants/new */}
           <Route path="new" element={<NewTenantPage />} />
-
-          {/* Edição: /admin/tenants/edit/:id */}
           <Route path="edit/:id" element={<EditTenantPage />} />
         </Route>
 
         {/* 🏠 MÓDULO DE IMÓVEIS (PROPERTIES) */}
         <Route path="properties">
-          {/* Listagem: /admin/properties */}
           <Route index element={<PropertiesPage />} />
-
-          {/* Cadastro: /admin/properties/new */}
           <Route path="new" element={<NewPropertyPage />} />
-
-          {/* Edição: /admin/properties/edit/:id */}
           <Route path="edit/:id" element={<EditPropertyPage />} />
         </Route>
 
-        {/* 📄 CONTRATOS */}
-        <Route path="contracts" element={<ContractsPage />} />
+        {/* 📄 MÓDULO DE CONTRATOS (FLUXO COMPLETO) */}
+        <Route path="contracts">
+          {/* /admin/contracts -> Página de Modelos CPF/CNPJ */}
+          <Route index element={<ContractDashboardPage />} />
+          
+          {/* /admin/contracts/list -> Tabela de contratos ativos */}
+          <Route path="list" element={<ContractsListPage />} />
+          
+          {/* /admin/contracts/new -> Formulário de criação */}
+          <Route path="new" element={<CreateContractTemplate />} />
+        </Route>
 
         {/* 💰 FINANCEIRO E PAGAMENTOS */}
         <Route path="payments" element={<PaymentPage />} />
       </Route>
 
-      {/* 🛡️ CATCH-ALL: Proteção contra 404 redirecionando para o Dashboard */}
+      {/* 🛡️ CATCH-ALL: Proteção contra rotas inexistentes */}
       <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
     </Routes>
   );

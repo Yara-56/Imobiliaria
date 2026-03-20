@@ -47,6 +47,7 @@
     "pino-http": "^11.0.0",
     "prisma": "^7.4.2",
     "react-dropzone": "^15.0.0",
+    "react-hook-form": "^7.71.2",
     "react-router-dom": "^7.13.0",
     "sonner": "^2.0.7",
     "swagger-jsdoc": "^6.2.8",

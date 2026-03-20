@@ -1,47 +1,94 @@
-// frontend/src/features/contracts/api/contract.api.ts
-
-import api from "@/core/api/httpClient";
-import type { Contract, CreateContractDTO, UpdateContractDTO } from "../types/contract.types";
-
-interface ApiResponse {
-  status?: string;
-  data: any;
-}
-
-const extractList = (data: any): Contract[] => {
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data?.data?.contracts)) return data.data.contracts;
-  if (Array.isArray(data?.data)) return data.data;
-  return [];
-};
+// src/features/contracts/api/contract.api.ts
+import { http } from "@/lib/http";
+import { mapApiToContract, mapContractToApi } from "../mappers/contract.mapper";
+import type { 
+  Contract, 
+  CreateContractDTO, 
+  UpdateContractDTO, 
+  ContractStatus 
+} from "../types/contract.types";
 
 export const contractApi = {
-  list: async (): Promise<Contract[]> => {
-    const response = await api.get<ApiResponse>("/contracts");
-    return extractList(response.data);
+  /**
+   * Listar todos os contratos
+   */
+  list: async (filters?: Record<string, any>): Promise<Contract[]> => {
+    try {
+      const { data } = await http.get<any[]>("/contracts", {
+        params: filters,
+      });
+      // O backend costuma retornar { data: { contracts: [] } } ou só o array
+      const rawContracts = Array.isArray(data) ? data : (data as any).contracts || [];
+      return rawContracts.map(mapApiToContract);
+    } catch (error) {
+      console.error("Erro ao listar contratos:", error);
+      throw new Error("Não foi possível carregar a lista de contratos.");
+    }
   },
 
+  /**
+   * Buscar contrato por ID
+   */
   getById: async (id: string): Promise<Contract> => {
-    const response = await api.get<ApiResponse>(`/contracts/${id}`);
-    return response.data?.data?.contract ?? response.data?.data ?? response.data;
+    try {
+      const { data } = await http.get<any>(`/contracts/${id}`);
+      return mapApiToContract(data);
+    } catch (error) {
+      console.error(`Erro ao buscar contrato ${id}:`, error);
+      throw new Error("Contrato não encontrado.");
+    }
   },
 
+  /**
+   * Criar novo contrato
+   */
   create: async (payload: CreateContractDTO): Promise<Contract> => {
-    const response = await api.post<ApiResponse>("/contracts", payload);
-    return response.data?.data?.contract ?? response.data?.data ?? response.data;
+    try {
+      const apiPayload = mapContractToApi(payload);
+      const { data } = await http.post<any>("/contracts", apiPayload);
+      return mapApiToContract(data);
+    } catch (error: any) {
+      console.error("Erro ao criar contrato:", error);
+      const errorMessage = error?.response?.data?.message || "Erro ao gerar contrato imobiliário.";
+      throw new Error(errorMessage);
+    }
   },
 
-  updateStatus: async (id: string, status: string): Promise<Contract> => {
-    const response = await api.patch<ApiResponse>(`/contracts/${id}/status`, { status });
-    return response.data?.data?.contract ?? response.data?.data ?? response.data;
+  /**
+   * Atualizar status do contrato (Ativar/Cancelar)
+   */
+  updateStatus: async (id: string, status: ContractStatus): Promise<Contract> => {
+    try {
+      const { data } = await http.patch<any>(`/contracts/${id}/status`, { status });
+      return mapApiToContract(data);
+    } catch (error: any) {
+      console.error("Erro ao atualizar status:", error);
+      throw new Error("Falha ao atualizar situação do contrato.");
+    }
   },
 
+  /**
+   * Atualizar dados do contrato
+   */
   update: async (id: string, payload: UpdateContractDTO): Promise<Contract> => {
-    const response = await api.patch<ApiResponse>(`/contracts/${id}`, payload);
-    return response.data?.data?.contract ?? response.data?.data ?? response.data;
+    try {
+      const { data } = await http.put<any>(`/contracts/${id}`, payload);
+      return mapApiToContract(data);
+    } catch (error: any) {
+      console.error("Erro ao atualizar contrato:", error);
+      throw new Error("Erro ao salvar alterações do contrato.");
+    }
   },
 
+  /**
+   * Deletar contrato
+   */
   delete: async (id: string): Promise<void> => {
-    await api.delete(`/contracts/${id}`);
+    try {
+      await http.delete(`/contracts/${id}`);
+    } catch (error) {
+      console.error("Erro ao deletar contrato:", error);
+      throw new Error("Não foi possível excluir o contrato.");
+    }
   },
 };
