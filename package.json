@@ -27,6 +27,7 @@
     "reinstall": "npm run clean && npm install && cd backend && npm install && cd ../frontend && npm install"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^2.2.4",
     "@chakra-ui/react": "^3.34.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",

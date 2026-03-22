@@ -1,280 +1,300 @@
-import { Box, Flex, Stack, Text, Icon, Center } from "@chakra-ui/react";
+"use client";
+
+import {
+  Box,
+  Flex,
+  Stack,
+  Text,
+  Icon,
+  Center,
+  Image,
+} from "@chakra-ui/react";
+
 import { Link, useLocation } from "react-router-dom";
-import { LuMenu, LuX } from "react-icons/lu";
+import {
+  LuChevronDown,
+  LuChevronRight,
+  LuMenu,
+  LuX,
+} from "react-icons/lu";
+
+import { motion } from "framer-motion";
 import { useState } from "react";
+
+interface SubItem {
+  name: string;
+  path: string;
+}
 
 interface MenuItem {
   name: string;
   icon: React.ElementType;
   path: string;
   badge?: number;
+  children?: SubItem[];
+}
+
+interface MenuSection {
+  title?: string;
+  items: MenuItem[];
 }
 
 interface SidebarProps {
-  menuItems: MenuItem[];
-  logo?: {
-    icon: React.ElementType;
+  sections: MenuSection[];     // ← EXISTE
+  logo?: {                     // ← AGORA EXISTE!
+    icon?: React.ElementType;
     text: string;
     accent?: string;
+    imageSrc?: string; // opcional
   };
-  footer?: React.ReactNode;
-  onLogout?: () => void;
+  footer?: React.ReactNode;    // ← EXISTE
 }
 
-export const Sidebar = ({ menuItems, logo, footer }: SidebarProps) => {
+const MotionBox = motion(Box);
+const MotionFlex = motion(Flex);
+
+export const Sidebar = ({ sections, logo, footer }: SidebarProps) => {
   const location = useLocation();
+
   const [isOpen, setIsOpen] = useState(true);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
-  const toggleSidebar = () => setIsOpen(!isOpen);
-  const toggleMobileSidebar = () => setIsMobileOpen(!isMobileOpen);
+  const panel = { base: "white", _dark: "gray.900" };
 
-  const SidebarContent = () => (
-    <Stack h="full" gap={isOpen ? 8 : 6} position="relative">
-      {/* Logo */}
-      <Flex 
-        align="center" 
-        gap={3} 
-        px={isOpen ? 4 : 0} 
-        justify={isOpen ? "flex-start" : "center"}
-        transition="all 0.3s"
-      >
-        {logo && (
-          <>
-            <Center 
-              bg="blue.600" 
-              w="44px" 
-              h="44px" 
-              borderRadius="14px"
-              flexShrink={0}
-              boxShadow="0 4px 14px rgba(59, 130, 246, 0.25)"
-            >
-              <Icon as={logo.icon} color="white" boxSize={5} />
-            </Center>
-            
-            <Box
-              overflow="hidden"
-              maxW={isOpen ? "200px" : "0"}
-              opacity={isOpen ? 1 : 0}
-              transition="all 0.3s"
-            >
-              <Text 
-                fontSize="22px" 
-                fontWeight="800" 
-                color="slate.900" 
-                letterSpacing="-0.5px"
-                whiteSpace="nowrap"
+  const toggleExpand = (key: string) =>
+    setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  const LogoArea = (
+    <Flex
+      align="center"
+      gap={3}
+      px={isOpen ? 2 : 0}
+      transition="all 0.3s"
+      justify={isOpen ? "flex-start" : "center"}
+    >
+      {logo?.imageSrc ? (
+        <Image
+          src={logo.imageSrc}
+          alt="Logo"
+          w={isOpen ? "160px" : "48px"}
+          transition="all 0.25s"
+        />
+      ) : (
+        <>
+          <Center
+            w="42px"
+            h="42px"
+            bg="blue.600"
+            borderRadius="lg"
+            color="white"
+          >
+            {logo?.icon && <Icon as={logo.icon} boxSize={6} />}
+          </Center>
+
+          {isOpen && logo && (
+            <Text fontSize="20px" fontWeight="800">
+              {logo.text}
+              {logo.accent && (
+                <Text as="span" color="blue.600">
+                  {logo.accent}
+                </Text>
+              )}
+            </Text>
+          )}
+        </>
+      )}
+    </Flex>
+  );
+
+  const MenuContent = (
+    <Stack gap={6} h="full">
+      {LogoArea}
+
+      <Stack flex={1} gap={5} px={isOpen ? 2 : 0}>
+        {sections?.map((section, idx) => (
+          <Box key={idx}>
+            {isOpen && section.title && (
+              <Text
+                fontSize="11px"
+                fontWeight="700"
+                textTransform="uppercase"
+                color="gray.500"
+                ml={2}
+                mb={1}
               >
-                {logo.text.split(logo.accent || "")[0]}
-                {logo.accent && (
-                  <Text as="span" color="blue.600">
-                    {logo.accent}
-                  </Text>
-                )}
+                {section.title}
               </Text>
-            </Box>
-          </>
-        )}
-      </Flex>
+            )}
 
-      {/* Toggle Button Desktop */}
-      <Center
-        as="button"
-        position="absolute"
-        top="12px"
-        right="-12px"
-        w="24px"
-        h="24px"
-        bg="white"
-        border="1px solid"
-        borderColor="gray.200"
-        borderRadius="full"
-        boxShadow="sm"
-        zIndex={10}
-        display={{ base: "none", md: "flex" }}
-        onClick={toggleSidebar}
-        cursor="pointer"
-        _hover={{ bg: "gray.50" }}
-        transition="all 0.2s"
-      >
-        <Icon as={isOpen ? LuX : LuMenu} boxSize={3.5} color="gray.600" />
-      </Center>
+            <Stack gap={1}>
+              {section.items.map((item) => {
+                const active = location.pathname.startsWith(item.path);
+                const key = item.path;
 
-      {/* Menu Items */}
-      <Stack gap={1} flex={1} px={isOpen ? 3 : 2}>
-        {menuItems.map((item) => {
-          const isActive = location.pathname.startsWith(item.path);
-
-          return (
-            <Link 
-              key={item.path} 
-              to={item.path} 
-              style={{ textDecoration: "none" }}
-              onClick={() => setIsMobileOpen(false)}
-            >
-              <Flex
-                align="center"
-                gap={4}
-                p={isOpen ? 3.5 : 3}
-                borderRadius="12px"
-                bg={isActive ? "blue.50" : "transparent"}
-                color={isActive ? "blue.600" : "slate.600"}
-                position="relative"
-                justify={isOpen ? "flex-start" : "center"}
-                _hover={{
-                  bg: isActive ? "blue.100" : "gray.50",
-                  color: isActive ? "blue.700" : "blue.600",
-                  transform: "translateX(2px)",
-                }}
-                transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
-                cursor="pointer"
-                _before={
-                  isActive
-                    ? {
-                        content: '""',
-                        position: "absolute",
-                        left: 0,
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        width: "4px",
-                        height: "60%",
-                        bg: "blue.600",
-                        borderRadius: "0 4px 4px 0",
+                return (
+                  <Box key={key}>
+                    <MotionFlex
+                      align="center"
+                      p={3}
+                      gap={4}
+                      bg={active ? "blue.50" : "transparent"}
+                      color={active ? "blue.600" : "gray.700"}
+                      borderRadius="12px"
+                      cursor="pointer"
+                      whileHover={{ x: 5 }}
+                      transition={{ duration: 0.25 }}
+                      onClick={() =>
+                        item.children ? toggleExpand(key) : null
                       }
-                    : undefined
-                }
-              >
-                <Icon as={item.icon} boxSize={5} flexShrink={0} />
+                    >
+                      <Icon as={item.icon} boxSize={5} />
 
-                <Box
-                  overflow="hidden"
-                  maxW={isOpen ? "200px" : "0"}
-                  opacity={isOpen ? 1 : 0}
-                  transition="all 0.3s"
-                >
-                  <Flex align="center" gap={2} whiteSpace="nowrap">
-                    <Text fontWeight={isActive ? "700" : "600"} fontSize="15px">
-                      {item.name}
-                    </Text>
-                    {item.badge && item.badge > 0 && (
-                      <Center
-                        bg={isActive ? "blue.600" : "gray.400"}
-                        color="white"
-                        fontSize="11px"
-                        fontWeight="700"
-                        minW="20px"
-                        h="20px"
-                        borderRadius="full"
-                        px={1.5}
-                      >
-                        {item.badge}
-                      </Center>
+                      {isOpen && (
+                        <Flex flex={1} justify="space-between" align="center">
+                          <Text fontWeight="600">{item.name}</Text>
+
+                          {item.children && (
+                            <Icon
+                              as={expanded[key] ? LuChevronDown : LuChevronRight}
+                              boxSize={4}
+                              color="gray.500"
+                            />
+                          )}
+                        </Flex>
+                      )}
+                    </MotionFlex>
+
+                    {item.children && expanded[key] && (
+                      <Stack pl={isOpen ? 10 : 0} mt={1}>
+                        {item.children.map((sub) => {
+                          const subActive =
+                            location.pathname.startsWith(sub.path);
+
+                          return (
+                            <Link
+                              key={sub.path}
+                              to={sub.path}
+                              style={{ textDecoration: "none" }}
+                            >
+                              <MotionFlex
+                                p={2}
+                                align="center"
+                                gap={3}
+                                borderRadius="10px"
+                                color={subActive ? "blue.600" : "gray.600"}
+                                bg={subActive ? "blue.50" : "transparent"}
+                                whileHover={{ x: 10 }}
+                                transition={{ duration: 0.25 }}
+                              >
+                                <Box
+                                  w="6px"
+                                  h="6px"
+                                  borderRadius="full"
+                                  bg={subActive ? "blue.600" : "gray.400"}
+                                />
+
+                                <Text>{sub.name}</Text>
+                              </MotionFlex>
+                            </Link>
+                          );
+                        })}
+                      </Stack>
                     )}
-                  </Flex>
-                </Box>
-              </Flex>
-            </Link>
-          );
-        })}
+                  </Box>
+                );
+              })}
+            </Stack>
+          </Box>
+        ))}
       </Stack>
 
-      {/* Footer */}
-      {footer && (
-        <Box px={isOpen ? 3 : 2} pb={4}>
-          {footer}
-        </Box>
-      )}
+      {footer && <Box px={2}>{footer}</Box>}
     </Stack>
   );
 
   return (
     <>
-      {/* Mobile Menu Button */}
+      {/* MOBILE BUTTON */}
       <Center
         as="button"
+        onClick={() => setMobileOpen(true)}
         position="fixed"
         top={4}
         left={4}
+        bg="panel"
+        borderRadius="full"
         w="48px"
         h="48px"
-        zIndex={20}
+        shadow="lg"
         display={{ base: "flex", md: "none" }}
-        onClick={toggleMobileSidebar}
-        bg="white"
-        boxShadow="md"
-        borderRadius="full"
-        cursor="pointer"
-        _hover={{ bg: "gray.50" }}
-        transition="all 0.2s"
+        zIndex={40}
       >
-        <Icon as={LuMenu} boxSize={6} color="gray.700" />
+        <Icon as={LuMenu} boxSize={6} />
       </Center>
 
-      {/* Mobile Overlay */}
-      {isMobileOpen && (
-        <Box
-          position="fixed"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          bg="blackAlpha.600"
-          zIndex={30}
-          display={{ base: "block", md: "none" }}
-          onClick={toggleMobileSidebar}
-        />
-      )}
-
-      {/* Desktop Sidebar */}
-      <Box
-        w={isOpen ? "280px" : "80px"}
-        bg="white"
-        p={isOpen ? 5 : 3}
+      {/* DESKTOP */}
+      <MotionBox
+        animate={{ width: isOpen ? 280 : 88 }}
+        transition={{ duration: 0.35 }}
+        bg={panel}
         borderRight="1px solid"
-        borderColor="gray.100"
-        transition="width 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-        display={{ base: "none", md: "block" }}
+        borderColor="gray.200"
+        minH="100vh"
+        p={4}
         position="relative"
-        overflow="hidden"
+        display={{ base: "none", md: "block" }}
       >
-        <SidebarContent />
-      </Box>
-
-      {/* Mobile Sidebar */}
-      <Box
-        position="fixed"
-        top={0}
-        left={0}
-        bottom={0}
-        w="280px"
-        bg="white"
-        p={5}
-        borderRight="1px solid"
-        borderColor="gray.100"
-        transform={isMobileOpen ? "translateX(0)" : "translateX(-100%)"}
-        transition="transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-        zIndex={40}
-        display={{ base: "block", md: "none" }}
-        boxShadow="xl"
-      >
-        {/* Close Button Mobile */}
+        {/* BOTÃO DE COLAPSO */}
         <Center
           as="button"
           position="absolute"
-          top={4}
-          right={4}
+          top="20px"
+          right="-16px"
+          bg="panel"
           w="32px"
           h="32px"
-          onClick={toggleMobileSidebar}
-          cursor="pointer"
-          _hover={{ bg: "gray.100" }}
-          borderRadius="md"
-          transition="all 0.2s"
+          borderRadius="full"
+          border="1px solid"
+          borderColor="gray.300"
+          shadow="md"
+          onClick={() => setIsOpen((v) => !v)}
         >
-          <Icon as={LuX} boxSize={5} color="gray.600" />
+          <Icon as={isOpen ? LuX : LuMenu} boxSize={4} />
         </Center>
-        <SidebarContent />
-      </Box>
+
+        {MenuContent}
+      </MotionBox>
+
+      {/* MOBILE SIDEBAR */}
+      {mobileOpen && (
+        <MotionBox
+          position="fixed"
+          top={0}
+          left={0}
+          h="100vh"
+          w="280px"
+          bg={panel}
+          shadow="2xl"
+          zIndex={50}
+          initial={{ x: -280 }}
+          animate={{ x: 0 }}
+          transition={{ type: "spring", stiffness: 150 }}
+          p={6}
+        >
+          <Center
+            as="button"
+            position="absolute"
+            right="20px"
+            top="20px"
+            onClick={() => setMobileOpen(false)}
+          >
+            <Icon as={LuX} boxSize={6} />
+          </Center>
+
+          {MenuContent}
+        </MotionBox>
+      )}
     </>
   );
 };

@@ -1,29 +1,28 @@
-import { Box, Flex, Text, Container, Heading, Center } from "@chakra-ui/react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import {
-  LuLayoutDashboard,
-  LuHouse,
-  LuPenLine,
-  LuUsers,
-  LuWallet,
-  LuLogOut,
-} from "react-icons/lu";
-import { Sidebar } from "../../../components/shared/Sidebar";
+"use client";
 
-const menuItems = [
-  { name: "Dashboard", icon: LuLayoutDashboard, path: "/admin/dashboard" },
-  { name: "Imóveis", icon: LuHouse, path: "/admin/properties" },
-  { name: "Contratos", icon: LuPenLine, path: "/admin/contracts" },
-  { name: "Inquilinos", icon: LuUsers, path: "/admin/tenants" },
-  { name: "Financeiro", icon: LuWallet, path: "/admin/payments" },
-];
+import {
+  Box,
+  Flex,
+  Text,
+  Container,
+  Heading,
+  Center,
+} from "@chakra-ui/react";
+
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { LuHouse, LuLogOut } from "react-icons/lu";
+
+import { Sidebar } from "../../../components/shared/Sidebar";
+import { AdminSections } from "@/core/config/admin.sections";
 
 export const AdminLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   const currentPage =
-    menuItems.find((i) => location.pathname.startsWith(i.path))?.name || "Painel";
+    AdminSections.flatMap((s) => s.items)
+      .find((i) => location.pathname.startsWith(i.path))
+      ?.name || "Painel";
 
   const handleLogout = () => {
     localStorage.clear();
@@ -34,10 +33,10 @@ export const AdminLayout = () => {
     <Flex h="100vh" w="100vw" bg="#FAFBFC" overflow="hidden">
       {/* SIDEBAR */}
       <Sidebar
-        menuItems={menuItems}
+        sections={AdminSections}
         logo={{
           icon: LuHouse,
-          text: "ImobiSys",
+          text: "Imobi",
           accent: "Sys",
         }}
         footer={
@@ -91,11 +90,12 @@ export const AdminLayout = () => {
                 Administradora
               </Text>
             </Box>
+
             <Center
               w="42px"
               h="42px"
               borderRadius="full"
-              bg="gradient-to-br from-blue.400 to-blue.600"
+              bg="linear-gradient(135deg, #3B82F6, #2563EB)"
               fontWeight="700"
               color="white"
               fontSize="15px"
@@ -116,19 +116,13 @@ export const AdminLayout = () => {
           p={{ base: 4, md: 8 }}
           bg="#FAFBFC"
           css={{
-            "&::-webkit-scrollbar": {
-              width: "8px",
-            },
-            "&::-webkit-scrollbar-track": {
-              background: "transparent",
-            },
+            "&::-webkit-scrollbar": { width: "8px" },
+            "&::-webkit-scrollbar-track": { background: "transparent" },
             "&::-webkit-scrollbar-thumb": {
               background: "#CBD5E0",
               borderRadius: "4px",
             },
-            "&::-webkit-scrollbar-thumb:hover": {
-              background: "#A0AEC0",
-            },
+            "&::-webkit-scrollbar-thumb:hover": { background: "#A0AEC0" },
           }}
         >
           <Container maxW="7xl" p={0}>
