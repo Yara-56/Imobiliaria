@@ -12,6 +12,7 @@ import {
 
 import { motion } from "framer-motion";
 import { useCallback, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { HeroSection } from "../components/HeroSection";
 import ProblemSection from "../components/ProblemSection";
@@ -28,7 +29,7 @@ import LeadCaptureModal from "../components/LeadCaptureModal";
 const MotionBox = motion(Box);
 
 /* ===============================
-   🌞 BACKGROUND MODERNO LIGHT
+   🌞 BACKGROUND LIGHT MODERNO
 ================================ */
 function DashboardBackground() {
   return (
@@ -53,7 +54,9 @@ function DashboardBackground() {
 }
 
 export default function HomePage() {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const navigate = useNavigate();
+
+  const { open, onOpen, onClose } = useDisclosure();
 
   const [leadForm, setLeadForm] = useState({
     name: "",
@@ -68,12 +71,23 @@ export default function HomePage() {
   const refPricing = useRef<HTMLDivElement>(null);
   const refFAQ = useRef<HTMLDivElement>(null);
 
-  const scrollTo = (ref: React.RefObject<HTMLDivElement>) => {
+  const scrollTo = (ref: React.RefObject<HTMLDivElement | null>) => {
     ref.current?.scrollIntoView({
       behavior: "smooth",
       block: "start",
     });
   };
+
+  const sections: {
+    label: string;
+    ref: React.RefObject<HTMLDivElement | null>;
+  }[] = [
+    { label: "Início", ref: refHero },
+    { label: "Solução", ref: refSolution },
+    { label: "Casos", ref: refCases },
+    { label: "Preços", ref: refPricing },
+    { label: "FAQ", ref: refFAQ },
+  ];
 
   const handleLeadCapture = useCallback(() => {
     onClose();
@@ -91,9 +105,7 @@ export default function HomePage() {
     >
       <DashboardBackground />
 
-      {/* ===============================
-          🚀 NAVBAR MODERNA (GLASS LIGHT)
-      ============================== */}
+      {/* NAVBAR */}
       <Box
         position="sticky"
         top={0}
@@ -104,144 +116,118 @@ export default function HomePage() {
         py={3}
       >
         <Container maxW="7xl">
-          <Flex justify="center" gap={6}>
-            {[
-              { label: "Início", ref: refHero },
-              { label: "Solução", ref: refSolution },
-              { label: "Casos", ref: refCases },
-              { label: "Preços", ref: refPricing },
-              { label: "FAQ", ref: refFAQ },
-            ].map((item) => (
+          <Flex align="center" justify="space-between">
+            {/* Logo */}
+            <Text fontWeight="700" color="gray.700">
+              HomeFlux
+            </Text>
+
+            {/* Menu */}
+            <Flex gap={6} display={{ base: "none", md: "flex" }}>
+              {sections.map((item) => (
+                <Button
+                  key={item.label}
+                  variant="ghost"
+                  color="gray.600"
+                  fontWeight="500"
+                  _hover={{ color: "blue.500", bg: "transparent" }}
+                  onClick={() => scrollTo(item.ref)}
+                >
+                  {item.label}
+                </Button>
+              ))}
+            </Flex>
+
+            {/* Login */}
+            <Flex gap={3}>
               <Button
-                key={item.label}
                 variant="ghost"
                 color="gray.600"
-                fontWeight="500"
-                _hover={{
-                  color: "blue.500",
-                  bg: "transparent",
-                }}
-                onClick={() => scrollTo(item.ref)}
+                _hover={{ color: "blue.500" }}
+                onClick={() => navigate("/login")}
               >
-                {item.label}
+                Entrar
               </Button>
-            ))}
+
+              <Button
+                bg="linear-gradient(135deg, #2563eb, #0ea5e9)"
+                color="white"
+                px={5}
+                borderRadius="12px"
+                _hover={{ opacity: 0.9 }}
+                onClick={() => navigate("/login")}
+              >
+                Começar
+              </Button>
+            </Flex>
           </Flex>
         </Container>
       </Box>
 
-      {/* ===============================
-          🧠 LOGO / BRAND
-      ============================== */}
-      <Container
-        maxW="7xl"
-        pt={12}
-        textAlign="center"
-        position="relative"
-        zIndex={2}
-      >
+      {/* LOGO CENTRAL */}
+      <Container pt={12} textAlign="center" position="relative" zIndex={2}>
         <Image
           src="/Captura-de-Tela-2026-03-22-s-15.52.27.png"
           maxW="200px"
           mx="auto"
-          opacity={0.9}
           draggable={false}
         />
-
-        <Text mt={3} color="gray.500" fontWeight="500">
+        <Text mt={3} color="gray.500">
           Inteligência • Automação • Crescimento Real
         </Text>
       </Container>
 
-      {/* ===============================
-          📦 CONTEÚDO
-      ============================== */}
+      {/* CONTEÚDO */}
       <Container maxW="7xl" pt={10} pb={32} zIndex={2}>
-        <MotionBox ref={refHero} mb={24} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <MotionBox ref={refHero} mb={24}>
           <HeroSection onLeadCapture={onOpen} />
         </MotionBox>
 
-        <MotionBox
-          ref={refSolution}
-          mb={24}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
+        <MotionBox ref={refSolution} mb={24}>
           <ProblemSection />
           <Box mt={16}>
             <SolutionSection />
           </Box>
         </MotionBox>
 
-        <MotionBox
-          ref={refCases}
-          mb={24}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
+        <MotionBox ref={refCases} mb={24}>
           <EducationSection onLeadCapture={onOpen} />
           <Box mt={16}>
             <CaseStudiesSection />
           </Box>
         </MotionBox>
 
-        <MotionBox
-          mb={24}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-        >
+        <MotionBox mb={24}>
           <ROICalculator onLeadCapture={onOpen} />
           <Box mt={16}>
             <TestimonialsSection />
           </Box>
         </MotionBox>
 
-        <MotionBox
-          ref={refPricing}
-          mb={24}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-        >
+        <MotionBox ref={refPricing} mb={24}>
           <PricingSection onLeadCapture={onOpen} />
         </MotionBox>
 
-        <MotionBox
-          ref={refFAQ}
-          mb={24}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-        >
+        <MotionBox ref={refFAQ} mb={24}>
           <FAQSection onLeadCapture={onOpen} />
         </MotionBox>
 
         <FinalCTA onLeadCapture={onOpen} />
       </Container>
 
-      {/* ===============================
-          💬 MODAL
-      ============================== */}
+      {/* MODAL */}
       <LeadCaptureModal
-        isOpen={isOpen}
+        isOpen={open}
         onClose={onClose}
         onSubmit={handleLeadCapture}
         leadForm={leadForm}
         setLeadForm={setLeadForm}
       />
 
-      {/* ===============================
-          🧾 FOOTER MODERNO
-      ============================== */}
-      <Box
-        bg="#FFFFFF"
-        borderTop="1px solid #E2E8F0"
-        color="gray.500"
-        py={12}
-        mt={20}
-      >
+      {/* FOOTER */}
+      <Box bg="white" borderTop="1px solid #E2E8F0" py={12} mt={20}>
         <Container maxW="7xl">
-          <Text fontSize="sm" textAlign="center">
+          <Text fontSize="sm" textAlign="center" color="gray.500">
             © {new Date().getFullYear()} HomeFlux • Gestão Imobiliária Inteligente
           </Text>
         </Container>
