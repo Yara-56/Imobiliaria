@@ -1,0 +1,31 @@
+/* GLOBAL BACKGROUND FLUIDO */
+
+.fluid-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(135deg, #f8fafc, #eef2ff);
+    overflow: hidden;
+  }
+  
+  .wave {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 30% 50%, rgba(59,130,246,0.12), transparent 60%);
+    animation: waveMove 25s linear infinite;
+  }
+  
+  .wave2 {
+    animation-duration: 40s;
+    opacity: 0.4;
+  }
+  
+  @keyframes waveMove {
+    from {
+      transform: translateX(-20%) translateY(-10%);
+    }
+    to {
+      transform: translateX(20%) translateY(10%);
+    }
+  }

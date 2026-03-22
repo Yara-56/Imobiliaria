@@ -1,140 +1,251 @@
-"use client"
+"use client";
 
-import { 
-  Box, Container, Heading, Text, Button, SimpleGrid, 
-  Icon, Flex, Stack, Badge, Center
+import {
+  Box,
+  Container,
+  Button,
+  Flex,
+  Image,
+  Text,
+  useDisclosure,
 } from "@chakra-ui/react";
-import { 
-  LuShieldCheck, 
-  LuZap, 
-  LuTrendingUp, 
-  LuClock, 
-  LuArrowRight, 
-  LuCircleCheck,
-  LuCirclePlay 
-} from "react-icons/lu";
-import { useNavigate } from "react-router-dom";
 
-interface FeatureCardProps {
-  icon: React.ElementType;
-  title: string;
-  desc: string;
-}
+import { motion } from "framer-motion";
+import { useCallback, useRef, useState } from "react";
 
-export default function HomePage() {
-  const navigate = useNavigate();
+import { HeroSection } from "../components/HeroSection";
+import ProblemSection from "../components/ProblemSection";
+import SolutionSection from "../components/SolutionSection";
+import EducationSection from "../components/EducationSection";
+import CaseStudiesSection from "../components/CaseStudiesSection";
+import ROICalculator from "../components/ROICalculator";
+import TestimonialsSection from "../components/TestimonialsSection";
+import PricingSection from "../components/PricingSection";
+import FAQSection from "../components/FAQSection";
+import FinalCTA from "../components/FinalCTA";
+import LeadCaptureModal from "../components/LeadCaptureModal";
 
+const MotionBox = motion(Box);
+
+/* ===============================
+   🌞 BACKGROUND MODERNO LIGHT
+================================ */
+function DashboardBackground() {
   return (
-    <Box 
-      bg="#020617" 
-      minH="100vh" 
-      color="white" 
-      position="relative"
-      overflow="hidden"
-    >
-      {/* 🌌 Efeito de Luz no Fundo */}
-      <Box 
-        position="absolute" top="-150px" left="50%" transform="translateX(-50%)"
-        w="600px" h="400px" bg="blue.900" opacity="0.2" filter="blur(100px)" borderRadius="full" zIndex={0}
-      />
-
-      <Container maxW="container.lg" pt={28} pb={20} position="relative" zIndex={1}>
-        <Flex direction="column" align="center" textAlign="center">
-          <Badge 
-            bg="whiteAlpha.200" color="blue.300" variant="outline" mb={8} 
-            borderRadius="full" px={4} py={1} borderColor="blue.500"
-          >
-            <Flex align="center" gap={2}>
-              <Icon as={LuCircleCheck} boxSize={3} />
-              <Text fontWeight="bold" letterSpacing="widest" fontSize="xs">IMOBISYS PRO 2026</Text>
-            </Flex>
-          </Badge>
-          
-          <Heading size="4xl" fontWeight="900" mb={6} lineHeight="1.1" fontSize={{ base: "4xl", md: "6xl" }}>
-            Sua imobiliária em <br />
-            <Text 
-              as="span" 
-              bgGradient="linear(to-r, blue.400, cyan.300)" 
-              bgClip="text"
-            >
-              outro nível operacional
-            </Text>
-          </Heading>
-
-          <Text fontSize="xl" color="gray.400" maxW="2xl" mb={12}>
-            Centralize contratos, vistorias e cobranças em uma única interface 
-            <Text as="span" color="white" fontWeight="bold"> intuitiva e veloz.</Text>
-          </Text>
-
-          <Stack direction={{ base: "column", md: "row" }} gap={6}>
-            <Button 
-              size="lg" 
-              bg="blue.600"
-              color="white"
-              px={10} 
-              borderRadius="xl" 
-              h="60px"
-              fontWeight="bold" 
-              onClick={() => navigate("/login")}
-              _hover={{ bg: "blue.500", transform: "translateY(-2px)", shadow: "dark-lg" }}
-            >
-              Acessar Painel 
-              <Icon as={LuArrowRight} ml={2} />
-            </Button>
-            
-            <Button 
-              size="lg" 
-              variant="ghost" 
-              color="whiteAlpha.800"
-              h="60px"
-              _hover={{ color: "blue.300", bg: "whiteAlpha.50" }}
-            >
-              <Icon as={LuCirclePlay} mr={2} boxSize={6} />
-              Ver Demonstração
-            </Button>
-          </Stack>
-        </Flex>
-
-        {/* 🛠️ Grid de Features */}
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={6} mt={24}>
-          <FeatureCard 
-            icon={LuShieldCheck} 
-            title="Contratos" 
-            desc="Segurança jurídica total com assinatura digital integrada." 
-          />
-          <FeatureCard 
-            icon={LuZap} 
-            title="Agilidade" 
-            desc="Processos que levavam dias agora resolvidos em minutos." 
-          />
-          <FeatureCard 
-            icon={LuTrendingUp} 
-            title="Métricas" 
-            desc="Dashboard completo com ROI e taxa de vacância real." 
-          />
-          <FeatureCard 
-            icon={LuClock} 
-            title="Automação" 
-            desc="Régua de cobrança automática via WhatsApp e E-mail." 
-          />
-        </SimpleGrid>
-      </Container>
-    </Box>
+    <Box
+      position="absolute"
+      inset={0}
+      bg="#F8FAFC"
+      zIndex={0}
+      _before={{
+        content: '""',
+        position: "absolute",
+        top: "-200px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        w: "900px",
+        h: "600px",
+        bg: "radial-gradient(circle, rgba(14,165,233,0.10), transparent 70%)",
+        filter: "blur(120px)",
+      }}
+    />
   );
 }
 
-function FeatureCard({ icon: IconComponent, title, desc }: FeatureCardProps) {
+export default function HomePage() {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const [leadForm, setLeadForm] = useState({
+    name: "",
+    email: "",
+    company: "",
+    phone: "",
+  });
+
+  const refHero = useRef<HTMLDivElement>(null);
+  const refSolution = useRef<HTMLDivElement>(null);
+  const refCases = useRef<HTMLDivElement>(null);
+  const refPricing = useRef<HTMLDivElement>(null);
+  const refFAQ = useRef<HTMLDivElement>(null);
+
+  const scrollTo = (ref: React.RefObject<HTMLDivElement>) => {
+    ref.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
+  const handleLeadCapture = useCallback(() => {
+    onClose();
+    alert("Obrigado! Você receberá um e-mail em breve.");
+    setLeadForm({ name: "", email: "", company: "", phone: "" });
+  }, [onClose]);
+
   return (
-    <Box 
-      bg="whiteAlpha.50" p={8} borderRadius="2xl" border="1px solid" borderColor="whiteAlpha.100" 
-      transition="all 0.3s"
-      _hover={{ transform: "translateY(-8px)", bg: "whiteAlpha.100", borderColor: "blue.500" }}
+    <Box
+      minH="100vh"
+      bg="#F8FAFC"
+      color="gray.800"
+      position="relative"
+      overflow="hidden"
     >
-      <Center w={12} h={12} bg="blue.500" color="white" borderRadius="xl" mb={6}>
-        <Icon as={IconComponent} boxSize={6} />
-      </Center>
-      <Text fontWeight="bold" fontSize="lg" mb={2}>{title}</Text>
-      <Text color="gray.400" fontSize="sm" lineHeight="tall">{desc}</Text>
+      <DashboardBackground />
+
+      {/* ===============================
+          🚀 NAVBAR MODERNA (GLASS LIGHT)
+      ============================== */}
+      <Box
+        position="sticky"
+        top={0}
+        zIndex={50}
+        bg="rgba(255,255,255,0.75)"
+        backdropFilter="blur(12px)"
+        borderBottom="1px solid rgba(0,0,0,0.06)"
+        py={3}
+      >
+        <Container maxW="7xl">
+          <Flex justify="center" gap={6}>
+            {[
+              { label: "Início", ref: refHero },
+              { label: "Solução", ref: refSolution },
+              { label: "Casos", ref: refCases },
+              { label: "Preços", ref: refPricing },
+              { label: "FAQ", ref: refFAQ },
+            ].map((item) => (
+              <Button
+                key={item.label}
+                variant="ghost"
+                color="gray.600"
+                fontWeight="500"
+                _hover={{
+                  color: "blue.500",
+                  bg: "transparent",
+                }}
+                onClick={() => scrollTo(item.ref)}
+              >
+                {item.label}
+              </Button>
+            ))}
+          </Flex>
+        </Container>
+      </Box>
+
+      {/* ===============================
+          🧠 LOGO / BRAND
+      ============================== */}
+      <Container
+        maxW="7xl"
+        pt={12}
+        textAlign="center"
+        position="relative"
+        zIndex={2}
+      >
+        <Image
+          src="/Captura-de-Tela-2026-03-22-s-15.52.27.png"
+          maxW="200px"
+          mx="auto"
+          opacity={0.9}
+          draggable={false}
+        />
+
+        <Text mt={3} color="gray.500" fontWeight="500">
+          Inteligência • Automação • Crescimento Real
+        </Text>
+      </Container>
+
+      {/* ===============================
+          📦 CONTEÚDO
+      ============================== */}
+      <Container maxW="7xl" pt={10} pb={32} zIndex={2}>
+        <MotionBox ref={refHero} mb={24} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <HeroSection onLeadCapture={onOpen} />
+        </MotionBox>
+
+        <MotionBox
+          ref={refSolution}
+          mb={24}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <ProblemSection />
+          <Box mt={16}>
+            <SolutionSection />
+          </Box>
+        </MotionBox>
+
+        <MotionBox
+          ref={refCases}
+          mb={24}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <EducationSection onLeadCapture={onOpen} />
+          <Box mt={16}>
+            <CaseStudiesSection />
+          </Box>
+        </MotionBox>
+
+        <MotionBox
+          mb={24}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+        >
+          <ROICalculator onLeadCapture={onOpen} />
+          <Box mt={16}>
+            <TestimonialsSection />
+          </Box>
+        </MotionBox>
+
+        <MotionBox
+          ref={refPricing}
+          mb={24}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+        >
+          <PricingSection onLeadCapture={onOpen} />
+        </MotionBox>
+
+        <MotionBox
+          ref={refFAQ}
+          mb={24}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+        >
+          <FAQSection onLeadCapture={onOpen} />
+        </MotionBox>
+
+        <FinalCTA onLeadCapture={onOpen} />
+      </Container>
+
+      {/* ===============================
+          💬 MODAL
+      ============================== */}
+      <LeadCaptureModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onSubmit={handleLeadCapture}
+        leadForm={leadForm}
+        setLeadForm={setLeadForm}
+      />
+
+      {/* ===============================
+          🧾 FOOTER MODERNO
+      ============================== */}
+      <Box
+        bg="#FFFFFF"
+        borderTop="1px solid #E2E8F0"
+        color="gray.500"
+        py={12}
+        mt={20}
+      >
+        <Container maxW="7xl">
+          <Text fontSize="sm" textAlign="center">
+            © {new Date().getFullYear()} HomeFlux • Gestão Imobiliária Inteligente
+          </Text>
+        </Container>
+      </Box>
     </Box>
   );
 }
