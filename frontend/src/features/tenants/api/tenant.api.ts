@@ -19,48 +19,28 @@ import type {
  */
 function createTenantFormData(data: CreateTenantDTO): FormData {
   const formData = new FormData();
-  
+
   formData.append("fullName", data.fullName);
   formData.append("email", data.email);
   formData.append("document", data.document);
   formData.append("preferredPaymentMethod", data.preferredPaymentMethod);
-  
-  if (data.phone) {
-    formData.append("phone", data.phone);
-  }
-  
-  if (data.plan) {
-    formData.append("plan", data.plan);
-  }
-  
-  if (data.rentValue !== undefined) {
-    formData.append("rentValue", data.rentValue.toString());
-  }
-  
-  if (data.billingDay !== undefined) {
-    formData.append("billingDay", data.billingDay.toString());
-  }
-  
-  if (data.autoUpdateContract !== undefined) {
-    formData.append("autoUpdateContract", data.autoUpdateContract.toString());
-  }
-  
-  if (data.settings) {
-    formData.append("settings", JSON.stringify(data.settings));
-  }
-  
-  // 📎 Upload de foto de perfil
-  if (data.profilePhoto) {
-    formData.append("profilePhoto", data.profilePhoto);
-  }
-  
-  // 📎 Upload de múltiplos documentos
+
+  if (data.phone) formData.append("phone", data.phone);
+  if (data.plan) formData.append("plan", data.plan);
+  if (data.rentValue !== undefined) formData.append("rentValue", String(data.rentValue));
+  if (data.billingDay !== undefined) formData.append("billingDay", String(data.billingDay));
+  if (data.autoUpdateContract !== undefined)
+    formData.append("autoUpdateContract", String(data.autoUpdateContract));
+  if (data.settings) formData.append("settings", JSON.stringify(data.settings));
+
+  if (data.profilePhoto) formData.append("profilePhoto", data.profilePhoto);
+
   if (data.documents && data.documents.length > 0) {
     data.documents.forEach((file) => {
       formData.append("documents", file);
     });
   }
-  
+
   return formData;
 }
 
@@ -73,10 +53,13 @@ export const tenantApi = {
    */
   list: async (filters?: Record<string, any>): Promise<Tenant[]> => {
     try {
-      const { data } = await http.get<any[]>("/tenants", {
-        params: filters,
-      });
-      return data.map(mapApiToTenant);
+      const { data } = await http.get("/tenants", { params: filters });
+
+      // BACKEND RETORNA:
+      // { status: "success", data: { tenants: [...] } }
+      const tenants = data?.data?.tenants ?? [];
+
+      return tenants.map(mapApiToTenant);
     } catch (error) {
       console.error("Erro ao listar inquilinos:", error);
       throw new Error("Erro ao buscar inquilinos");
@@ -88,8 +71,8 @@ export const tenantApi = {
    */
   getById: async (id: string): Promise<Tenant> => {
     try {
-      const { data } = await http.get<any>(`/tenants/${id}`);
-      return mapApiToTenant(data);
+      const { data } = await http.get(`/tenants/${id}`);
+      return mapApiToTenant(data?.data?.tenant);
     } catch (error) {
       console.error("Erro ao buscar inquilino:", error);
       throw new Error("Erro ao buscar inquilino");
@@ -97,32 +80,33 @@ export const tenantApi = {
   },
 
   /**
-   * Criar novo inquilino (com suporte a upload de arquivos)
+   * Criar novo inquilino (com suporte a upload)
    */
   create: async (payload: CreateTenantDTO): Promise<Tenant> => {
     try {
-      // Se tiver arquivos (foto ou documentos), usa FormData
-      const hasFiles = payload.profilePhoto || (payload.documents && payload.documents.length > 0);
-      
+      const hasFiles =
+        payload.profilePhoto ||
+        (payload.documents && payload.documents.length > 0);
+
       if (hasFiles) {
         const formData = createTenantFormData(payload);
-        
-        const { data } = await http.post<any>("/tenants", formData, {
+
+        const { data } = await http.post("/tenants", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
-        return mapApiToTenant(data);
-      } else {
-        // Sem arquivos, envia JSON normal
-        const apiPayload = mapTenantToApi(payload);
-        const { data } = await http.post<any>("/tenants", apiPayload);
-        return mapApiToTenant(data);
+
+        return mapApiToTenant(data?.data?.tenant);
       }
+
+      const apiPayload = mapTenantToApi(payload);
+      const { data } = await http.post("/tenants", apiPayload);
+
+      return mapApiToTenant(data?.data?.tenant);
     } catch (error: any) {
       console.error("Erro ao criar inquilino:", error);
-      const errorMessage = error?.response?.data?.message || "Erro ao criar inquilino";
-      throw new Error(errorMessage);
+      throw new Error(error?.response?.data?.message || "Erro ao criar inquilino");
     }
   },
 
@@ -131,46 +115,11 @@ export const tenantApi = {
    */
   update: async (id: string, payload: UpdateTenantDTO): Promise<Tenant> => {
     try {
-      // Se tiver arquivos, usa FormData
-      const hasFiles = payload.profilePhoto || (payload.documents && payload.documents.length > 0);
-      
-      if (hasFiles) {
-        const formData = new FormData();
-        
-        // Adiciona campos ao FormData
-        Object.entries(payload).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            if (value instanceof File) {
-              formData.append(key, value);
-            } else if (Array.isArray(value) && value.length > 0 && value[0] instanceof File) {
-              value.forEach((file: File) => formData.append(key, file));
-            } else if (typeof value === "number") {
-              formData.append(key, value.toString());
-            } else if (typeof value === "boolean") {
-              formData.append(key, value.toString());
-            } else if (typeof value === "object") {
-              formData.append(key, JSON.stringify(value));
-            } else if (typeof value === "string") {
-              formData.append(key, value);
-            }
-          }
-        });
-        
-        const { data } = await http.put<any>(`/tenants/${id}`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        return mapApiToTenant(data);
-      } else {
-        // Sem arquivos, JSON normal
-        const { data } = await http.put<any>(`/tenants/${id}`, payload);
-        return mapApiToTenant(data);
-      }
+      const { data } = await http.patch(`/tenants/${id}`, payload);
+      return mapApiToTenant(data?.data?.tenant);
     } catch (error: any) {
       console.error("Erro ao atualizar inquilino:", error);
-      const errorMessage = error?.response?.data?.message || "Erro ao atualizar inquilino";
-      throw new Error(errorMessage);
+      throw new Error(error?.response?.data?.message || "Erro ao atualizar inquilino");
     }
   },
 
@@ -187,8 +136,7 @@ export const tenantApi = {
   },
 
   /**
-   * 📎 Upload de documento individual para um inquilino
-   * (Endpoint ainda não implementado no backend)
+   * Upload de documento individual
    */
   uploadDocument: async (
     tenantId: string,
@@ -199,32 +147,29 @@ export const tenantApi = {
       const formData = new FormData();
       formData.append("type", type);
       formData.append("file", file);
-      
-      const { data } = await http.post<any>(
+
+      const { data } = await http.post(
         `/tenants/${tenantId}/documents`,
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
-      return data;
+
+      return data?.data;
     } catch (error: any) {
       console.error("Erro ao fazer upload do documento:", error);
-      const errorMessage = error?.response?.data?.message || "Erro ao fazer upload do documento";
-      throw new Error(errorMessage);
+      throw new Error(error?.response?.data?.message || "Erro ao fazer upload do documento");
     }
   },
 
   /**
-   * 📎 Listar documentos de um inquilino
-   * (Endpoint ainda não implementado no backend)
+   * Listar documentos do inquilino
    */
   getDocuments: async (tenantId: string): Promise<Document[]> => {
     try {
-      const { data } = await http.get<Document[]>(`/tenants/${tenantId}/documents`);
-      return data;
+      const { data } = await http.get(`/tenants/${tenantId}/documents`);
+      return data?.data?.documents || [];
     } catch (error) {
       console.error("Erro ao buscar documentos:", error);
       throw new Error("Erro ao buscar documentos");
@@ -232,8 +177,7 @@ export const tenantApi = {
   },
 
   /**
-   * 📎 Deletar documento
-   * (Endpoint ainda não implementado no backend)
+   * Deletar documento
    */
   deleteDocument: async (tenantId: string, documentId: string): Promise<void> => {
     try {

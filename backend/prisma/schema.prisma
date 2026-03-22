@@ -47,6 +47,15 @@ enum RenterStatus {
   BLOQUEADO
 }
 
+enum DocumentType {
+  CONTRATO
+  RG
+  CPF
+  COMPROVANTE_RENDA
+  COMPROVANTE_ENDERECO
+  OUTRO
+}
+
 //////////////////////////////////////////////////
 // TENANT (IMOBILIÁRIA)
 //////////////////////////////////////////////////
@@ -56,17 +65,21 @@ model Tenant {
   name    String
   cnpj    String? @unique
   phone   String?
-  email   String?
+  email   String? @unique
   logoUrl String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  
+  // Relacionamentos
   users      User[]
   properties Property[]
   renters    Renter[]
   contracts  Contract[]
   payments   Payment[]
+  documents  Document[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([cnpj])
 }
 
 //////////////////////////////////////////////////
@@ -78,19 +91,20 @@ model User {
   name     String
   email    String  @unique
   password String
-  role     String  @default("USER")
+  role     String  @default("USER") // ADMIN, MANAGER, USER
   isActive Boolean @default(true)
-
+  
   tenantId String @db.ObjectId
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   contracts Contract[]
   payments  Payment[]
-
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([tenantId])
+  @@index([email])
 }
 
 //////////////////////////////////////////////////
@@ -105,21 +119,22 @@ model Property {
   city        String?
   state       String?
   zipCode     String?
-
-  price  Float?
-  status PropertyStatus @default(DISPONIVEL)
-
+  price       Float?
+  status      PropertyStatus @default(DISPONIVEL)
+  
   tenantId String @db.ObjectId
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   renters   Renter[]
   contracts Contract[]
-
+  documents Document[]
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([tenantId])
   @@index([status])
+  @@index([city])
 }
 
 //////////////////////////////////////////////////
@@ -128,27 +143,29 @@ model Property {
 
 model Renter {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  fullName    String                    // ← única mudança
+  fullName    String
   email       String?
   phone       String?
   cpf         String? @unique
   documentUrl String?
   notes       String?
-
-  status RenterStatus @default(ATIVO)
-
+  status      RenterStatus @default(ATIVO)
+  
   propertyId String?   @db.ObjectId
-  property   Property? @relation(fields: [propertyId], references: [id])
+  property   Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
 
   tenantId String @db.ObjectId
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   contracts Contract[]
-
+  documents Document[]
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([tenantId])
+  @@index([cpf])
+  @@index([status])
 }
 
 //////////////////////////////////////////////////
@@ -157,33 +174,32 @@ model Renter {
 
 model Contract {
   id             String  @id @default(auto()) @map("_id") @db.ObjectId
-  contractNumber String?
-
+  contractNumber String? @unique
+  
   tenantId String @db.ObjectId
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   propertyId String   @db.ObjectId
-  property   Property @relation(fields: [propertyId], references: [id])
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   renterId String @db.ObjectId
-  renter   Renter @relation(fields: [renterId], references: [id])
+  renter   Renter @relation(fields: [renterId], references: [id], onDelete: Cascade)
 
   userId String @db.ObjectId
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  rentAmount   Float
-  dueDay       Int
-  startDate    DateTime
-  endDate      DateTime?
-  depositValue Float?
-
+  rentAmount    Float
+  dueDay        Int // Dia do mês para vencimento
+  startDate     DateTime
+  endDate       DateTime?
+  depositValue  Float?
   paymentMethod PaymentMethod
   status        ContractStatus @default(DRAFT)
+  notes         String?
 
-  notes String?
-
-  payments Payment[]
-
+  payments  Payment[]
+  documents Document[]
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -191,6 +207,7 @@ model Contract {
   @@index([propertyId])
   @@index([renterId])
   @@index([status])
+  @@index([startDate])
 }
 
 //////////////////////////////////////////////////
@@ -200,23 +217,28 @@ model Contract {
 model Payment {
   id             String        @id @default(auto()) @map("_id") @db.ObjectId
   amount         Float
-  referenceMonth String
+  referenceMonth String // YYYY-MM
   dueDate        DateTime
   paymentDate    DateTime?
   method         PaymentMethod
   status         PaymentStatus @default(PENDENTE)
   receiptUrl     String?
   notes          String?
-
+  
+  // Dias de atraso (calculado automaticamente)
+  daysOverdue    Int           @default(0)
+  
   contractId String   @db.ObjectId
-  contract   Contract @relation(fields: [contractId], references: [id])
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
   tenantId String @db.ObjectId
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   userId String @db.ObjectId
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  documents Document[]
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -224,4 +246,43 @@ model Payment {
   @@index([tenantId])
   @@index([status])
   @@index([referenceMonth])
+  @@index([dueDate])
+}
+
+//////////////////////////////////////////////////
+// DOCUMENT (DOCUMENTO)
+//////////////////////////////////////////////////
+
+model Document {
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  type         DocumentType
+  url          String // URL do S3
+  fileSize     Int          // Tamanho em bytes
+  mimeType     String       // application/pdf, image/jpeg, etc
+  uploadedBy   String       // Email do usuário que fez upload
+  
+  // Relacionamentos opcionais
+  contractId String?  @db.ObjectId
+  contract   Contract? @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  paymentId String?  @db.ObjectId
+  payment   Payment? @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  renterId String?  @db.ObjectId
+  renter   Renter? @relation(fields: [renterId], references: [id], onDelete: Cascade)
+
+  propertyId String?  @db.ObjectId
+  property   Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  tenantId String @db.ObjectId
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([type])
+  @@index([contractId])
+  @@index([paymentId])
 }

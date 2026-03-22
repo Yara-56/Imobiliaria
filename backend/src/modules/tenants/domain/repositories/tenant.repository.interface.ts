@@ -1,4 +1,4 @@
-import { Tenant } from "../entities/tenant.entity.js";
+import { Tenant } from '../entities/tenant.entity.js';
 
 export interface PaginationQuery {
   page?: number;
@@ -18,10 +18,17 @@ export type CreateTenantData = {
   userId?: string;
 };
 
+export type UpdateTenantData = Partial<Omit<CreateTenantData, 'tenantId'>>;
+
 export interface ITenantRepository {
   create(data: CreateTenantData): Promise<Tenant>;
   findAll(tenantId: string, query?: PaginationQuery): Promise<Tenant[]>;
   findById(id: string, tenantId: string): Promise<Tenant | null>;
-  update(id: string, tenantId: string, data: Partial<CreateTenantData>): Promise<Tenant>;
+  findByEmail(email: string, tenantId: string): Promise<Tenant | null>;
+  findByCPF(cpf: string, tenantId: string): Promise<Tenant | null>;
+  update(id: string, tenantId: string, data: UpdateTenantData): Promise<Tenant>;
   delete(id: string, tenantId: string): Promise<void>;
+  count(tenantId: string): Promise<number>;
 }
+
+export const TENANT_REPOSITORY_TOKEN = Symbol('ITenantRepository');

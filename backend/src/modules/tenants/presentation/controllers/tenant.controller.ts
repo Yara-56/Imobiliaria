@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { BaseCrudController } from "../../../../shared/http/base-crud-controller.js";
-import { TenantService } from "../../application/services/tenant.service.js";
+import { TenantService } from "../../services/tenant.service.js";
 import { HttpStatus } from "../../../../shared/errors/http-status.js";
 import { AppError } from "../../../../shared/errors/AppError.js";
 import { logger } from "../../../../shared/utils/logger.js";
