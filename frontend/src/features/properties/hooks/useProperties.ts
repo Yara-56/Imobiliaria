@@ -1,9 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toaster } from "@/components/ui/toaster";
 import { propertiesApi } from "../api/properties.api";
-import type { PropertyUI } from "../types/property";
+import type {
+  PropertyUI,
+  CreatePropertyDTO,
+  UpdatePropertyDTO,
+} from "../types/property";
 
 export const useProperties = (initialFilters = { page: 1, limit: 10 }) => {
   const [properties, setProperties] = useState<PropertyUI[]>([]);
@@ -16,6 +20,7 @@ export const useProperties = (initialFilters = { page: 1, limit: 10 }) => {
 
   const fetchProperties = useCallback(async () => {
     if (abortControllerRef.current) abortControllerRef.current.abort();
+
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
@@ -33,30 +38,51 @@ export const useProperties = (initialFilters = { page: 1, limit: 10 }) => {
     }
   }, [filters]);
 
-  const createProperty = async (data: Partial<PropertyUI>, files: File[] = []) => {
+  const createProperty = async (
+    data: CreatePropertyDTO,
+    files: File[] = []
+  ) => {
     setIsSubmitting(true);
+
     try {
       const result = await propertiesApi.create(data, files);
-      toaster.create({ title: "Imóvel cadastrado com sucesso!", type: "success" });
+      toaster.create({
+        title: "Imóvel cadastrado com sucesso!",
+        type: "success",
+      });
       await fetchProperties();
       return result;
     } catch (err) {
-      toaster.create({ title: "Erro ao salvar imóvel", type: "error" });
+      toaster.create({
+        title: "Erro ao salvar imóvel",
+        type: "error",
+      });
       throw err;
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const updateProperty = async (id: string, data: Partial<PropertyUI>, files: File[] = []) => {
+  const updateProperty = async (
+    id: string,
+    data: UpdatePropertyDTO,
+    files: File[] = []
+  ) => {
     setIsSubmitting(true);
+
     try {
       const result = await propertiesApi.update(id, data, files);
-      toaster.create({ title: "Imóvel atualizado com sucesso!", type: "success" });
+      toaster.create({
+        title: "Imóvel atualizado com sucesso!",
+        type: "success",
+      });
       await fetchProperties();
       return result;
     } catch (err) {
-      toaster.create({ title: "Erro ao atualizar imóvel", type: "error" });
+      toaster.create({
+        title: "Erro ao atualizar imóvel",
+        type: "error",
+      });
       throw err;
     } finally {
       setIsSubmitting(false);
@@ -67,9 +93,15 @@ export const useProperties = (initialFilters = { page: 1, limit: 10 }) => {
     try {
       await propertiesApi.delete(id);
       setProperties((prev) => prev.filter((p) => p.id !== id));
-      toaster.create({ title: "Imóvel removido", type: "success" });
+      toaster.create({
+        title: "Imóvel removido",
+        type: "success",
+      });
     } catch {
-      toaster.create({ title: "Erro ao excluir", type: "error" });
+      toaster.create({
+        title: "Erro ao excluir",
+        type: "error",
+      });
     }
   };
 

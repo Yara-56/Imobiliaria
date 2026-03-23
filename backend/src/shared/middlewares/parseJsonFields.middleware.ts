@@ -1,31 +1,43 @@
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "../errors/AppError.js";
 
-/**
- * Parseia campos do req.body que podem chegar como JSON string
- * (muito comum em multipart/form-data).
- *
- * Ex: address = '{"street":"...","city":"..."}'
- */
 export const parseJsonFields = (fields: string[]) => {
   return (req: Request, _res: Response, next: NextFunction) => {
     try {
       if (!req.body) return next();
 
       for (const field of fields) {
-        const value = (req.body as any)[field];
+        const value = (req.body as Record<string, unknown>)[field];
 
         if (typeof value === "string") {
-          if (value.trim().length === 0) continue;
+          const trimmed = value.trim();
+          if (!trimmed) continue;
 
           try {
-            (req.body as any)[field] = JSON.parse(value);
+            (req.body as Record<string, unknown>)[field] = JSON.parse(trimmed);
           } catch {
             return next(
-              new AppError(
-                `Campo "${field}" deve ser um JSON válido (ex.: {"key":"value"}).`,
-                400
-              )
+              new AppError({
+                message: `Campo "${field}" deve ser um JSON válido.`,
+                statusCode: 400,
+              })
+            );
+          }
+        }
+
+        if (Array.isArray(value)) {
+          try {
+            (req.body as Record<string, unknown>)[field] = value.map((item) => {
+              if (typeof item !== "string") return item;
+              const trimmed = item.trim();
+              return trimmed ? JSON.parse(trimmed) : item;
+            });
+          } catch {
+            return next(
+              new AppError({
+                message: `Campo "${field}" deve conter JSON válido.`,
+                statusCode: 400,
+              })
             );
           }
         }
@@ -33,7 +45,12 @@ export const parseJsonFields = (fields: string[]) => {
 
       return next();
     } catch (err: any) {
-      return next(new AppError(err?.message || "Erro ao processar dados.", 400));
+      return next(
+        new AppError({
+          message: err?.message || "Erro ao processar dados.",
+          statusCode: 400,
+        })
+      );
     }
   };
 };

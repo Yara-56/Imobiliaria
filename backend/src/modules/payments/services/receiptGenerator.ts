@@ -13,7 +13,6 @@ interface GenerateReceiptParams {
 
 /**
  * 🎯 Tipo profissional do payload do Prisma
- * Isso elimina TODOS os erros de "never"
  */
 type PaymentWithRelations = Prisma.PaymentGetPayload<{
   include: {
@@ -32,7 +31,6 @@ export class ReceiptGeneratorService {
    * 🚀 Gera recibo inteligente baseado no contrato
    */
   static async generate({ paymentId, outputDir }: GenerateReceiptParams) {
-    // 🔎 Busca pagamento com tipagem forte
     const payment: PaymentWithRelations | null =
       await prisma.payment.findUnique({
         where: { id: paymentId },
@@ -58,30 +56,31 @@ export class ReceiptGeneratorService {
     const { contract } = payment;
     const { renter, property, tenant } = contract;
 
-    // ✅ DATA DE PAGAMENTO
     const paidAt = payment.paymentDate
       ? new Date(payment.paymentDate).toLocaleDateString("pt-BR")
       : "—";
 
-    // 💰 formatação de moeda
     const formatMoney = (value: number) =>
       value.toLocaleString("pt-BR", {
         style: "currency",
         currency: "BRL",
       });
 
-    // 📄 conteúdo do recibo
+    const formattedAddress = property
+      ? `${property.street}, ${property.number} - ${property.neighborhood}, ${property.city}/${property.state} - CEP ${property.zipCode}`
+      : "—";
+
     const receiptText = `
 ===============================
         RECIBO DE PAGAMENTO
 ===============================
 
 🏢 Imobiliária: ${tenant?.name ?? "—"}
-👤 Inquilino: ${renter?.name ?? "—"}
+👤 Inquilino: ${renter?.fullName ?? "—"}
 📄 CPF: ${renter?.cpf ?? "—"}
 
-🏠 Imóvel: ${property?.title ?? "—"}
-📍 Endereço: ${property?.address ?? "—"}
+🏠 Imóvel: ${property?.name ?? "—"}
+📍 Endereço: ${formattedAddress}
 
 📅 Referência: ${payment.referenceMonth}
 💰 Valor pago: ${formatMoney(payment.amount)}
@@ -94,18 +93,15 @@ export class ReceiptGeneratorService {
 Este recibo foi gerado automaticamente.
     `.trim();
 
-    // 📁 diretório de saída
     const dir =
       outputDir ??
       path.resolve(process.cwd(), "storage", "receipts");
 
     await fs.mkdir(dir, { recursive: true });
 
-    // 🧾 nome do arquivo
     const fileName = `recibo-${payment.id}.txt`;
     const filePath = path.join(dir, fileName);
 
-    // 💾 salva arquivo
     await fs.writeFile(filePath, receiptText, "utf-8");
 
     return {

@@ -1,19 +1,21 @@
 import { Request, Response, NextFunction } from "express";
-import { z, ZodError, type ZodSchema } from "zod";
+import { ZodError, type ZodSchema } from "zod";
 import { AppError } from "../errors/AppError.js";
 
 export const validate =
   (schema: ZodSchema) =>
   async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
-      // Validação assíncrona e higienização de dados
       const validated = (await schema.parseAsync({
         body: req.body,
         query: req.query,
         params: req.params,
-      })) as { body: any; query: any; params: any };
+      })) as {
+        body: any;
+        query: any;
+        params: any;
+      };
 
-      // Substituição pelos dados validados (proteção contra campos extras)
       req.body = validated.body;
       req.query = validated.query;
       req.params = validated.params;
@@ -30,8 +32,14 @@ export const validate =
           })
           .join(" | ");
 
-        return next(new AppError(message, 400));
+        return next(
+          new AppError({
+            message,
+            statusCode: 400,
+          })
+        );
       }
-      next(error);
+
+      return next(error);
     }
   };

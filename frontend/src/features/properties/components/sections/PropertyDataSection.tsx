@@ -1,6 +1,15 @@
 "use client";
 
-import { Box, Flex, Heading, Text, SimpleGrid, Input, Stack, NativeSelect } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  Text,
+  SimpleGrid,
+  Input,
+  Stack,
+  NativeSelect,
+} from "@chakra-ui/react";
 import { LuUser } from "react-icons/lu";
 import type { PropertyFormValues } from "../PropertyForm";
 
@@ -12,12 +21,31 @@ export default function PropertyDataSection({
   onChange: (patch: Partial<PropertyFormValues>) => void;
 }) {
   return (
-    <Box bg="white" borderRadius="24px" shadow="sm" borderWidth="1px" borderColor="gray.100" overflow="hidden">
-      <Flex align="center" gap={2} px={6} py={4} borderBottomWidth="1px" borderColor="gray.100" bg="gray.50/50">
+    <Box
+      bg="white"
+      borderRadius="24px"
+      shadow="sm"
+      borderWidth="1px"
+      borderColor="gray.100"
+      overflow="hidden"
+    >
+      <Flex
+        align="center"
+        gap={2}
+        px={6}
+        py={4}
+        borderBottomWidth="1px"
+        borderColor="gray.100"
+        bg="gray.50/50"
+      >
         <LuUser />
         <Stack gap={0}>
-          <Heading size="sm" fontWeight="800">Dados do imóvel</Heading>
-          <Text fontSize="xs" color="gray.500">Preencha os dados principais do cadastro.</Text>
+          <Heading size="sm" fontWeight="800">
+            Dados do imóvel
+          </Heading>
+          <Text fontSize="xs" color="gray.500">
+            Preencha os dados principais do cadastro.
+          </Text>
         </Stack>
       </Flex>
 
@@ -25,8 +53,8 @@ export default function PropertyDataSection({
         <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
           <Input
             placeholder="Nome do imóvel (ex: Casa - Centro)"
-            value={values.title}
-            onChange={(e) => onChange({ title: e.target.value })}
+            value={values.name}
+            onChange={(e) => onChange({ name: e.target.value })}
             borderRadius="xl"
             h="48px"
           />
@@ -46,7 +74,7 @@ export default function PropertyDataSection({
             borderRadius="xl"
             h="48px"
           />
-          
+
           <Input
             placeholder="CEP"
             value={values.cep}
@@ -88,21 +116,27 @@ export default function PropertyDataSection({
           />
 
           <NativeSelect.Root size="md">
-                <NativeSelect.Field
-                value={values.status}
-                onChange={(e) => onChange({ status: e.currentTarget.value as any })}
-                style={{ height: 48, borderRadius: 12, paddingLeft: 12, paddingRight: 12 }}
-    >
-                <option value="Disponível">Disponível</option>
-                <option value="Alugado">Alugado</option>
-                <option value="Vendido">Vendido</option>
-                <option value="Manutenção">Manutenção</option>
-                </NativeSelect.Field>
-            </NativeSelect.Root>
+            <NativeSelect.Field
+              value={values.status}
+              onChange={(e) =>
+                onChange({
+                  status: e.currentTarget.value as PropertyFormValues["status"],
+                })
+              }
+              style={{
+                height: 48,
+                borderRadius: 12,
+                paddingLeft: 12,
+                paddingRight: 12,
+              }}
+            >
+              <option value="Disponível">Disponível</option>
+              <option value="Alugado">Alugado</option>
+              <option value="Manutenção">Manutenção</option>
+              <option value="Inativo">Inativo</option>
+            </NativeSelect.Field>
+          </NativeSelect.Root>
         </SimpleGrid>
-
-        {/* Botão “Editar” do seu print não é necessário no create.
-            Se quiser, dá pra colocar um “Limpar campos” aqui depois. */}
       </Box>
     </Box>
   );

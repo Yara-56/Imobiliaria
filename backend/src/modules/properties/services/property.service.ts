@@ -1,4 +1,4 @@
-import { prisma } from "../../../config/database.config.js"; 
+import { prisma } from "../../../config/database.config.js";
 import { AppError } from "../../../shared/errors/AppError.js";
 import { HttpStatus } from "../../../shared/errors/http-status.js";
 import {
@@ -6,32 +6,90 @@ import {
   type UpdatePropertyInput,
 } from "../schemas/property.schema.js";
 
+type InputDocument = {
+  id?: string;
+  fileName?: string;
+  originalName?: string;
+  fileUrl?: string;
+  storageKey?: string;
+  mimeType?: string | null;
+  size?: number | null;
+  filename?: string;
+  url?: string;
+};
+
+type UpdatePropertyWithExistingDocuments = UpdatePropertyInput & {
+  existingDocuments?: Array<{ id?: string }>;
+};
+
+const normalizeDocuments = (documents?: InputDocument[]) => {
+  if (!documents || documents.length === 0) return undefined;
+
+  const normalized = documents
+    .map((doc) => {
+      const fileName =
+        doc.fileName?.trim() ||
+        doc.filename?.trim() ||
+        doc.originalName?.trim() ||
+        "documento";
+
+      const fileUrl = doc.fileUrl?.trim() || doc.url?.trim() || "";
+
+      // ✅ Apenas campos que existem no schema do Prisma
+      return {
+        fileName,
+        fileUrl,
+        mimeType: doc.mimeType ?? null,
+        size: typeof doc.size === "number" ? doc.size : null,
+      };
+    })
+    .filter((doc) => doc.fileUrl.length > 0);
+
+  return normalized.length > 0 ? normalized : undefined;
+};
+
 export const PropertyService = {
-  /**
-   * ➕ CRIAR IMÓVEL
-   * Correção: Garantindo que o objeto 'address' seja passado corretamente para o Prisma
-   */
   async createProperty(data: CreatePropertyInput, tenantId: string) {
     try {
+      const documents = normalizeDocuments(data.documents);
+
       return await prisma.property.create({
         data: {
-          ...data,
+          name: data.name,
+          city: data.city,
+          state: data.state,
+          zipCode: data.zipCode,
+          street: data.street,
+          neighborhood: data.neighborhood,
+          number: data.number,
+          sqls: data.sqls,
+          status: data.status ?? "DISPONIVEL",
           tenantId,
-          // Se o seu Prisma pede 'address' como um campo JSON ou sub-objeto:
-          address: data.address as any, 
+          ...(documents
+            ? {
+                documents: {
+                  create: documents.map((doc) => ({
+                    fileName: doc.fileName,
+                    fileUrl: doc.fileUrl,
+                    mimeType: doc.mimeType ?? null,
+                    size: doc.size ?? null,
+                  })),
+                },
+              }
+            : {}),
+        },
+        include: {
+          documents: true,
         },
       });
     } catch (error: any) {
       throw new AppError({
-        message: `Erro ao salvar no banco: ${error.message}`,
+        message: `Erro ao salvar imóvel no banco: ${error.message}`,
         statusCode: HttpStatus.BAD_REQUEST,
       });
     }
   },
 
-  /**
-   * 📄 LISTAR IMÓVEIS (Com Paginação)
-   */
   async getAllProperties(
     tenantId: string,
     filters: { page?: number; limit?: number } = {}
@@ -45,8 +103,13 @@ export const PropertyService = {
         orderBy: { createdAt: "desc" },
         take: limit,
         skip: (page - 1) * limit,
+        include: {
+          documents: true,
+        },
       }),
-      prisma.property.count({ where: { tenantId } }),
+      prisma.property.count({
+        where: { tenantId },
+      }),
     ]);
 
     return {
@@ -60,12 +123,12 @@ export const PropertyService = {
     };
   },
 
-  /**
-   * 🔍 BUSCAR POR ID
-   */
   async getPropertyById(id: string, tenantId: string) {
     const property = await prisma.property.findFirst({
       where: { id, tenantId },
+      include: {
+        documents: true,
+      },
     });
 
     if (!property) {
@@ -78,46 +141,115 @@ export const PropertyService = {
     return property;
   },
 
-  /**
-   * ✏️ ATUALIZAR IMÓVEL
-   */
   async updateProperty(id: string, data: UpdatePropertyInput, tenantId: string) {
-    // ⚠️ Importante: Removemos o tenantId do data para não tentar atualizar a chave de segurança
-    const { ...updateFields } = data;
+    try {
+      const existingProperty = await prisma.property.findFirst({
+        where: { id, tenantId },
+        select: { id: true },
+      });
 
-    const result = await prisma.property.updateMany({
-      where: { id, tenantId },
-      data: { 
-        ...updateFields,
-        address: updateFields.address ? (updateFields.address as any) : undefined 
-      },
-    });
+      if (!existingProperty) {
+        throw new AppError({
+          message: "Imóvel não encontrado para edição.",
+          statusCode: HttpStatus.NOT_FOUND,
+        });
+      }
 
-    if (result.count === 0) {
+      const payload = data as UpdatePropertyWithExistingDocuments;
+      const newDocuments = normalizeDocuments(data.documents);
+
+      const keepIds = Array.isArray(payload.existingDocuments)
+        ? payload.existingDocuments
+            .map((doc) => doc?.id)
+            .filter((docId): docId is string => Boolean(docId))
+        : [];
+
+      const hasDocumentChanges =
+        data.documents !== undefined ||
+        payload.existingDocuments !== undefined;
+
+      return await prisma.$transaction(async (tx) => {
+        if (hasDocumentChanges) {
+          await tx.propertyDocument.deleteMany({
+            where:
+              keepIds.length > 0
+                ? { propertyId: id, id: { notIn: keepIds } }
+                : { propertyId: id },
+          });
+
+          if (newDocuments && newDocuments.length > 0) {
+            await tx.propertyDocument.createMany({
+              data: newDocuments.map((doc) => ({
+                // ✅ Campos explícitos — sem spread
+                fileName: doc.fileName,
+                fileUrl: doc.fileUrl,
+                mimeType: doc.mimeType ?? null,
+                size: doc.size ?? null,
+                propertyId: id,
+              })),
+            });
+          }
+        }
+
+        return await tx.property.update({
+          where: { id },
+          data: {
+            name: data.name,
+            city: data.city,
+            state: data.state,
+            zipCode: data.zipCode,
+            street: data.street,
+            neighborhood: data.neighborhood,
+            number: data.number,
+            sqls: data.sqls,
+            status: data.status,
+          },
+          include: {
+            documents: true,
+          },
+        });
+      });
+    } catch (error: any) {
+      if (error instanceof AppError) throw error;
+
       throw new AppError({
-        message: "Imóvel não encontrado para edição.",
-        statusCode: HttpStatus.NOT_FOUND,
+        message: `Erro ao atualizar imóvel: ${error.message}`,
+        statusCode: HttpStatus.BAD_REQUEST,
       });
     }
-
-    return await this.getPropertyById(id, tenantId);
   },
 
-  /**
-   * 🗑️ DELETAR IMÓVEL
-   */
   async deleteProperty(id: string, tenantId: string) {
-    const result = await prisma.property.deleteMany({
-      where: { id, tenantId },
-    });
+    try {
+      const existingProperty = await prisma.property.findFirst({
+        where: { id, tenantId },
+        select: { id: true },
+      });
 
-    if (result.count === 0) {
+      if (!existingProperty) {
+        throw new AppError({
+          message: "Imóvel não encontrado para exclusão.",
+          statusCode: HttpStatus.NOT_FOUND,
+        });
+      }
+
+      await prisma.$transaction([
+        prisma.propertyDocument.deleteMany({
+          where: { propertyId: id },
+        }),
+        prisma.property.deleteMany({
+          where: { id, tenantId },
+        }),
+      ]);
+
+      return true;
+    } catch (error: any) {
+      if (error instanceof AppError) throw error;
+
       throw new AppError({
-        message: "Imóvel não encontrado para exclusão.",
-        statusCode: HttpStatus.NOT_FOUND,
+        message: `Erro ao excluir imóvel: ${error.message}`,
+        statusCode: HttpStatus.BAD_REQUEST,
       });
     }
-
-    return true;
   },
 };

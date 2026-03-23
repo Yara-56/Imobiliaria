@@ -1,72 +1,130 @@
-import { Request, Response, NextFunction } from "express";
-// ✅ Caminho corrigido para 3 níveis conforme sua árvore de pastas
-import { prisma } from "../../../config/database.config.js"; 
-import { AppError } from "../../../shared/errors/AppError.js";
+import type { Request, Response, NextFunction } from "express";
+import { PropertyService } from "../services/property.service.js";
 import { HttpStatus } from "../../../shared/errors/http-status.js";
 
-/**
- * 📄 LISTAR TODOS OS IMÓVEIS
- * Retorna apenas os imóveis pertencentes à imobiliária do usuário logado.
- */
+type UploadedFileLike = {
+  originalname?: string;
+  filename?: string;
+  mimetype?: string;
+  size?: number;
+  path?: string;
+};
+
+const normalizeUploadedDocuments = (req: Request) => {
+  const files = req.files;
+
+  if (!files) return [];
+
+  const mapFileToDocument = (file: UploadedFileLike) => {
+    const savedFileName =
+      file.filename?.trim() ||
+      file.originalname?.trim() ||
+      "documento";
+
+    return {
+      // ✅ Apenas campos que existem no schema do Prisma
+      fileName: file.originalname?.trim() || savedFileName,
+      fileUrl: `/uploads/properties/${savedFileName}`,
+      mimeType: file.mimetype ?? null,
+      size: typeof file.size === "number" ? file.size : null,
+    };
+  };
+
+  if (Array.isArray(files)) {
+    return files.map(mapFileToDocument);
+  }
+
+  if ("documents" in files && Array.isArray(files.documents)) {
+    return files.documents.map(mapFileToDocument);
+  }
+
+  return [];
+};
+
+const normalizeBodyDocuments = (documents: unknown) => {
+  if (!documents) return [];
+  if (Array.isArray(documents)) return documents;
+
+  if (typeof documents === "string") {
+    try {
+      const parsed = JSON.parse(documents);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  return [];
+};
+
+const normalizeExistingDocuments = (existingDocuments: unknown) => {
+  if (!existingDocuments) return undefined;
+
+  if (typeof existingDocuments === "string") {
+    try {
+      const parsed = JSON.parse(existingDocuments);
+      return Array.isArray(parsed) ? parsed : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  if (Array.isArray(existingDocuments)) return existingDocuments;
+
+  return undefined;
+};
+
 export const getAllProperties = async (
-  req: Request, 
-  res: Response, 
+  req: Request,
+  res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    const properties = await prisma.property.findMany({
-      where: { tenantId: req.user.tenantId },
-      orderBy: { createdAt: 'desc' }
+    const result = await PropertyService.getAllProperties(req.user.tenantId, {
+      page: req.query.page ? Number(req.query.page) : undefined,
+      limit: req.query.limit ? Number(req.query.limit) : undefined,
     });
 
     res.status(HttpStatus.OK).json({
       status: "success",
-      results: properties.length,
-      data: { properties }
+      results: result.properties.length,
+      pagination: result.pagination,
+      data: {
+        properties: result.properties,
+      },
     });
   } catch (error) {
     next(error);
   }
 };
 
-/**
- * ➕ CRIAR IMÓVEL
- */
 export const createProperty = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { title, address, price, status, description, type } = req.body;
+    const uploadedDocuments = normalizeUploadedDocuments(req);
+    const bodyDocuments = normalizeBodyDocuments(req.body.documents);
 
-    const property = await prisma.property.create({
-      data: {
-        title,
-        address,
-        price,
-        status,
-        description,
-        type,
-        tenantId: req.user.tenantId, // 🛡️ Vínculo obrigatório com o Tenant
+    const property = await PropertyService.createProperty(
+      {
+        ...req.body,
+        documents:
+          uploadedDocuments.length > 0 ? uploadedDocuments : bodyDocuments,
       },
-    });
+      req.user.tenantId
+    );
 
     res.status(HttpStatus.CREATED).json({
       status: "success",
-      data: { property }
+      data: { property },
     });
-  } catch (error: any) {
-    next(new AppError({ 
-      message: `Erro ao criar imóvel: ${error.message}`, 
-      statusCode: HttpStatus.BAD_REQUEST 
-    }));
+  } catch (error) {
+    next(error);
   }
 };
 
-/**
- * 🔍 BUSCAR IMÓVEL POR ID
- */
 export const getPropertyById = async (
   req: Request,
   res: Response,
@@ -75,32 +133,20 @@ export const getPropertyById = async (
   try {
     const { id } = req.params;
 
-    const property = await prisma.property.findFirst({
-      where: { 
-        id, 
-        tenantId: req.user.tenantId // 🛡️ Garante que não veja imóveis de outros tenants
-      }
-    });
-
-    if (!property) {
-      throw new AppError({ 
-        message: "Imóvel não encontrado ou você não tem permissão.", 
-        statusCode: HttpStatus.NOT_FOUND 
-      });
-    }
+    const property = await PropertyService.getPropertyById(
+      id,
+      req.user.tenantId
+    );
 
     res.status(HttpStatus.OK).json({
       status: "success",
-      data: { property }
+      data: { property },
     });
   } catch (error) {
     next(error);
   }
 };
 
-/**
- * ✏️ ATUALIZAR IMÓVEL
- */
 export const updateProperty = async (
   req: Request,
   res: Response,
@@ -108,38 +154,35 @@ export const updateProperty = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const updateData = req.body;
+    const uploadedDocuments = normalizeUploadedDocuments(req);
+    const bodyDocuments = normalizeBodyDocuments(req.body.documents);
 
-    // No Prisma + MongoDB/SQL, usamos updateMany para filtrar por ID e Tenant simultaneamente
-    const updateResult = await prisma.property.updateMany({
-      where: { 
-        id, 
-        tenantId: req.user.tenantId 
+    // ✅ Processa existingDocuments separadamente do body
+    const existingDocuments = normalizeExistingDocuments(
+      req.body.existingDocuments
+    );
+
+    const property = await PropertyService.updateProperty(
+      id,
+      {
+        ...req.body,
+        documents:
+          uploadedDocuments.length > 0 ? uploadedDocuments : bodyDocuments,
+        // ✅ Passa existingDocuments explicitamente
+        existingDocuments,
       },
-      data: updateData
-    });
-
-    if (updateResult.count === 0) {
-      throw new AppError({ 
-        message: "Imóvel não encontrado para atualização.", 
-        statusCode: HttpStatus.NOT_FOUND 
-      });
-    }
-
-    const updatedProperty = await prisma.property.findUnique({ where: { id } });
+      req.user.tenantId
+    );
 
     res.status(HttpStatus.OK).json({
       status: "success",
-      data: { property: updatedProperty }
+      data: { property },
     });
   } catch (error) {
     next(error);
   }
 };
 
-/**
- * 🗑️ DELETAR IMÓVEL
- */
 export const deleteProperty = async (
   req: Request,
   res: Response,
@@ -148,19 +191,7 @@ export const deleteProperty = async (
   try {
     const { id } = req.params;
 
-    const deleteResult = await prisma.property.deleteMany({
-      where: { 
-        id, 
-        tenantId: req.user.tenantId 
-      }
-    });
-
-    if (deleteResult.count === 0) {
-      throw new AppError({ 
-        message: "Imóvel não encontrado para exclusão.", 
-        statusCode: HttpStatus.NOT_FOUND 
-      });
-    }
+    await PropertyService.deleteProperty(id, req.user.tenantId);
 
     res.status(HttpStatus.NO_CONTENT).send();
   } catch (error) {

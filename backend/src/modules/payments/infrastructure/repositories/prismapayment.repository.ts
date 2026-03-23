@@ -1,5 +1,4 @@
-// ✅ Mudamos o import de '@/shared/...' para o caminho relativo correto
-import { prisma } from "../../../../config/database.config.js"; 
+import { prisma } from "../../../../config/database.config.js";
 
 import {
   IPaymentRepository,
@@ -11,11 +10,10 @@ import {
 import {
   Payment,
   PaymentStatus,
-  PAYMENT_STATUS, // Adicionado para garantir o default no create
+  PAYMENT_STATUS,
 } from "../../domain/entities/payment.entity.js";
 
 export class PrismaPaymentRepository implements IPaymentRepository {
-  // ✅ CREATE
   async create(data: CreatePaymentData): Promise<Payment> {
     const result = await prisma.payment.create({
       data: {
@@ -36,7 +34,6 @@ export class PrismaPaymentRepository implements IPaymentRepository {
     return result as Payment;
   }
 
-  // ✅ LIST (Com relações para evitar UI vazia)
   async findAll(tenantId: string, query?: PaginationQuery): Promise<Payment[]> {
     const page = Number(query?.page ?? 1);
     const limit = Number(query?.limit ?? 10);
@@ -47,8 +44,24 @@ export class PrismaPaymentRepository implements IPaymentRepository {
       include: {
         contract: {
           include: {
-            property: { select: { address: true } },
-            renter: { select: { name: true } },
+            property: {
+              select: {
+                id: true,
+                name: true,
+                street: true,
+                number: true,
+                neighborhood: true,
+                city: true,
+                state: true,
+                zipCode: true,
+              },
+            },
+            renter: {
+              select: {
+                id: true,
+                fullName: true,
+              },
+            },
           },
         },
       },
@@ -60,7 +73,6 @@ export class PrismaPaymentRepository implements IPaymentRepository {
     return results as Payment[];
   }
 
-  // ✅ GET BY ID
   async findById(id: string, tenantId: string): Promise<Payment | null> {
     const result = await prisma.payment.findFirst({
       where: { id, tenantId },
@@ -69,16 +81,15 @@ export class PrismaPaymentRepository implements IPaymentRepository {
     return result as Payment | null;
   }
 
-  // ✅ UPDATE STATUS (SaaS Safe: ID + TenantID no WHERE)
   async updateStatus(
-    id: string, 
-    tenantId: string, 
+    id: string,
+    tenantId: string,
     status: PaymentStatus
   ): Promise<Payment> {
     const updated = await prisma.payment.update({
-      where: { 
+      where: {
         id,
-        tenantId // Segurança: impede que um tenant altere dados de outro
+        tenantId,
       },
       data: { status },
     });
@@ -86,17 +97,15 @@ export class PrismaPaymentRepository implements IPaymentRepository {
     return updated as Payment;
   }
 
-  // ✅ DELETE (SaaS Safe)
   async delete(id: string, tenantId: string): Promise<void> {
     await prisma.payment.delete({
-      where: { 
+      where: {
         id,
-        tenantId 
+        tenantId,
       },
     });
   }
 
-  // ✅ HISTÓRICO
   async createHistory(data: CreatePaymentHistoryData): Promise<void> {
     console.log("🧾 Registro de Histórico:", data);
   }

@@ -56,14 +56,13 @@ export const api = axios.create({
   timeout: API_TIMEOUT,
   withCredentials: true,
   headers: {
-    "Content-Type": "application/json",
+    Accept: "application/json",
   },
 });
 
 /**
  * ====================================================
  * Interceptor de REQUEST
- * Injeta o token automaticamente
  * ====================================================
  */
 
@@ -75,6 +74,10 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    if (config.data instanceof FormData && config.headers) {
+      delete config.headers["Content-Type"];
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -83,7 +86,6 @@ api.interceptors.request.use(
 /**
  * ====================================================
  * Interceptor de RESPONSE
- * Tratamento global de erros
  * ====================================================
  */
 
@@ -92,9 +94,10 @@ api.interceptors.response.use(
     return response;
   },
   (error: AxiosError<{ message?: string }>) => {
-    /**
-     * Sessão expirada
-     */
+    if (error.code === "ERR_CANCELED" || axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401) {
       removeToken();
 
@@ -105,9 +108,6 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    /**
-     * Servidor offline
-     */
     if (!error.response) {
       console.error("Servidor indisponível");
 
@@ -116,9 +116,6 @@ api.interceptors.response.use(
       );
     }
 
-    /**
-     * Mensagem retornada pela API
-     */
     const mensagem =
       error.response.data?.message ||
       "Erro interno no servidor.";
@@ -132,7 +129,6 @@ api.interceptors.response.use(
 /**
  * ====================================================
  * Métodos auxiliares
- * Facilita uso no projeto
  * ====================================================
  */
 
@@ -140,23 +136,17 @@ export const http = {
   get: <T = unknown>(url: string, params?: object) =>
     api.get<T>(url, { params }).then((res) => res.data),
 
-  post: <T = unknown>(url: string, data?: object) =>
+  post: <T = unknown>(url: string, data?: unknown) =>
     api.post<T>(url, data).then((res) => res.data),
 
-  put: <T = unknown>(url: string, data?: object) =>
+  put: <T = unknown>(url: string, data?: unknown) =>
     api.put<T>(url, data).then((res) => res.data),
 
-  patch: <T = unknown>(url: string, data?: object) =>
+  patch: <T = unknown>(url: string, data?: unknown) =>
     api.patch<T>(url, data).then((res) => res.data),
 
   delete: <T = unknown>(url: string) =>
     api.delete<T>(url).then((res) => res.data),
 };
-
-/**
- * ====================================================
- * Export default
- * ====================================================
- */
 
 export default api;

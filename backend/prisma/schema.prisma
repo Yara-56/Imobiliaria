@@ -98,22 +98,23 @@ model User {
 //////////////////////////////////////////////////
 
 model Property {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  description String?
-  address     String
-  city        String?
-  state       String?
-  zipCode     String?
-
-  price  Float?
-  status PropertyStatus @default(DISPONIVEL)
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  city         String
+  state        String
+  zipCode      String
+  street       String
+  neighborhood String
+  number       String
+  sqls         String
+  status       PropertyStatus @default(DISPONIVEL)
 
   tenantId String @db.ObjectId
   tenant   Tenant @relation(fields: [tenantId], references: [id])
 
   renters   Renter[]
   contracts Contract[]
+  documents PropertyDocument[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -123,12 +124,33 @@ model Property {
 }
 
 //////////////////////////////////////////////////
+// PROPERTY DOCUMENT (DOCUMENTOS DO IMÓVEL)
+//////////////////////////////////////////////////
+
+model PropertyDocument {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  fileName     String
+  originalName String?
+  fileUrl      String
+  storageKey   String?
+  mimeType     String?
+  size         Int?
+
+  propertyId String   @db.ObjectId
+  property   Property @relation(fields: [propertyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([propertyId])
+}
+
+//////////////////////////////////////////////////
 // RENTER (INQUILINO)
 //////////////////////////////////////////////////
 
 model Renter {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  fullName    String                    // ← única mudança
+  fullName    String
   email       String?
   phone       String?
   cpf         String? @unique
@@ -188,7 +210,7 @@ model Contract {
   updatedAt DateTime @updatedAt
 
   @@index([tenantId])
-  @@index([propertyId])
+  @@index([propertyId]) 
   @@index([renterId])
   @@index([status])
 }

@@ -45,10 +45,10 @@ export default function PropertiesListPage() {
     if (!q) return properties;
 
     return properties.filter((p: any) => {
-      const title = (p.title ?? "").toLowerCase();
+      const name = (p.name ?? "").toLowerCase();
       const status = (p.status ?? "").toLowerCase();
       const address = (p.address ?? "").toLowerCase();
-      return title.includes(q) || status.includes(q) || address.includes(q);
+      return name.includes(q) || status.includes(q) || address.includes(q);
     });
   }, [properties, search]);
 
@@ -140,7 +140,6 @@ export default function PropertiesListPage() {
           <Table.Header>
             <Table.Row bg="gray.50/50">
               <Table.ColumnHeader py={4}>Propriedade</Table.ColumnHeader>
-              <Table.ColumnHeader py={4}>Valor</Table.ColumnHeader>
               <Table.ColumnHeader py={4}>Status</Table.ColumnHeader>
               <Table.ColumnHeader py={4} textAlign="right">
                 Ações
@@ -163,19 +162,12 @@ export default function PropertiesListPage() {
                       <LuHouse size={20} />
                     </Center>
                     <Stack gap={0}>
-                      <Text fontWeight="bold">{prop.title}</Text>
+                      <Text fontWeight="bold">{prop.name}</Text>
                       <Text fontSize="xs" color="gray.400">
                         {prop.address}
                       </Text>
                     </Stack>
                   </Flex>
-                </Table.Cell>
-
-                <Table.Cell fontWeight="bold">
-                  {new Intl.NumberFormat("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  }).format(prop.price)}
                 </Table.Cell>
 
                 <Table.Cell>
@@ -254,7 +246,7 @@ export default function PropertiesListPage() {
 
             <Dialog.Body>
               <Text color="gray.600">
-                Tem certeza que deseja excluir <b>{deleting?.title ?? "este imóvel"}</b>?
+                Tem certeza que deseja excluir <b>{deleting?.name ?? "este imóvel"}</b>?
                 Essa ação não pode ser desfeita.
               </Text>
             </Dialog.Body>

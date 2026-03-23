@@ -4,95 +4,65 @@
  * ======================================================
  */
 
-/**
- * Status do imóvel — espelha o enum do backend (PropertyStatus)
- */
 export type PropertyStatus =
   | "DISPONIVEL"
   | "ALUGADO"
   | "MANUTENCAO"
   | "INATIVO";
 
-/**
- * Status em português para exibição na UI
- */
 export type PropertyStatusPT =
   | "Disponível"
   | "Alugado"
   | "Manutenção"
   | "Inativo";
 
-/**
- * Tipo do imóvel
- */
-export type PropertyType =
-  | "CASA"
-  | "APARTAMENTO"
-  | "COMERCIAL"
-  | "TERRENO"
-  | "SALA"
-  | "GALPAO";
-
-export type PropertyTypePT =
-  | "Casa"
-  | "Apartamento"
-  | "Comercial"
-  | "Terreno"
-  | "Sala"
-  | "Galpão";
-
-/**
- * Mapeamentos bidirecional status ↔ PT
- */
 export const PROPERTY_STATUS_MAP: Record<PropertyStatus, PropertyStatusPT> = {
   DISPONIVEL: "Disponível",
-  ALUGADO:    "Alugado",
+  ALUGADO: "Alugado",
   MANUTENCAO: "Manutenção",
-  INATIVO:    "Inativo",
+  INATIVO: "Inativo",
 };
 
 export const PROPERTY_STATUS_MAP_REVERSE: Record<PropertyStatusPT, PropertyStatus> = {
   "Disponível": "DISPONIVEL",
-  "Alugado":    "ALUGADO",
+  "Alugado": "ALUGADO",
   "Manutenção": "MANUTENCAO",
-  "Inativo":    "INATIVO",
-};
-
-export const PROPERTY_TYPE_MAP: Record<PropertyType, PropertyTypePT> = {
-  CASA:        "Casa",
-  APARTAMENTO: "Apartamento",
-  COMERCIAL:   "Comercial",
-  TERRENO:     "Terreno",
-  SALA:        "Sala",
-  GALPAO:      "Galpão",
+  "Inativo": "INATIVO",
 };
 
 /**
  * Documento anexado ao imóvel
+ * Compatível com backend atual e formatos legados
  */
 export interface PropertyDocument {
-  id: string;
-  name: string;
-  url: string;
+  id?: string;
+  fileName?: string;
+  fileUrl?: string;
+  mimeType?: string | null;
+  size?: number | null;
   createdAt?: string;
+  originalName?: string;
+  filename?: string;
+  url?: string;
 }
 
 /**
- * Entidade completa retornada pela API
+ * Entidade crua da API
+ * Alinhada com o backend atual
  */
 export interface Property {
   id: string;
-  title: string;
-  description?: string;
-  address: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  price?: number;
+  name: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  street: string;
+  neighborhood: string;
+  number: string;
+  sqls: string;
   status: PropertyStatus;
-  type?: PropertyType;
-  documents?: PropertyDocument[];
   tenantId: string;
+  documents?: PropertyDocument[];
   createdAt: string;
   updatedAt?: string;
 }
@@ -101,38 +71,40 @@ export interface Property {
  * DTO para criação
  */
 export interface CreatePropertyDTO {
-  title: string;
-  description?: string;
-  address: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  price?: number;
+  name: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  street: string;
+  neighborhood: string;
+  number: string;
+  sqls: string;
   status?: PropertyStatus;
-  type?: PropertyType;
 }
 
 /**
  * DTO para atualização parcial
  */
-export type UpdatePropertyDTO = Partial<CreatePropertyDTO>;
+export type UpdatePropertyDTO = Partial<CreatePropertyDTO> & {
+  documents?: PropertyDocument[];
+};
 
 /**
- * Modelo de exibição na UI (tabelas, cards, listas)
- * Campos pré-formatados para evitar lógica nos componentes
+ * Modelo de exibição da UI
  */
 export interface PropertyUI {
   id: string;
-  title: string;
-  addressText: string;    // "Rua X, 123 - Bairro, Cidade/UF"
-  cep?: string;
-  price: number;
-  priceFormatted: string; // "R$ 2.500,00"
+  name: string;
+  addressText: string;
+  cep: string;
+  city: string;
+  state: string;
+  street: string;
+  neighborhood: string;
+  number: string;
+  sqls: string;
   status: PropertyStatusPT;
   statusRaw: PropertyStatus;
-  type: PropertyTypePT;
-  typeRaw?: PropertyType;
-  description?: string;
   documents?: PropertyDocument[];
   createdAt?: string;
 }

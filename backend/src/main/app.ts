@@ -1,4 +1,5 @@
-import express, { Application, Request, Response } from "express";
+import express, { Application } from "express";
+import path from "node:path";
 import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
@@ -7,7 +8,7 @@ import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
 
 import { apiRouter } from "./routes.js";
-import { errorMiddleware } from "../shared/middlewares/error.middleware.js"; 
+import { errorMiddleware } from "../shared/middlewares/error.middleware.js";
 import { requestIdMiddleware } from "../shared/middlewares/request-id.middleware.js";
 import { env } from "../config/env.js";
 
@@ -29,26 +30,34 @@ const allowedOrigins = [
   env.FRONTEND_URL,
   "http://localhost:5173",
   "http://127.0.0.1:5173",
-  "http://192.168.2.170:5173" // Adicionado o IP que apareceu nos seus logs
+  "http://192.168.2.170:5173",
 ];
 
-app.use(cors({ 
-  origin: (origin, callback) => {
-    // Em desenvolvimento, liberamos se não houver origin (ex: mobile) ou se estiver na lista
-    if (!origin || env.NODE_ENV === "development" || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  }, 
-  credentials: true 
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Em desenvolvimento, liberamos se não houver origin (ex.: mobile/postman)
+      // ou se a origin estiver na lista permitida
+      if (!origin || env.NODE_ENV === "development" || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
+// --- 📁 ARQUIVOS ESTÁTICOS (UPLOADS) ---
+// Isso expõe a pasta backend/uploads em /uploads
+// Ex.: http://localhost:5050/uploads/properties/arquivo.pdf
+const uploadsDir = path.resolve(process.cwd(), "uploads");
+app.use("/uploads", express.static(uploadsDir));
 
 // --- 🚀 ROTAS ---
-// O prefixo "/api" aqui faz com que o caminho final seja /api/v1/...
 app.use("/api", apiRouter);
 
-// Health Check profissional
+// --- 🩺 HEALTH CHECK ---
 app.get("/api/v1/health", (_req, res) => {
   res.status(200).json({ status: "ok", env: env.NODE_ENV });
 });
