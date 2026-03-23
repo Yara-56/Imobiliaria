@@ -5,6 +5,10 @@ import { Outlet } from "react-router-dom";
 import { ColorModeButton } from "../components/ui/color-mode";
 import { FluidBackground } from "../components/global/FluidBackground";
 import { useSystemStatus } from "../context/SystemStatusContext";
+import Sidebar from "../components/shared/Sidebar";
+
+import { AdminSections } from "@/core/config/admin.sections";
+import { LuHouse } from "react-icons/lu";
 
 interface MainLayoutProps {
   children?: React.ReactNode;
@@ -23,85 +27,92 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const current = statusMap[status];
 
   return (
-    <Box
-      minH="100vh"
-      position="relative"
-      display="flex"
-      flexDirection="column"
-      overflow="hidden"
-    >
-      {/* 🌊 FUNDO FLUIDO */}
+    <Flex minH="100vh" overflow="hidden">
+
+      {/* BACKGROUND */}
       <FluidBackground />
 
-      {/* 🔝 HEADER */}
-      <Flex
-        w="full"
-        px={6}
-        py={4}
-        justify="space-between"
-        align="center"
-        borderBottom="1px solid rgba(0,0,0,0.05)"
-        bg="whiteAlpha.700"
-        backdropFilter="blur(14px)"
-        position="sticky"
-        top={0}
-        zIndex="docked"
+      {/* SIDEBAR */}
+      <Box
+        w={{ base: "70px", md: "260px" }}
+        bg="whiteAlpha.800"
+        backdropFilter="blur(20px)"
+        borderRight="1px solid rgba(0,0,0,0.05)"
       >
-        {/* LOGO + STATUS */}
-        <Flex align="center" gap={3}>
-          <Text
-            fontSize="xl"
-            fontWeight="900"
-            letterSpacing="tight"
-            color="blue.600"
-          >
-            Imobi
-            <Text as="span" color="gray.800" _dark={{ color: "white" }}>
-              Sys
+        <Sidebar
+          sections={AdminSections}
+          logo={{
+            icon: LuHouse,
+            text: "Imobi",
+            accent: "Sys",
+          }}
+          footer={
+            <Text
+              fontSize="sm"
+              color="red.500"
+              cursor="pointer"
+              p={3}
+              onClick={() => {
+                localStorage.clear();
+                window.location.href = "/login";
+              }}
+            >
+              Sair
             </Text>
-          </Text>
+          }
+        />
+      </Box>
 
-          {/* STATUS AO VIVO */}
-          <Flex align="center" gap={2}>
-            <Box
-              w="6px"
-              h="6px"
-              borderRadius="full"
-              bg={current.color}
-              boxShadow={`0 0 8px ${current.color}`}
-            />
-            <Text fontSize="xs" color="gray.500">
-              {current.label}
+      {/* MAIN */}
+      <Flex direction="column" flex="1">
+
+        {/* HEADER */}
+        <Flex
+          px={6}
+          py={4}
+          justify="space-between"
+          align="center"
+          borderBottom="1px solid rgba(0,0,0,0.05)"
+          bg="whiteAlpha.700"
+          backdropFilter="blur(14px)"
+        >
+          <Flex align="center" gap={4}>
+            <Text fontSize="lg" fontWeight="900" color="blue.600">
+              Imobi
+              <Text as="span" color="gray.800">
+                Sys
+              </Text>
             </Text>
+
+            <Flex align="center" gap={2}>
+              <Box
+                w="6px"
+                h="6px"
+                borderRadius="full"
+                bg={current.color}
+              />
+              <Text fontSize="xs">{current.label}</Text>
+            </Flex>
           </Flex>
-        </Flex>
 
-        {/* AÇÕES */}
-        <Flex align="center" gap={4}>
           <ColorModeButton />
         </Flex>
+
+        {/* CONTENT */}
+        <Box flex="1">
+          <Container maxW="7xl" py={8}>
+            {children || <Outlet />}
+          </Container>
+        </Box>
+
+        {/* FOOTER */}
+        <Box py={4} textAlign="center">
+          <Text fontSize="xs">
+            © {new Date().getFullYear()} ImobiSys Pro
+          </Text>
+        </Box>
       </Flex>
-
-      {/* 📦 CONTEÚDO */}
-      <Box flex="1" position="relative">
-        <Container maxW="7xl" py={{ base: 6, md: 8 }}>
-          {children || <Outlet />}
-        </Container>
-      </Box>
-
-      {/* 🔻 FOOTER */}
-      <Box
-        py={5}
-        textAlign="center"
-        borderTop="1px solid rgba(0,0,0,0.05)"
-        bg="whiteAlpha.600"
-        backdropFilter="blur(10px)"
-      >
-        <Text fontSize="xs" color="gray.500" fontWeight="medium">
-          © {new Date().getFullYear()} ImobiSys Pro • Sistema em tempo real
-        </Text>
-      </Box>
-    </Box>
+    </Flex>
   );
 };
 

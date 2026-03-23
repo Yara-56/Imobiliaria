@@ -3,25 +3,29 @@
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "rootDir": "./", 
+
+    "rootDir": "./src",
     "outDir": "./dist",
 
-    // Remova o baseUrl se não for estritamente necessário ou use assim:
+    /* 🔥 ESSENCIAL PARA ALIAS */
+    "baseUrl": "./",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"]
     },
 
+    /* QUALIDADE */
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "sourceMap": true,
-    "ignoreDeprecations": "5.0", // Silencia o aviso do baseUrl se decidir mantê-lo
 
+    /* NODE */
     "lib": ["ES2022"],
     "types": ["node"]
   },
-  "include": ["src/**/*", "prisma/seed.ts"],
+
+  "include": ["src", "prisma"],
   "exclude": ["node_modules", "dist"]
 }

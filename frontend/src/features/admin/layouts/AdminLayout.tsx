@@ -12,7 +12,7 @@ import {
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { LuHouse, LuLogOut } from "react-icons/lu";
 
-import { Sidebar } from "../../../components/shared/Sidebar";
+import Sidebar from "../../../components/shared/Sidebar"; // ✅ corrigido
 import { AdminSections } from "@/core/config/admin.sections";
 
 export const AdminLayout = () => {
@@ -31,6 +31,7 @@ export const AdminLayout = () => {
 
   return (
     <Flex h="100vh" w="100vw" bg="#FAFBFC" overflow="hidden">
+      
       {/* SIDEBAR */}
       <Sidebar
         sections={AdminSections}
@@ -59,8 +60,9 @@ export const AdminLayout = () => {
         }
       />
 
-      {/* CONTEÚDO PRINCIPAL */}
+      {/* CONTEÚDO */}
       <Box flex={1} display="flex" flexDirection="column" overflow="hidden">
+        
         {/* HEADER */}
         <Flex
           h="72px"
@@ -70,23 +72,17 @@ export const AdminLayout = () => {
           justify="space-between"
           borderBottom="1px solid"
           borderColor="gray.100"
-          boxShadow="0 1px 3px rgba(0,0,0,0.02)"
         >
-          <Heading
-            size="md"
-            color="slate.800"
-            fontWeight="800"
-            letterSpacing="-0.5px"
-          >
+          <Heading size="md" fontWeight="800">
             {currentPage}
           </Heading>
 
           <Flex align="center" gap={3}>
-            <Box textAlign="right" display={{ base: "none", sm: "block" }}>
-              <Text fontSize="14px" fontWeight="700" color="slate.800">
+            <Box textAlign="right">
+              <Text fontSize="14px" fontWeight="700">
                 Yara Oliveira
               </Text>
-              <Text fontSize="12px" color="gray.500" fontWeight="500">
+              <Text fontSize="12px" color="gray.500">
                 Administradora
               </Text>
             </Box>
@@ -95,37 +91,18 @@ export const AdminLayout = () => {
               w="42px"
               h="42px"
               borderRadius="full"
-              bg="linear-gradient(135deg, #3B82F6, #2563EB)"
-              fontWeight="700"
+              bg="blue.500"
               color="white"
-              fontSize="15px"
-              boxShadow="0 4px 14px rgba(59, 130, 246, 0.25)"
-              cursor="pointer"
-              _hover={{ transform: "scale(1.05)" }}
-              transition="transform 0.2s"
+              fontWeight="700"
             >
               YO
             </Center>
           </Flex>
         </Flex>
 
-        {/* CONTEÚDO */}
-        <Box
-          flex={1}
-          overflowY="auto"
-          p={{ base: 4, md: 8 }}
-          bg="#FAFBFC"
-          css={{
-            "&::-webkit-scrollbar": { width: "8px" },
-            "&::-webkit-scrollbar-track": { background: "transparent" },
-            "&::-webkit-scrollbar-thumb": {
-              background: "#CBD5E0",
-              borderRadius: "4px",
-            },
-            "&::-webkit-scrollbar-thumb:hover": { background: "#A0AEC0" },
-          }}
-        >
-          <Container maxW="7xl" p={0}>
+        {/* PAGE */}
+        <Box flex={1} overflowY="auto" p={8}>
+          <Container maxW="7xl">
             <Outlet />
           </Container>
         </Box>

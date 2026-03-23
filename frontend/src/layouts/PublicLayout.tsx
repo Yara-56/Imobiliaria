@@ -1,21 +1,15 @@
 "use client";
 
-import { Box, Flex, Text, Container } from "@chakra-ui/react";
+import { Box, Flex, Text, Container, Button } from "@chakra-ui/react";
 import { Outlet, Link as RouterLink } from "react-router-dom";
 import { ColorModeButton } from "../components/ui/color-mode";
-import { HStack } from "../components/ui/Stack";
 import { FluidBackground } from "../components/global/FluidBackground";
 
 const PublicLayout: React.FC = () => {
   return (
-    <Box
-      minH="100vh"
-      position="relative"
-      display="flex"
-      flexDirection="column"
-      overflow="hidden"
-    >
-      {/* 🌊 FUNDO FLUIDO GLOBAL */}
+    <Flex minH="100vh" direction="column" position="relative" overflow="hidden">
+      
+      {/* 🌊 BACKGROUND */}
       <FluidBackground />
 
       {/* 🔝 HEADER */}
@@ -23,17 +17,17 @@ const PublicLayout: React.FC = () => {
         as="header"
         position="sticky"
         top={0}
-        zIndex="docked"
+        zIndex={20}
         borderBottom="1px solid rgba(0,0,0,0.05)"
         bg="whiteAlpha.700"
         backdropFilter="blur(14px)"
       >
         <Container maxW="6xl" py={4}>
           <Flex justify="space-between" align="center">
-            
+
             {/* LOGO */}
             <RouterLink to="/" style={{ textDecoration: "none" }}>
-              <Flex align="center" gap={2}>
+              <Flex align="center" gap={3}>
                 <Text
                   fontSize="xl"
                   fontWeight="900"
@@ -41,24 +35,24 @@ const PublicLayout: React.FC = () => {
                   color="blue.600"
                 >
                   Imobi
-                  <Text as="span" color="gray.800">
+                  <Text as="span" color="gray.800" _dark={{ color: "white" }}>
                     Sys
                   </Text>
                 </Text>
 
-                {/* indicador online */}
+                {/* STATUS ONLINE */}
                 <Box
                   w="6px"
                   h="6px"
-                  bg="green.400"
                   borderRadius="full"
-                  boxShadow="0 0 8px rgba(34,197,94,0.6)"
+                  bg="green.400"
+                  boxShadow="0 0 10px rgba(34,197,94,0.7)"
                 />
               </Flex>
             </RouterLink>
 
             {/* MENU */}
-            <HStack gap={6}>
+            <Flex align="center" gap={6}>
               <RouterLink to="/login">
                 <Text
                   fontSize="sm"
@@ -74,22 +68,62 @@ const PublicLayout: React.FC = () => {
                 </Text>
               </RouterLink>
 
+              <RouterLink to="/register">
+                <Button
+                  size="sm"
+                  colorScheme="blue"
+                  borderRadius="full"
+                >
+                  Começar
+                </Button>
+              </RouterLink>
+
               <ColorModeButton />
-            </HStack>
+            </Flex>
           </Flex>
         </Container>
       </Box>
 
-      {/* 📦 CONTEÚDO */}
-      <Box as="main" flex="1" position="relative">
-        <Container maxW="6xl" py={{ base: 6, md: 10 }}>
-          <Outlet />
+      {/* 🧠 HERO / CONTEÚDO */}
+      <Box flex="1" display="flex" alignItems="center">
+        <Container maxW="6xl" py={{ base: 10, md: 16 }}>
+          
+          {/* HERO TEXT */}
+          <Flex direction="column" gap={6} maxW="600px">
+            <Text
+              fontSize={{ base: "3xl", md: "5xl" }}
+              fontWeight="900"
+              lineHeight="1.1"
+            >
+              Gerencie seus imóveis com
+              <Text as="span" color="blue.600"> inteligência real</Text>
+            </Text>
+
+            <Text fontSize="lg" color="gray.500">
+              Plataforma moderna para controle completo de imóveis, clientes e finanças em tempo real.
+            </Text>
+
+            {/* CTA */}
+            <Flex gap={4}>
+              <RouterLink to="/register">
+                <Button size="lg" colorScheme="blue" borderRadius="xl">
+                  Começar agora
+                </Button>
+              </RouterLink>
+
+              <RouterLink to="/login">
+                <Button size="lg" variant="ghost">
+                  Já tenho conta
+                </Button>
+              </RouterLink>
+            </Flex>
+          </Flex>
+
         </Container>
       </Box>
 
       {/* 🔻 FOOTER */}
       <Box
-        as="footer"
         borderTop="1px solid rgba(0,0,0,0.05)"
         py={6}
         bg="whiteAlpha.600"
@@ -99,12 +133,12 @@ const PublicLayout: React.FC = () => {
           textAlign="center"
           fontSize="xs"
           color="gray.500"
-          fontWeight="medium"
         >
-          © {new Date().getFullYear()} ImobiSys Pro — Sistema inteligente em tempo real
+          © {new Date().getFullYear()} ImobiSys Pro — Plataforma SaaS moderna
         </Text>
       </Box>
-    </Box>
+
+    </Flex>
   );
 };
 
