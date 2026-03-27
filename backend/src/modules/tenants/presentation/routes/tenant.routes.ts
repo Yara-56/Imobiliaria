@@ -6,7 +6,7 @@ import path from "path";
 import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import PDFDocument from "pdfkit";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/infrastructure/database/prisma.client";
 
 const router = Router();
 

@@ -1,29 +1,41 @@
 {
   "compilerOptions": {
+    /* 🔥 BASE */
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
 
+    /* ✅ BACKEND ESTÁVEL */
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+
+    /* ⚠️ REMOVE WARNINGS DO TS 6 */
+    "ignoreDeprecations": "6.0",
+
+    /* 📁 ESTRUTURA */
     "rootDir": "./src",
     "outDir": "./dist",
 
-    /* 🔥 ESSENCIAL PARA ALIAS */
-    "baseUrl": "./",
+    /* 🔥 ALIAS (FUNCIONANDO COM TSX) */
+    "baseUrl": "./src",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["*"],
+      "@modules/*": ["modules/*"],
+      "@shared/*": ["shared/*"],
+      "@infra/*": ["infrastructure/*"]
     },
 
-    /* QUALIDADE */
+    /* ⚙️ QUALIDADE */
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "sourceMap": true,
 
-    /* NODE */
+    /* 🧠 NODE */
     "lib": ["ES2022"],
-    "types": ["node"]
+    "types": ["node"],
+
+    /* 🚀 PERFORMANCE */
+    "incremental": true
   },
 
   "include": ["src", "prisma"],

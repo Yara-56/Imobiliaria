@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "API Backend - Imobiliária Yara Enterprise",
-  "type": "module",
+  "type": "commonjs",
   "main": "src/server.ts",
 
   "scripts": {
