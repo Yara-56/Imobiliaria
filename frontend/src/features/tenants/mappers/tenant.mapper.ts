@@ -17,7 +17,7 @@ const DEFAULT_SETTINGS: TenantSettings = {
   },
 };
 
-/**
+/** 
  * Garante que o objeto de configurações nunca seja nulo ou incompleto.
  */
 export const normalizeSettings = (

@@ -4,7 +4,7 @@ import authRoutes from "../modules/auth/routes/auth.routes.js";
 import tenantRoutes from "../modules/tenants/presentation/routes/tenant.routes.js";
 import propertyRoutes from "../modules/properties/routes/property.routes.js";
 import contractRoutes from "../modules/contracts/routes/contract.routes.js";
-import paymentRoutes from "../modules/payments/routes/payment.routes.js";
+import paymentRoutes from "../modules/payments/presentation/routes/payment.routes.js";
 
 export const apiRouter = Router();
 

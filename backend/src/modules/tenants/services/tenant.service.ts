@@ -1,5 +1,5 @@
-import { ITenantRepository, CreateTenantData, UpdateTenantData } from '../../domain/repositories/tenant.repository.interface';
-import { Tenant } from '../../domain/entities/tenant.entity';
+import { ITenantRepository, CreateTenantData, UpdateTenantData } from '../domain/repositories/tenant.repository.interface';
+import { Tenant } from '../domain/entities/tenant.entity';
 import { createLogger } from '../../../core/logger/logger';
 import { AppError } from '../../../shared/errors/AppError';
 import { HttpStatus } from '../../../shared/errors/http-status';

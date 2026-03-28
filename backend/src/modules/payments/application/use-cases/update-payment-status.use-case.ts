@@ -8,7 +8,7 @@ import {
 import { AppError } from "../../../../shared/errors/AppError.js";
 import { HttpStatus } from "../../../../shared/errors/http-status.js";
 import { ErrorCodes } from "../../../../shared/errors/error-codes.js";
-import { ReceiptGeneratorService } from "../../services/payment-receipt.service.js";
+import { PaymentReceiptService } from "../payment-receipt.service.js";
 
 export class UpdatePaymentStatusUseCase {
   constructor(private readonly repo: IPaymentRepository) {}
@@ -19,7 +19,7 @@ export class UpdatePaymentStatusUseCase {
     status: PaymentStatus
   ): Promise<Payment> {
     // ─────────────────────────────────────────────
-    // 1️⃣ validar status (runtime safe)
+    // 1️⃣ Validar status
     // ─────────────────────────────────────────────
     if (!isValidPaymentStatus(status)) {
       throw new AppError({
@@ -30,7 +30,7 @@ export class UpdatePaymentStatusUseCase {
     }
 
     // ─────────────────────────────────────────────
-    // 2️⃣ buscar pagamento atual
+    // 2️⃣ Buscar pagamento
     // ─────────────────────────────────────────────
     const existingPayment = await this.repo.findById(id, tenantId);
 
@@ -43,14 +43,14 @@ export class UpdatePaymentStatusUseCase {
     }
 
     // ─────────────────────────────────────────────
-    // 3️⃣ evitar atualização desnecessária
+    // 3️⃣ Evitar atualização desnecessária
     // ─────────────────────────────────────────────
     if (existingPayment.status === status) {
       return existingPayment;
     }
 
     // ─────────────────────────────────────────────
-    // 4️⃣ atualizar status
+    // 4️⃣ Atualizar status
     // ─────────────────────────────────────────────
     const updatedPayment = await this.repo.updateStatus(
       id,
@@ -59,7 +59,7 @@ export class UpdatePaymentStatusUseCase {
     );
 
     // ─────────────────────────────────────────────
-    // 5️⃣ registrar histórico (opcional)
+    // 5️⃣ Registrar histórico (não quebra o fluxo)
     // ─────────────────────────────────────────────
     try {
       await this.repo.createHistory?.({
@@ -72,18 +72,14 @@ export class UpdatePaymentStatusUseCase {
       console.warn("⚠️ Histórico não registrado:", err);
     }
 
-    // a─────────────────────────────────────────────
-    // 🚀 6️⃣ REGRA DE NEGÓCIO PRINCIPAL
-    // gerar recibo automaticamente quando pago
+    // ─────────────────────────────────────────────
+    // 🚀 6️⃣ Gerar recibo automaticamente ao pagar
     // ─────────────────────────────────────────────
     if (status === PAYMENT_STATUS.PAGO) {
       try {
-        await ReceiptGeneratorService.generate({
-          paymentId: updatedPayment.id,
-        });
+        await PaymentReceiptService.generateReceipt(updatedPayment.id);
       } catch (err) {
         console.error("❌ Erro ao gerar recibo:", err);
-        // não quebra o fluxo principal
       }
     }
 

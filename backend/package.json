@@ -35,6 +35,7 @@
     "pino": "^9.0.0",
     "pino-http": "^9.0.0",
     "pix-utils": "^2.8.2",
+    "playwright": "^1.58.2",
     "prisma": "^6.7.0",
     "qrcode": "^1.5.4",
     "swagger-jsdoc": "^6.2.8",

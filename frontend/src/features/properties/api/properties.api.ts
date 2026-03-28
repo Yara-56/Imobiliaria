@@ -1,183 +1,112 @@
 import api from "@/core/api/httpClient";
 
-import type {
-  PropertyUI,
-  PropertyStatus,
-  PropertyType,
-  CreatePropertyDTO,
-  UpdatePropertyDTO,
-} from "../types/property";
-
 import {
-  PROPERTY_STATUS_MAP,
-  PROPERTY_STATUS_MAP_REVERSE,
-  PROPERTY_TYPE_MAP,
-} from "../types/property";
+  mapApiToProperty as mapToUI,
+  mapPropertyToApi as mapToApi
+} from "@/features/properties/mappers/properties.mapper";
+
+import type { Property, PropertyUI } from "../types/property";
 
 /**
- * ======================================================
- * 📦 Padrão de resposta da API
- * ======================================================
+ * Extrai um campo seguro do response da API
  */
-interface ApiResponse {
-  status?: string;
-  data: any;
-  results?: number;
-  meta?: unknown;
+function extract<T>(res: any, field: string): T {
+  return res?.data?.data?.[field];
 }
 
-/**
- * ======================================================
- * 🔄 Normalização — Backend → Frontend
- * ======================================================
- */
-const mapToUI = (p: any): PropertyUI => ({
-  id:             p.id ?? p._id,
-  title:          p.title,
-  addressText:    [p.address, p.city, p.state].filter(Boolean).join(", "),
-  cep:            p.zipCode,
-  price:          p.price ?? 0,
-  priceFormatted: new Intl.NumberFormat("pt-BR", {
-    style:    "currency",
-    currency: "BRL",
-  }).format(p.price ?? 0),
-  status:      PROPERTY_STATUS_MAP[p.status as PropertyStatus] ?? "Disponível",
-  statusRaw:   (p.status as PropertyStatus) ?? "DISPONIVEL",
-  type:        PROPERTY_TYPE_MAP[p.type as PropertyType]   ?? "Casa",
-  typeRaw:     p.type,
-  description: p.description,
-  documents:   p.documents ?? [],
-  createdAt:   p.createdAt,
-});
-
-/**
- * ======================================================
- * 🔄 Normalização — Frontend → Backend
- * ======================================================
- */
-const mapToApi = (payload: Partial<PropertyUI>): Record<string, unknown> => ({
-  title:       payload.title,
-  address:     payload.addressText,
-  zipCode:     payload.cep,
-  price:       payload.price,
-  status:      payload.status
-    ? PROPERTY_STATUS_MAP_REVERSE[payload.status]
-    : undefined,
-  type:        payload.typeRaw ?? payload.type,
-  description: payload.description,
-});
-
-/**
- * ======================================================
- * 📎 Extrai lista de qualquer formato de resposta
- * ======================================================
- */
-const extractList = (data: any): PropertyUI[] => {
-  const raw =
-    data?.data?.properties ??
-    data?.data ??
-    data ??
-    [];
-  return Array.isArray(raw) ? raw.map(mapToUI) : [];
-};
-
-/**
- * ======================================================
- * 📎 Monta FormData para uploads com arquivos
- * ======================================================
- */
-const buildFormData = (
-  body: Record<string, unknown>,
-  files: File[],
-  fileField = "documents"
-): FormData => {
-  const form = new FormData();
-
-  Object.entries(body).forEach(([k, v]) => {
-    if (v == null) return;
-    form.append(k, String(v));
-  });
-
-  files.forEach((f) => form.append(fileField, f));
-
-  return form;
-};
-
-/**
- * ======================================================
- * 🏠 Properties API
- * ======================================================
- */
 export const propertiesApi = {
-
   /**
-   * 📄 Listar imóveis
+   * Lista propriedades
    */
-  list: async (
-    params?: { page?: number; limit?: number; status?: string },
-    signal?: AbortSignal
-  ): Promise<PropertyUI[]> => {
-    const response = await api.get<ApiResponse>("/properties", {
-      params,
-      signal,
-    });
-    return extractList(response.data);
+  async list(params?: any): Promise<PropertyUI[]> {
+    const res = await api.get("/properties", { params });
+
+    // Corrigido — tipagem explícita
+    const list = extract<Property[]>(res, "properties") ?? [];
+
+    return list.map(mapToUI);
   },
 
   /**
-   * 🔎 Buscar por ID
+   * Busca por ID
    */
-  getById: async (id: string): Promise<PropertyUI | null> => {
-    const response = await api.get<ApiResponse>(`/properties/${id}`);
-    const raw =
-      response.data?.data?.property ??
-      response.data?.data;
-    return raw ? mapToUI(raw) : null;
+  async getById(id: string): Promise<PropertyUI | null> {
+    const res = await api.get(`/properties/${id}`);
+
+    // Corrigido — tipagem explícita
+    const item = extract<Property>(res, "property");
+
+    return item ? mapToUI(item) : null;
   },
 
   /**
-   * ➕ Criar imóvel
+   * Cria propriedade
    */
-  create: async (
+  async create(
     payload: Partial<PropertyUI>,
     files: File[] = []
-  ): Promise<PropertyUI> => {
+  ): Promise<PropertyUI> {
     const body = mapToApi(payload);
 
-    const response = files.length > 0
-      ? await api.post<ApiResponse>("/properties", buildFormData(body, files))
-      : await api.post<ApiResponse>("/properties", body);
+    // Se tem arquivos → usa FormData
+    let data: any = body;
 
-    const raw =
-      response.data?.data?.property ??
-      response.data?.data;
-    return mapToUI(raw);
+    if (files.length > 0) {
+      const form = new FormData();
+
+      Object.entries(body).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          form.append(key, value as any);
+        }
+      });
+
+      files.forEach((file) => form.append("documents", file));
+
+      data = form;
+    }
+
+    const res = await api.post("/properties", data);
+    const item = extract<Property>(res, "property");
+
+    return mapToUI(item);
   },
 
   /**
-   * ✏️ Atualizar imóvel
+   * Atualiza propriedade
    */
-  update: async (
+  async update(
     id: string,
     payload: Partial<PropertyUI>,
     files: File[] = []
-  ): Promise<PropertyUI> => {
+  ): Promise<PropertyUI> {
     const body = mapToApi(payload);
 
-    const response = files.length > 0
-      ? await api.patch<ApiResponse>(`/properties/${id}`, buildFormData(body, files))
-      : await api.patch<ApiResponse>(`/properties/${id}`, body);
+    let data: any = body;
 
-    const raw =
-      response.data?.data?.property ??
-      response.data?.data;
-    return mapToUI(raw);
+    if (files.length > 0) {
+      const form = new FormData();
+
+      Object.entries(body).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          form.append(key, value as any);
+        }
+      });
+
+      files.forEach((file) => form.append("documents", file));
+
+      data = form;
+    }
+
+    const res = await api.patch(`/properties/${id}`, data);
+    const item = extract<Property>(res, "property");
+
+    return mapToUI(item);
   },
 
   /**
-   * ❌ Remover imóvel
+   * Remove propriedade
    */
-  delete: async (id: string): Promise<void> => {
+  async delete(id: string): Promise<void> {
     await api.delete(`/properties/${id}`);
-  },
+  }
 };
