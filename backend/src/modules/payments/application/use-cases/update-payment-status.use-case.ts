@@ -8,7 +8,7 @@ import {
 import { AppError } from "../../../../shared/errors/AppError.js";
 import { HttpStatus } from "../../../../shared/errors/http-status.js";
 import { ErrorCodes } from "../../../../shared/errors/error-codes.js";
-import { ReceiptGeneratorService } from "../../services/receiptGenerator.js";
+import { ReceiptGeneratorService } from "../../services/payment-receipt.service.js";
 
 export class UpdatePaymentStatusUseCase {
   constructor(private readonly repo: IPaymentRepository) {}

@@ -211,6 +211,7 @@ router.post("/", upload.single("profilePhoto"), async (req: Request, res: Respon
       },
       include: {
         documents: true,
+        
       },
     });
 

@@ -1,40 +1,32 @@
 {
   "compilerOptions": {
-    /* 🔥 BASE */
     "target": "ES2022",
-
-    /* ✅ BACKEND ESTÁVEL */
     "module": "CommonJS",
     "moduleResolution": "Node",
 
-    /* ⚠️ REMOVE WARNINGS DO TS 6 */
     "ignoreDeprecations": "6.0",
 
-    /* 📁 ESTRUTURA */
     "rootDir": "./src",
     "outDir": "./dist",
 
-    /* 🔥 ALIAS (FUNCIONANDO COM TSX) */
     "baseUrl": "./src",
     "paths": {
       "@/*": ["*"],
       "@modules/*": ["modules/*"],
       "@shared/*": ["shared/*"],
-      "@infra/*": ["infrastructure/*"]
+      "@infra/*": ["modules/*"]
     },
 
-    /* ⚙️ QUALIDADE */
+    "typeRoots": ["./src/@types", "./node_modules/@types"],
+    "types": ["node"],
+
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "sourceMap": true,
 
-    /* 🧠 NODE */
     "lib": ["ES2022"],
-    "types": ["node"],
-
-    /* 🚀 PERFORMANCE */
     "incremental": true
   },
 

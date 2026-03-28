@@ -1,21 +1,37 @@
 import { Router } from "express";
-import {
-  getContracts,
-  createContract,
-  getContractById,
-  updateContractStatus,
-  deleteContract,
-} from "../controllers/contract.controller.js";
-import { protect } from "../../../shared/middlewares/auth.middleware.js";
+import { protect } from "@/shared/middlewares/auth.middleware";
+import { validateContractCreation } from "../../contracts/presentation/validators/contract.validator";
+import { ContractController } from "../controllers/ContractController";
 
 const router = Router();
+const controller = new ContractController();
 
+// 🔐 Proteção global (JWT + tenantId + RBAC opcional)
 router.use(protect);
 
-router.get("/", getContracts);
-router.post("/", createContract);
-router.get("/:id", getContractById);
-router.patch("/:id/status", updateContractStatus); // ✅ patch para atualizar só o status
-router.delete("/:id", deleteContract);
+/**
+ * ==========================================================
+ *  🔵 FLUXO DO MÓDULO CONTRACTS
+ * ==========================================================
+ */
+
+// GET /contracts → Lista todos os contratos do tenant
+router.get("/", controller.getAll.bind(controller));
+
+// POST /contracts → Cria contrato completo
+router.post(
+  "/",
+  validateContractCreation,
+  controller.create.bind(controller)
+);
+
+// GET /contracts/:id → Detalhes do contrato
+router.get("/:id", controller.getById.bind(controller));
+
+// PATCH /contracts/:id/status → Atualiza status
+router.patch("/:id/status", controller.updateStatus.bind(controller));
+
+// DELETE /contracts/:id → Remove contrato
+router.delete("/:id", controller.delete.bind(controller));
 
 export default router;

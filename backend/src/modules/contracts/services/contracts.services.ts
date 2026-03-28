@@ -1,69 +1,154 @@
-import Contract, { IContract } from "../models/contract.model.js";
-import { AppError } from "@shared/errors/AppError.js"; // ✅ Usando Alias profissional
+// src/modules/contracts/application/contract.service.ts
+
+import { AppError } from "@/shared/errors/AppError";
+import { logger } from "@/shared/utils/logger";
+
+import { ContractRepository } from "@/modules/contracts/infra/repositories/contract.repository";
+import { DocumentGeneratorService } from "@/modules/contracts/infra/document/document-generator.service";
+import { DigitalSignatureService } from "@/modules/contracts/infra/signature/digital-signature.service";
+
+import { IContract, IContractInput } from "@/modules/contracts/domain/contract.types";
 
 /**
- * Service de Contratos
- * Camada de Regra de Negócio com Isolamento de Dados (Multi-tenancy)
+ * Serviço de negócios do módulo de Contratos
  */
-export const ContractService = {
-  /**
-   * Lista contratos garantindo o isolamento
-   */
-  async getAllContracts(ownerId: string): Promise<IContract[]> {
-    // Filtramos sempre pelo owner para garantir que um admin não veja dados de outro
-    return await Contract.find({ owner: ownerId })
-      .sort({ createdAt: -1 })
-      .lean(); // ✅ Melhora performance ao retornar objetos JS puros
-  },
+export class ContractService {
+  private contractRepo = new ContractRepository();
 
-  /**
-   * Cria um novo contrato vinculado ao admin logado
-   */
-  async createNewContract(
-    data: Partial<IContract>,
-    ownerId: string
+  async getAllContracts(tenantId: string): Promise<IContract[]> {
+    logger.debug({ msg: "Listando contratos", tenantId });
+
+    if (!tenantId) throw new AppError("Tenant inválido.", 401);
+
+    return this.contractRepo.findAll(tenantId);
+  }
+
+  async createContract(
+    data: IContractInput,
+    tenantId: string,
+    userId: string
   ): Promise<IContract> {
-    // Sobrescrevemos o owner com o ID vindo do token (Segurança contra Injeção)
-    return await Contract.create({
-      ...data,
-      owner: ownerId,
+    logger.info({
+      msg: "Criando contrato",
+      tenantId,
+      userId,
+      payload: data,
     });
-  },
 
-  /**
-   * Busca um contrato específico com validação de posse
-   */
-  async getContractById(id: string, ownerId: string): Promise<IContract> {
-    const contract = await Contract.findOne({ _id: id, owner: ownerId }).lean();
-
-    if (!contract) {
-      throw new AppError("Contrato não encontrado ou acesso negado.", 404);
+    if (!tenantId || !userId) {
+      throw new AppError("Usuário ou tenant inválido.", 401);
     }
 
-    return contract as IContract;
-  },
+    const normalized: IContractInput = {
+      ...data,
+      startDate: new Date(data.startDate),
+      endDate: data.endDate ? new Date(data.endDate) : null,
+      rentAmount: Number(data.rentAmount),
+      dueDay: Number(data.dueDay),
+      depositValue: data.depositValue ? Number(data.depositValue) : null,
+    };
 
-  /**
-   * Atualiza dados do contrato
-   */
-  async updateContract(
-    id: string,
-    ownerId: string,
-    updateData: Partial<IContract>
+    if (!normalized.renterId || !normalized.propertyId) {
+      throw new AppError("Locatário e imóvel são obrigatórios.", 400);
+    }
+
+    const contractNumber =
+      data.contractNumber ??
+      `CNT-${new Date().getFullYear()}-${Date.now()}`;
+
+    const created = await this.contractRepo.create({
+      ...normalized,
+      tenantId,
+      userId,
+      contractNumber,
+      status: "DRAFT",
+    });
+
+    return created;
+  }
+
+  async getContractById(
+    contractId: string,
+    tenantId: string
   ): Promise<IContract> {
-    const contract = await Contract.findOneAndUpdate(
-      { _id: id, owner: ownerId },
-      { $set: updateData }, // ✅ Uso explícito de $set para segurança
-      { new: true, runValidators: true }
-    ).lean();
-
-    if (!contract) {
-      throw new AppError(
-        "Não foi possível atualizar: Contrato inexistente ou sem permissão.",
-        404
-      );
+    if (!contractId || contractId === "undefined") {
+      throw new AppError("ID inválido.", 400);
     }
 
-    return contract as IContract;
-  },
-};
+    const contract = await this.contractRepo.findById(contractId, tenantId);
+
+    if (!contract) {
+      throw new AppError("Contrato não encontrado.", 404);
+    }
+
+    return contract;
+  }
+
+  async updateContract(
+    contractId: string,
+    tenantId: string,
+    updateData: Partial<IContractInput>
+  ): Promise<IContract> {
+    if (!contractId) {
+      throw new AppError("ID inválido.", 400);
+    }
+
+    const allowedFields = [
+      "rentAmount",
+      "dueDay",
+      "startDate",
+      "endDate",
+      "depositValue",
+      "paymentMethod",
+      "notes",
+      "status",
+    ];
+
+    const filteredUpdates = Object.fromEntries(
+      Object.entries(updateData).filter(([key]) =>
+        allowedFields.includes(key)
+      )
+    );
+
+    if (filteredUpdates.startDate) {
+      filteredUpdates.startDate = new Date(filteredUpdates.startDate);
+    }
+    if (filteredUpdates.endDate) {
+      filteredUpdates.endDate = new Date(filteredUpdates.endDate);
+    }
+
+    const updated = await this.contractRepo.update(
+      contractId,
+      tenantId,
+      filteredUpdates
+    );
+
+    if (!updated) {
+      throw new AppError("Contrato inexistente ou sem permissão.", 404);
+    }
+
+    return updated;
+  }
+
+  async generateContractPDF(
+    contractId: string,
+    tenantId: string
+  ): Promise<Buffer> {
+    const contract = await this.getContractById(contractId, tenantId);
+
+    return await DocumentGeneratorService.generatePDF(contract);
+  }
+
+  async sendToSignature(contractId: string, tenantId: string) {
+    const contract = await this.getContractById(contractId, tenantId);
+
+    return await DigitalSignatureService.requestSignature(contract);
+  }
+
+  async finalizeSignedContract(contractId: string, signedFileUrl: string) {
+    return await this.contractRepo.update(contractId, undefined, {
+      status: "ACTIVE",
+      signedUrl: signedFileUrl,
+    });
+  }
+}

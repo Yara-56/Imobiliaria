@@ -1,149 +1,98 @@
 import dotenvFlow from "dotenv-flow";
 import { z } from "zod";
 
-/**
- * Carrega automaticamente arquivos:
- *
- * .env
- * .env.development
- * .env.production
- * .env.test
- *
- * baseado no NODE_ENV
- */
 dotenvFlow.config();
 
 /**
- * Schema de validação das variáveis de ambiente
+ * 🔐 Schema de validação (NÍVEL PRODUÇÃO)
  */
 const envSchema = z.object({
-
-  /**
-   * Ambiente da aplicação
-   */
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development"),
 
-  /**
-   * Porta da API
-   */
-  PORT: z
-    .coerce
-    .number()
-    .default(3001),
+  PORT: z.coerce.number().default(3001),
 
-  /**
-   * URL de conexão do banco (MongoDB + Prisma)
-   */
   DATABASE_URL: z
     .string()
-    .min(1, "DATABASE_URL é obrigatória"),
+    .min(1, "DATABASE_URL é obrigatória")
+    .refine((url) => url.startsWith("mongodb"), {
+      message: "DATABASE_URL deve ser MongoDB",
+    }),
 
-  /**
-   * JWT - Access Token
-   */
   JWT_SECRET: z
     .string()
-    .min(10, "JWT_SECRET deve ter pelo menos 10 caracteres"),
+    .min(32, "JWT_SECRET deve ter no mínimo 32 caracteres 🔥"),
 
-  /**
-   * JWT - Refresh Token
-   */
   JWT_REFRESH_SECRET: z
     .string()
-    .min(10, "JWT_REFRESH_SECRET deve ter pelo menos 10 caracteres"),
+    .min(32, "JWT_REFRESH_SECRET deve ter no mínimo 32 caracteres 🔥"),
 
-  /**
-   * Expiração do Access Token
-   */
-  JWT_EXPIRES_IN: z
-    .string()
-    .default("15m"),
+  JWT_EXPIRES_IN: z.string().default("15m"),
+  JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
 
-  /**
-   * Expiração do Refresh Token
-   */
-  JWT_REFRESH_EXPIRES_IN: z
-    .string()
-    .default("7d"),
-
-  /**
-   * URL do frontend (CORS)
-   */
   FRONTEND_URL: z
     .string()
-    .url()
+    .url("FRONTEND_URL deve ser uma URL válida")
     .default("http://localhost:5173"),
 
-  /**
-   * Prefixo da API
-   */
-  API_PREFIX: z
-    .string()
-    .default("/api"),
+  API_PREFIX: z.string().default("/api"),
+  API_VERSION: z.string().default("v1"),
 
-  /**
-   * Versão da API
-   */
-  API_VERSION: z
-    .string()
-    .default("v1"),
-
-  /**
-   * Nível de logs
-   */
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace"])
     .default("info"),
-
 });
 
 /**
- * Validação segura das variáveis
+ * 🔍 Validação
  */
-const parsedEnv = envSchema.safeParse(process.env);
+const parsed = envSchema.safeParse(process.env);
 
-/**
- * Caso exista erro nas variáveis
- */
-if (!parsedEnv.success) {
-
-  console.error("\n❌ Erro nas variáveis de ambiente:\n");
-
-  console.error(parsedEnv.error.format());
-
-  console.error("\n⚠️ Corrija o arquivo .env antes de iniciar o servidor.\n");
-
+if (!parsed.success) {
+  console.error("\n❌ ERRO CRÍTICO NAS ENV:\n");
+  console.error(parsed.error.format());
   process.exit(1);
 }
 
 /**
- * Variáveis de ambiente validadas
+ * ✅ ENV TIPADO GLOBAL
  */
-export const env = parsedEnv.data;
+export const env = parsed.data;
 
 /**
- * Helpers úteis
+ * 🔥 FLAGS
  */
 export const isDev = env.NODE_ENV === "development";
 export const isProd = env.NODE_ENV === "production";
 export const isTest = env.NODE_ENV === "test";
 
 /**
- * URL base da API
+ * 🌐 API BASE
  */
 export const API_BASE = `${env.API_PREFIX}/${env.API_VERSION}`;
 
 /**
- * Log opcional para desenvolvimento
+ * 🧠 CONFIG CENTRAL (IMPORTANTE PRA LACERDA)
+ */
+export const appConfig = {
+  apiBase: API_BASE,
+  jwt: {
+    accessExpiresIn: env.JWT_EXPIRES_IN,
+    refreshExpiresIn: env.JWT_REFRESH_EXPIRES_IN,
+  },
+  cors: {
+    origin: env.FRONTEND_URL,
+  },
+};
+
+/**
+ * 📊 LOG CONTROLADO
  */
 if (isDev) {
-
   console.log("\n🌱 Ambiente:", env.NODE_ENV);
   console.log("🚀 Porta:", env.PORT);
-  console.log("🔗 API Base:", API_BASE);
+  console.log("🔗 API:", API_BASE);
   console.log("🌐 Frontend:", env.FRONTEND_URL);
   console.log("");
-
 }

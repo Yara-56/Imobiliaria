@@ -1,72 +1,67 @@
-import User, {
-  type IUser,
-  type UserDocument,
-} from "../../users/modules/user.model.js";
+// src/modules/auth/auth.repository.ts
+import { prisma } from "../../../config/database.config.js";
+import { Prisma } from "@prisma/client";
 
 /**
- * 📦 Auth Repository
- * Camada responsável SOMENTE por acesso ao banco.
- * Não contém regras de negócio.
+ * 🔍 Buscar usuário por email com senha (login)
  */
-
-/* ======================================================
-     🔍 Buscar usuário por e-mail COM senha
-     (Usado no login)
-  ====================================================== */
-
-export const findByEmailWithPassword = async (
-  email: string
-): Promise<UserDocument | null> => {
-  return User.findOne({ email }).select("+password").exec();
+export const findByEmailWithPassword = async (email: string) => {
+  return prisma.user.findUnique({
+    where: { email },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      password: true,
+      role: true,
+      tenantId: true,
+      isActive: true,
+    },
+  });
 };
 
-/* ======================================================
-     🔍 Buscar usuário por e-mail SEM senha
-     (Usado em validações)
-  ====================================================== */
-
-export const findByEmail = async (
-  email: string
-): Promise<UserDocument | null> => {
-  return User.findOne({ email }).exec();
+/**
+ * 🔍 Buscar usuário por email (sem senha)
+ */
+export const findByEmail = async (email: string) => {
+  return prisma.user.findUnique({
+    where: { email },
+  });
 };
 
-/* ======================================================
-     🔍 Buscar por ID
-     (Usado no refresh token / me)
-  ====================================================== */
-
-export const findById = async (id: string): Promise<UserDocument | null> => {
-  return User.findById(id).exec();
+/**
+ * 🔍 Buscar usuário por ID
+ */
+export const findById = async (id: string) => {
+  return prisma.user.findUnique({
+    where: { id },
+  });
 };
 
-/* ======================================================
-     📌 Verifica se e-mail já existe
-  ====================================================== */
+/**
+ * 📌 Verifica se email já existe
+ */
+export const existsByEmail = async (email: string) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
 
-export const existsByEmail = async (email: string): Promise<boolean> => {
-  const count = await User.countDocuments({ email }).exec();
-  return count > 0;
+  return !!user;
 };
 
-/* ======================================================
-     🕒 Atualiza último login
-  ====================================================== */
-
-export const updateLastLogin = async (userId: string): Promise<void> => {
-  await User.findByIdAndUpdate(userId, {
-    lastLogin: new Date(),
-  }).exec();
+/**
+ * 🕒 Atualiza último login
+ */
+export const updateLastLogin = async (userId: string) => {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { updatedAt: new Date() },
+  });
 };
 
-/* ======================================================
-     ➕ Criar usuário
-     (Usado no register)
-  ====================================================== */
-
-export const createUser = async (
-  data: Omit<IUser, "createdAt" | "updatedAt">
-): Promise<UserDocument> => {
-  const user = new User(data);
-  return user.save();
+/**
+ * ➕ Criar usuário
+ */
+export const createUser = async (data: Prisma.UserCreateInput) => {
+  return prisma.user.create({ data });
 };
