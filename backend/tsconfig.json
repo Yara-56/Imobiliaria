@@ -27,7 +27,11 @@
     "sourceMap": true,
 
     "lib": ["ES2022"],
-    "incremental": true
+    "incremental": true,
+
+    // 🔥 ESSENCIAIS PRO TSYRINGE
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
 
   "include": ["src", "prisma"],

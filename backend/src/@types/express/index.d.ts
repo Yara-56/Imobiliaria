@@ -1,5 +1,3 @@
-// src/@types/express/index.d.ts
-
 import { Renter, Document, Receipt } from "@prisma/client";
 
 declare global {
@@ -10,7 +8,6 @@ declare global {
       tenantId: string;
       role: "admin" | "corretor" | "gerente" | "user";
 
-      // CAMPOS OPCIONAIS → eliminam qualquer conflito com o Express
       name?: string;
       permissions?: string[];
       sessionId?: string;
@@ -22,7 +19,8 @@ declare global {
     }
 
     interface Request {
-      user: UserPayload;
+      user?: UserPayload;
+      tenantId?: string;
 
       renter?: Renter;
       document?: Document;

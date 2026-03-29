@@ -1,16 +1,20 @@
+import "reflect-metadata"; // 🔥 OBRIGATÓRIO (PRIMEIRA LINHA)
 import "dotenv/config";
+
 import { Server } from "node:http";
 
-import { app } from "./main/app.js";
-import { connectDatabase } from "./config/database.config.js";
-import { env } from "./config/env.js";
-import { logger } from "./shared/utils/logger.js";
+import { app } from "./main/app";
+import { connectDatabase } from "./config/database.config";
+import { env } from "./config/env";
+import { logger } from "./shared/utils/logger";
+
+// 🔥 IMPORTA O CONTAINER (executa os providers)
+import "./shared/container";
 
 let server: Server;
 
 /**
  * 🚨 CAPTURA ERROS SÍNCRONOS
- * (erros fora de promessas)
  */
 process.on("uncaughtException", (err: Error) => {
   logger.fatal({ err }, "💥 UNCAUGHT EXCEPTION");
@@ -47,7 +51,6 @@ async function startServer(): Promise<void> {
     });
 
   } catch (error: unknown) {
-
     const err = error instanceof Error ? error : new Error(String(error));
 
     logger.fatal({ err }, "❌ FAILED TO START SERVER");
@@ -60,19 +63,14 @@ async function startServer(): Promise<void> {
  * 🛑 SHUTDOWN CONTROLADO
  */
 function shutdown(signal: string): void {
-
   logger.warn(`⚠️ Shutdown signal received: ${signal}`);
 
   if (server) {
     server.close(() => {
-
       logger.info("🛑 HTTP server closed");
-
       process.exit(0);
     });
-
   } else {
-
     process.exit(0);
   }
 }
@@ -80,7 +78,6 @@ function shutdown(signal: string): void {
 /**
  * 📡 CAPTURA SINAIS DO SISTEMA
  */
-
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 
