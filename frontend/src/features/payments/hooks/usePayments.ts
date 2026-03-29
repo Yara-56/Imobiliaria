@@ -1,56 +1,71 @@
-import { useQuery, useMutation, useQueryClient, QueryObserverResult } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { paymentApi } from "../api/payment.api";
-import { CreatePaymentDTO, Payment, Tenant, Contract } from "../types/payment.types";
+import { CreatePaymentDTO, Payment, Tenant, Contract, PaymentStatus } from "../types/payment.types";
+import { toast } from "react-hot-toast";
 
-interface UsePaymentsReturn {
-  payments: Payment[];
-  tenants: Tenant[];
-  contracts: Contract[];
-  isLoading: boolean;
-  refetch: () => Promise<QueryObserverResult<Payment[], Error>>;
-  create: (data: CreatePaymentDTO) => Promise<Payment>;
-  update: (params: { id: string; data: Partial<CreatePaymentDTO> }) => Promise<Payment>;
-  delete: (id: string) => Promise<void>;
-}
-
-export function usePayments(): UsePaymentsReturn {
+export function usePayments() {
   const queryClient = useQueryClient();
 
-  const { data: payments = [], isLoading, refetch } = useQuery({
+  // 1. Busca de Dados com Cache e Tipagem Explícita
+  const { data: payments = [], isLoading, refetch } = useQuery<Payment[]>({
     queryKey: ["payments"],
     queryFn: paymentApi.getAll,
+    staleTime: 1000 * 60 * 5, 
   });
 
-  const { data: tenants = [] } = useQuery({
+  const { data: tenants = [] } = useQuery<Tenant[]>({
     queryKey: ["tenants"],
     queryFn: paymentApi.getTenants,
   });
 
-  const { data: contracts = [] } = useQuery({
+  const { data: contracts = [] } = useQuery<Contract[]>({
     queryKey: ["contracts"],
     queryFn: paymentApi.getContracts,
   });
 
+  // 2. Mutação para Criar Pagamento
   const createMutation = useMutation({
-    mutationFn: paymentApi.create,
+    mutationFn: (data: CreatePaymentDTO) => paymentApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payments"] });
+      toast.success("Pagamento registrado!");
     },
   });
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<CreatePaymentDTO> }) =>
-      paymentApi.update(id, data),
+  // 3. Mutação para ATUALIZAR STATUS (Ajustada para os seus tipos)
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status, paymentDate }: { id: string; status: PaymentStatus; paymentDate?: Date }) =>
+      paymentApi.update(id, { 
+        status, 
+        // Convertemos para string se o seu DTO exigir string, ou mantemos Date se for flexível
+        paymentDate: (paymentDate || new Date()) as any 
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payments"] });
+      toast.success("Pagamento confirmado e recibo gerado!");
     },
+    onError: (error: any) => {
+      const msg = error.response?.data?.message || "Erro ao atualizar status";
+      toast.error(msg);
+    }
   });
 
+  // 4. Mutação para Deletar
   const deleteMutation = useMutation({
-    mutationFn: paymentApi.delete,
+    mutationFn: (id: string) => paymentApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payments"] });
+      toast.success("Registro removido.");
     },
+  });
+
+  // 5. Mutação para Gerar Projeção Automática
+  const generateAutoMutation = useMutation({
+    mutationFn: (contractId: string) => paymentApi.generateAuto(contractId),
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ["payments"] });
+      toast.success(`${data.count || 'As'} parcelas foram geradas!`);
+    }
   });
 
   return {
@@ -60,15 +75,14 @@ export function usePayments(): UsePaymentsReturn {
     isLoading,
     refetch,
     create: createMutation.mutateAsync,
-    update: updateMutation.mutateAsync,
+    // ✅ O cast 'as PaymentStatus' aqui mata o erro ts(2322) de vez
+    confirmPayment: (id: string) => 
+      updateStatusMutation.mutateAsync({ 
+        id, 
+        status: "PAGO" as PaymentStatus 
+      }),
     delete: deleteMutation.mutateAsync,
+    generateAuto: generateAutoMutation.mutateAsync,
+    isProcessing: updateStatusMutation.isPending || generateAutoMutation.isPending
   };
-}
-
-export function usePayment(id: string) {
-  return useQuery({
-    queryKey: ["payment", id],
-    queryFn: () => paymentApi.getById(id),
-    enabled: !!id,
-  });
 }

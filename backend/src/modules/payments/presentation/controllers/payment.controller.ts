@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { PaymentStatus } from "@prisma/client";
 
 import { AppError } from "../../../../shared/errors/AppError.js";
 import { HttpStatus } from "../../../../shared/errors/http-status.js";
@@ -11,176 +12,122 @@ import { CreatePaymentUseCase } from "../../application/use-cases/create-payment
 import { GetPaymentByIdUseCase } from "../../application/use-cases/get-payment-by-id.use-case.js";
 import { UpdatePaymentStatusUseCase } from "../../application/use-cases/update-payment-status.use-case.js";
 import { DeletePaymentUseCase } from "../../application/use-cases/delete-payment.use-case.js";
+import { GenerateContractPaymentsUseCase } from "../../application/use-cases/generate-contract-payments.use-case.js";
 
 const repo = new PrismaPaymentRepository();
 
-/**
- * CONTROLADOR OFICIAL DE PAGAMENTOS - HOMEFLUX PRO 2026
- *
- * Multi-tenant real
- * Clean Architecture
- * Totalmente desacoplado do Express
- * Casos de uso isolados
- * Pronto para logs, auditoria e PDF receipt
- */
 export class PaymentController {
 
+  /**
+   * GERAR PARCELAS AUTOMÁTICAS
+   * POST /v1/payments/generate/:contractId
+   */
+  async generateAuto(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { contractId } = req.params;
+      const { tenantId, id: userId } = req.user;
+
+      const useCase = new GenerateContractPaymentsUseCase();
+      const result = await useCase.execute(contractId, tenantId, userId);
+
+      res.status(HttpStatus.CREATED).json({
+        status: "success",
+        message: "Projeção financeira gerada com sucesso.",
+        data: result,
+      });
+    } catch (error: any) {
+      next(error);
+    }
+  }
 
   /**
    * LISTAR PAGAMENTOS
-   * GET /v1/payments
    */
   async listPayments(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = req.user.tenantId;
-
       const useCase = new ListPaymentsUseCase(repo);
-      const payments = await useCase.execute(tenantId, req.query);
+      const payments = await useCase.execute(req.user.tenantId, req.query);
 
       res.status(HttpStatus.OK).json({
         status: "success",
         results: payments.length,
         data: { payments },
       });
-
     } catch (error) {
-      next(
-        new AppError({
-          message: "Erro ao carregar pagamentos.",
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          errorCode: ErrorCodes.INTERNAL_ERROR,
-        })
-      );
+      next(new AppError({
+        message: "Erro ao carregar pagamentos.",
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        errorCode: ErrorCodes.INTERNAL_ERROR,
+      }));
     }
   }
 
-
-
   /**
-   * CRIAR PAGAMENTO
-   * POST /v1/payments
-   */
-  async createPayment(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const tenantId = req.user.tenantId;
-      const userId = req.user.id;
-
-      const useCase = new CreatePaymentUseCase(repo);
-
-      const payload = {
-        ...req.body,
-        paymentDate: req.body.paymentDate ? new Date(req.body.paymentDate) : new Date(),
-        tenantId,
-        userId,
-      };
-
-      const payment = await useCase.execute(payload);
-
-      res.status(HttpStatus.CREATED).json({
-        status: "success",
-        data: { payment },
-      });
-
-    } catch (error: any) {
-      next(
-        new AppError({
-          message: "Erro ao registrar pagamento.",
-          statusCode: HttpStatus.BAD_REQUEST,
-          errorCode: ErrorCodes.VALIDATION_ERROR,
-        })
-      );
-    }
-  }
-
-
-
-  /**
-   * BUSCAR PAGAMENTO POR ID
-   * GET /v1/payments/:id
-   */
-  async getPaymentById(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const tenantId = req.user.tenantId;
-      const paymentId = req.params.id;
-
-      const useCase = new GetPaymentByIdUseCase(repo);
-      const payment = await useCase.execute(paymentId, tenantId);
-
-      if (!payment) {
-        return next(
-          new AppError({
-            message: "Pagamento não encontrado.",
-            statusCode: HttpStatus.NOT_FOUND,
-            errorCode: ErrorCodes.RESOURCE_NOT_FOUND,
-          })
-        );
-      }
-
-      res.status(HttpStatus.OK).json({
-        status: "success",
-        data: { payment },
-      });
-
-    } catch (error) {
-      next(error);
-    }
-  }
-
-
-
-  /**
-   * ATUALIZAR STATUS DO PAGAMENTO
+   * ATUALIZAR STATUS DO PAGAMENTO (PAGO, ATRASADO, etc)
    * PATCH /v1/payments/:id
    */
   async updatePaymentStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = req.user.tenantId;
-      const paymentId = req.params.id;
-      const { status } = req.body;
+      const { id } = req.params;
+      const { status, paymentDate } = req.body;
 
       const useCase = new UpdatePaymentStatusUseCase(repo);
-      const updatedPayment = await useCase.execute(paymentId, tenantId, status);
+      
+      // ✅ Correção do erro ts(2345): Passando o objeto com o status castado para o Enum do Prisma
+      const updatedPayment = await useCase.execute(id, req.user.tenantId, {
+        status: status as PaymentStatus, 
+        paymentDate: paymentDate ? new Date(paymentDate) : new Date()
+      });
 
       res.status(HttpStatus.OK).json({
         status: "success",
         data: { payment: updatedPayment },
       });
-
     } catch (error) {
-      next(
-        new AppError({
-          message: "Erro ao atualizar status.",
-          statusCode: HttpStatus.BAD_REQUEST,
-          errorCode: ErrorCodes.VALIDATION_ERROR,
-        })
-      );
+      next(new AppError({
+        message: "Erro ao atualizar status do pagamento.",
+        statusCode: HttpStatus.BAD_REQUEST,
+        errorCode: ErrorCodes.VALIDATION_ERROR,
+      }));
     }
   }
 
-
-
   /**
-   * DELETAR PAGAMENTO
-   * DELETE /v1/payments/:id
+   * BUSCAR POR ID
    */
-  async deletePayment(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getPaymentById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = req.user.tenantId;
-      const paymentId = req.params.id;
+      const useCase = new GetPaymentByIdUseCase(repo);
+      const payment = await useCase.execute(req.params.id, req.user.tenantId);
 
-      const useCase = new DeletePaymentUseCase(repo);
-      await useCase.execute(paymentId, tenantId);
-
-      res.status(HttpStatus.NO_CONTENT).send();
-
-    } catch (error) {
-      next(
-        new AppError({
+      if (!payment) {
+        return next(new AppError({
           message: "Pagamento não encontrado.",
           statusCode: HttpStatus.NOT_FOUND,
           errorCode: ErrorCodes.RESOURCE_NOT_FOUND,
-        })
-      );
+        }));
+      }
+
+      res.status(HttpStatus.OK).json({ status: "success", data: { payment } });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * DELETAR
+   */
+  async deletePayment(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const useCase = new DeletePaymentUseCase(repo);
+      await useCase.execute(req.params.id, req.user.tenantId);
+      res.status(HttpStatus.NO_CONTENT).send();
+    } catch (error) {
+      next(new AppError({
+        message: "Falha ao remover registro.",
+        statusCode: HttpStatus.NOT_FOUND,
+        errorCode: ErrorCodes.RESOURCE_NOT_FOUND,
+      }));
     }
   }
 }

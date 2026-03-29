@@ -1,39 +1,54 @@
 {
   "compilerOptions": {
+    /* 🎯 Versão e Módulos Modernos */
     "target": "ES2022",
-    "module": "CommonJS",
-    "moduleResolution": "Node",
+    "lib": ["ES2022", "ESNext.AsyncIterable"],
+    "module": "NodeNext", 
+    "moduleResolution": "NodeNext",
+    
+    /* ✅ Silencia o aviso de depreciação conforme sugerido */
+    "ignoreDeprecations": "5.0",
 
-    "ignoreDeprecations": "6.0",
-
+    /* 📂 Estrutura de Pastas */
     "rootDir": "./src",
     "outDir": "./dist",
 
-    "baseUrl": "./src",
+    /* 🚀 A SOLUÇÃO: 
+       Removemos a dependência do baseUrl para resolução de módulos.
+       Agora os caminhos (@/) apontam diretamente para onde os arquivos estão
+       em relação à raiz do projeto.
+    */
     "paths": {
-      "@/*": ["*"],
-      "@modules/*": ["modules/*"],
-      "@shared/*": ["shared/*"],
-      "@infra/*": ["modules/*"]
+      "@/*": ["./src/*"],
+      "@modules/*": ["./src/modules/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@infra/*": ["./src/modules/*"]
     },
 
+    /* 🔍 Tipagem e Definições Globais */
     "typeRoots": ["./src/@types", "./node_modules/@types"],
     "types": ["node"],
+    "resolveJsonModule": true,
 
+    /* 🛡️ Rigor de Tipagem (Nível Profissional) */
     "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": false, 
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true,
     "sourceMap": true,
-
-    "lib": ["ES2022"],
     "incremental": true,
 
-    // 🔥 ESSENCIAIS PRO TSYRINGE
+    /* 🔥 Decorators (Essenciais para Tsyringe/Inversify) */
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
 
-  "include": ["src", "prisma"],
+  "include": [
+    "src/**/*",         
+    "src/@types/*.d.ts", 
+    "prisma/**/*"
+  ],
   "exclude": ["node_modules", "dist"]
 }

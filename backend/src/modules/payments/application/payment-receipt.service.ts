@@ -1,10 +1,15 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import fs from "fs";
 import path from "path";
-import { prisma } from "@/infrastructure/database/prisma.client";
 import QRCode from "qrcode";
+import { prisma } from "../../../infrastructure/database/prisma.client.js";
+import { AppError } from "../../../shared/errors/AppError.js";
+import { HttpStatus } from "../../../shared/errors/http-status.js";
 
 export class PaymentReceiptService {
+  /**
+   * Gera um recibo profissional com QR Code e marca d'água
+   */
   static async generateReceipt(paymentId: string) {
     const payment = await prisma.payment.findUnique({
       where: { id: paymentId },
@@ -16,181 +21,134 @@ export class PaymentReceiptService {
       },
     });
 
-    if (!payment) return null;
-
-    /* ----------------------------------------
-        Diretório final do recibo
-    ----------------------------------------- */
-
-    const baseDir = path.join(
-      process.cwd(),
-      "uploads",
-      "receipts",
-      payment.renterId
-    );
-
-    if (!fs.existsSync(baseDir)) {
-      fs.mkdirSync(baseDir, { recursive: true });
+    if (!payment) {
+      throw new AppError({
+        message: "Pagamento não encontrado para gerar recibo.",
+        statusCode: HttpStatus.NOT_FOUND
+      });
     }
 
-    const fileName = `recibo-${payment.id}-${Date.now()}.pdf`;
-    const filePath = path.join(baseDir, fileName);
+    // 1. Configuração de Diretório (Organizado por Inquilino)
+    const relativeFolder = path.join("uploads", "receipts", payment.renterId);
+    const fullDir = path.join(process.cwd(), relativeFolder);
 
-    /* ----------------------------------------
-        Criar PDF
-    ----------------------------------------- */
+    if (!fs.existsSync(fullDir)) {
+      fs.mkdirSync(fullDir, { recursive: true });
+    }
 
-    const pdf = await PDFDocument.create();
-    const page = pdf.addPage([595, 842]); // A4
-    const { height } = page.getSize();
-    const font = await pdf.embedFont(StandardFonts.Helvetica);
+    const fileName = `RECIBO_${payment.referenceMonth.replace("/", "-")}_${Date.now()}.pdf`;
+    const filePath = path.join(fullDir, fileName);
+    const publicUrl = `/${relativeFolder}/${fileName}`.replace(/\\/g, "/");
 
-    let y = height - 40;
+    // 2. Criação do PDF
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([595.28, 841.89]); // Tamanho A4 preciso
+    const { width, height } = page.getSize();
+    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-    const write = (text: string, size = 12, color = rgb(0, 0, 0)) => {
-      page.drawText(text, { x: 40, y, size, font, color });
-      y -= size + 8;
-    };
+    // Design: Linha de topo (Header Decorativo)
+    page.drawRectangle({
+      x: 0,
+      y: height - 60,
+      width: width,
+      height: 60,
+      color: rgb(0.1, 0.2, 0.4),
+    });
 
-    /* ----------------------------------------
-        QR CODE – validação/autenticidade
-    ----------------------------------------- */
+    page.drawText("COMPROVANTE DE PAGAMENTO", {
+      x: 50,
+      y: height - 40,
+      size: 20,
+      font: fontBold,
+      color: rgb(1, 1, 1),
+    });
 
-    const qrData = await QRCode.toDataURL(
-      JSON.stringify({
-        paymentId: payment.id,
-        renterId: payment.renterId,
-        tenantId: payment.tenantId,
-        date: new Date().toISOString(),
-      })
-    );
-
-    const qrImageBytes = Buffer.from(qrData.split(",")[1], "base64");
-    const qrImage = await pdf.embedPng(qrImageBytes);
+    // 3. QR Code de Autenticidade (Segurança para a imobiliária)
+    const qrData = `${process.env.APP_URL}/verify/payment/${payment.id}`;
+    const qrCodeImageData = await QRCode.toDataURL(qrData);
+    const qrImageBytes = Buffer.from(qrCodeImageData.split(",")[1], "base64");
+    const qrImage = await pdfDoc.embedPng(qrImageBytes);
 
     page.drawImage(qrImage, {
-      x: 440,
-      y: y - 60,
-      width: 120,
-      height: 120,
+      x: width - 130,
+      y: height - 180,
+      width: 80,
+      height: 80,
     });
 
-    /* ----------------------------------------
-        Cabeçalho
-    ----------------------------------------- */
+    // 4. Conteúdo Principal
+    let currentY = height - 100;
 
-    write("RECIBO DE PAGAMENTO – MODELO CONTRATUAL", 18);
+    const drawSection = (title: string, content: string[], yPos: number) => {
+      page.drawText(title, { x: 50, y: yPos, size: 12, font: fontBold, color: rgb(0.1, 0.2, 0.4) });
+      let lineY = yPos - 18;
+      content.forEach(line => {
+        page.drawText(line, { x: 50, y: lineY, size: 10, font: fontRegular });
+        lineY -= 14;
+      });
+      return lineY - 10;
+    };
 
-    write(`Referente ao contrato nº: ${payment.contract.contractNumber}`);
-    write("");
+    // Dados da Imobiliária
+    currentY = drawSection("DADOS DO EMISSOR", [
+      `Imobiliária: ${payment.tenant.name}`,
+      `CNPJ: ${payment.tenant.cnpj || "Não informado"}`,
+      `Contato: ${payment.tenant.email || "-"}`
+    ], currentY);
 
-    /* ----------------------------------------
-        Dados do Inquilino
-    ----------------------------------------- */
+    // Dados do Pagamento (O mais importante)
+    currentY = drawSection("DETALHES DO PAGAMENTO", [
+      `Valor: R$ ${payment.amount.toFixed(2).replace(".", ",")}`,
+      `Mês de Referência: ${payment.referenceMonth}`,
+      `Data de Pagamento: ${payment.paymentDate?.toLocaleDateString("pt-BR") || "N/A"}`,
+      `Método: ${payment.method}`,
+      `Contrato: ${payment.contract.contractNumber || "N/A"}`
+    ], currentY);
 
-    write("DADOS DO INQUILINO", 14);
-    write(`Nome: ${payment.renter.fullName}`);
-    write(`Email: ${payment.renter.email || "-"}`);
-    write(`Telefone: ${payment.renter.phone || "-"}`);
-    write(`CPF: ${payment.renter.cpf || "-"}`);
-    write("");
+    // Dados do Locatário
+    currentY = drawSection("LOCATÁRIO", [
+      `Nome: ${payment.renter.fullName}`,
+      `CPF: ${payment.renter.cpf || "Não informado"}`,
+    ], currentY);
 
-    /* ----------------------------------------
-        Dados do Pagamento
-    ----------------------------------------- */
-
-    write("DADOS DO PAGAMENTO", 14);
-    write(`Valor pago: R$ ${payment.amount.toFixed(2)}`);
-    write(`Referência: ${payment.referenceMonth}`);
-    write(`Método: ${payment.method}`);
-    write(`Status: ${payment.status}`);
-    write(
-      `Pagamento efetuado em: ${
-        payment.paymentDate?.toLocaleDateString("pt-BR") || "Não informado"
-      }`
-    );
-    write("");
-
-    /* ----------------------------------------
-        Dados do Contrato
-    ----------------------------------------- */
-
-    write("DADOS DO CONTRATO", 14);
-    write(
-      `Data de início: ${payment.contract.startDate.toLocaleDateString("pt-BR")}`
-    );
-    write(
-      `Data de término: ${
-        payment.contract.endDate?.toLocaleDateString("pt-BR") ||
-        "Sem data definida"
-      }`
-    );
-    write(`Dia de vencimento: ${payment.contract.dueDay}`);
-    write(`Valor do aluguel: R$ ${payment.contract.rentAmount.toFixed(2)}`);
-    write("");
-
-    /* ----------------------------------------
-        Dados da Imobiliária
-    ----------------------------------------- */
-
-    write("IMOBILIÁRIA RESPONSÁVEL", 14);
-    write(`Empresa: ${payment.tenant.name}`);
-    write(`Email: ${payment.tenant.email || "-"}`);
-    write(`CNPJ: ${payment.tenant.cnpj || "-"}`);
-    write("");
-
-    /* ----------------------------------------
-        Termos legais
-    ----------------------------------------- */
-
-    write("TERMOS DO CONTRATO", 14);
-
-    const terms = `
-Declaro, para os devidos fins, que o pagamento acima descrito foi recebido de acordo com 
-as cláusulas estabelecidas no contrato de locação firmado entre as partes.
-
-Este recibo serve como comprovação legal do pagamento, respeitando todas as regras 
-definidas no contrato e a legislação vigente.
-`;
-
-    terms.split("\n").forEach((line) => {
-      if (line.trim() !== "") write(line.trim(), 10);
+    // 5. Texto de Quitação Legal
+    const footerText = `Declaramos ter recebido a importância supra de R$ ${payment.amount.toFixed(2)}, referente ao aluguel e encargos do imóvel mencionado no contrato de locação, dando-lhe por este recibo a devida quitação para o período citado.`;
+    
+    page.drawText(footerText, {
+      x: 50,
+      y: currentY - 20,
+      size: 9,
+      font: fontRegular,
+      maxWidth: width - 100,
+      lineHeight: 12,
     });
 
-    write("");
+    // 6. Assinatura Digital Simbolizada
+    page.drawText("_______________________________________________", { x: width / 2 - 100, y: 100, size: 10 });
+    page.drawText(`${payment.user.name}`, { x: width / 2 - 100, y: 85, size: 10, font: fontBold });
+    page.drawText("Responsável Financeiro", { x: width / 2 - 100, y: 72, size: 8, font: fontRegular });
 
-    /* ----------------------------------------
-        Assinatura
-    ----------------------------------------- */
-
-    write("________________________________________", 12);
-    write(`${payment.user.name} – Responsável`, 10);
-
-    /* ----------------------------------------
-        Salvar PDF
-    ----------------------------------------- */
-
-    const pdfBytes = await pdf.save();
+    // 7. Salvamento e Registro no Banco
+    const pdfBytes = await pdfDoc.save();
     fs.writeFileSync(filePath, pdfBytes);
 
-    /* ----------------------------------------
-        Registrar no banco (Document)
-    ----------------------------------------- */
-
+    // Registrar no Model Document (conforme seu Schema)
     const doc = await prisma.document.create({
       data: {
-        name: `Recibo ${payment.referenceMonth}`,
+        name: `Recibo_${payment.referenceMonth.replace("/", "_")}`,
         type: "OUTRO",
-        url: `/uploads/receipts/${payment.renterId}/${fileName}`,
+        url: publicUrl,
         fileSize: pdfBytes.length,
         mimeType: "application/pdf",
+        uploadedBy: payment.user.name,
         tenantId: payment.tenantId,
         renterId: payment.renterId,
         paymentId: payment.id,
-        uploadedBy: payment.userId,
       },
     });
 
+    // Atualiza o pagamento com a URL do recibo gerado
     await prisma.payment.update({
       where: { id: payment.id },
       data: { receiptUrl: doc.url },

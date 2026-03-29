@@ -1,15 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import { BaseCrudController } from "../../../../shared/http/base-crud-controller.js";
 import { TenantService } from "../../services/tenant.service.js";
+// ✅ Importação do repositório concreto para resolver o erro ts(2554)
+import { PrismaTenantRepository } from "../../infrastructure/repositories/PrismaTenantRepository.js";
 import { HttpStatus } from "../../../../shared/errors/http-status.js";
 import { AppError } from "../../../../shared/errors/AppError.js";
 import { logger } from "../../../../shared/utils/logger.js";
 import type { CreateTenantData } from "../../domain/repositories/tenant.repository.interface.js";
 
 /**
- * ======================================================
- * 🔐 Tipagem do usuário autenticado
- * ======================================================
+ * 🔐 Tipagem do usuário autenticado (JWT Payload)
  */
 interface AuthUser {
   id: string;
@@ -17,29 +17,21 @@ interface AuthUser {
 }
 
 /**
- * ======================================================
  * 🏢 TenantController
- * ------------------------------------------------------
- * Gerencia o CRUD de inquilinos (Renters) com isolamento
- * multi-tenant. Cada operação filtra por tenantId do
- * usuário autenticado via JWT.
- *
- * ✅ Clean Architecture
- * ✅ Multi-tenant isolation
- * ✅ Tipagem forte
- * ✅ Logs estruturados
- * ======================================================
+ * Gerencia o CRUD de inquilinos (Renters) com isolamento multi-tenant.
  */
 export class TenantController extends BaseCrudController<CreateTenantData> {
   constructor() {
-    super(new TenantService());
+    // ✅ CORREÇÃO: Criamos o repositório e injetamos no Service
+    const repository = new PrismaTenantRepository();
+    const service = new TenantService(repository);
+    
+    // Inicializa a classe base com o service injetado
+    super(service);
   }
 
   /**
-   * ======================================================
    * ➕ CRIAR INQUILINO
-   * POST /api/v1/tenants
-   * ======================================================
    */
   create = async (
     req: Request,
@@ -51,31 +43,24 @@ export class TenantController extends BaseCrudController<CreateTenantData> {
 
       logger.info({ body: req.body }, "📥 Dados recebidos para novo inquilino");
 
-      const {
-        fullName,
-        email,
-        phone,
-        document,
-      } = req.body;
+      const { fullName, email, phone, document } = req.body;
 
       if (!fullName || typeof fullName !== "string" || !fullName.trim()) {
         throw new AppError({
-          message: "O campo 'fullName' (nome do inquilino) é obrigatório.",
+          message: "O campo 'fullName' é obrigatório.",
           statusCode: HttpStatus.BAD_REQUEST,
         });
       }
 
-      // Mapeia explicitamente para CreateTenantData (tipos do repository)
+      // Mapeamento para os tipos do Repository
       const tenantData: CreateTenantData = {
         fullName: fullName.trim(),
         email: email?.trim() || null,
         phone: phone?.trim() || null,
-        cpf: document?.trim() || null,  // document do frontend → cpf no banco
+        cpf: document?.trim() || null, 
         tenantId: user.tenantId,
         userId: user.id,
       };
-
-      logger.info({ tenantData }, "📤 Dados mapeados para repository");
 
       const tenant = await this.service.create(tenantData);
 
@@ -92,10 +77,7 @@ export class TenantController extends BaseCrudController<CreateTenantData> {
   };
 
   /**
-   * ======================================================
-   * 📄 LISTAR TODOS
-   * GET /api/v1/tenants
-   * ======================================================
+   * 📄 LISTAR TODOS (Com filtros e multi-tenancy)
    */
   findAll = async (
     req: Request,
@@ -130,10 +112,7 @@ export class TenantController extends BaseCrudController<CreateTenantData> {
   };
 
   /**
-   * ======================================================
    * 🔎 BUSCAR POR ID
-   * GET /api/v1/tenants/:id
-   * ======================================================
    */
   findById = async (
     req: Request,
@@ -163,10 +142,7 @@ export class TenantController extends BaseCrudController<CreateTenantData> {
   };
 
   /**
-   * ======================================================
    * ✏️ ATUALIZAR
-   * PATCH /api/v1/tenants/:id
-   * ======================================================
    */
   update = async (
     req: Request,
@@ -176,8 +152,6 @@ export class TenantController extends BaseCrudController<CreateTenantData> {
     try {
       const user = req.user as AuthUser;
       const { id } = req.params;
-
-      logger.info({ id, body: req.body }, "📝 Atualizando inquilino");
 
       const updatedTenant = await this.service.update(
         id,
@@ -196,10 +170,7 @@ export class TenantController extends BaseCrudController<CreateTenantData> {
   };
 
   /**
-   * ======================================================
    * 🗑 DELETAR
-   * DELETE /api/v1/tenants/:id
-   * ======================================================
    */
   delete = async (
     req: Request,
@@ -212,8 +183,6 @@ export class TenantController extends BaseCrudController<CreateTenantData> {
 
       await this.service.delete(id, user.tenantId);
 
-      logger.info({ id, tenantId: user.tenantId }, "🗑 Inquilino removido");
-
       res.status(HttpStatus.NO_CONTENT).send();
     } catch (error) {
       next(error);
@@ -221,10 +190,7 @@ export class TenantController extends BaseCrudController<CreateTenantData> {
   };
 
   /**
-   * ======================================================
    * ❤️ HEALTH CHECK
-   * GET /api/v1/tenants/health
-   * ======================================================
    */
   healthCheck = async (req: Request, res: Response): Promise<void> => {
     const user = req.user as AuthUser | undefined;
@@ -240,9 +206,5 @@ export class TenantController extends BaseCrudController<CreateTenantData> {
   };
 }
 
-/**
- * ======================================================
- * Instância única do controller (Singleton)
- * ======================================================
- */
+// Exportamos a instância singleton
 export const tenantController = new TenantController();

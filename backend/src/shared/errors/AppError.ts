@@ -1,5 +1,5 @@
-import { HttpStatus, type HttpStatusCode } from "./http-status.js";
-import { ErrorCodes, type ErrorCode } from "./error-codes.js";
+import { HttpStatus, type HttpStatusCode } from "./http-status";
+import { ErrorCodes, type ErrorCode } from "./error-codes";
 
 interface AppErrorOptions {
   message: string;
@@ -9,6 +9,7 @@ interface AppErrorOptions {
   isOperational?: boolean;
 }
 
+// ADICIONE O 'export' AQUI:
 export class AppError extends Error {
   public readonly statusCode: HttpStatusCode;
   public readonly errorCode: ErrorCode;

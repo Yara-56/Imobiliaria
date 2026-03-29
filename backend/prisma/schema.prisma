@@ -53,6 +53,9 @@ enum DocumentType {
   CPF
   COMPROVANTE_RENDA
   COMPROVANTE_ENDERECO
+  ESCRITURA            // ✅ Para documentos do imóvel
+  IPTU                 // ✅ Para impostos
+  DFP                  // ✅ Demonstrativo Financeiro (Fluxo de Pagamento)
   OUTRO
 }
 
@@ -61,13 +64,13 @@ enum DocumentType {
 //////////////////////////////////////////////////
 
 model Tenant {
-  id         String     @id @default(auto()) @map("_id") @db.ObjectId
-  name       String
-  cnpj       String?    @unique
-  phone      String?
-  email      String?    @unique
-  logoUrl    String?
-  isActive   Boolean    @default(true)
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  cnpj      String?  @unique
+  phone     String?
+  email     String?  @unique
+  logoUrl   String?
+  isActive  Boolean  @default(true)
 
   users      User[]
   properties Property[]
@@ -76,8 +79,8 @@ model Tenant {
   payments   Payment[]
   documents  Document[]
 
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 //////////////////////////////////////////////////
@@ -85,21 +88,22 @@ model Tenant {
 //////////////////////////////////////////////////
 
 model User {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
-  email     String    @unique
+  email     String   @unique
   password  String
-  role      String    @default("USER")
-  isActive  Boolean   @default(true)
+  role      String   @default("USER")
+  isActive  Boolean  @default(true)
 
-  tenantId  String    @db.ObjectId
-  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId  String   @db.ObjectId
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   contracts Contract[]
   payments  Payment[]
+  renters   Renter[]   // ✅ Agora User também se relaciona com Renter
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([tenantId])
 }
@@ -134,7 +138,7 @@ model Property {
 }
 
 //////////////////////////////////////////////////
-// RENTER
+// RENTER (INQUILINO)
 //////////////////////////////////////////////////
 
 model Renter {
@@ -146,6 +150,10 @@ model Renter {
   documentUrl String?
   notes       String?
   status      RenterStatus @default(ATIVO)
+
+  // ✅ Adicionado userId para rastrear quem cadastrou o inquilino
+  userId      String?      @db.ObjectId 
+  user        User?        @relation(fields: [userId], references: [id])
 
   propertyId  String?      @db.ObjectId
   property    Property?    @relation(fields: [propertyId], references: [id], onDelete: SetNull)
@@ -162,6 +170,7 @@ model Renter {
 
   @@index([tenantId])
   @@index([status])
+  @@index([userId])
 }
 
 //////////////////////////////////////////////////
@@ -210,7 +219,7 @@ model Contract {
 //////////////////////////////////////////////////
 
 model Payment {
-  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  id             String         @id @default(auto()) @map("_id") @db.ObjectId
   amount         Float
   referenceMonth String
   dueDate        DateTime
@@ -221,17 +230,17 @@ model Payment {
   notes          String?
   daysOverdue    Int           @default(0)
 
-  contractId     String        @db.ObjectId
-  contract       Contract      @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contractId     String         @db.ObjectId
+  contract       Contract       @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
-  renterId       String        @db.ObjectId
-  renter         Renter        @relation(fields: [renterId], references: [id], onDelete: Cascade)
+  renterId       String         @db.ObjectId
+  renter         Renter         @relation(fields: [renterId], references: [id], onDelete: Cascade)
 
-  tenantId       String        @db.ObjectId
-  tenant         Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId       String         @db.ObjectId
+  tenant         Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  userId         String        @db.ObjectId
-  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String         @db.ObjectId
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   documents      Document[]
 
