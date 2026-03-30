@@ -1,40 +1,49 @@
+// CAMINHO: backend/src/modules/properties/controllers/PropertiesController.ts
 import { Request, Response, NextFunction } from "express";
 import { PropertyService } from "../application/services/PropertyService.js";
-// ✅ IMPORTANTE: O nome da classe no seu arquivo era 'PropertyRepository'
 import { PropertyRepository } from "../infrastructure/repositories/PrismaPropertyRepository.js"; 
 import { HttpStatus } from "../../../shared/errors/http-status.js";
 import { AppError } from "../../../shared/errors/AppError.js";
 
-// Instanciamos as dependências de forma manual (como você solicitou)
-const repository = new PropertyRepository();
-const propertyService = new PropertyService(repository);
+/**
+ * ✅ RASTRO PROFISSIONAL:
+ * Centralização da lógica de controle de Imóveis (Properties).
+ * Implementado com Injeção de Dependência manual conforme arquitetura ImobiSys.
+ */
+class PropertyController {
+  private propertyService: PropertyService;
 
-export class PropertyController {
-  
+  constructor() {
+    // Instanciação manual das dependências
+    const repository = new PropertyRepository();
+    this.propertyService = new PropertyService(repository);
+
+    // 💡 IMPORTANTE: Faz o bind dos métodos para garantir que o 'this' não seja perdido no Express
+    this.create = this.create.bind(this);
+    this.getById = this.getById.bind(this);
+    this.getAll = this.getAll.bind(this);
+    this.update = this.update.bind(this);
+    this.delete = this.delete.bind(this);
+  }
+
   /**
    * ➕ CRIAR IMÓVEL
-   * Suporta FormData (JSON + Arquivo PDF da Escritura)
+   * Suporta FormData (JSON + Arquivo PDF/Image)
    */
   public async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      // 🛡️ Validação de segurança para o TypeScript (req.user)
       if (!req.user) {
         throw new AppError({
-          message: "Usuário não autenticado ou token inválido.",
+          message: "Usuário não autenticado.",
           statusCode: HttpStatus.UNAUTHORIZED
         });
       }
 
       const { tenantId, id: userId } = req.user;
-      const file = req.file; // Capturado pelo middleware propertyUpload.single('escritura')
+      const file = req.file; 
 
-      const property = await propertyService.create(
-        { 
-          ...req.body, 
-          tenantId, 
-          userId,
-          // Nota: rentValue virá como string no FormData, o Service tratará para Number
-        }, 
+      const property = await this.propertyService.create(
+        { ...req.body, tenantId, userId }, 
         file
       );
 
@@ -56,9 +65,9 @@ export class PropertyController {
       const { id } = req.params;
       const tenantId = req.user?.tenantId;
 
-      if (!tenantId) throw new AppError({ message: "Não autorizado", statusCode: HttpStatus.UNAUTHORIZED });
+      if (!tenantId) throw new AppError({ message: "Tenant ID ausente", statusCode: HttpStatus.UNAUTHORIZED });
 
-      const property = await propertyService.getById(id, tenantId);
+      const property = await this.propertyService.getById(id, tenantId);
 
       res.status(HttpStatus.OK).json({
         status: "success",
@@ -70,16 +79,14 @@ export class PropertyController {
   }
 
   /**
-   * 📄 LISTAR TODOS
+   * 📄 LISTAR TODOS (Com filtros)
    */
   public async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const tenantId = req.user?.tenantId;
-      if (!tenantId) throw new AppError({ message: "Não autorizado", statusCode: HttpStatus.UNAUTHORIZED });
+      if (!tenantId) throw new AppError({ message: "Tenant ID ausente", statusCode: HttpStatus.UNAUTHORIZED });
 
-      const filters = req.query; 
-
-      const properties = await propertyService.listAll(tenantId, filters);
+      const properties = await this.propertyService.listAll(tenantId, req.query);
 
       res.status(HttpStatus.OK).json({
         status: "success",
@@ -92,7 +99,31 @@ export class PropertyController {
   }
 
   /**
-   * 🗑️ DELETAR
+   * 📝 ATUALIZAR IMÓVEL
+   * ✅ ESSENCIAL: Resolve o erro de rota que estava faltando este método
+   */
+  public async update(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = req.params;
+      const tenantId = req.user?.tenantId;
+      const file = req.file;
+
+      if (!tenantId) throw new AppError({ message: "Não autorizado", statusCode: HttpStatus.UNAUTHORIZED });
+
+      const updatedProperty = await this.propertyService.update(id, tenantId, req.body, file);
+
+      res.status(HttpStatus.OK).json({
+        status: "success",
+        message: "Imóvel atualizado com sucesso!",
+        data: { property: updatedProperty }
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * 🗑️ DELETAR IMÓVEL
    */
   public async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -101,7 +132,7 @@ export class PropertyController {
 
       if (!tenantId) throw new AppError({ message: "Não autorizado", statusCode: HttpStatus.UNAUTHORIZED });
 
-      await propertyService.delete(id, tenantId);
+      await this.propertyService.delete(id, tenantId);
 
       res.status(HttpStatus.NO_CONTENT).send();
     } catch (error) {
@@ -109,3 +140,6 @@ export class PropertyController {
     }
   }
 }
+
+// ✅ Exportamos a instância pronta para uso nas rotas
+export const propertyController = new PropertyController();

@@ -1,6 +1,6 @@
 // CAMINHO: backend/src/modules/properties/routes/property.routes.ts
 import { Router } from "express";
-import * as propertyController from "../controllers/property.controller.js";
+import * as propertyController from "../controllers/PropertiesController";
 
 /** * ✅ RASTRO PROFISSIONAL:
  * Sincronizado para acessar os middlewares globais na pasta shared.
