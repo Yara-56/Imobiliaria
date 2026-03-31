@@ -3,9 +3,10 @@
     /* 🎯 Versão e Módulos Modernos */
     "target": "ES2022",
     "lib": ["ES2022", "ESNext.AsyncIterable"],
-    "module": "NodeNext", 
+    "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    
+    "isolatedModules": true,
+
     /* ✅ Silencia o aviso de depreciação conforme sugerido */
     "ignoreDeprecations": "5.0",
 
@@ -13,11 +14,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
 
-    /* 🚀 A SOLUÇÃO: 
-       Removemos a dependência do baseUrl para resolução de módulos.
-       Agora os caminhos (@/) apontam diretamente para onde os arquivos estão
-       em relação à raiz do projeto.
-    */
+    /* 🚀 Paths (mantido igual ao seu) */
     "paths": {
       "@/*": ["./src/*"],
       "@modules/*": ["./src/modules/*"],
@@ -27,27 +24,27 @@
 
     /* 🔍 Tipagem e Definições Globais */
     "typeRoots": ["./src/@types", "./node_modules/@types"],
-    "types": ["node"],
+    "types": ["node", "jest"],
     "resolveJsonModule": true,
 
-    /* 🛡️ Rigor de Tipagem (Nível Profissional) */
+    /* 🛡️ Rigor de Tipagem */
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "strictPropertyInitialization": false, 
+    "strictPropertyInitialization": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "incremental": true,
 
-    /* 🔥 Decorators (Essenciais para Tsyringe/Inversify) */
+    /* 🔥 Decorators */
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
 
   "include": [
-    "src/**/*",         
-    "src/@types/*.d.ts", 
+    "src/**/*",
+    "src/@types/*.d.ts",
     "prisma/**/*"
   ],
   "exclude": ["node_modules", "dist"]
