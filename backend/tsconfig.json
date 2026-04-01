@@ -1,51 +1,50 @@
 {
   "compilerOptions": {
-    /* 🎯 Versão e Módulos Modernos */
     "target": "ES2022",
-    "lib": ["ES2022", "ESNext.AsyncIterable"],
+    "lib": ["ES2022"],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "isolatedModules": true,
+    "ignoreDeprecations": "6.0",
 
-    /* ✅ Silencia o aviso de depreciação conforme sugerido */
-    "ignoreDeprecations": "5.0",
-
-    /* 📂 Estrutura de Pastas */
-    "rootDir": "./src",
+    "rootDir": ".", 
     "outDir": "./dist",
-
-    /* 🚀 Paths (mantido igual ao seu) */
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@modules/*": ["./src/modules/*"],
-      "@shared/*": ["./src/shared/*"],
-      "@infra/*": ["./src/modules/*"]
+      "@/*": ["src/*"],
+      "@modules/*": ["src/modules/*"],
+      "@shared/*": ["src/shared/*"],
+      "@infra/*": ["src/modules/*"]
     },
 
-    /* 🔍 Tipagem e Definições Globais */
-    "typeRoots": ["./src/@types", "./node_modules/@types"],
-    "types": ["node", "jest"],
-    "resolveJsonModule": true,
+    /* Se o erro persistir, remova "vitest/globals" daqui e use o Passo 3 */
+    "types": ["node", "vitest"], 
 
-    /* 🛡️ Rigor de Tipagem */
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": false,
-    "esModuleInterop": true,
     "skipLibCheck": true,
+
     "sourceMap": true,
     "incremental": true,
 
-    /* 🔥 Decorators */
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
 
   "include": [
-    "src/**/*",
-    "src/@types/*.d.ts",
-    "prisma/**/*"
+    "src/**/*.ts", 
+    "src/**/*.d.ts",
+    "prisma/**/*.ts", 
+    "vitest.config.ts"
   ],
-  "exclude": ["node_modules", "dist"]
+  "exclude": [
+    "node_modules", 
+    "dist"
+  ]
 }

@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "API Backend - Imobiliária Yara Enterprise",
-  "type": "commonjs",
+  "type": "module",
   "main": "dist/server.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon --watch src --ext ts,json --exec \"tsx -r tsconfig-paths/register src/server.ts\"",
@@ -11,7 +11,10 @@
     "build": "tsc",
     "seed": "tsx -r tsconfig-paths/register src/seed.ts",
     "clean:trial": "tsx -r tsconfig-paths/register src/seed.ts",
-    "test": "jest"
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.893.0",
@@ -51,7 +54,6 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^4.17.25",
     "@types/express-serve-static-core": "4.19.8",
-    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/multer": "^1.4.12",
@@ -60,22 +62,18 @@
     "@types/qrcode": "^1.5.6",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
+    "@vitest/coverage-v8": "^4.1.2",
+    "@vitest/ui": "^4.1.2",
     "cross-env": "^7.0.3",
-    "jest": "^30.3.0",
     "nodemon": "^3.1.0",
     "pino-pretty": "^11.3.0",
-    "ts-jest": "^29.4.6",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.21.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.2"
   },
   "engines": {
     "node": ">=20.0.0"
-  },
-  "resolutions": {
-    "@types/express": "4.17.25",
-    "@types/express-serve-static-core": "4.19.8",
-    "@types/compression/@types/express-serve-static-core": "4.19.8",
-    "@types/multer/@types/express-serve-static-core": "4.19.8"
   }
 }

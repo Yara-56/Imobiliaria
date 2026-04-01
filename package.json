@@ -78,6 +78,8 @@
     "@types/react-dom": "^19.2.3",
     "@types/react-dropzone": "^4.2.2",
     "@types/uuid": "^10.0.0",
+    "@vitest/coverage-v8": "^4.1.2",
+    "@vitest/ui": "^4.1.2",
     "autoprefixer": "^10.4.27",
     "concurrently": "^9.2.1",
     "jest": "^30.2.0",
@@ -87,6 +89,7 @@
     "supertest": "^7.2.2",
     "tailwindcss": "^4.2.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.2"
   }
 }

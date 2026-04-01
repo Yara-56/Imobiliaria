@@ -1,8 +1,8 @@
-import { ITenantRepository, CreateTenantData, UpdateTenantData } from '../domain/repositories/tenant.repository.interface';
-import { Tenant } from '../domain/entities/tenant.entity';
-import { createLogger } from '../../../core/logger/logger';
-import { AppError } from '../../../shared/errors/AppError';
-import { HttpStatus } from '../../../shared/errors/http-status';
+import { ITenantRepository, CreateTenantData, UpdateTenantData } from '../domain/repositories/tenant.repository.interface.js';
+import { Tenant } from '../domain/entities/tenant.entity.js';
+import { createLogger } from '../../../core/logger/logger.js';
+import { AppError } from '../../../shared/errors/AppError.js';
+import { HttpStatus } from '../../../shared/errors/http-status.js';
 import { ErrorCodes } from '../../../shared/errors/error-codes';
 
 const logger = createLogger('TenantService');
