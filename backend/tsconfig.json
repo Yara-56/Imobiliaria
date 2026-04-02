@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2022"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "isolatedModules": true,
+    "target": "ES2020",
+    "lib": ["ES2020"],
+
+    "module": "commonjs",
+    "moduleResolution": "node10",
+
     "ignoreDeprecations": "6.0",
 
-    "rootDir": ".", 
-    "outDir": "./dist",
-    "baseUrl": ".",
+    "rootDir": "src",
+    "outDir": "dist",
+
     "paths": {
       "@/*": ["src/*"],
       "@modules/*": ["src/modules/*"],
@@ -17,17 +18,11 @@
       "@infra/*": ["src/modules/*"]
     },
 
-    /* Se o erro persistir, remova "vitest/globals" daqui e use o Passo 3 */
-    "types": ["node", "vitest"], 
-
-    "resolveJsonModule": true,
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
 
     "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictPropertyInitialization": false,
     "skipLibCheck": true,
 
     "sourceMap": true,
@@ -37,14 +32,6 @@
     "emitDecoratorMetadata": true
   },
 
-  "include": [
-    "src/**/*.ts", 
-    "src/**/*.d.ts",
-    "prisma/**/*.ts", 
-    "vitest.config.ts"
-  ],
-  "exclude": [
-    "node_modules", 
-    "dist"
-  ]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }

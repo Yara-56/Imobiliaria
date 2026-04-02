@@ -1,4 +1,4 @@
-import { prisma } from "@;
+import { prisma } from "../../../../../prisma/client";
 import { Payment, PaymentStatus, Prisma } from "@prisma/client";
 
 /**

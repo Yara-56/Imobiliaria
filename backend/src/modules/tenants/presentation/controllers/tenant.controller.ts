@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { BaseCrudController } from "../../../../shared/http/base-crud-controller.js";
-import { TenantService } from "../../services/tenant.service.js";
+import { TenantService } from "../../application/services/tenant.service.js";
 // ✅ Importação do repositório concreto para resolver o erro ts(2554)
 import { PrismaTenantRepository } from "../../infrastructure/repositories/PrismaTenantRepository.js";
 import { HttpStatus } from "../../../../shared/errors/http-status.js";
@@ -25,7 +25,7 @@ export class TenantController extends BaseCrudController<CreateTenantData> {
     // ✅ CORREÇÃO: Criamos o repositório e injetamos no Service
     const repository = new PrismaTenantRepository();
     const service = new TenantService(repository);
-    
+
     // Inicializa a classe base com o service injetado
     super(service);
   }
@@ -57,14 +57,17 @@ export class TenantController extends BaseCrudController<CreateTenantData> {
         fullName: fullName.trim(),
         email: email?.trim() || null,
         phone: phone?.trim() || null,
-        cpf: document?.trim() || null, 
+        cpf: document?.trim() || null,
         tenantId: user.tenantId,
         userId: user.id,
       };
 
       const tenant = await this.service.create(tenantData);
 
-      logger.info({ tenantId: user.tenantId }, "✅ Inquilino criado com sucesso");
+      logger.info(
+        { tenantId: user.tenantId },
+        "✅ Inquilino criado com sucesso"
+      );
 
       res.status(HttpStatus.CREATED).json({
         status: "success",

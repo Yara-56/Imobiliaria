@@ -1,9 +1,15 @@
-export interface CreateTenantDTO {
+export type CreateTenantDTO = {
   fullName: string;
-  email: string;
-}
+  email?: string;
+  cpf?: string;
+  phone?: string;
+  tenantId: string;
+};
 
-export interface UpdateTenantDTO {
+export type UpdateTenantDTO = {
   fullName?: string;
   email?: string;
-}
+  cpf?: string;
+  phone?: string;
+  notes?: string;
+};

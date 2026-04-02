@@ -1,115 +1,100 @@
-import { v4 as uuidv4 } from 'uuid';
-import { RenterStatus } from "@prisma/client";
+import { Tenant } from "../entities/tenant.entity.js";
 
-export interface TenantProps {
-  id?: string;
+/**
+ * 🔎 Query de paginação + filtros
+ */
+export interface PaginationQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  orderBy?: "fullName" | "createdAt";
+  orderDirection?: "asc" | "desc";
+}
+
+/**
+ * 📊 Resultado paginado (padrão enterprise)
+ */
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+/**
+ * 🧾 Dados para criação (mais seguro que usar entidade direta)
+ */
+export interface CreateTenantDTO {
   fullName: string;
   email?: string | null;
   phone?: string | null;
   cpf?: string | null;
-  documentUrl?: string | null;
-  notes?: string | null;
-  propertyId?: string | null;
   tenantId: string;
-  userId?: string | null; // ✅ Essencial para o multi-tenancy
-  status?: RenterStatus;  // ✅ Essencial para bater com o Prisma
-  createdAt?: Date;
-  updatedAt?: Date;
+  userId: string;
 }
 
-export class Tenant {
-  private _id: string;
-  private props: Required<TenantProps>;
+/**
+ * ✏️ Dados para atualização
+ */
+export type UpdateTenantDTO = Partial<
+  Omit<CreateTenantDTO, "tenantId" | "userId">
+>;
 
-  constructor(data: TenantProps) {
-    this._id = data.id || uuidv4();
-    
-    // Inicializamos o objeto props antes de chamar as validações
-    this.props = {
-      ...data,
-      id: this._id,
-      email: data.email ?? null,
-      phone: data.phone ?? null,
-      cpf: data.cpf ?? null,
-      documentUrl: data.documentUrl ?? null,
-      notes: data.notes ?? null,
-      propertyId: data.propertyId ?? null,
-      userId: data.userId ?? null,
-      status: data.status || RenterStatus.ATIVO,
-      createdAt: data.createdAt || new Date(),
-      updatedAt: data.updatedAt || new Date(),
-    };
+/**
+ * 🏢 Interface do Repository (Contrato do domínio)
+ * Segue padrão DDD + Clean Architecture
+ */
+export interface ITenantRepository {
+  /**
+   * ➕ Criar novo inquilino
+   */
+  create(data: CreateTenantDTO): Promise<Tenant>;
 
-    // Aplicamos as validações e reatribuímos os valores limpos
-    this.props.fullName = this.validateFullName(this.props.fullName);
-    this.props.email = this.validateEmail(this.props.email);
-    this.props.cpf = this.validateCPF(this.props.cpf);
-  }
+  /**
+   * 📄 Listar todos com paginação + busca
+   */
+  findAll(
+    tenantId: string,
+    query?: PaginationQuery
+  ): Promise<PaginatedResult<Tenant>>;
 
-  // ✅ GETTERS: O Repositório Prisma usa esses métodos para ler os dados
-  get id() { return this._id; }
-  get fullName() { return this.props.fullName; }
-  get email() { return this.props.email; }
-  get phone() { return this.props.phone; }
-  get cpf() { return this.props.cpf; }
-  get documentUrl() { return this.props.documentUrl; }
-  get notes() { return this.props.notes; }
-  get propertyId() { return this.props.propertyId; }
-  get tenantId() { return this.props.tenantId; }
-  get userId() { return this.props.userId; }
-  get status() { return this.props.status; }
-  get createdAt() { return this.props.createdAt; }
-  get updatedAt() { return this.props.updatedAt; }
+  /**
+   * 🔎 Buscar por ID (isolado por tenant)
+   */
+  findById(id: string, tenantId: string): Promise<Tenant | null>;
 
-  // ============================================
-  // REGRAS DE NEGÓCIO (VALIDAÇÕES)
-  // ============================================
+  /**
+   * 📧 Buscar por email
+   */
+  findByEmail(
+    email: string,
+    tenantId: string
+  ): Promise<Tenant | null>;
 
-  private validateFullName(fullName: string): string {
-    if (!fullName || fullName.trim().length < 3) {
-      throw new Error('Nome completo deve ter no mínimo 3 caracteres');
-    }
-    return fullName.trim();
-  }
+  /**
+   * 🪪 Buscar por CPF
+   */
+  findByCPF(
+    cpf: string,
+    tenantId: string
+  ): Promise<Tenant | null>;
 
-  private validateEmail(email: string | null | undefined): string | null {
-    if (!email) return null;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) throw new Error('Email inválido');
-    return email.toLowerCase();
-  }
+  /**
+   * ✏️ Atualizar
+   */
+  update(
+    id: string,
+    tenantId: string,
+    data: UpdateTenantDTO
+  ): Promise<Tenant>;
 
-  private validateCPF(cpf: string | null | undefined): string | null {
-    if (!cpf) return null;
-    const cleanCPF = cpf.replace(/\D/g, '');
-    if (cleanCPF.length !== 11) throw new Error('CPF deve conter 11 dígitos');
-    if (!this.isValidCPF(cleanCPF)) throw new Error('CPF inválido');
-    return cleanCPF;
-  }
+  /**
+   * 🗑 Remover
+   */
+  delete(id: string, tenantId: string): Promise<void>;
 
-  private isValidCPF(cpf: string): boolean {
-    if (/^(\d)\1{10}$/.test(cpf)) return false;
-    let sum = 0, remainder;
-    for (let i = 1; i <= 9; i++) sum += parseInt(cpf.substring(i - 1, i)) * (11 - i);
-    remainder = (sum * 10) % 11;
-    if (remainder === 10 || remainder === 11) remainder = 0;
-    if (remainder !== parseInt(cpf.substring(9, 10))) return false;
-    sum = 0;
-    for (let i = 1; i <= 10; i++) sum += parseInt(cpf.substring(i - 1, i)) * (12 - i);
-    remainder = (sum * 10) % 11;
-    if (remainder === 10 || remainder === 11) remainder = 0;
-    if (remainder !== parseInt(cpf.substring(10, 11))) return false;
-    return true;
-  }
-
-  public toJSON() {
-    return {
-      ...this.props,
-      cpf: this.props.cpf ? this.formatCPF(this.props.cpf) : null,
-    };
-  }
-
-  private formatCPF(cpf: string): string {
-    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-  }
+  /**
+   * 🔢 Contagem total (para dashboard)
+   */
+  count(tenantId: string): Promise<number>;
 }
