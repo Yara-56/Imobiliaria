@@ -4,7 +4,9 @@ import cors, { CorsOptions } from 'cors';
 const allowedOrigins = [
   'http://localhost:3000', // React padrão
   'http://localhost:5173', // Vite (provavelmente o seu)
-  'http://127.0.0.1:5173'
+  'http://127.0.0.1:5173',
+  'https://homeflux.com.br',    // O seu site oficial
+  'https://www.homeflux.com.br'
 ];
 
 const corsOptions: CorsOptions = {
