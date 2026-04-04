@@ -1,21 +1,16 @@
 import { inject, injectable } from "tsyringe";
-
-import type { ITenantRepository } from "../../domain/repositories/tenant.repository.interface.js";
-import { Tenant } from "../../domain/entities/tenant.entity.js";
-
-import { createLogger } from "../../../../core/logger/logger.js";
-import { AppError } from "../../../../shared/errors/AppError.js";
-import { HttpStatus } from "../../../../shared/errors/http-status.js";
-import { ErrorCodes } from "../../../../shared/errors/error-codes.js";
-
-import { TENANT_TOKENS } from "../../tokens/tenant.tokens.js";
-
-import {
-  CreateTenantDTO,
-  UpdateTenantDTO,
-} from "../dto/tenant.dto.js";
-
-const logger = createLogger("TenantService");
+import { 
+  ITenantRepository, 
+  CreateTenantData, 
+  PaginationQuery, 
+  PaginatedResult 
+} from "../../domain/repositories/ITenantRepository";
+import { Tenant } from "../../domain/entities/tenant.entity";
+import { AppError } from "../../../../shared/errors/AppError";
+import { HttpStatus } from "../../../../shared/errors/http-status";
+import { ErrorCodes } from "../../../../shared/errors/error-codes";
+import { TENANT_TOKENS } from "../../tokens/tenant.tokens";
+import { logger } from "../../../../shared/utils/logger";
 
 @injectable()
 export class TenantService {
@@ -24,64 +19,77 @@ export class TenantService {
     private readonly repo: ITenantRepository
   ) {}
 
-  // =========================
-  // CREATE
-  // =========================
-  async create(data: CreateTenantDTO): Promise<Tenant> {
+  /**
+   * ➕ CREATE (Cadastro de Inquilino com rastro de arquivo)
+   */
+  async create(data: CreateTenantData, file?: Express.Multer.File): Promise<Tenant> {
     try {
-      logger.debug("📥 Criando inquilino", data);
+      // ✅ Logger: Contexto primeiro, mensagem depois (Padrão Pino/Winston)
+      logger.info({ tenantId: data.tenantId, renter: data.fullName }, "📥 Iniciando criação de inquilino");
 
-      this.validateCreate(data);
+      // 🛡️ Validação de Unicidade Multi-tenant
       await this.ensureUniqueFields(data);
 
+      // ✅ Instancia a Entidade usando a factory corrigida
       const tenant = Tenant.create({
-        ...data,
-        email: data.email ?? null,
-        cpf: data.cpf ?? null,
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        cpf: data.cpf,
+        tenantId: data.tenantId,
+        userId: data.userId,
+        avatarUrl: file ? file.path : undefined,
       });
 
       const created = await this.repo.create(tenant);
 
-      logger.info("✅ Inquilino criado", { id: created.id });
+      // ✅ Armazenamento no perfil: Vincula o arquivo como documento oficial
+      if (file) {
+        await this.repo.attachDocument(data.tenantId, created.id!, {
+          name: "Documento de Identificação",
+          url: file.path,
+          category: "PERSONAL_DOC"
+        });
+      }
+
+      logger.info({ renterId: created.id }, "✅ Inquilino criado com sucesso");
 
       return created;
     } catch (error) {
       if (error instanceof AppError) throw error;
-
-      logger.error("❌ Erro ao criar inquilino", { error });
+      
+      logger.error({ error }, "❌ Falha crítica ao criar inquilino");
 
       throw new AppError({
-        message: "Erro ao criar inquilino",
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        errorCode: ErrorCodes.INTERNAL_ERROR,
+        message: "Erro interno ao cadastrar inquilino no servidor",
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR
       });
     }
   }
 
-  // =========================
-  // FIND ALL
-  // =========================
-  async findAll(tenantId: string): Promise<Tenant[]> {
+  /**
+   * 📄 FIND ALL (Paginação SaaS com metadados para o React)
+   */
+  async findAll(tenantId: string, query: PaginationQuery): Promise<PaginatedResult<Tenant>> {
     if (!tenantId) {
-      throw new AppError({
-        message: "TenantId é obrigatório",
-        statusCode: HttpStatus.BAD_REQUEST,
-        errorCode: ErrorCodes.VALIDATION_ERROR,
+      throw new AppError({ 
+        message: "O ID da imobiliária é obrigatório para listar inquilinos", 
+        statusCode: HttpStatus.BAD_REQUEST 
       });
     }
 
-    return this.repo.findAll(tenantId);
+    return await this.repo.findAll(tenantId, query);
   }
 
-  // =========================
-  // FIND BY ID
-  // =========================
+  /**
+   * 🔎 FIND BY ID
+   */
   async findById(id: string, tenantId: string): Promise<Tenant> {
     const tenant = await this.repo.findById(id, tenantId);
 
     if (!tenant) {
       throw new AppError({
-        message: "Inquilino não encontrado",
+        message: "Inquilino não encontrado nesta imobiliária.",
         statusCode: HttpStatus.NOT_FOUND,
         errorCode: ErrorCodes.RESOURCE_NOT_FOUND,
       });
@@ -90,109 +98,65 @@ export class TenantService {
     return tenant;
   }
 
-  // =========================
-  // UPDATE
-  // =========================
-  async update(
-    id: string,
-    tenantId: string,
-    data: UpdateTenantDTO
-  ): Promise<Tenant> {
-    try {
-      const tenant = await this.findById(id, tenantId);
-
-      // 🔥 Atualizações controladas pela Entity
-      if (data.fullName !== undefined) {
-        tenant.updateFullName(data.fullName);
-      }
-
-      if (data.email !== undefined) {
-        tenant.updateEmail(data.email);
-      }
-
-      if (data.cpf !== undefined) {
-        tenant.updateCPF(data.cpf);
-      }
-
-      if (data.phone !== undefined) {
-        tenant.updatePhone(data.phone);
-      }
-
-      if (data.notes !== undefined) {
-        tenant.updateNotes(data.notes);
-      }
-
-      const updated = await this.repo.update(tenant);
-
-      logger.info("✏️ Inquilino atualizado", { id });
-
-      return updated;
-    } catch (error) {
-      if (error instanceof AppError) throw error;
-
-      logger.error("❌ Erro ao atualizar", { error });
-
-      throw new AppError({
-        message: "Erro ao atualizar inquilino",
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        errorCode: ErrorCodes.INTERNAL_ERROR,
-      });
-    }
-  }
-
-  // =========================
-  // DELETE
-  // =========================
-  async delete(id: string, tenantId: string): Promise<void> {
+  /**
+   * ✏️ UPDATE (Atualização controlada por domínio)
+   */
+  async update(id: string, tenantId: string, data: any, file?: Express.Multer.File): Promise<Tenant> {
     const tenant = await this.findById(id, tenantId);
 
-    await this.repo.delete(tenant.id, tenant.tenantId);
-
-    logger.info("🗑️ Inquilino removido", { id });
-  }
-
-  // =========================
-  // VALIDATION
-  // =========================
-  private validateCreate(data: CreateTenantDTO): void {
-    if (!data.fullName?.trim()) {
-      throw new AppError({
-        message: "Nome é obrigatório",
-        statusCode: HttpStatus.BAD_REQUEST,
-        errorCode: ErrorCodes.VALIDATION_ERROR,
+    // 🔥 Atualizações via Métodos da Entidade (Garante consistência)
+    if (data.fullName) tenant.updateFullName(data.fullName);
+    if (data.email !== undefined) tenant.updateEmail(data.email);
+    if (data.cpf !== undefined) tenant.updateCPF(data.cpf);
+    if (data.phone !== undefined) tenant.updatePhone(data.phone);
+    if (data.notes !== undefined) tenant.updateNotes(data.notes);
+    
+    if (file) {
+      tenant.updateAvatar(file.path);
+      await this.repo.attachDocument(tenantId, id, {
+        name: "Identidade Atualizada",
+        url: file.path,
+        category: "PERSONAL_DOC"
       });
     }
 
-    if (!data.tenantId) {
-      throw new AppError({
-        message: "TenantId obrigatório",
-        statusCode: HttpStatus.BAD_REQUEST,
-        errorCode: ErrorCodes.VALIDATION_ERROR,
-      });
-    }
+    const updated = await this.repo.update(tenant);
+    
+    logger.info({ renterId: id }, "✏️ Dados do inquilino atualizados");
+    
+    return updated;
   }
 
-  private async ensureUniqueFields(data: CreateTenantDTO) {
+  /**
+   * 🗑️ DELETE
+   */
+  async delete(id: string, tenantId: string): Promise<void> {
+    await this.findById(id, tenantId);
+    await this.repo.delete(id, tenantId);
+    
+    logger.info({ renterId: id }, "🗑️ Inquilino removido do sistema");
+  }
+
+  /**
+   * 🛡️ PRIVATE: Validação de unicidade (Isolado por Imobiliária)
+   */
+  private async ensureUniqueFields(data: CreateTenantData) {
     if (data.email) {
       const exists = await this.repo.findByEmail(data.email, data.tenantId);
-
       if (exists) {
-        throw new AppError({
-          message: "Email já cadastrado",
-          statusCode: HttpStatus.CONFLICT,
-          errorCode: ErrorCodes.DUPLICATE_ENTRY,
+        throw new AppError({ 
+          message: "Este e-mail já pertence a outro inquilino cadastrado.", 
+          statusCode: HttpStatus.CONFLICT 
         });
       }
     }
 
     if (data.cpf) {
       const exists = await this.repo.findByCPF(data.cpf, data.tenantId);
-
       if (exists) {
-        throw new AppError({
-          message: "CPF já cadastrado",
-          statusCode: HttpStatus.CONFLICT,
-          errorCode: ErrorCodes.DUPLICATE_ENTRY,
+        throw new AppError({ 
+          message: "Este CPF já consta no banco de dados desta imobiliária.", 
+          statusCode: HttpStatus.CONFLICT 
         });
       }
     }

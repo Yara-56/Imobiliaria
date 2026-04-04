@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+// 💡 Se o erro TS2305 persistir, certifique-se que o enum existe no schema.prisma
 import { PaymentStatus } from "@prisma/client";
 
 import { AppError } from "../../../../shared/errors/AppError.js";
@@ -17,11 +18,34 @@ import { GenerateContractPaymentsUseCase } from "../../application/use-cases/gen
 const repo = new PrismaPaymentRepository();
 
 export class PaymentController {
+  constructor() {
+    // Faz o bind de todos os métodos para evitar erros de 'this' nas rotas
+    this.generateAuto = this.generateAuto.bind(this);
+    this.listPayments = this.listPayments.bind(this);
+    this.updatePaymentStatus = this.updatePaymentStatus.bind(this);
+    this.getPaymentById = this.getPaymentById.bind(this);
+    this.deletePayment = this.deletePayment.bind(this);
+    this.createPayment = this.createPayment.bind(this);
+  }
 
   /**
-   * GERAR PARCELAS AUTOMÁTICAS
-   * POST /v1/payments/generate/:contractId
+   * ✅ CRIAÇÃO MANUAL (O que a rota estava procurando)
    */
+  async createPayment(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const useCase = new CreatePaymentUseCase(repo);
+      const payment = await useCase.execute({
+        ...req.body,
+        tenantId: req.user.tenantId,
+        userId: req.user.id
+      });
+
+      res.status(HttpStatus.CREATED).json({ status: "success", data: { payment } });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async generateAuto(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { contractId } = req.params;
@@ -35,14 +59,11 @@ export class PaymentController {
         message: "Projeção financeira gerada com sucesso.",
         data: result,
       });
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   }
 
-  /**
-   * LISTAR PAGAMENTOS
-   */
   async listPayments(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = new ListPaymentsUseCase(repo);
@@ -50,22 +71,14 @@ export class PaymentController {
 
       res.status(HttpStatus.OK).json({
         status: "success",
-        results: payments.length,
+        results: payments?.length || 0,
         data: { payments },
       });
     } catch (error) {
-      next(new AppError({
-        message: "Erro ao carregar pagamentos.",
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        errorCode: ErrorCodes.INTERNAL_ERROR,
-      }));
+      next(error);
     }
   }
 
-  /**
-   * ATUALIZAR STATUS DO PAGAMENTO (PAGO, ATRASADO, etc)
-   * PATCH /v1/payments/:id
-   */
   async updatePaymentStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
@@ -73,7 +86,6 @@ export class PaymentController {
 
       const useCase = new UpdatePaymentStatusUseCase(repo);
       
-      // ✅ Correção do erro ts(2345): Passando o objeto com o status castado para o Enum do Prisma
       const updatedPayment = await useCase.execute(id, req.user.tenantId, {
         status: status as PaymentStatus, 
         paymentDate: paymentDate ? new Date(paymentDate) : new Date()
@@ -84,28 +96,20 @@ export class PaymentController {
         data: { payment: updatedPayment },
       });
     } catch (error) {
-      next(new AppError({
-        message: "Erro ao atualizar status do pagamento.",
-        statusCode: HttpStatus.BAD_REQUEST,
-        errorCode: ErrorCodes.VALIDATION_ERROR,
-      }));
+      next(error);
     }
   }
 
-  /**
-   * BUSCAR POR ID
-   */
   async getPaymentById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = new GetPaymentByIdUseCase(repo);
       const payment = await useCase.execute(req.params.id, req.user.tenantId);
 
       if (!payment) {
-        return next(new AppError({
+        throw new AppError({
           message: "Pagamento não encontrado.",
           statusCode: HttpStatus.NOT_FOUND,
-          errorCode: ErrorCodes.RESOURCE_NOT_FOUND,
-        }));
+        });
       }
 
       res.status(HttpStatus.OK).json({ status: "success", data: { payment } });
@@ -114,20 +118,13 @@ export class PaymentController {
     }
   }
 
-  /**
-   * DELETAR
-   */
   async deletePayment(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = new DeletePaymentUseCase(repo);
       await useCase.execute(req.params.id, req.user.tenantId);
       res.status(HttpStatus.NO_CONTENT).send();
     } catch (error) {
-      next(new AppError({
-        message: "Falha ao remover registro.",
-        statusCode: HttpStatus.NOT_FOUND,
-        errorCode: ErrorCodes.RESOURCE_NOT_FOUND,
-      }));
+      next(error);
     }
   }
 }

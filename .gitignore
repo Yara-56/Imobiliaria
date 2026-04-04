@@ -1,6 +1,5 @@
 # =============================================================================
-# ENVIRONMENT FILES / VARIÁVEIS SENSÍVEIS
-# Nunca envie segredos, tokens ou configurações locais
+# ENVIRONMENT / SECRETS (Prioridade Máxima)
 # =============================================================================
 .env
 .env.local
@@ -9,20 +8,31 @@
 .env.staging
 .env.*.local
 
-# certificados / chaves
+# Nunca ignorar o template de exemplo para que novos devs saibam o que configurar
+!.env.example
+
+# Certificados, chaves privadas e credenciais de nuvem
 *.pem
 *.key
+*.p12
+*.pfx
+*.crt
+.aws/
+.gcloud/
+service-account.json
 
 # =============================================================================
-# DEPENDÊNCIAS
+# DEPENDENCIES
 # =============================================================================
 node_modules/
 .pnp
 .pnp.js
 
-# usando yarn como padrão
+# Como você usa Yarn (baseado nos seus prints), mantemos o lock do npm ignorado
+# se você não pretende alternar entre gerenciadores.
 package-lock.json
 npm-shrinkwrap.json
+pnpm-lock.yaml
 
 # =============================================================================
 # BUILD / OUTPUT
@@ -30,71 +40,91 @@ npm-shrinkwrap.json
 dist/
 dist-ssr/
 build/
-coverage/
-.out/
+bin/
+out/
 .next/
 .vercel/
+# Ignorar metadados do TS
+*.tsbuildinfo
 
 # =============================================================================
-# LOGS
+# LOGS & DEBUG
 # =============================================================================
-logs
+logs/
 *.log
-
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# =============================================================================
-# CACHE
-# =============================================================================
-.cache
-.eslintcache
-.vite
-
-# =============================================================================
-# OS FILES
-# =============================================================================
-.DS_Store
-Thumbs.db
-
-# =============================================================================
-# IDE / EDITOR
-# =============================================================================
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-.vscode/*
-!.vscode/extensions.json
-
-# =============================================================================
-# TESTES
-# =============================================================================
-__tests__/
-playwright-report/
-test-results/
-
-# =============================================================================
-# TYPESCRIPT
-# =============================================================================
-*.tsbuildinfo
-
-# =============================================================================
-# BACKEND
-# =============================================================================
-uploads/
-tmp/
-
-# =============================================================================
-# DEBUG
-# =============================================================================
+# Process IDs e dump de memória
 *.pid
 *.seed
 *.pid.lock
-/generated/prisma
+core.[0-9]*
+
+# =============================================================================
+# TESTING & COVERAGE
+# =============================================================================
+coverage/
+*.lcov
+.nyc_output
+__tests__/__snapshots__/
+playwright-report/
+test-results/
+test-report/
+
+# =============================================================================
+# CACHE & TOOLS
+# =============================================================================
+.cache/
+.eslintcache
+.stylelintcache
+.prettiercache
+.vite/
+.turbo/
+
+# =============================================================================
+# OS & IDE (System Specific)
+# =============================================================================
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# IDE - VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+# Nota: Manter launch.json e settings.json (sem segredos) ajuda o time a ter o mesmo setup
+
+# IDE - JetBrains (WebStorm, IntelliJ)
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# =============================================================================
+# BACKEND SPECIFIC (Uploads & DB)
+# =============================================================================
+# Importante: Ignorar a pasta de uploads local para não subir fotos de teste pro Git
+uploads/
+temp/
+tmp/
+storage/
+
+# Prisma / Bancos Locais
+/generated/
+*.db
+*.db-journal
+query-engine-*
+migration_lock.toml
+
+# =============================================================================
+# DOCKER
+# =============================================================================
+.docker/

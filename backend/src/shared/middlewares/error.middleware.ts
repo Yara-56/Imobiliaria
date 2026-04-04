@@ -6,18 +6,16 @@ import { AppError } from "../errors/AppError";
 import { ErrorCodes } from "../errors/error-codes";
 import { tenantContext } from "../tentant/tenant.context";
 
-/**
- * 🚨 Middleware Global de Erros (Production Ready)
- */
 export const errorMiddleware = (
   err: unknown,
   req: Request,
   res: Response,
   _next: NextFunction
 ): Response => {
-  /**
-   * 🧠 CONTEXTO (multi-tenant + rastreabilidade)
-   */
+  // 🌍 ENV
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // 🧠 CONTEXTO GLOBAL (multi-tenant + tracing)
   let requestId: string | undefined;
   let companyId: string | undefined;
 
@@ -25,65 +23,61 @@ export const errorMiddleware = (
     requestId = tenantContext.getRequestId();
     companyId = tenantContext.getCompanyId();
   } catch {
-    requestId = req.requestId;
+    requestId = (req as any).requestId;
   }
 
-  /**
-   * 🔍 ERRO OPERACIONAL (AppError)
-   */
-  if (err instanceof AppError) {
-    logger.warn({
-      message: err.message,
-      errorCode: err.errorCode,
-      details: err.details,
-      requestId,
-      companyId,
-      path: req.originalUrl,
-      method: req.method,
-    });
+  // 🔧 NORMALIZA ERRO
+  const error =
+    err instanceof AppError
+      ? err
+      : new AppError({
+          message: "Erro interno do servidor",
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          errorCode: ErrorCodes.INTERNAL_ERROR,
+          isOperational: false,
+          cause: err,
+        });
 
-    return res.status(err.statusCode).json(
-      BaseResponse.error(
-        err.message,
-        {
-          code: err.errorCode,
-          details: err.details ?? null,
-        },
-        {
-          requestId,
-          timestamp: new Date().toISOString(),
-          path: req.originalUrl,
-        }
-      )
-    );
-  }
-
-  /**
-   * 💥 ERRO DESCONHECIDO (BUG)
-   */
-  const unknownError =
-    err instanceof Error ? err : new Error(String(err));
-
-  logger.error({
-    message: unknownError.message,
-    stack: unknownError.stack,
+  // 📊 LOG ESTRUTURADO
+  const logPayload = {
+    message: error.message,
+    errorCode: error.errorCode,
+    statusCode: error.statusCode,
+    details: error.details,
+    stack: error.stack,
+    cause: error.cause,
     requestId,
     companyId,
     path: req.originalUrl,
     method: req.method,
-  });
+  };
 
-  return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(
+  if (error.isOperational) {
+    logger.warn(logPayload);
+  } else {
+    logger.error(logPayload);
+  }
+
+  // 📦 RESPOSTA PADRÃO
+  return res.status(error.statusCode).json(
     BaseResponse.error(
-      "Erro interno do servidor",
+      error.message,
       {
-        code: ErrorCodes.INTERNAL_ERROR,
-        details: null,
+        code: error.errorCode,
+        details: error.details ?? null,
       },
       {
         requestId,
-        timestamp: new Date().toISOString(),
+        timestamp: error.timestamp,
         path: req.originalUrl,
+
+        // 🔥 só aparece em DEV
+        ...(isProduction
+          ? {}
+          : {
+              stack: error.stack,
+              cause: error.cause,
+            }),
       }
     )
   );

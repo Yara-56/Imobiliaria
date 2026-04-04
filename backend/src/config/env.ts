@@ -31,6 +31,12 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default("15m"),
   JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
 
+  // ☁️ CLOUDINARY CONFIG (Adicionado para resolver o erro no Provider)
+  CLOUDINARY_NAME: z.string().min(1, "Cloudinary Name é obrigatório"),
+  CLOUDINARY_API_KEY: z.string().min(1, "Cloudinary API Key é obrigatória"),
+  CLOUDINARY_API_SECRET: z.string().min(1, "Cloudinary API Secret é obrigatória"),
+  CLOUDINARY_FOLDER_PREFIX: z.string().default("imobiliaria_dev"),
+
   FRONTEND_URL: z
     .string()
     .url("FRONTEND_URL deve ser uma URL válida")
@@ -51,7 +57,8 @@ const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
   console.error("\n❌ ERRO CRÍTICO NAS ENV:\n");
-  console.error(parsed.error.format());
+  // Exibe os erros de forma mais legível no console
+  console.error(JSON.stringify(parsed.error.format(), null, 2));
   process.exit(1);
 }
 
@@ -73,13 +80,19 @@ export const isTest = env.NODE_ENV === "test";
 export const API_BASE = `${env.API_PREFIX}/${env.API_VERSION}`;
 
 /**
- * 🧠 CONFIG CENTRAL (IMPORTANTE PRA LACERDA)
+ * 🧠 CONFIG CENTRAL
  */
 export const appConfig = {
   apiBase: API_BASE,
   jwt: {
     accessExpiresIn: env.JWT_EXPIRES_IN,
     refreshExpiresIn: env.JWT_REFRESH_EXPIRES_IN,
+  },
+  cloudinary: {
+    name: env.CLOUDINARY_NAME,
+    apiKey: env.CLOUDINARY_API_KEY,
+    apiSecret: env.CLOUDINARY_API_SECRET,
+    folderPrefix: env.CLOUDINARY_FOLDER_PREFIX,
   },
   cors: {
     origin: env.FRONTEND_URL,
@@ -94,5 +107,6 @@ if (isDev) {
   console.log("🚀 Porta:", env.PORT);
   console.log("🔗 API:", API_BASE);
   console.log("🌐 Frontend:", env.FRONTEND_URL);
+  console.log("☁️ Cloudinary Prefix:", env.CLOUDINARY_FOLDER_PREFIX);
   console.log("");
 }
