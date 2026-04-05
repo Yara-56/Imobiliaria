@@ -1,65 +1,64 @@
 {
   "compilerOptions": {
-    /* 🚀 Padrões de Performance e Modernidade (Node 20+) */
+    /* --- Core Compiler Settings --- */
     "target": "ES2022",
-    "lib": ["ES2022", "DOM"], 
+    "lib": ["ES2022", "DOM"],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "dist",
 
-    /* 💉 Suporte Total a Decorators (Essencial para tsyringe e Injeção de Dependência) */
+    /* --- Path Mapping (Modern Standard) --- */
+    /* Removido 'baseUrl' para conformidade com TS 7.0+ */
+    "paths": {
+      "@/*": ["./src/*"],
+      "@modules/*": ["./src/modules/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@config/*": ["./src/config/*"],
+      "@infra/*": ["./src/infrastructure/*"]
+    },
+
+    /* --- Dependency Injection Support --- */
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
 
-    /* 🛣️ Paths (Aliases) - O segredo para imports limpos como '@/config/...' */
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@modules/*": ["src/modules/*"],
-      "@shared/*": ["src/shared/*"],
-      "@config/*": ["src/config/*"]
-    },
+    /* --- Strict Type-Checking & Security --- */
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": false, // Facilitador para DI e ORMs (Prisma)
+    "noImplicitThis": true,
+    "useUnknownInCatchVariables": true,
 
-    /* 🛡️ Segurança e Interoperabilidade */
+    /* --- Linter-like Checks --- */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* --- Module Resolution & Interop --- */
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true, 
-    "skipLibCheck": true, // ✅ Ignora erros de tipagem dentro de node_modules (acelera o build)
-
-    /* 🧐 Rigor Sênior (Equilíbrio entre Clean Code e Produtividade) */
-    "strict": true,
-    "noUnusedLocals": false,   // ✅ Mantemos false para não travar o desenvolvimento enquanto você testa
-    "noUnusedParameters": false,
-    "noImplicitAny": true,
-    
-    /* ✅ Resolve o erro de inicialização de propriedades (ts2564) - Essencial para Repositórios */
-    "strictPropertyInitialization": false,
-
-    /* 🌍 Compatibilidade entre OS (Essencial para você no Mac e o servidor no Linux) */
+    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true, 
-
-    /* ⚙️ Definições de Tipos Globais */
-    "types": [
-      "node", 
-      "reflect-metadata", 
-      "jest" 
-    ]
+    
+    /* --- Environment & Compatibility --- */
+    "types": ["node", "reflect-metadata", "jest"],
+    /* Silencia avisos de depreciação conforme sugerido pelo compilador */
+    "ignoreDeprecations": "6.0" 
   },
-
-  /* 📂 Onde o TypeScript deve olhar */
   "include": [
     "src/**/*", 
-    "prisma.config.ts", // ✅ Resolve o erro do 'process' no arquivo de config do Prisma
+    "prisma.config.ts", 
     "@types/**/*.d.ts"
   ],
-
-  /* 🚫 O que o TypeScript deve ignorar */
   "exclude": [
     "node_modules", 
-    "dist", 
-    "**/*.spec.ts", 
-    "**/*.test.ts",
-    "coverage"
+    "dist",
+    "**/*.spec.ts",
+    "**/*.test.ts"
   ]
 }

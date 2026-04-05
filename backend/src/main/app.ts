@@ -1,4 +1,4 @@
-import express, { Application, Request, Response } from "express";
+import express, { Application } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
@@ -13,6 +13,22 @@ import { env } from "../config/env.js";
 
 export const app: Application = express();
 
+// --- 📖 CONFIGURAÇÃO DO SWAGGER ---
+const swaggerOptions: swaggerJsdoc.Options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "HomeFlux Enterprise API",
+      version: "1.0.0",
+      description: "Documentação oficial da API HomeFlux",
+    },
+    servers: [{ url: `http://localhost:${process.env.PORT || 3001}` }],
+  },
+  apis: ["./src/main/routes.ts", "./src/modules/**/infra/http/*.ts"], 
+};
+
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+
 // --- 🛡️ SEGURANÇA E PERFORMANCE ---
 app.set("trust proxy", 1);
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
@@ -26,16 +42,14 @@ app.use(express.urlencoded({ extended: true }));
 
 // --- 🔐 CORS DINÂMICO ---
 const allowedOrigins = [
-  env.FRONTEND_URL,
+  env?.FRONTEND_URL,
   "http://localhost:5173",
-  "http://127.0.0.1:5173",
-  "http://192.168.2.170:5173" // Adicionado o IP que apareceu nos seus logs
+  "http://192.168.2.170:5173"
 ];
 
 app.use(cors({ 
   origin: (origin, callback) => {
-    // Em desenvolvimento, liberamos se não houver origin (ex: mobile) ou se estiver na lista
-    if (!origin || env.NODE_ENV === "development" || allowedOrigins.includes(origin)) {
+    if (!origin || env?.NODE_ENV === "development" || (origin && allowedOrigins.includes(origin))) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
@@ -44,13 +58,12 @@ app.use(cors({
   credentials: true 
 }));
 
-// --- 🚀 ROTAS ---
-// O prefixo "/api" aqui faz com que o caminho final seja /api/v1/...
+// --- 🚀 ROTAS E DOCUMENTAÇÃO ---
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use("/api", apiRouter);
 
-// Health Check profissional
 app.get("/api/v1/health", (_req, res) => {
-  res.status(200).json({ status: "ok", env: env.NODE_ENV });
+  res.status(200).json({ status: "ok", env: env?.NODE_ENV || "development" });
 });
 
 app.use(errorMiddleware);
