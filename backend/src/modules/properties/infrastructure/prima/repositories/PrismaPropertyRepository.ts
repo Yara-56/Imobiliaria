@@ -1,28 +1,30 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from "../../../../../config/database.config"; 
 import { 
   IPropertyRepository, 
   CreatePropertyData, 
   UpdatePropertyData, 
   PropertyFilters 
-} from '../../domain/repositories/IPropertyRepository';
-import { Property } from '../../domain/entities/property.entity';
+} from "../../../domain/repositories/IPropertyRepository";
 
-const prisma = new PrismaClient();
+// ✅ CORREÇÃO AQUI: Subindo os níveis para chegar em domain/entities
+import { Property } from "../../../domain/entities/property.entity"; 
 
-export class PropertyRepository implements IPropertyRepository {
+/**
+ * 🏠 PrismaPropertyRepository
+ * Implementação profissional de repositório para o módulo de Imóveis.
+ */
+export class PrismaPropertyRepository implements IPropertyRepository {
   
   /**
-   * ✅ Mapeamento Anti-Erro
-   * Converte o modelo do Prisma (que permite null) para a Entidade Property (que exige tipos firmes).
-   * Resolve o erro ts(2345) de city/state/price sendo null.
+   * ✅ Mapeamento Anti-Erro (Data Mapper Pattern)
    */
   private mapToDomain(raw: any): Property {
     return new Property({
       ...raw,
-      city: raw.city ?? "",               // Garante string para o domínio
-      state: raw.state ?? "",             // Garante string para o domínio
-      rentValue: Number(raw.price ?? 0),  // Mapeia price (DB) -> rentValue (Domínio)
-      documentUrl: raw.documentUrl ?? null // Suporte para Escritura/PDF
+      city: raw.city ?? "",               
+      state: raw.state ?? "",             
+      price: Number(raw.price ?? 0),  // Mapeia o campo do DB
+      documentUrl: raw.documentUrl ?? null 
     });
   }
 
@@ -35,11 +37,11 @@ export class PropertyRepository implements IPropertyRepository {
         city: data.city,
         state: data.state,
         zipCode: data.zipCode,
-        price: data.rentValue,           // Mapeia rentValue -> price
-        status: data.status || 'DISPONIVEL',
+        price: data.rentValue,           
+        status: data.status || 'AVAILABLE', // 💡 Use AVAILABLE (Inglês) para bater com o Prisma
         tenantId: data.tenantId,
         userId: data.userId,
-        documentUrl: data.documentUrl,    // ✅ Salva o caminho do PDF/Escritura
+        documentUrl: data.documentUrl,    
       }
     });
 
@@ -47,16 +49,15 @@ export class PropertyRepository implements IPropertyRepository {
   }
 
   async update(id: string, tenantId: string, data: UpdatePropertyData): Promise<Property> {
+    const updateData: any = { ...data };
+    if (data.rentValue) {
+      updateData.price = data.rentValue;
+      delete updateData.rentValue;
+    }
+
     const updated = await prisma.property.update({
-      where: { 
-        id, 
-        // tenantId: tenantId // Adicione se sua PK for composta
-      },
-      data: {
-        ...data,
-        // Se rentValue for enviado, mapeia para price no banco
-        ...(data.rentValue && { price: data.rentValue })
-      }
+      where: { id }, 
+      data: updateData
     });
 
     return this.mapToDomain(updated);
@@ -76,16 +77,18 @@ export class PropertyRepository implements IPropertyRepository {
     const rows = await prisma.property.findMany({
       where: {
         tenantId,
-        status: status,
+        status: status as any,
         price: {
           gte: minPrice,
           lte: maxPrice,
         },
-        OR: search ? [
-          { title: { contains: search, mode: 'insensitive' } },
-          { address: { contains: search, mode: 'insensitive' } },
-          { city: { contains: search, mode: 'insensitive' } },
-        ] : undefined,
+        ...(search && {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { address: { contains: search, mode: 'insensitive' } },
+            { city: { contains: search, mode: 'insensitive' } },
+          ]
+        }),
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -94,7 +97,6 @@ export class PropertyRepository implements IPropertyRepository {
   }
 
   async delete(id: string, tenantId: string): Promise<void> {
-    // deleteMany garante que só apaga se o ID pertencer ao TenantId (Segurança)
     await prisma.property.deleteMany({
       where: { id, tenantId }
     });

@@ -1,23 +1,13 @@
-import { prisma } from "@/config/database.config";
-import { PrismaClient } from "@prisma/client";
+import { PrismaModelName, prismaModels, PrismaModelDelegate } from "./prisma-models";
 
-type ExtractModelKeys<T extends object> = {
-  [K in keyof T]: T[K] extends { findMany: any } ? K : never;
-}[keyof T];
+export abstract class BaseRepository<M extends PrismaModelName> {
+  // ✅ O 'protected' permite que a UserRepository veja o 'this.model'
+  // ✅ O PrismaModelDelegate<M> garante o autocomplete (findUnique, etc)
+  protected model: PrismaModelDelegate<M>;
 
-export type PrismaModelName = ExtractModelKeys<PrismaClient>;
-
-export const prismaModels: {
-  [K in PrismaModelName]: PrismaClient[K];
-} = {
-  tenant: prisma.tenant,
-  user: prisma.user,
-  property: prisma.property,
-  renter: prisma.renter,
-  contract: prisma.contract,
-  payment: prisma.payment,
-  document: prisma.document, // ✅ OBRIGATÓRIO
-};
-
-export type PrismaModelDelegate<M extends PrismaModelName> =
-  (typeof prismaModels)[M];
+  constructor(modelName: M) {
+    // Fazemos o cast para 'any' apenas na atribuição interna,
+    // mas a definição acima mantém a tipagem forte para o resto do código.
+    this.model = prismaModels[modelName] as any;
+  }
+}

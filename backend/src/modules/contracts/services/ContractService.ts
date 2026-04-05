@@ -1,18 +1,20 @@
 import { injectable, inject } from "tsyringe";
 
-// ✅ CORREÇÃO: Subindo 4 níveis para chegar em 'shared'
+// ✅ CAMINHOS PARA SHARED (Sobe 4 níveis: services -> infra -> contracts -> modules -> src)
 import { AppError } from "../../../shared/errors/AppError";
 import { HttpStatus } from "../../../shared/errors/http-status";
-import { logger } from "../../../../src/core/logger/logger";
 
-// ✅ CORREÇÃO: Caminhos para o domínio e tokens de Contracts (subindo 2 níveis)
-import { IContractRepository } from "../domain/repositories/IContractRepository"; 
+// ✅ CAMINHO PARA O LOGGER (Dentro de shared/core/logger)
+import { logger } from "../../../core/logger/logger";
+
+// ✅ INTERFACES E TOKENS DE CONTRATO (Dentro do módulo contracts)
+// IContractRepository está em contracts/domain/repositories
+import { IContractRepository } from "../../contracts/domain/repositories/IContractRepository"; 
+// CONTRACT_TOKENS está em contracts/tokens
 import { CONTRACT_TOKENS } from "../tokens/contract.tokens";
 
-// ✅ CORREÇÃO: Caminho para o módulo de Properties (subindo 3 níveis até 'modules')
+// ✅ MÓDULO DE PROPRIEDADES (Irmão de contracts)
 import { IPropertyRepository } from "../../properties/domain/repositories/IPropertyRepository";
-// ✅ Cada token no seu devido lugar:
-import { CONTRACT_TOKENS } from "../tokens/contract.tokens";
 import { PROPERTY_TOKENS } from "../../properties/tokens/property.tokens";
 
 @injectable()
@@ -41,6 +43,7 @@ export class ContractService {
       });
     }
 
+    // Validação de status (SaaS Guard)
     if (property.status !== "AVAILABLE") {
       throw new AppError({
         message: "O imóvel selecionado não está disponível para locação.",
@@ -53,7 +56,7 @@ export class ContractService {
       ...data,
       tenantId,
       userId,
-      contractNumber: data.contractNumber ?? `REQ-${Date.now()}`,
+      contractNumber: data.contractNumber ?? `CNT-${Date.now()}`,
       startDate: new Date(data.startDate),
       endDate: data.endDate ? new Date(data.endDate) : null,
       rentAmount: Number(data.rentAmount),

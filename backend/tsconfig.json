@@ -1,39 +1,65 @@
 {
   "compilerOptions": {
+    /* 🚀 Padrões de Performance e Modernidade (Node 20+) */
     "target": "ES2022",
-    "lib": ["ES2022"],
-
-    /* Configurações de Módulo para Node Moderno (ESM) */
+    "lib": ["ES2022", "DOM"], 
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    
-    /* 🔥 RESOLVE O ERRO 'Transform failed' (Decorators) */
+    "rootDir": "src",
+    "outDir": "dist",
+
+    /* 💉 Suporte Total a Decorators (Essencial para tsyringe e Injeção de Dependência) */
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
 
-    /* Paths e Resolução */
+    /* 🛣️ Paths (Aliases) - O segredo para imports limpos como '@/config/...' */
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
       "@modules/*": ["src/modules/*"],
       "@shared/*": ["src/shared/*"],
-      "@infra/*": ["src/modules/*"]
+      "@config/*": ["src/config/*"]
     },
 
-    "rootDir": "src",
-    "outDir": "dist",
-
-    /* Interoperabilidade e Segurança */
+    /* 🛡️ Segurança e Interoperabilidade */
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "isolatedModules": true, 
+    "skipLibCheck": true, // ✅ Ignora erros de tipagem dentro de node_modules (acelera o build)
+
+    /* 🧐 Rigor Sênior (Equilíbrio entre Clean Code e Produtividade) */
     "strict": true,
+    "noUnusedLocals": false,   // ✅ Mantemos false para não travar o desenvolvimento enquanto você testa
+    "noUnusedParameters": false,
+    "noImplicitAny": true,
     
-    /* ✅ RESOLVE O ERRO 'id não tem inicializador' (ts2564) */
+    /* ✅ Resolve o erro de inicialização de propriedades (ts2564) - Essencial para Repositórios */
     "strictPropertyInitialization": false,
-    
-    "skipLibCheck": true,
-    "ignoreDeprecations": "6.0"
+
+    /* 🌍 Compatibilidade entre OS (Essencial para você no Mac e o servidor no Linux) */
+    "forceConsistentCasingInFileNames": true, 
+
+    /* ⚙️ Definições de Tipos Globais */
+    "types": [
+      "node", 
+      "reflect-metadata", 
+      "jest" 
+    ]
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+
+  /* 📂 Onde o TypeScript deve olhar */
+  "include": [
+    "src/**/*", 
+    "prisma.config.ts", // ✅ Resolve o erro do 'process' no arquivo de config do Prisma
+    "@types/**/*.d.ts"
+  ],
+
+  /* 🚫 O que o TypeScript deve ignorar */
+  "exclude": [
+    "node_modules", 
+    "dist", 
+    "**/*.spec.ts", 
+    "**/*.test.ts",
+    "coverage"
+  ]
 }

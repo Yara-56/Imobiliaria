@@ -1,32 +1,39 @@
-import { IPaymentRepository } from "../../domain/repositories/payment.repository.interface.js";
+import { inject, injectable } from "tsyringe"; // 🔥 Adicionado para DI
+import { IPaymentRepository } from "../../domain/repositories/payment.repository.interface";
 import {
   Payment,
   PaymentStatus,
   PAYMENT_STATUS,
   isValidPaymentStatus,
-} from "../../domain/entities/payment.entity.js";
-import { AppError } from "../../../../shared/errors/AppError.js";
-import { HttpStatus } from "../../../../shared/errors/http-status.js";
-import { ErrorCodes } from "../../../../shared/errors/error-codes.js";
-import { PaymentReceiptService } from "../payment-receipt.service.js";
+} from "../../domain/entities/payment.entity";
+import { AppError } from "../../../../shared/errors/AppError";
+import { HttpStatus } from "../../../../shared/errors/http-status";
+import { ErrorCodes } from "../../../../shared/errors/error-codes";
+import { PaymentReceiptService } from "../../services/PaymentReceiptService";
 
-// ✅ Definindo uma interface para os dados de atualização
 interface UpdateStatusData {
   status: PaymentStatus;
   paymentDate?: Date;
 }
 
+@injectable() // ✅ Essencial para o tsyringe
 export class UpdatePaymentStatusUseCase {
-  constructor(private readonly repo: IPaymentRepository) {}
+  constructor(
+    @inject("PaymentRepository") // ✅ Ajuste o nome do token conforme seu container
+    private readonly repo: IPaymentRepository,
+
+    @inject(PaymentReceiptService) // ✅ Injetando o serviço de recibos
+    private readonly receiptService: PaymentReceiptService
+  ) {}
 
   async execute(
     id: string,
     tenantId: string,
-    data: UpdateStatusData // ✅ Agora aceita o objeto completo
+    data: UpdateStatusData
   ): Promise<Payment> {
     const { status, paymentDate } = data;
 
-    // 1️⃣ Validar status
+    // 1. Validar status
     if (!isValidPaymentStatus(status)) {
       throw new AppError({
         message: "Status de pagamento inválido.",
@@ -35,7 +42,7 @@ export class UpdatePaymentStatusUseCase {
       });
     }
 
-    // 2️⃣ Buscar pagamento existente
+    // 2. Buscar pagamento existente
     const existingPayment = await this.repo.findById(id, tenantId);
 
     if (!existingPayment) {
@@ -46,8 +53,7 @@ export class UpdatePaymentStatusUseCase {
       });
     }
 
-    // 3️⃣ Atualizar no Repositório (Passando o objeto com a data)
-    // ✅ O seu repository.updateStatus deve estar preparado para receber a data também
+    // 3. Atualizar no Repositório
     const updatedPayment = await this.repo.updateStatus(
       id,
       tenantId,
@@ -55,7 +61,7 @@ export class UpdatePaymentStatusUseCase {
       paymentDate
     );
 
-    // 4️⃣ Registrar histórico
+    // 4. Registrar histórico
     try {
       await this.repo.createHistory?.({
         paymentId: updatedPayment.id,
@@ -67,13 +73,16 @@ export class UpdatePaymentStatusUseCase {
       console.warn("⚠️ Histórico não registrado:", err);
     }
 
-    // 🚀 5️⃣ Gerar recibo automaticamente ao marcar como PAGO
-    if (status === PAYMENT_STATUS.PAGO) {
+    // 🚀 5. Fluxo de Automação: Gerar recibo ao marcar como PAGO
+    // Verifique se no seu enum do banco é 'PAGO' ou 'PAID' (no seu schema era PAID)
+    if (status === PAYMENT_STATUS.PAID || status === (PAYMENT_STATUS as any).PAGO) {
       try {
-        await PaymentReceiptService.generateReceipt(updatedPayment.id);
-        console.log(`✅ Recibo gerado para o pagamento: ${updatedPayment.id}`);
+        // ✅ Agora usamos a instância injetada e o método .execute()
+        await this.receiptService.execute(updatedPayment.id);
+        console.log(`✅ Recibo gerado com sucesso: ${updatedPayment.id}`);
       } catch (err) {
-        console.error("❌ Erro ao gerar recibo:", err);
+        // Não travamos o fluxo principal se o PDF falhar, apenas logamos
+        console.error("❌ Erro ao gerar recibo automático:", err);
       }
     }
 

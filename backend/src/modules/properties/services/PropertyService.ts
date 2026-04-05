@@ -1,6 +1,6 @@
 import { injectable, inject } from "tsyringe";
 import { IPropertyRepository } from "../domain/repositories/IPropertyRepository";
-import { PROPERTY_TOKENS } from "../tokens/property.tokens"; // 🛠️ Corrigido de 'tonkens' para 'tokens'
+import { PROPERTY_TOKENS } from "../tokens/property.tokens"; 
 import { AppError } from "../../../shared/errors/AppError";
 import { HttpStatus } from "../../../shared/errors/http-status";
 import {
@@ -8,9 +8,6 @@ import {
   type UpdatePropertyInput,
 } from "../schemas/property.schema";
 
-/**
- * Interface auxiliar para o arquivo enviado via Multer/Cloudinary
- */
 interface IFile {
   path: string;
 }
@@ -23,8 +20,24 @@ export class PropertyService {
   ) {}
 
   /**
+   * 🔍 BUSCAR POR ID (O CORAÇÃO DA VALIDAÇÃO)
+   * Mudamos de 'getById' para 'findById' para resolver o erro ts(2339).
+   */
+  async findById(id: string, tenantId: string) {
+    const property = await this.propertyRepository.findById(id, tenantId);
+    
+    if (!property) {
+      throw new AppError({ 
+        message: "Imóvel não encontrado ou você não tem permissão para acessá-lo.", 
+        statusCode: HttpStatus.NOT_FOUND 
+      });
+    }
+    
+    return property;
+  }
+
+  /**
    * ➕ CRIAR IMÓVEL
-   * Realiza o mapeamento do DTO para o formato aceito pelo repositório.
    */
   async create(data: CreatePropertyInput & { tenantId: string; userId: string }, file?: IFile) {
     const { address, ...rest } = data;
@@ -36,7 +49,7 @@ export class PropertyService {
       documentUrl: file ? file.path : undefined,
       city: address?.city || "", 
       state: address?.state || "",
-      // Mapeamento dinâmico: prioriza rentValue mas aceita price como fallback
+      // Mapeamento inteligente: garante que o valor financeiro nunca seja nulo
       rentValue: (data as any).price || (data as any).rentValue || 0,
       address: address as any 
     };
@@ -52,29 +65,11 @@ export class PropertyService {
   }
 
   /**
-   * 🔍 BUSCAR POR ID
-   * @throws AppError se o imóvel não existir ou pertencer a outro tenant.
-   */
-  async getById(id: string, tenantId: string) {
-    const property = await this.propertyRepository.findById(id, tenantId);
-    
-    if (!property) {
-      throw new AppError({ 
-        message: "Imóvel não encontrado ou você não tem permissão para acessá-lo.", 
-        statusCode: HttpStatus.NOT_FOUND 
-      });
-    }
-    
-    return property;
-  }
-
-  /**
    * 📝 ATUALIZAR IMÓVEL
-   * Valida a existência antes de enviar os dados para o repositório.
    */
   async update(id: string, tenantId: string, data: UpdatePropertyInput, file?: IFile) {
-    // 🛡️ Segurança: garante que o imóvel pertence ao tenant antes de editar
-    await this.getById(id, tenantId);
+    // 🛡️ Reutiliza o findById para garantir que o imóvel existe e é do dono certo
+    await this.findById(id, tenantId);
 
     const { address, ...rest } = data;
     
@@ -95,7 +90,7 @@ export class PropertyService {
    * 🗑️ DELETAR IMÓVEL
    */
   async delete(id: string, tenantId: string) {
-    await this.getById(id, tenantId);
+    await this.findById(id, tenantId);
     return await this.propertyRepository.delete(id, tenantId);
   }
 }

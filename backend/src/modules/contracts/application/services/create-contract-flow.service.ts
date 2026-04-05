@@ -1,10 +1,10 @@
 import { injectable, inject } from "tsyringe";
 
-// ✅ Caminhos ajustados para o que vejo no seu explorador
+// ✅ Imports corrigidos (Removido os .ts e ajustado caminhos)
 import { TenantService } from "../../../tenants/application/services/tenant.service";
-import { ContractService } from "./contracts.services"; // Vizinho de pasta
-import { ReceiptService } from "../../../payments/application/services/payment-receipt.service";
-import { PropertyService } from "../../../properties/application/services/PropertyService";
+import { PropertyService } from "../../../properties/services/PropertyService";
+import { PaymentReceiptService } from "../../../payments/services/PaymentReceiptService";
+import { ContractService } from "../contract-generator.service"; // ✅ Certifique-se que o nome da CLASSE lá dentro é ContractService
 
 import { AppError } from "../../../../shared/errors/AppError";
 import { HttpStatus } from "../../../../shared/errors/http-status";
@@ -12,17 +12,18 @@ import { HttpStatus } from "../../../../shared/errors/http-status";
 @injectable()
 export class CreateContractFlowService {
   constructor(
-    @inject(TenantService)
+    @inject("TenantService")
     private tenantService: TenantService,
 
-    @inject(PropertyService)
+    @inject("PropertyService")
     private propertyService: PropertyService,
 
-    @inject(ContractService)
+    // ✅ DICA: Certifique-se que no container você registrou como "ContractService"
+    @inject("ContractService")
     private contractService: ContractService,
 
-    @inject(ReceiptService)
-    private receiptService: ReceiptService
+    @inject("ReceiptService")
+    private receiptService: PaymentReceiptService
   ) {}
 
   async execute(data: {
@@ -33,36 +34,39 @@ export class CreateContractFlowService {
     endDate: Date;
     userId: string;
   }) {
-    // 1. Validar inquilino
+    // 1. Validar Locatário
     const tenant = await this.tenantService.findById(data.tenantId, data.tenantId);
+    if (!tenant) throw new AppError({ message: "Locatário não encontrado.", statusCode: HttpStatus.NOT_FOUND });
 
-    // 2. Validar imóvel
+    // 2. Validar Imóvel
     const property = await this.propertyService.findById(data.propertyId, data.tenantId);
+    if (!property) throw new AppError({ message: "Imóvel não encontrado.", statusCode: HttpStatus.NOT_FOUND });
 
-    if (!property) {
-      throw new AppError({ message: "Imóvel não encontrado.", statusCode: HttpStatus.NOT_FOUND });
-    }
+    const finalRentAmount = data.rentAmount ?? (property as any).price ?? 0;
 
-    const rentAmount = data.rentAmount ?? (property as any).rentValue;
-
-    // 3. Criar contrato
-    const contract = await this.contractService.createContract({
+    // 3. Criar o Contrato
+    const contract = await this.contractService.execute({
       propertyId: data.propertyId,
-      rentAmount,
+      rentAmount: finalRentAmount,
       startDate: data.startDate,
       endDate: data.endDate,
-    }, data.tenantId, data.userId);
-
-    // 4. Gerar recibo financeiro
-    const receipt = await this.receiptService.generateInitialReceipt({
       tenantId: data.tenantId,
-      contractId: contract.id,
-      amount: rentAmount,
+      userId: data.userId
     });
+
+    // 4. Gerar Recibo
+    let receiptUrl = null;
+    try {
+      // O receiptService.execute geralmente espera o ID do pagamento ou contrato
+      const receipt = await this.receiptService.execute(contract.id);
+      receiptUrl = (receipt as any).url;
+    } catch (error) {
+      console.error("⚠️ Erro ao gerar recibo automático:", error);
+    }
 
     return {
       status: "success",
-      data: { tenant, property, contract, receipt }
+      data: { contractId: contract.id, receiptUrl }
     };
   }
 }

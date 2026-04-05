@@ -2,47 +2,40 @@ import { prisma } from "@/config/database.config";
 import { PrismaClient } from "@prisma/client";
 
 /**
- * Extrai dinamicamente apenas os delegates oficiais do PrismaClient
- * (ou seja, tudo que possui findMany).
+ * 🛠️ ExtractModelKeys
+ * Filtra dinamicamente o PrismaClient para extrair apenas as chaves que representam 
+ * modelos de banco de dados (aqueles que possuem o método findMany).
  */
-type ExtractModelKeys<T extends object> = {
+type ExtractModelKeys<T> = {
   [K in keyof T]: T[K] extends { findMany: any } ? K : never;
 }[keyof T];
 
 /**
- * Todos os nomes reais dos modelos definidos no schema.prisma
+ * 🏷️ PrismaModelName
+ * União de strings contendo os nomes literais dos modelos: 
+ * "user" | "tenant" | "property" | "contract" | etc.
  */
 export type PrismaModelName = ExtractModelKeys<PrismaClient>;
 
 /**
- * Mapa ESCALÁVEL contendo TODOS os delegates reais do Prisma.
- *
- * Resultado baseado automaticamente no schema:
- *
- *  tenant
- *  user
- *  property
- *  renter
- *  contract
- *  payment
- *  document   ← Incluído, correto e obrigatório
- *
+ * 📦 prismaModels
+ * Mapeamento centralizado dos delegados do Prisma para uso nos repositórios.
+ * ✅ O 'as const' é o que garante que o TS preserve a tipagem real de cada model.
  */
-export const prismaModels: Record<
-  PrismaModelName,
-  PrismaClient[PrismaModelName]
-> = {
+export const prismaModels = {
   tenant: prisma.tenant,
   user: prisma.user,
   property: prisma.property,
   renter: prisma.renter,
   contract: prisma.contract,
   payment: prisma.payment,
-  document: prisma.document, // ✔ OBRIGATÓRIO, pois existe no schema
-};
+  document: prisma.document,
+} as const;
 
 /**
- * Delegate tipado para qualquer model do prisma
+ * 🧬 PrismaModelDelegate
+ * Utilitário de tipo que captura a interface exata do modelo solicitado.
+ * Ex: PrismaModelDelegate<"user"> retornará o tipo real do prisma.user
  */
 export type PrismaModelDelegate<M extends PrismaModelName> =
   (typeof prismaModels)[M];

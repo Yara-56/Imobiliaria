@@ -5,7 +5,6 @@
   "description": "API Backend - Imobiliária Yara Enterprise",
   "type": "commonjs",
   "main": "dist/server.js",
-
   "scripts": {
     "dev": "NODE_ENV=development nodemon --watch src --ext ts,json --exec \"tsx -r tsconfig-paths/register src/server.ts\"",
     "start": "NODE_ENV=production node dist/server.js",
@@ -17,7 +16,6 @@
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage"
   },
-
   "dependencies": {
     "@aws-sdk/client-s3": "^3.893.0",
     "@aws-sdk/lib-storage": "^3.893.0",
@@ -49,7 +47,6 @@
     "swagger-ui-express": "^5.0.1",
     "zod": "^3.25.76"
   },
-
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/compression": "^1.8.1",
@@ -60,7 +57,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/multer": "^1.4.13",
-    "@types/node": "^20.12.7",
+    "@types/node": "^20.19.39",
     "@types/pdfkit": "^0.17.5",
     "@types/qrcode": "^1.5.6",
     "@types/swagger-jsdoc": "^6.0.4",
@@ -75,7 +72,6 @@
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.2"
   },
-
   "engines": {
     "node": ">=20.0.0"
   }
