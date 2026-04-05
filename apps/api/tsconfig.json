@@ -1,0 +1,49 @@
+{
+  "compilerOptions": {
+    /* --- Core Settings --- */
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": "./",
+    "outDir": "./dist",
+    "baseUrl": ".", 
+
+    /* --- Path Mapping --- */
+    "paths": {
+      "@/*": ["./src/*"],
+      "@modules/*": ["./src/modules/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@config/*": ["./src/config/*"],
+      "@infra/*": ["./src/shared/infra/*"]
+    },
+
+    /* --- Dependency Injection Support --- */
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    /* --- Strict Checks --- */
+    "strict": true,
+    "noImplicitAny": true,
+    "strictPropertyInitialization": false,
+    
+    /* --- Interop & Environment --- */
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    
+    /* --- Fix: Removido 'jest' e mantido apenas o necessário --- */
+    "types": ["node", "reflect-metadata"]
+  },
+  "include": [
+    "src/**/*",
+    "prisma/**/*.ts",
+    "*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "skipLibCheck": true,
+
+    /* Resolução de Módulos Moderna */
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* ✅ Solução p/ TS 7.0: Paths relativos à raiz sem baseUrl */
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
+    /* ✅ Silencia o aviso de depreciação */
+    "ignoreDeprecations": "5.0", 
+
+    /* Tipagem e Segurança */
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "types": ["vite/client", "node"],
+
+    /* Interoperabilidade */
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true
+  },
+  "include": ["src", "../src/context", "../src/core", "../src/layouts", "../src/hooks", "../src/routes", "../src/lib", "../src/store"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
