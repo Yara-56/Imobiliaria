@@ -1,17 +1,22 @@
 import "reflect-metadata";
 import { Server } from "node:http";
-import { app } from "./shared/infra/http/app.js"; // Certifique-se que app.ts está na mesma pasta 'main'
-import { prisma } from "../../infrastructure/database/prisma.client.js";
+import { app } from "./shared/infra/http/app.js";
+import { PrismaClient } from "@prisma/client";
 import { logger } from "./shared/utils/logger.js";
 import "./shared/container/index.js";
 
+const prisma = new PrismaClient();
+
 const PORT = process.env.PORT || 3001;
 const ENV = process.env.NODE_ENV || "development";
-const BASE_URL = ENV === "development" ? `http://localhost:${PORT}` : `https://api.homeflux.com`;
+const BASE_URL =
+  ENV === "development"
+    ? `http://localhost:${PORT}`
+    : `https://api.homeflux.com`;
 
 let server: Server;
 
-// Captura de exceções fatais síncronas
+// 🚨 Captura de exceções fatais síncronas
 process.on("uncaughtException", (err) => {
   if (logger) {
     logger.fatal({ err }, "💥 CRITICAL: UNCAUGHT EXCEPTION");
@@ -23,18 +28,18 @@ process.on("uncaughtException", (err) => {
 
 async function startServer(): Promise<void> {
   try {
-    // 1. Conexão com o Banco de Dados (Prisma)
+    // 📡 Conexão com banco
     await prisma.$connect();
     logger.info("📡 [HomeFlux] Database connected");
 
-    // 2. Inicialização do Servidor Express
+    // 🚀 Start do servidor
     server = app.listen(PORT, () => {
       logger.info(`🚀 HomeFlux API Engine v1.0 [${ENV}]`);
       logger.info(`🔗 Local: ${BASE_URL}`);
       logger.info(`🩺 Health: ${BASE_URL}/api/v1/health`);
     });
 
-    // 3. Captura de Rejeições de Promises não tratadas
+    // ⚠️ Erros async não tratados
     process.on("unhandledRejection", (reason) => {
       logger.error({ reason }, "💥 ASYNC ERROR: UNHANDLED REJECTION");
       gracefulShutdown("UNHANDLED_REJECTION");
@@ -51,23 +56,25 @@ async function startServer(): Promise<void> {
 }
 
 /**
- * 🛑 Graceful Shutdown - Encerramento limpo de conexões
+ * 🛑 Graceful Shutdown
  */
 async function gracefulShutdown(signal: string): Promise<void> {
   logger.warn(`⚠️ Shutdown initiated: ${signal}`);
 
-  const closeServer = () => new Promise<void>((resolve) => {
-    if (!server) return resolve();
-    server.close(() => resolve());
-  });
+  const closeServer = () =>
+    new Promise<void>((resolve) => {
+      if (!server) return resolve();
+      server.close(() => resolve());
+    });
 
   try {
-    // Tenta fechar o servidor e o banco de dados em no máximo 10 segundos
     await Promise.race([
       Promise.all([closeServer(), prisma.$disconnect()]),
-      new Promise((_, reject) => setTimeout(() => reject(new Error("Shutdown Timeout")), 10000))
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Shutdown Timeout")), 10000)
+      ),
     ]);
-    
+
     logger.info("🛑 Clean exit. System offline.");
     process.exit(0);
   } catch (err) {
@@ -76,7 +83,7 @@ async function gracefulShutdown(signal: string): Promise<void> {
   }
 }
 
-// Sinais de encerramento do Sistema Operacional
+// 🔌 Sinais do sistema
 process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 

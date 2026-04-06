@@ -4,18 +4,19 @@ generator client {
 
 datasource db {
   provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 //////////////////////////////////////////////////
-// ENUMS (Padrão Internacional)
+// ENUMS
 //////////////////////////////////////////////////
 
 enum ContractStatus {
-  DRAFT      // Rascunho
-  ACTIVE     // Vigente
-  PENDING    // Aguardando Assinatura
-  CANCELLED  // Rescindido
-  FINISHED   // Finalizado/Encerrado
+  DRAFT
+  ACTIVE
+  PENDING
+  CANCELLED
+  FINISHED
 }
 
 enum PaymentMethod {
@@ -41,15 +42,15 @@ enum PropertyStatus {
 }
 
 enum DocumentType {
-  IDENTITY_CARD    // RG/CNH
-  TAX_ID           // CPF
-  INCOME_PROOF     // Holerite/IR
-  ADDRESS_PROOF    // Conta de Luz/Água
-  LEASE_CONTRACT   // Contrato de Locação Assinado
-  PAYMENT_RECEIPT  // Recibo de Aluguel
-  PROPERTY_DEED    // Escritura/Matrícula
-  PROPERTY_TAX     // IPTU
-  INSURANCE_POLICY // Seguro Incêndio/Fiança
+  IDENTITY_CARD
+  TAX_ID
+  INCOME_PROOF
+  ADDRESS_PROOF
+  LEASE_CONTRACT
+  PAYMENT_RECEIPT
+  PROPERTY_DEED
+  PROPERTY_TAX
+  INSURANCE_POLICY
   OTHER
 }
 
@@ -58,10 +59,10 @@ enum DocumentType {
 //////////////////////////////////////////////////
 
 model Tenant {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  cnpj      String?  @unique
-  isActive  Boolean  @default(true)
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  cnpj       String?  @unique
+  isActive   Boolean  @default(true)
 
   users      User[]
   properties Property[]
@@ -86,56 +87,55 @@ model User {
 
   contracts Contract[]
   payments  Payment[]
-  
+
   createdAt DateTime @default(now())
 }
 
 model Property {
-  id          String         @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  address     String
-  price       Float          @default(0)
-  status      PropertyStatus @default(AVAILABLE)
+  id         String         @id @default(auto()) @map("_id") @db.ObjectId
+  title      String
+  address    String
+  price      Float          @default(0)
+  status     PropertyStatus @default(AVAILABLE)
 
-  tenantId    String         @db.ObjectId
-  tenant      Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId   String         @db.ObjectId
+  tenant     Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  contracts   Contract[]
-  documents   Document[]     // Documentos do Imóvel (Escritura, Fotos, IPTU)
+  contracts  Contract[]
+  documents  Document[]
 
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
 }
 
 model Renter {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  fullName    String
-  email       String?
-  cpf         String?   @unique
-  phone       String?
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  fullName   String
+  email      String?
+  cpf        String?   @unique
+  phone      String?
 
-  tenantId    String    @db.ObjectId
-  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId   String    @db.ObjectId
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  contracts   Contract[]
-  documents   Document[] // Documentos do Inquilino (RG, CPF, Renda)
-  payments    Payment[]
+  contracts  Contract[]
+  documents  Document[]
+  payments   Payment[]
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
 model Contract {
   id             String         @id @default(auto()) @map("_id") @db.ObjectId
   contractNumber String?        @unique
-  
+
   startDate      DateTime
   endDate        DateTime?
   rentAmount     Float
-  dueDay         Int            // Dia de vencimento (1 a 31)
+  dueDay         Int
   status         ContractStatus @default(DRAFT)
 
-  // RELAÇÕES
   tenantId       String         @db.ObjectId
   tenant         Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
@@ -149,7 +149,7 @@ model Contract {
   user           User           @relation(fields: [userId], references: [id])
 
   payments       Payment[]
-  documents      Document[]     // O Contrato assinado em si e aditivos
+  documents      Document[]
 
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
@@ -162,9 +162,8 @@ model Payment {
   paymentDate    DateTime?
   status         PaymentStatus @default(PENDING)
   method         PaymentMethod @default(PIX)
-  referenceMonth String        // Ex: "04/2026"
+  referenceMonth String
 
-  // RELAÇÕES
   contractId     String        @db.ObjectId
   contract       Contract      @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
@@ -174,24 +173,23 @@ model Payment {
   tenantId       String        @db.ObjectId
   tenant         Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  userId         String?       @db.ObjectId // Quem deu baixa no pagamento
+  userId         String?       @db.ObjectId
   user           User?         @relation(fields: [userId], references: [id])
 
-  documents      Document[]    // ✅ Aqui ficam os RECIBOS gerados após o pagamento
+  documents      Document[]
 
   createdAt      DateTime      @default(now())
 }
 
 model Document {
   id         String       @id @default(auto()) @map("_id") @db.ObjectId
-  name       String       // Nome do arquivo
+  name       String
   type       DocumentType
-  url        String       // URL do Cloudinary
-  fileKey    String       // ID do Cloudinary (para deleção)
+  url        String
+  fileKey    String
   fileSize   Int
   mimeType   String
 
-  // RELAÇÕES POLIMÓRFICAS (Opcionais)
   tenantId   String       @db.ObjectId
   tenant     Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 

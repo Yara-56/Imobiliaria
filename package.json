@@ -12,9 +12,15 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "@types/swagger-jsdoc": "^6.0.4",
     "prettier": "^3.5.0",
+    "prisma": "^7.6.0",
     "rimraf": "^5.0.5",
     "turbo": "^2.1.0",
     "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.6.0",
+    "swagger-jsdoc": "^6.2.8"
   }
 }

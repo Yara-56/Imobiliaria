@@ -1,10 +1,10 @@
 import { Router } from "express";
 
-import authRoutes from "../../modules/auth/routes/auth.routes.js";
-import tenantRoutes from "../../modules/tenants/presentation/routes/tenant.routes.js";
-import propertyRoutes from "../../modules/properties/routes/property.routes.js";
-import contractRoutes from "../../modules/contracts/routes/contract.routes.js";
-import paymentRoutes from "../../modules/payments/presentation/routes/payment.routes.js";
+import authRoutes from "../../modules/auth/routes/auth.routes";
+import tenantRoutes from "../../modules/tenants/presentation/routes/tenant.routes";
+import propertyRoutes from "../../modules/properties/routes/property.routes";
+import contractRoutes from "../../modules/contracts/routes/contract.routes";
+import paymentRoutes from "../../modules/payments/presentation/routes/payment.routes";
 
 export const apiRouter = Router();
 
@@ -28,7 +28,7 @@ v1.use("/payments", paymentRoutes);
 v1.get("/health", (_req, res) => {
   res.status(200).json({
     status: "ok",
-    service: "ImobiSys API",
+    service: "HomeFlux API",
     version: "v1",
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
