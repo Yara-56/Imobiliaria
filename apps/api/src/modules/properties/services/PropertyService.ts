@@ -1,12 +1,13 @@
 import { injectable, inject } from "tsyringe";
-import { IPropertyRepository } from "../domain/repositories/IPropertyRepository.js";
-import { PROPERTY_TOKENS } from "../tokens/property.tokens.js"; 
-import { AppError } from "../../../shared/errors/AppError.js";
-import { HttpStatus } from "../../../shared/errors/http-status.js";
+// ✅ CORREÇÃO: Usamos 'import type' para interfaces quando isolatedModules está ativo
+import type { IPropertyRepository } from "../domain/repositories/IPropertyRepository.ts";
+import { PROPERTY_TOKENS } from "../tokens/property.tokens.ts"; 
+import { AppError } from "../../../shared/errors/AppError.ts";
+import { HttpStatus } from "../../../shared/infra/http/http-status.ts";
 import {
   type CreatePropertyInput,
   type UpdatePropertyInput,
-} from "../schemas/property.schema.js";
+} from "../schemas/property.schema.ts";
 
 interface IFile {
   path: string;
@@ -21,9 +22,9 @@ export class PropertyService {
 
   /**
    * 🔍 BUSCAR POR ID (O CORAÇÃO DA VALIDAÇÃO)
-   * Mudamos de 'getById' para 'findById' para resolver o erro ts(2339).
+   * Mantemos getById para bater com o que o Controller espera!
    */
-  async findById(id: string, tenantId: string) {
+  async getById(id: string, tenantId: string) {
     const property = await this.propertyRepository.findById(id, tenantId);
     
     if (!property) {
@@ -49,7 +50,6 @@ export class PropertyService {
       documentUrl: file ? file.path : undefined,
       city: address?.city || "", 
       state: address?.state || "",
-      // Mapeamento inteligente: garante que o valor financeiro nunca seja nulo
       rentValue: (data as any).price || (data as any).rentValue || 0,
       address: address as any 
     };
@@ -68,8 +68,7 @@ export class PropertyService {
    * 📝 ATUALIZAR IMÓVEL
    */
   async update(id: string, tenantId: string, data: UpdatePropertyInput, file?: IFile) {
-    // 🛡️ Reutiliza o findById para garantir que o imóvel existe e é do dono certo
-    await this.findById(id, tenantId);
+    await this.getById(id, tenantId); // Validação de existência
 
     const { address, ...rest } = data;
     
@@ -90,7 +89,7 @@ export class PropertyService {
    * 🗑️ DELETAR IMÓVEL
    */
   async delete(id: string, tenantId: string) {
-    await this.findById(id, tenantId);
+    await this.getById(id, tenantId);
     return await this.propertyRepository.delete(id, tenantId);
   }
 }

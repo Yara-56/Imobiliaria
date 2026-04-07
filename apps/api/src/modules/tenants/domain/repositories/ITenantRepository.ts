@@ -1,8 +1,16 @@
-import { Tenant } from "../entities/tenant.entity.js";
+import { Tenant } from "../entities/tenant.entity.ts";
+/** * ✅ PADRÃO SAAS REAL: 
+ * Importamos os tipos globais do Core. Se mudarmos a paginação no Shared, 
+ * toda a API (Imóveis, Inquilinos, Pagamentos) se atualiza sozinha.
+ */
+import { 
+  PaginationQuery, 
+  PaginatedResult 
+} from "../../../../shared/core/IBaseRepository.ts";
 
 /**
- * 📥 DTO de Criação (Data Transfer Object)
- * ✅ Exportado para resolver o erro no Controller e Service
+ * 📥 CreateTenantData
+ * DTO para persistência inicial do inquilino.
  */
 export interface CreateTenantData {
   fullName: string;
@@ -14,32 +22,8 @@ export interface CreateTenantData {
 }
 
 /**
- * 🔎 Query de busca e paginação (Padrão SaaS)
- */
-export interface PaginationQuery {
-  page?: number;
-  limit?: number;
-  search?: string;
-  orderBy?: string;
-  orderDirection?: "asc" | "desc";
-}
-
-/**
- * 📊 Resultado paginado profissional
- */
-export interface PaginatedResult<T> {
-  data: T[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-}
-
-/**
- * 🏢 Interface do Repositório de Inquilinos (Renters)
- * Foco: Isolamento multi-tenant e gestão de documentos.
+ * 🏢 ITenantRepository
+ * Foco: Isolamento multi-tenant rigoroso e gestão documental.
  */
 export interface ITenantRepository {
   /**
@@ -48,7 +32,8 @@ export interface ITenantRepository {
   create(tenant: Tenant): Promise<Tenant>;
 
   /**
-   * 📄 Listar com paginação e busca (SaaS padrão)
+   * 📄 Listar com paginação e busca scoped
+   * 🔒 Segurança: O tenantId garante que a Imobiliária Lacerda nunca veja inquilinos de outra.
    */
   findAll(
     tenantId: string, 
@@ -61,12 +46,12 @@ export interface ITenantRepository {
   findById(id: string, tenantId: string): Promise<Tenant | null>;
 
   /**
-   * 📧 Buscar por email (Único dentro da imobiliária)
+   * 📧 Buscar por email (Único por contexto de imobiliária)
    */
   findByEmail(email: string, tenantId: string): Promise<Tenant | null>;
 
   /**
-   * 🪪 Buscar por CPF/CNPJ (Único dentro da imobiliária)
+   * 🪪 Buscar por CPF/CNPJ (Segurança de dados)
    */
   findByCPF(cpf: string, tenantId: string): Promise<Tenant | null>;
 
@@ -76,13 +61,13 @@ export interface ITenantRepository {
   update(tenant: Tenant): Promise<Tenant>;
 
   /**
-   * 🗑 Remover com isolamento multi-tenant
+   * 🗑 Remover com isolamento total
    */
   delete(id: string, tenantId: string): Promise<void>;
 
   /**
    * 📄 Gestão de Documentos (Contratos e Identidade)
-   * Vincula a URL do arquivo diretamente ao perfil do inquilino no MongoDB
+   * Nível Pro: Vincula metadados de arquivos (S3/Cloudinary) ao perfil.
    */
   attachDocument(tenantId: string, renterId: string, document: {
     name: string;
@@ -91,7 +76,7 @@ export interface ITenantRepository {
   }): Promise<void>;
 
   /**
-   * 📊 Métricas para Dashboard (Pronto para gráficos)
+   * 📊 Métricas para Dashboard (KPIs da HomeFlux)
    */
   getStats(tenantId: string): Promise<{
     total: number;

@@ -1,17 +1,24 @@
 import cors, { CorsOptions } from 'cors';
 
-// 🌍 Lista de endereços que podem "falar" com o seu backend
+/**
+ * 🌍 ALLOWED ORIGINS
+ * Lista de endereços autorizados a consumir a API do HomeFlux.
+ */
 const allowedOrigins = [
-  'http://localhost:3000', // React padrão
-  'http://localhost:5173', // Vite (provavelmente o seu)
-  'http://127.0.0.1:5173',
-  'https://homeflux.com.br',    // O seu site oficial
+  'http://localhost:3000',      // React (CRA)
+  'http://localhost:5173',      // Vite (Padrão atual)
+  'http://127.0.0.1:5173',      // Loopback Vite
+  'https://homeflux.com.br',     // Produção
   'https://www.homeflux.com.br'
 ];
 
-const corsOptions: CorsOptions = {
+/**
+ * ✅ CONFIGURAÇÃO DO CORS
+ * Exportamos explicitamente para que o app.ts encontre o membro 'corsOptions'.
+ */
+export const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
-    // Permite ferramentas de teste como Postman/Insomnia (que não mandam origin)
+    // Permite requisições sem origin (como Postman, Insomnia ou Mobile nativo)
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
@@ -21,8 +28,18 @@ const corsOptions: CorsOptions = {
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true // 🔐 Importante para o login funcionar depois!
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'x-tenant-id', 
+    'x-request-id'
+  ],
+  credentials: true, // 🔐 Essencial para cookies e sessões multi-tenant
+  optionsSuccessStatus: 200 // Correção para navegadores legados
 };
 
+/**
+ * 📦 MIDDLEWARE PRONTO
+ * Caso você prefira usar app.use(corsMiddleware) diretamente.
+ */
 export const corsMiddleware = cors(corsOptions);

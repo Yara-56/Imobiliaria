@@ -1,38 +1,30 @@
-import { PrismaClient, Prisma } from "@prisma/client";
-import { BaseRepository } from "../../../../../shared/base/base.repository";
+import { PrismaClient, Prisma, User } from "@prisma/client";
+import { BaseRepository } from "../../../../../shared/core/BaseRepository.js";
 import {
   IUserRepository,
   PaginationQuery,
   PaginatedResult,
-} from "../../../domain/repositories/IUserRepository";
+} from "../../../../users/domain/repositories/IUserRepository.js";
 
 const prisma = new PrismaClient();
 
 /**
  * 👤 PrismaUserRepository
- * Foco: Multi-tenant, performance e tipagem forte
+ * Foco: Multi-tenant, Clean Architecture e Tipagem Forte
  */
 export class PrismaUserRepository
-  extends BaseRepository<any>
+  extends BaseRepository<User, Prisma.UserCreateInput, Prisma.UserUpdateInput>
   implements IUserRepository
 {
-  protected model = prisma.user;
-
   constructor() {
-    super("user");
+    // Passamos o modelo 'user' do Prisma para a classe base
+    super(prisma.user);
   }
 
   /**
-   * ➕ CREATE
+   * 💾 SAVE / UPDATE (Geral)
    */
-  async create(data: Prisma.UserCreateInput) {
-    return await this.model.create({ data });
-  }
-
-  /**
-   * 💾 SAVE
-   */
-  async save(user: any) {
+  async save(user: any): Promise<User> {
     return await this.model.update({
       where: { id: user.id },
       data: user,
@@ -40,30 +32,30 @@ export class PrismaUserRepository
   }
 
   /**
-   * 🔍 FIND BY ID (multi-tenant seguro)
+   * 📧 FIND BY EMAIL (Específico de Usuário)
    */
-  async findById(id: string, tenantId: string) {
-    return await this.model.findFirst({
-      where: { id, tenantId },
-    });
-  }
-
-  /**
-   * 📧 FIND BY EMAIL
-   */
-  async findByEmail(email: string) {
+  async findByEmail(email: string): Promise<User | null> {
     return await this.model.findUnique({
       where: { email },
     });
   }
 
   /**
-   * 📄 FIND ALL (paginação + busca)
+   * 🔍 FIND BY ID (Sobrescrevendo para garantir multi-tenant)
+   */
+  override async findById(id: string, tenantId: string): Promise<User | null> {
+    return await this.model.findFirst({
+      where: { id, tenantId },
+    });
+  }
+
+  /**
+   * 📄 FIND ALL (Com paginação avançada e busca)
    */
   async findAll(
     tenantId: string,
     query?: PaginationQuery
-  ): Promise<PaginatedResult<any>> {
+  ): Promise<PaginatedResult<User>> {
     const page = Number(query?.page) || 1;
     const limit = Number(query?.limit) || 10;
     const skip = (page - 1) * limit;
@@ -72,18 +64,8 @@ export class PrismaUserRepository
       tenantId,
       ...(query?.search && {
         OR: [
-          {
-            name: {
-              contains: query.search,
-              mode: "insensitive",
-            },
-          },
-          {
-            email: {
-              contains: query.search,
-              mode: "insensitive",
-            },
-          },
+          { name: { contains: query.search, mode: "insensitive" } },
+          { email: { contains: query.search, mode: "insensitive" } },
         ],
       }),
       ...(query?.status && { status: query.status as any }),
@@ -95,8 +77,7 @@ export class PrismaUserRepository
         take: limit,
         skip,
         orderBy: {
-          [query?.orderBy || "createdAt"]:
-            query?.orderDirection || "desc",
+          [query?.orderBy || "createdAt"]: query?.orderDirection || "desc",
         } as Prisma.UserOrderByWithRelationInput,
       }),
       this.model.count({ where }),
@@ -114,25 +95,25 @@ export class PrismaUserRepository
   }
 
   /**
-   * 📝 UPDATE (seguro por tenant)
+   * 📝 UPDATE (Segurança: obriga o uso do tenantId no WHERE)
    */
-  async update(
+  override async update(
     id: string,
     tenantId: string,
     data: Prisma.UserUpdateInput
-  ) {
+  ): Promise<User> {
     return await this.model.update({
-      where: { id },
+      where: { id, tenantId },
       data,
     });
   }
 
   /**
-   * 🗑️ DELETE
+   * 🗑️ DELETE (Segurança: impede deletar de outro tenant)
    */
-  async delete(id: string, tenantId: string): Promise<void> {
+  override async delete(id: string, tenantId: string): Promise<void> {
     await this.model.delete({
-      where: { id },
+      where: { id, tenantId },
     });
   }
 

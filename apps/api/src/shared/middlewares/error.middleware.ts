@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import { HttpStatus } from "../http/http-status.js";
-import { BaseResponse } from "../http/base-response.js";
-import { logger } from "../utils/logger.js";
-import { AppError } from "../errors/AppError.js";
-import { ErrorCodes } from "../errors/error-codes.js";
-import { tenantContext } from "../tentant/tenant.context.js";
+import { HttpStatus } from "../infra/http/http-status.ts";
+import { BaseResponse } from "../infra/http/base-response.ts";
+import { logger } from "../utils/logger.ts";
+import { AppError } from "../errors/AppError.ts";
+import { ErrorCodes } from "../errors/error-codes.ts";
+import { tenantContext } from "../tenant/tenant.context.ts";
 
 export const errorMiddleware = (
   err: unknown,
@@ -12,21 +12,21 @@ export const errorMiddleware = (
   res: Response,
   _next: NextFunction
 ): Response => {
-  // 🌍 ENV
+  // 🌍 Identifica se estamos em Produção para esconder o StackTrace (Segurança SaaS)
   const isProduction = process.env.NODE_ENV === "production";
 
-  // 🧠 CONTEXTO GLOBAL (multi-tenant + tracing)
+  // 🧠 CONTEXTO GLOBAL (Recupera os IDs sem quebrar a requisição)
   let requestId: string | undefined;
-  let companyId: string | undefined;
+  let tenantId: string | undefined;
 
   try {
     requestId = tenantContext.getRequestId();
-    companyId = tenantContext.getCompanyId();
+    tenantId = tenantContext.getTenantId(); // ✅ Ajustado para bater com o arquivo context
   } catch {
     requestId = (req as any).requestId;
   }
 
-  // 🔧 NORMALIZA ERRO
+  // 🔧 NORMALIZAÇÃO: Transforma qualquer erro desconhecido em um AppError formatado
   const error =
     err instanceof AppError
       ? err
@@ -38,18 +38,18 @@ export const errorMiddleware = (
           cause: err,
         });
 
-  // 📊 LOG ESTRUTURADO
+  // 📊 LOG ESTRUTURADO: Essencial para debug no HomeFlux
   const logPayload = {
     message: error.message,
     errorCode: error.errorCode,
     statusCode: error.statusCode,
-    details: error.details,
-    stack: error.stack,
-    cause: error.cause,
     requestId,
-    companyId,
+    tenantId,
     path: req.originalUrl,
     method: req.method,
+    // stack e cause só vão para o log de servidor, nunca para o cliente em prod
+    stack: error.stack,
+    cause: error.cause,
   };
 
   if (error.isOperational) {
@@ -58,26 +58,24 @@ export const errorMiddleware = (
     logger.error(logPayload);
   }
 
-  // 📦 RESPOSTA PADRÃO
+  // 📦 RESPOSTA PADRÃO SaaS
   return res.status(error.statusCode).json(
     BaseResponse.error(
       error.message,
       {
         code: error.errorCode,
-        details: error.details ?? null,
+        details: (error as any).details ?? null,
       },
       {
         requestId,
-        timestamp: error.timestamp,
+        timestamp: new Date().toISOString(),
         path: req.originalUrl,
 
-        // 🔥 só aparece em DEV
-        ...(isProduction
-          ? {}
-          : {
-              stack: error.stack,
-              cause: error.cause,
-            }),
+        // 🔥 Segurança: só expõe detalhes técnicos se não for produção
+        ...(!isProduction && {
+          stack: error.stack,
+          cause: error.cause,
+        }),
       }
     )
   );

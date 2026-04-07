@@ -7,9 +7,10 @@
     "moduleResolution": "NodeNext",
     "rootDir": "./",
     "outDir": "./dist",
-    "baseUrl": ".", 
 
-    /* --- Path Mapping --- */
+    /* --- Path Mapping (SaaS Pro) --- */
+    // Removido o baseUrl para evitar o erro de depreciação. 
+    // O TS agora resolve caminhos relativos ao arquivo de config.
     "paths": {
       "@/*": ["./src/*"],
       "@modules/*": ["./src/modules/*"],
@@ -17,6 +18,11 @@
       "@config/*": ["./src/config/*"],
       "@infra/*": ["./src/shared/infra/*"]
     },
+
+    /* --- Modern Module Support --- */
+    // Permite que você use imports terminando em .ts no seu routes.ts
+    "allowImportingTsExtensions": true,
+    "noEmit": true, 
 
     /* --- Dependency Injection Support --- */
     "experimentalDecorators": true,
@@ -34,13 +40,12 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     
-    /* --- Fix: Removido 'jest' e mantido apenas o necessário --- */
+    /* --- Types --- */
     "types": ["node", "reflect-metadata"]
   },
   "include": [
     "src/**/*",
-    "prisma/**/*.ts",
-    "*.ts"
+    "prisma/**/*.ts"
   ],
   "exclude": [
     "node_modules",
