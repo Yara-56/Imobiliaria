@@ -1,16 +1,42 @@
 {
-     "$schema": "https://turbo.build/schema.json",
-     "tasks": {
-       "build": {
-         "dependsOn": ["^build"],
-         "outputs": ["dist/**", ".next/**", "out/**"]
-       },
-       "dev": {
-         "cache": false,
-         "persistent": true
-       },
-       "db:generate": {
-         "cache": false
-       }
-     }
-   }
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "stream",
+  "globalDependencies": [
+    ".env",
+    "tsconfig.json"
+  ],
+  "tasks": {
+    "db:generate": {
+      "inputs": ["**/schema.prisma"],
+      "outputs": ["node_modules/.prisma/client/**"],
+      "cache": true
+    },
+    "db:push": {
+      "cache": false,
+      "interactive": true
+    },
+    "build": {
+      "dependsOn": ["^build", "db:generate"],
+      "inputs": ["src/**", "public/**", "next.config.js", "tsconfig.json"],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "!.next/cache/**",
+        "out/**",
+        "public/dist/**"
+      ]
+    },
+    "dev": {
+      "dependsOn": ["db:generate"],
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^build"],
+      "cache": true
+    },
+    "clean": {
+      "cache": false
+    }
+  }
+}

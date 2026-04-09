@@ -7,7 +7,7 @@ interface AppErrorOptions {
   errorCode?: ErrorCode;
   details?: unknown;
   isOperational?: boolean;
-  cause?: unknown; // 🔥 novo (encadeamento de erro)
+  cause?: unknown;
 }
 
 export class AppError extends Error {
@@ -18,14 +18,35 @@ export class AppError extends Error {
   public readonly timestamp: string;
   public readonly cause?: unknown;
 
-  constructor({
-    message,
-    statusCode = HttpStatus.BAD_REQUEST,
-    errorCode = ErrorCodes.INTERNAL_ERROR,
-    details,
-    isOperational = true,
-    cause,
-  }: AppErrorOptions) {
+  /**
+   * Suporta dois formatos:
+   * 1. new AppError({ message: "erro", statusCode: 400 })
+   * 2. new AppError("mensagem de erro", 400) -> Para compatibilidade com seus middlewares
+   */
+  constructor(optionsOrMessage: AppErrorOptions | string, statusCodeOrErrorCode?: HttpStatusCode | ErrorCode) {
+    let message: string;
+    let statusCode: HttpStatusCode = HttpStatus.BAD_REQUEST;
+    let errorCode: ErrorCode = ErrorCodes.INTERNAL_ERROR;
+    let details: unknown = undefined;
+    let isOperational = true;
+    let cause: unknown = undefined;
+
+    if (typeof optionsOrMessage === "string") {
+      // Caso: new AppError("mensagem", 400)
+      message = optionsOrMessage;
+      if (typeof statusCodeOrErrorCode === "number") {
+        statusCode = statusCodeOrErrorCode as HttpStatusCode;
+      }
+    } else {
+      // Caso: new AppError({ message: "...", ... })
+      message = optionsOrMessage.message;
+      statusCode = optionsOrMessage.statusCode ?? HttpStatus.BAD_REQUEST;
+      errorCode = optionsOrMessage.errorCode ?? ErrorCodes.INTERNAL_ERROR;
+      details = optionsOrMessage.details;
+      isOperational = optionsOrMessage.isOperational ?? true;
+      cause = optionsOrMessage.cause;
+    }
+
     super(message);
 
     this.name = "AppError";
@@ -38,13 +59,11 @@ export class AppError extends Error {
 
     Object.setPrototypeOf(this, new.target.prototype);
 
-    // Evita erro em ambientes que não suportam
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, this.constructor);
     }
   }
 
-  // 🔥 SERIALIZAÇÃO PADRÃO (API RESPONSE)
   public toJSON() {
     return {
       status: "error",

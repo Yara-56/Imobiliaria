@@ -14,12 +14,12 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* ✅ Solução p/ TS 7.0: Paths relativos à raiz sem baseUrl */
+    /* Caminhos (Aliases) */
     "paths": {
       "@/*": ["./src/*"]
     },
 
-    /* ✅ Silencia o aviso de depreciação */
+    /* Silencia aviso de depreciação do TS 5.0+ */
     "ignoreDeprecations": "5.0", 
 
     /* Tipagem e Segurança */
@@ -29,12 +29,16 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["vite/client", "node"],
 
-    /* Interoperabilidade */
+    /* Interoperabilidade e Performance */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true
   },
-  "include": ["src", "../src/context", "../src/core", "../src/layouts", "../src/hooks", "../src/routes", "../src/lib", "../src/store"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": [
+    "src/**/*.ts", 
+    "src/**/*.tsx", 
+    "vite.config.ts"
+  ],
+  "exclude": ["node_modules"]
 }

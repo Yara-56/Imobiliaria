@@ -3,14 +3,22 @@
   "version": "1.0.0",
   "private": true,
   "packageManager": "pnpm@10.32.1",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=10.0.0"
+  },
   "scripts": {
-  "dev": "turbo run dev --no-daemon",
-  "build": "turbo build",
-  "prisma:generate": "turbo prisma:generate",
-  "clean": "rimraf .turbo node_modules apps/**/node_modules apps/**/dist",
-  "reinstall": "pnpm clean && pnpm install",
-  "fix:imports": "node scripts/fix-imports.js"
-},
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
+    "db:generate": "turbo run db:generate",
+    "db:push": "turbo run db:push",
+    "db:studio": "turbo run db:studio",
+    "clean": "turbo run clean && rimraf node_modules .turbo",
+    "reinstall": "pnpm clean && pnpm install",
+    "fix:imports": "node scripts/fix-imports.js"
+  },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/swagger-jsdoc": "^6.0.4",

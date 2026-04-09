@@ -1,4 +1,4 @@
 export const PROPERTY_TOKENS = {
-  Repository: Symbol("PropertyRepository"),
-  Service: Symbol("PropertyService"),
+  Repository: Symbol.for("PropertyRepository"),
+  Service: Symbol.for("PropertyService"),
 };
