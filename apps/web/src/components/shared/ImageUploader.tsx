@@ -1,11 +1,11 @@
 "use client";
 
-import { Box, Flex, Icon, Image, Text, IconButton, Stack } from "@chakra-ui/react";
+import { Box, Flex, Icon, Image, Text, IconButton, Stack } from "@chakra-ui/react.js";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { LuImage, LuX } from "react-icons/lu";
 // ✅ Importando o toaster padrão do Chakra v3
-import { toaster } from "@/components/ui/toaster";
+import { toaster } from "@/components/ui/toaster.js";
 
 interface ImageUploaderProps {
   onFilesChange: (files: File[]) => void;
@@ -125,4 +125,4 @@ export default function ImageUploader({ onFilesChange, maxFiles = 5 }: ImageUplo
 }
 
 // Pequeno helper caso não tenha o Center importado
-import { Center } from "@chakra-ui/react";
+import { Center } from "@chakra-ui/react.js";

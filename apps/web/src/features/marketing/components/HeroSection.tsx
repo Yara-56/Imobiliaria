@@ -7,7 +7,7 @@ import {
   Icon,
   Badge,
   Flex,
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 
 import {
   LuBuilding2,

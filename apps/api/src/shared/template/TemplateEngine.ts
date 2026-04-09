@@ -1,7 +1,7 @@
 import Handlebars from "handlebars";
 import fs from "fs";
 import path from "path";
-import { AppError } from "@/shared/errors/AppError";
+import { AppError } from "@/shared/errors/AppError.js";
 
 export class TemplateEngine {
   static loadTemplate(templateName: string): string {

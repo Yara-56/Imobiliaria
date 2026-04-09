@@ -1,5 +1,5 @@
 import { prisma } from "../../../../../prisma/client.js";
-import { Payment, PaymentStatus, Prisma } from "@prisma/client";
+import { Payment, PaymentStatus, Prisma } from "@prisma/client.js";
 
 /**
  * Tipagem para criação de pagamento (compatível com seu schema)

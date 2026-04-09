@@ -1,5 +1,5 @@
 import pino from "pino";
-import { env, isDev } from "../../config/env.js";
+import { env, isDev } from "@config/env.js";
 
 /**
  * Configuração base do logger

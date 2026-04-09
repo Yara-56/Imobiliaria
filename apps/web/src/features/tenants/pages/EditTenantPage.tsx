@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { 
   Box, Container, Heading, Text, VStack, 
   Spinner, Center, Flex, IconButton, Button, Badge, Stack 
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 import { LuArrowLeft, LuShieldCheck, LuCircleAlert } from "react-icons/lu";
 
 import { useTenants } from "../hooks/useTenants";

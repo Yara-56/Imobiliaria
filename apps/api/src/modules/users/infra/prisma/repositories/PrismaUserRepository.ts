@@ -1,5 +1,5 @@
 import { PrismaClient, Prisma, User } from "@prisma/client";
-import { BaseRepository } from "../../../../../shared/core/BaseRepository.js";
+import { BaseRepository } from "@shared/core/BaseRepository.js";
 import {
   IUserRepository,
   PaginationQuery,

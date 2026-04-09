@@ -2,7 +2,7 @@ import axios, {
   AxiosError,
   InternalAxiosRequestConfig,
 } from "axios";
-import { toaster } from "@/components/ui/toaster";
+import { toaster } from "@/components/ui/toaster.js";
 
 /**
  * Configurações vindas do .env

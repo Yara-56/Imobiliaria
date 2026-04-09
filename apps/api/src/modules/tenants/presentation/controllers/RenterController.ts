@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { prisma } from "@/infrastructure/database/prisma.client";
-import { RenterStatus } from "@prisma/client";
+import { prisma } from "@/infrastructure/database/prisma.client.js";
+import { RenterStatus } from "@prisma/client.js";
 import { v4 as uuidv4 } from "uuid";
 import PDFDocument from "pdfkit";
 import fs from "fs";

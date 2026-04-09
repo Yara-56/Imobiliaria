@@ -1,4 +1,4 @@
-import { Stack as ChakraStack, StackProps } from "@chakra-ui/react";
+import { Stack as ChakraStack, StackProps } from "@chakra-ui/react.js";
 
 // Componente Base
 export const Stack = (props: StackProps) => {

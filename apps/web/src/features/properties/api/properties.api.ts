@@ -3,7 +3,7 @@ import api from "../../../../../src/core/api/httpClient";
 import {
   mapApiToProperty as mapToUI,
   mapPropertyToApi as mapToApi
-} from "@/features/properties/mappers/properties.mapper";
+} from "@/features/properties/mappers/properties.mapper.js";
 
 import type { Property, PropertyUI } from "../types/property";
 

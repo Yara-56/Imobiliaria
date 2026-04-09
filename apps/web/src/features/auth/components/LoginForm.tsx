@@ -11,7 +11,7 @@ import {
   SimpleGrid,
   HStack,
   Icon,
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 import {
   LuMail,
   LuLock,
@@ -22,7 +22,7 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../../src/context/AuthContext";
-import { toaster } from "@/components/ui/toaster";
+import { toaster } from "@/components/ui/toaster.js";
 
 type PlanType = "FREE" | "PRO";
 

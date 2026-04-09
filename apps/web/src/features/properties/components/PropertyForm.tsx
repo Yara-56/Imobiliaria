@@ -8,11 +8,11 @@ import {
   Image,
   SimpleGrid,
   Spinner
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@hookform/resolvers/zod.js";
 
 const schema = z.object({
   title: z.string().min(1, "Título obrigatório"),

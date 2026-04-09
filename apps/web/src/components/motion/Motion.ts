@@ -1,7 +1,7 @@
 // src/components/motion/Motion.ts
 "use client";
 
-import { chakra } from "@chakra-ui/react";
+import { chakra } from "@chakra-ui/react.js";
 import { motion } from "framer-motion";
 
 /**

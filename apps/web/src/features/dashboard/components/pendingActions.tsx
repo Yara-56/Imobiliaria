@@ -1,4 +1,4 @@
-import { Box, VStack, HStack, Text, Icon, Button } from "@chakra-ui/react";
+import { Box, VStack, HStack, Text, Icon, Button } from "@chakra-ui/react.js";
 // Trocamos LuAlertCircle por LuTriangleAlert ou LuInfo
 import { LuTriangleAlert, LuArrowRight } from "react-icons/lu";
 

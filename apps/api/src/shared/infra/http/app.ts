@@ -8,8 +8,8 @@ import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
 
 // Importações usando a nova estrutura de pastas
-import { env } from "@config/env";
-import { corsOptions } from "@config/cors.config";
+import { env } from "@config/env.js";
+import { corsOptions } from "@config/cors.config.js";
 import { apiRouter } from "./routes";
 import { errorMiddleware } from "../../middlewares/error.middleware"; 
 import { requestIdMiddleware } from "../../middlewares/request-id.middleware";

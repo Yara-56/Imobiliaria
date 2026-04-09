@@ -1,7 +1,7 @@
 import axios from "axios";
-import { AppError } from "../../../../shared/errors/AppError.js";
-import { logger } from "../../../../shared/utils/logger.js";
-import { HttpStatus } from "../../../../shared/errors/http-status.js";
+import { AppError } from "@shared/errors/AppError.js";
+import { logger } from "@shared/utils/logger.js";
+import { HttpStatus } from "@shared/errors/http-status.js";
 
 export interface Signer {
   name: string;

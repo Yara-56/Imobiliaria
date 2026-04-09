@@ -1,5 +1,5 @@
 import { v2 as cloudinary, UploadApiOptions } from 'cloudinary';
-import { env } from '../../../../../config/env.js';
+import { env } from '@config/env.js';
 import { IStorageProvider } from '../models/interfaces/IStorageProvider.js';
 import { AppError } from '../../../../errors/AppError.js';
 import { HttpStatus } from '../../../../errors/http-status.js';

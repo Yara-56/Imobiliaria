@@ -1,8 +1,8 @@
 import { injectable, inject } from "tsyringe";
 
 // ✅ CAMINHOS PARA SHARED (Sobe 4 níveis: services -> infra -> contracts -> modules -> src)
-import { AppError } from "../../../shared/errors/AppError.js";
-import { HttpStatus } from "../../../shared/errors/http-status.js";
+import { AppError } from "@shared/errors/AppError.js";
+import { HttpStatus } from "@shared/errors/http-status.js";
 
 // ✅ CAMINHO PARA O LOGGER (Dentro de shared/core/logger)
 import { logger } from "../../../src/core/logger/logger.js";

@@ -8,7 +8,7 @@ import {
   Input,
   Button,
   Flex,
-} from "@chakra-ui/react"
+} from "@chakra-ui/react.js"
 
 interface LeadCaptureModalProps {
   isOpen: boolean

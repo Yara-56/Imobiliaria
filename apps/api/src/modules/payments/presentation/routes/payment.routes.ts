@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { paymentController } from "../controllers/payment.controller.js";
-import { protect } from "../../../../shared/middlewares/auth.middleware.js";
+import { protect } from "@shared/middlewares/auth.middleware.js";
 
 const router = Router();
 

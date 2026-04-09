@@ -6,8 +6,8 @@ import { PropertyService } from "../../../properties/services/PropertyService.js
 import { PaymentReceiptService } from "../../../payments/services/PaymentReceiptService.js";
 import { ContractService } from "../contract-generator.service.js"; // ✅ Certifique-se que o nome da CLASSE lá dentro é ContractService
 
-import { AppError } from "../../../../shared/errors/AppError.js";
-import { HttpStatus } from "../../../../shared/errors/http-status.js";
+import { AppError } from "@shared/errors/AppError.js";
+import { HttpStatus } from "@shared/errors/http-status.js";
 
 @injectable()
 export class CreateContractFlowService {

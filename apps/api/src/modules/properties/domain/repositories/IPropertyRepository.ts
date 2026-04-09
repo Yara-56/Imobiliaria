@@ -1,5 +1,5 @@
 import { Property } from '../entities/property.entity.js';
-import { PropertyStatus } from '@prisma/client';
+import { PropertyStatus } from "@prisma/client";
 
 export interface PropertyFilters {
   search?: string;

@@ -6,9 +6,9 @@ import {
   PAYMENT_STATUS,
   isValidPaymentStatus,
 } from "../../domain/entities/payment.entity.js";
-import { AppError } from "../../../../shared/errors/AppError.js";
-import { HttpStatus } from "../../../../shared/errors/http-status.js";
-import { ErrorCodes } from "../../../../shared/errors/error-codes.js";
+import { AppError } from "@shared/errors/AppError.js";
+import { HttpStatus } from "@shared/errors/http-status.js";
+import { ErrorCodes } from "@shared/errors/error-codes.js";
 import { PaymentReceiptService } from "../../services/PaymentReceiptService.js";
 
 interface UpdateStatusData {

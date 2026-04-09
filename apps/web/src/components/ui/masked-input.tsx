@@ -1,11 +1,11 @@
 "use client";
 
 import { forwardRef } from "react";
-import type { InputProps } from "@chakra-ui/react";
+import type { InputProps } from "@chakra-ui/react.js";
 import type { FieldValues, Path, UseFormSetValue } from "react-hook-form";
 
 import { AppInput } from "./app-input";
-import { useMaskedInput, type MaskType } from "@/hooks/useMaskedInput";
+import { useMaskedInput, type MaskType } from "@/hooks/useMaskedInput.js";
 
 // ===============================
 interface MaskedInputProps<T extends FieldValues> extends InputProps {

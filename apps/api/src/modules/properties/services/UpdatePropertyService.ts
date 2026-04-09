@@ -1,8 +1,8 @@
 import { inject, injectable } from "tsyringe";
 import { IPropertyRepository } from "../domain/repositories/IPropertyRepository.js";
 import { PROPERTY_TOKENS } from "../tokens/property.tokens.js";
-import { AppError } from "../../../shared/errors/AppError.js";
-import { HttpStatus } from "../../../shared/errors/http-status.js";
+import { AppError } from "@shared/errors/AppError.js";
+import { HttpStatus } from "@shared/errors/http-status.js";
 import { UpdatePropertyInput } from "../schemas/property.schema.js";
 
 @injectable()

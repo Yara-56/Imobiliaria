@@ -1,12 +1,12 @@
 "use client";
 
 import { ReactNode, useMemo } from "react";
-import { ChakraProvider } from "@chakra-ui/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ChakraProvider } from "@chakra-ui/react.js";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query.js";
 
 import { system } from "../theme";
 import { AuthProvider } from "../../context/AuthContext";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/toaster.js";
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const queryClient = useMemo(

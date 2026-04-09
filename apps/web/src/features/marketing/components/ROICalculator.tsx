@@ -10,7 +10,7 @@ import {
   Stack,
   Flex,
   Button,
-} from "@chakra-ui/react"
+} from "@chakra-ui/react.js"
 import { useState } from "react"
 
 interface ROICalculatorProps {

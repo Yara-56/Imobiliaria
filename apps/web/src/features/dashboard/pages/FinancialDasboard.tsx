@@ -12,7 +12,7 @@ import {
   Container, 
   Badge, 
   Center 
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 // ✅ Ícones atualizados para evitar erros de exportação (Lucide/v3)
 import { LuTrendingUp, LuUsers, LuChartPie, LuTriangleAlert } from "react-icons/lu";
 import { useFinancialBI } from "../hooks/useFinancialBI.js";

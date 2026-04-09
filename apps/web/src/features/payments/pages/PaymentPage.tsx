@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { 
   Box, Flex, Heading, Text, SimpleGrid, Button, Spinner, 
   Center, Icon, VStack, HStack, Container, Grid, GridItem 
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 import { 
   LuTrendingUp, LuRefreshCcw, LuClock, LuDownload, LuReceipt, LuDollarSign
 } from "react-icons/lu";

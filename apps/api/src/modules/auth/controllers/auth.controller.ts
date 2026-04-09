@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import * as authService from "../services/auth.service.js";
-import { HttpStatus } from "../../../shared/errors/http-status.js";
-import { AppError } from "../../../shared/errors/AppError.js";
+import { HttpStatus } from "@shared/errors/http-status.js";
+import { AppError } from "@shared/errors/AppError.js";
 
 /**
  * ⚡ ENTER TRIAL MODE

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { toaster } from "@/components/ui/toaster";
+import { toaster } from "@/components/ui/toaster.js";
 import { propertiesApi } from "../api/properties.api";
 import type { PropertyUI } from "../types/property";
 

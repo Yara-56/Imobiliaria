@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import Property from "../properties/models/property.model.js";
 import Contract from "../contracts/models/contract.model.js";
 import Payment from "../payments/models/payment.model.js";
-import { AppError } from "../../shared/errors/AppError.js";
+import { AppError } from "@shared/errors/AppError.js";
 
 export const getStats = async (
   req: Request,

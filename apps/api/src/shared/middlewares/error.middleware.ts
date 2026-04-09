@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { HttpStatus } from "../infra/http/http-status.ts";
-import { BaseResponse } from "../infra/http/base-response.ts";
+import { HttpStatus } from "@infra/http/http-status.js";
+import { BaseResponse } from "@infra/http/base-response.js";
 import { logger } from "../utils/logger.ts";
 import { AppError } from "../errors/AppError.ts";
 import { ErrorCodes } from "../errors/error-codes.ts";

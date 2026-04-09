@@ -1,4 +1,4 @@
-import { Box, Text, VStack, HStack, Progress, Badge } from "@chakra-ui/react";
+import { Box, Text, VStack, HStack, Progress, Badge } from "@chakra-ui/react.js";
 
 export const OccupancyTracker = () => (
   <Box bg="white" p={8} borderRadius="3xl" border="1px solid" borderColor="gray.100" shadow="sm">

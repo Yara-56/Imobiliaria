@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { env, isDev } from "../../../config/env.js"; // Importando do seu Zod Schema
+import { env, isDev } from "@config/env.js"; // Importando do seu Zod Schema
 
 /**
  * 💡 DevOps Tip: 

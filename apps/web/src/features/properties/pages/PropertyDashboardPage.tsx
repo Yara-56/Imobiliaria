@@ -14,7 +14,7 @@ import {
   Center,
   Spinner,
   Grid,
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 
 import {
   LuHouse,

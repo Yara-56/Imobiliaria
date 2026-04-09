@@ -1,11 +1,11 @@
 import jwt, { SignOptions } from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
-import { prisma } from "../../../config/database.config.js";
-import { env } from "../../../config/env.js";
+import { prisma } from "@config/database.config.js";
+import { env } from "@config/env.js";
 
-import { AppError } from "../../../shared/errors/AppError.js";
-import { HttpStatus } from "../../../shared/errors/http-status.js";
+import { AppError } from "@shared/errors/AppError.js";
+import { HttpStatus } from "@shared/errors/http-status.js";
 
 /* ==========================================================
    TYPES (ZERO ANY)

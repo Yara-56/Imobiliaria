@@ -1,4 +1,4 @@
-import { prisma } from "../../../../../shared/infra/prisma/client.js";
+import { prisma } from "@shared/infra/prisma/client.js";
 import { ContractEntity } from "../../../domain/entities/contract.entity.js";
 import { IContractRepository } from "../../../domain/repositories/IContractRepository.js";
 import { ContractMapper } from "../mappers/ContractMapper.js";

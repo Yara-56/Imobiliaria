@@ -3,7 +3,7 @@ import { Server } from "node:http";
 import { app } from "./shared/infra/http/app.js";
 import { PrismaClient } from "@prisma/client";
 import { logger } from "./shared/utils/logger.js";
-import "./shared/container/index.js";
+import "./bootstrap.js";
 
 const prisma = new PrismaClient();
 
@@ -12,17 +12,13 @@ const ENV = process.env.NODE_ENV || "development";
 const BASE_URL =
   ENV === "development"
     ? `http://localhost:${PORT}`
-    : `https://api.homeflux.com`;
+    : "https://api.homeflux.com";
 
-let server: Server;
+let server: Server | null = null;
 
 // 🚨 Captura de exceções fatais síncronas
 process.on("uncaughtException", (err) => {
-  if (logger) {
-    logger.fatal({ err }, "💥 CRITICAL: UNCAUGHT EXCEPTION");
-  } else {
-    console.error("💥 CRITICAL: UNCAUGHT EXCEPTION", err);
-  }
+  logger?.fatal({ err }, "💥 CRITICAL: UNCAUGHT EXCEPTION");
   process.exit(1);
 });
 
@@ -30,27 +26,23 @@ async function startServer(): Promise<void> {
   try {
     // 📡 Conexão com banco
     await prisma.$connect();
-    logger.info("📡 [HomeFlux] Database connected");
+    logger?.info("📡 [HomeFlux] Database connected");
 
     // 🚀 Start do servidor
     server = app.listen(PORT, () => {
-      logger.info(`🚀 HomeFlux API Engine v1.0 [${ENV}]`);
-      logger.info(`🔗 Local: ${BASE_URL}`);
-      logger.info(`🩺 Health: ${BASE_URL}/api/v1/health`);
+      logger?.info(`🚀 HomeFlux API Engine v1.0 [${ENV}]`);
+      logger?.info(`🔗 Local: ${BASE_URL}`);
+      logger?.info(`🩺 Health: ${BASE_URL}/api/v1/health`);
     });
 
     // ⚠️ Erros async não tratados
     process.on("unhandledRejection", (reason) => {
-      logger.error({ reason }, "💥 ASYNC ERROR: UNHANDLED REJECTION");
+      logger?.error({ reason }, "💥 ASYNC ERROR: UNHANDLED REJECTION");
       gracefulShutdown("UNHANDLED_REJECTION");
     });
 
   } catch (err) {
-    if (logger) {
-      logger.fatal({ err }, "❌ FATAL: BOOTSTRAP FAILED");
-    } else {
-      console.error("❌ FATAL: BOOTSTRAP FAILED", err);
-    }
+    logger?.fatal({ err }, "❌ FATAL: BOOTSTRAP FAILED");
     process.exit(1);
   }
 }
@@ -59,7 +51,7 @@ async function startServer(): Promise<void> {
  * 🛑 Graceful Shutdown
  */
 async function gracefulShutdown(signal: string): Promise<void> {
-  logger.warn(`⚠️ Shutdown initiated: ${signal}`);
+  logger?.warn(`⚠️ Shutdown initiated: ${signal}`);
 
   const closeServer = () =>
     new Promise<void>((resolve) => {
@@ -69,16 +61,19 @@ async function gracefulShutdown(signal: string): Promise<void> {
 
   try {
     await Promise.race([
-      Promise.all([closeServer(), prisma.$disconnect()]),
+      Promise.all([
+        closeServer(),
+        prisma.$disconnect()
+      ]),
       new Promise((_, reject) =>
         setTimeout(() => reject(new Error("Shutdown Timeout")), 10000)
       ),
     ]);
 
-    logger.info("🛑 Clean exit. System offline.");
+    logger?.info("🛑 Clean exit. System offline.");
     process.exit(0);
   } catch (err) {
-    logger.error({ err }, "❌ Forced exit: Shutdown error or timeout");
+    logger?.error({ err }, "❌ Forced exit: Shutdown error or timeout");
     process.exit(1);
   }
 }

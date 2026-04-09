@@ -1,4 +1,4 @@
-import { Contract as PrismaContract } from "@prisma/client";
+import { Contract as PrismaContract } from "@prisma/client.js";
 import { ContractEntity } from "../../../domain/entities/contract.entity.js";
 
 /**

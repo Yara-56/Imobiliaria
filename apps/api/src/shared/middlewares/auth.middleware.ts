@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 
 // ✅ CORREÇÃO: Usando caminho relativo para matar o erro ts(2307)
 // Como o middleware está em src/shared/middlewares/, subimos dois níveis para chegar em src/
-import { env } from "../../config/env.js";
+import { env } from "@config/env.js";
 import { AppError } from "../errors/AppError.js";
 import { HttpStatus } from "../errors/http-status.js";
 

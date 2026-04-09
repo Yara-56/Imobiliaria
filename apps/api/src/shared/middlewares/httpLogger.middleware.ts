@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { createLogger } from '../utils/logger/logger.js';
-import { getRequestId } from '../infra/http/request-id.middleware.js';
+import { getRequestId } from '@infra/http/request-id.middleware.js';
 
 const logger = createLogger('HTTPLogger');
 

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { protect } from "@/shared/middlewares/auth.middleware";
+import { protect } from "@/shared/middlewares/auth.middleware.js";
 import { validateContractCreation } from "../presentation/validators/contract.validator.js";
 import { ContractController } from "../controllers/ContractController.js";
 

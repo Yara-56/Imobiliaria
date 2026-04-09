@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { prisma } from "../../../shared/infra/database/prisma.client.js"; // ✅ 3 níveis apenas
-import { logger } from "../../../shared/utils/logger.js"; // ✅ Ajustado para 3 níveis
+import { prisma } from "@shared/infra/database/prisma.client.js"; // ✅ 3 níveis apenas
+import { logger } from "@shared/utils/logger.js"; // ✅ Ajustado para 3 níveis
 
 export class SignatureWebhookController {
   async handle(req: Request, res: Response) {

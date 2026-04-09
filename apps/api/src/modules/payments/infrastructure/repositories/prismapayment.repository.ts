@@ -1,6 +1,6 @@
 // backend/src/modules/payments/infrastructure/repositories/prismapayment.repository.ts
 
-import { prisma } from "../../../../config/database.config.js"; 
+import { prisma } from "@config/database.config.js"; 
 
 import {
   IPaymentRepository,

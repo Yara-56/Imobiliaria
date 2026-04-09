@@ -15,7 +15,7 @@ import {
   Skeleton,
   Heading,
   Text // O TypeScript agora sabe que este é o componente do Chakra
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 import { 
   LuSearch, 
   LuDollarSign, 

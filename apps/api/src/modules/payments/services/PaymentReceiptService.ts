@@ -4,9 +4,9 @@ import fs from "fs";
 import path from "path";
 import QRCode from "qrcode";
 import { DocumentType } from "@prisma/client"; // ✅ Importando o Enum oficial
-import { prisma } from "../../../config/database.config.js";
-import { AppError } from "../../../shared/errors/AppError.js";
-import { HttpStatus } from "../../../shared/errors/http-status.js";
+import { prisma } from "@config/database.config.js";
+import { AppError } from "@shared/errors/AppError.js";
+import { HttpStatus } from "@shared/errors/http-status.js";
 
 @injectable()
 export class PaymentReceiptService {

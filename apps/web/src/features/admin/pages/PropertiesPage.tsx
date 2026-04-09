@@ -3,7 +3,7 @@
 import { 
   Box, Flex, Heading, Text, Button, Table, Badge, 
   HStack, Input, Center, Spinner, VStack, Icon 
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 import { 
   LuPlus, LuSearch, LuHouse, LuMapPin, LuFilter, 
   LuChevronRight, LuCircleAlert 
@@ -15,7 +15,7 @@ import api from "../../../../../src/core/api/apiResponse"; // ✅ Usando seu int
 import {
   DrawerBackdrop, DrawerBody, DrawerCloseTrigger, DrawerContent,
   DrawerFooter, DrawerHeader, DrawerRoot, DrawerTitle,
-} from "@/components/ui/drawer";
+} from "@/components/ui/drawer.js";
 
 export default function PropertiesPage() {
   const [properties, setProperties] = useState<any[]>([]);

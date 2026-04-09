@@ -13,7 +13,7 @@ import {
   HStack,
   Badge,
   chakra,
-} from "@chakra-ui/react"
+} from "@chakra-ui/react.js"
 
 import { Link as RouterLink } from "react-router-dom"
 

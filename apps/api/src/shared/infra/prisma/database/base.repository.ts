@@ -1,4 +1,4 @@
-import { prisma } from "../../../../config/database.config.js";
+import { prisma } from "@config/database.config.js";
 
 interface PaginationOptions {
   page?: number;

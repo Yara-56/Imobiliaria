@@ -17,7 +17,7 @@ import {
   Portal,
   type DialogContentProps,
   type DialogCloseTriggerProps,
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 
 // ===============================
 // REEXPORTS

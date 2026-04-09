@@ -1,11 +1,11 @@
 import { inject, injectable } from "tsyringe";
-import { IFileStorage } from "../../../../shared/storage/file-storage.interface.js";
+import { IFileStorage } from "@shared/storage/file-storage.interface.js";
 import { TenantDocument, DocumentType } from "../../domain/entities/tenant.entity.js";
 import { ITenantRepository } from "../../domain/repositories/ITenantRepository.js";
 import { TENANT_TOKENS } from "../../tokens/tenant.tokens.js";
-import { AppError } from "../../../../shared/errors/AppError.js";
-import { HttpStatus } from "../../../../shared/errors/http-status.js";
-import { logger } from "../../../../shared/utils/logger.js";
+import { AppError } from "@shared/errors/AppError.js";
+import { HttpStatus } from "@shared/errors/http-status.js";
+import { logger } from "@shared/utils/logger.js";
 
 @injectable()
 export class TenantDocumentService {

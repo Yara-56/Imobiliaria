@@ -1,9 +1,9 @@
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
-import { prisma } from "../../../shared/infra/database/prisma.client.js";
-import { AppError } from "../../../shared/errors/AppError.js";
-import { HttpStatus } from "../../../shared/errors/http-status.js";
+import { prisma } from "@shared/infra/database/prisma.client.js";
+import { AppError } from "@shared/errors/AppError.js";
+import { HttpStatus } from "@shared/errors/http-status.js";
 
 export class GenerateContractPDFService {
   /**

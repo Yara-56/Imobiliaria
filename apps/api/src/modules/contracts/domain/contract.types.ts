@@ -1,6 +1,6 @@
 // src/modules/contracts/domain/contract.types.ts
 
-import { ContractStatus, PaymentMethod } from "@prisma/client";
+import { ContractStatus, PaymentMethod } from "@prisma/client.js";
 
 /**
  * Tipos enviados pelo FRONTEND para CRIAÇÃO e ATUALIZAÇÃO.

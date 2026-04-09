@@ -6,11 +6,11 @@ import {
   PaginatedResult 
 } from "../../domain/repositories/ITenantRepository.js";
 import { Tenant } from "../../domain/entities/tenant.entity.js";
-import { AppError } from "../../../../shared/errors/AppError.js";
-import { HttpStatus } from "../../../../shared/errors/http-status.js";
-import { ErrorCodes } from "../../../../shared/errors/error-codes.js";
+import { AppError } from "@shared/errors/AppError.js";
+import { HttpStatus } from "@shared/errors/http-status.js";
+import { ErrorCodes } from "@shared/errors/error-codes.js";
 import { TENANT_TOKENS } from "../../tokens/tenant.tokens.js";
-import { logger } from "../../../../shared/utils/logger.js";
+import { logger } from "@shared/utils/logger.js";
 
 @injectable()
 export class TenantService {

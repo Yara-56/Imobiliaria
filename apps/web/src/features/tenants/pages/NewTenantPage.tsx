@@ -3,7 +3,7 @@
 import { 
   Box, Container, Button, Heading, Text, VStack, 
   HStack, Center
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 import { LuArrowLeft, LuUserPlus } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 

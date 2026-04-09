@@ -1,11 +1,11 @@
-import { prisma as prismaClient } from "../../../../../shared/infra/database/prisma.client.js";
+import { prisma as prismaClient } from "@shared/infra/database/prisma.client.js";
 import { 
   ITenantRepository, 
   PaginationQuery, 
   PaginatedResult 
 } from "../../../domain/repositories/ITenantRepository.js";
 import { Tenant, TenantDocument } from "../../../domain/entities/tenant.entity.js";
-import { Renter as PrismaRenter, Prisma } from "@prisma/client";
+import { Renter as PrismaRenter, Prisma } from "@prisma/client.js";
 
 export class PrismaTenantRepository implements ITenantRepository {
   

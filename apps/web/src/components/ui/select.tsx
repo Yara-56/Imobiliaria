@@ -1,4 +1,4 @@
-import { Select as ChakraSelect } from "@chakra-ui/react"
+import { Select as ChakraSelect } from "@chakra-ui/react.js"
 import * as React from "react"
 
 export const SelectRoot = ChakraSelect.Root

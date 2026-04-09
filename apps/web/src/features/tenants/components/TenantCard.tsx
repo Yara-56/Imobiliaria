@@ -13,7 +13,7 @@ import {
   VStack, 
   HStack, 
   Center 
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 import { 
   LuMail, 
   LuPhone, 

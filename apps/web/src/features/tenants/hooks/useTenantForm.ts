@@ -1,7 +1,7 @@
 // hooks/useTenantForm.ts
 
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@hookform/resolvers/zod.js";
 import { 
   tenantFormSchema, 
   type TenantFormInput,

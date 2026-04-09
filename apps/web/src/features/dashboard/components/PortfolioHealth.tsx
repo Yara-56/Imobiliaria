@@ -6,7 +6,7 @@ import {
     HStack, 
     Badge, 
     SimpleGrid // <--- Adicionado aqui para resolver o erro ts(2304)
-  } from "@chakra-ui/react";
+  } from "@chakra-ui/react.js";
   import { motion } from "framer-motion";
   
   export const PortfolioHealth = () => {

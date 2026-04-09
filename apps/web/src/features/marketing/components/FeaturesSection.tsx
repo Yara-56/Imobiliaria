@@ -1,6 +1,6 @@
 "use client"
 
-import { Box, SimpleGrid, Icon, Text, Stack, Heading, VStack, Badge, Flex } from "@chakra-ui/react"
+import { Box, SimpleGrid, Icon, Text, Stack, Heading, VStack, Badge, Flex } from "@chakra-ui/react.js"
 import { LuShieldCheck, LuZap, LuActivity, LuClock } from "react-icons/lu"
 
 const features = [

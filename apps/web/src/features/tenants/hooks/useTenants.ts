@@ -4,14 +4,14 @@ import {
   useQuery,
   useMutation,
   useQueryClient,
-} from "@tanstack/react-query";
+} from "@tanstack/react-query.js";
 
 import { tenantApi } from "../api/tenant.api";
 import { tenantKeys } from "../keys/tenant.keys";
 import { normalizeSettings } from "../mappers/tenant.mapper";
 import { tenantMappers, type TenantFormData } from "../utils/form.utils";
 
-import { toaster } from "@/components/ui/toaster";
+import { toaster } from "@/components/ui/toaster.js";
 
 import type {
   Tenant,

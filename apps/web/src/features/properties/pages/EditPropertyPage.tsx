@@ -9,7 +9,7 @@ import {
   Heading,
   Spinner,
   Text
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 
 import { LuArrowLeft } from "react-icons/lu";
 import { useNavigate, useParams } from "react-router-dom";

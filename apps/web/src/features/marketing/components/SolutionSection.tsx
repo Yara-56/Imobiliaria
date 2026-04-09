@@ -8,7 +8,7 @@ import {
   SimpleGrid,
   Icon,
   Flex,
-} from "@chakra-ui/react"
+} from "@chakra-ui/react.js"
 
 import {
   LuCpu,

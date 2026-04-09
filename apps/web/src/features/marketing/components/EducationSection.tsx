@@ -9,7 +9,7 @@ import {
   Icon,
   Flex,
   Button,
-} from "@chakra-ui/react"
+} from "@chakra-ui/react.js"
 
 import {
   LuBookOpen,

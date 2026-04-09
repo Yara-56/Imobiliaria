@@ -10,7 +10,7 @@ import {
   VStack, 
   Center, 
   Flex 
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 import { 
   LuFileCheck, 
   LuClock, 

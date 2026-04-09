@@ -5,7 +5,7 @@ import {
   VStack, 
   Badge, 
   Icon
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 import { IconType } from "react-icons";
 
 interface KPICardProps {

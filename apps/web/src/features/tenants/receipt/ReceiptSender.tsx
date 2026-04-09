@@ -1,4 +1,4 @@
-import { Box, Text, VStack, Button, Center } from "@chakra-ui/react";
+import { Box, Text, VStack, Button, Center } from "@chakra-ui/react.js";
 
 export default function ReceiptSender() {
   function fakeSend(type: string) {

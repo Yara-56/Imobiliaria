@@ -1,4 +1,4 @@
-import { Badge, HStack, Icon } from "@chakra-ui/react";
+import { Badge, HStack, Icon } from "@chakra-ui/react.js";
 import { LuCircleCheck, LuClock, LuCircleX } from "react-icons/lu";
 
 interface StatusBadgeProps {

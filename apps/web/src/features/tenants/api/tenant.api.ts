@@ -1,4 +1,4 @@
-import { http } from "@/lib/http";
+import { http } from "@/lib/http.js";
 import { mapTenantToApi, mapApiToTenant } from "../mappers/tenant.mapper";
 import type { CreateTenantDTO, UpdateTenantDTO, Tenant, Document, DocumentType } from "../types/tenant.types";
 

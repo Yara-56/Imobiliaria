@@ -2,7 +2,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { env } from "./env.js"; // Verifique se o caminho está certo (./env ou ./env.js)
-import { logger } from "../shared/utils/logger.js";
+import { logger } from "@shared/utils/logger.js";
 
 declare global {
   var prisma: PrismaClient | undefined;

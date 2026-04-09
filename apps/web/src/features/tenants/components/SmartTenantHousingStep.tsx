@@ -10,7 +10,7 @@ import {
   Badge,
   Skeleton,
   Input,
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 
 import { Home, CreditCard, Search } from "lucide-react";
 

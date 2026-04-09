@@ -1,7 +1,7 @@
 import signer from "node-signpdf";
 import fs from "fs";
-import { AppError } from "../../../../shared/errors/AppError.js";
-import { logger } from "../../../../shared/utils/logger.js";
+import { AppError } from "@shared/errors/AppError.js";
+import { logger } from "@shared/utils/logger.js";
 
 export class LocalDigitalSignatureService {
   static signPDF(pdfBuffer: Buffer, certificatePath: string, password: string) {

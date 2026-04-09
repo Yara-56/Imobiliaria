@@ -3,7 +3,7 @@
 import {
   Box, Button, Container, Flex, HStack, Icon, 
   SimpleGrid, Stack, Text, VStack, Separator, Center, Input
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 import { useForm } from "react-hook-form";
 import { 
   LuSignature, 
@@ -16,8 +16,8 @@ import {
 import { useNavigate } from "react-router-dom";
 
 // UI Components
-import { Field } from "@/components/ui/field";
-import { NativeSelectRoot, NativeSelectField } from "@chakra-ui/react";
+import { Field } from "@/components/ui/field.js";
+import { NativeSelectRoot, NativeSelectField } from "@chakra-ui/react.js";
 
 // Hooks
 import { useContracts } from "../hooks/useContracts";

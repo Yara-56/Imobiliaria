@@ -1,4 +1,4 @@
-import { ContractTemplate as PrismaTemplate } from "@prisma/client";
+import { ContractTemplate as PrismaTemplate } from "@prisma/client.js";
 import { ContractTemplateEntity } from "../../../domain/entities/contract-template.entity.js";
 
 export class ContractTemplateMapper {

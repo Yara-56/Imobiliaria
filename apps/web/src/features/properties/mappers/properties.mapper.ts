@@ -6,7 +6,7 @@ import {
     PROPERTY_STATUS_MAP,
     PROPERTY_STATUS_MAP_REVERSE,
     PROPERTY_TYPE_MAP
-  } from "@/features/properties/types/property";
+  } from "@/features/properties/types/property.js";
   
   /**
    * Normaliza string removendo espaços e evitando null/undefined

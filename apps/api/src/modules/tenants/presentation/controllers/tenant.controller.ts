@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { injectable } from "tsyringe";
 import { TenantService } from "../../application/services/tenant.service.js";
-import { HttpStatus } from "../../../../shared/errors/http-status.js";
-import { AppError } from "../../../../shared/errors/AppError.js";
-import { logger } from "../../../../shared/utils/logger.js";
+import { HttpStatus } from "@shared/errors/http-status.js";
+import { AppError } from "@shared/errors/AppError.js";
+import { logger } from "@shared/utils/logger.js";
 import type { CreateTenantData } from "../../domain/repositories/ITenantRepository.js";
 
 /**

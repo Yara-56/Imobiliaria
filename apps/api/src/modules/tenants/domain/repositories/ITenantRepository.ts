@@ -6,7 +6,7 @@ import { Tenant } from "../entities/tenant.entity.ts";
 import { 
   PaginationQuery, 
   PaginatedResult 
-} from "../../../../shared/core/IBaseRepository.ts";
+} from "@shared/core/IBaseRepository.ts.js";
 
 /**
  * 📥 CreateTenantData

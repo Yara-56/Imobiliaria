@@ -3,7 +3,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext"; //
 import type { UserRole } from "../../context/AuthContext"; //
-import { Center, Spinner, VStack, Text } from "@chakra-ui/react";
+import { Center, Spinner, VStack, Text } from "@chakra-ui/react.js";
 
 interface RoleGuardProps {
   roles: UserRole[];

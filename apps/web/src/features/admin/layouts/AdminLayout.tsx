@@ -7,7 +7,7 @@ import {
   Container,
   Heading,
   Center,
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { LuHouse, LuLogOut } from "react-icons/lu";

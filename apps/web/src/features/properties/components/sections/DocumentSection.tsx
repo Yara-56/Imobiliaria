@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Flex, Heading, Text, Stack, Button, Center } from "@chakra-ui/react";
+import { Box, Flex, Heading, Text, Stack, Button, Center } from "@chakra-ui/react.js";
 import { LuFolderOpen, LuUpload, LuX } from "react-icons/lu";
 
 export default function DocumentSection({

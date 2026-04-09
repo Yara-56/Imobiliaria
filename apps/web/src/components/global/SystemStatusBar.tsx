@@ -2,8 +2,8 @@
 
 "use client";
 
-import { Flex, Text, Box } from "@chakra-ui/react";
-import { useSystemStatus } from "@/context/SystemStatusContext";
+import { Flex, Text, Box } from "@chakra-ui/react.js";
+import { useSystemStatus } from "@/context/SystemStatusContext.js";
 
 export function SystemStatusBar() {
   const { status } = useSystemStatus();

@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Flex, Heading, Text, SimpleGrid, Input, Stack, NativeSelect } from "@chakra-ui/react";
+import { Box, Flex, Heading, Text, SimpleGrid, Input, Stack, NativeSelect } from "@chakra-ui/react.js";
 import { LuUser } from "react-icons/lu";
 import type { PropertyFormValues } from "../PropertyForm";
 

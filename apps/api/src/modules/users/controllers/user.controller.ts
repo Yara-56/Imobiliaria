@@ -1,8 +1,8 @@
 import { type Request, type Response, type NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { env } from "../../../config/env.js"; // ✅ Alias e extensão .js
+import { env } from "@config/env.js"; // ✅ Alias e extensão .js
 import { AppError } from "@shared/errors/AppError.js"; // ✅ Alias profissional
-import User from "../modules/user.model.js"; // ✅ Ajustado para .js
+import User from "@modules/user.model.js"; // ✅ Ajustado para .js
 
 /**
  * 📝 REGISTER: Cria um novo usuário vinculado ao TenantId

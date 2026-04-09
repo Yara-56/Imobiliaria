@@ -7,22 +7,34 @@
   "engines": {
     "node": ">=20.0.0"
   },
+
   "prisma": {
     "schema": "prisma/schema.prisma"
   },
+
   "scripts": {
-    "dev": "tsx watch src/server.ts | pino-pretty -c",
-    "start": "node dist/server.js",
+    "dev": "tsx watch -r tsconfig-paths/register src/server.ts | pino-pretty -c",
+
     "build": "rimraf dist && tsc",
+
+    "start": "node -r tsconfig-paths/register dist/server.js",
+
     "postinstall": "prisma generate",
+
     "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "seed": "tsx src/shared/infra/prisma/seeds/main.ts",
+
+    "seed": "tsx -r tsconfig-paths/register src/shared/infra/prisma/seeds/main.ts",
+
     "test": "vitest run",
     "test:watch": "vitest",
+
     "lint": "tsc --noEmit",
+
     "clean": "rimraf dist node_modules"
   },
+
   "dependencies": {
     "@aws-sdk/client-s3": "^3.500.0",
     "@aws-sdk/lib-storage": "^3.500.0",
@@ -50,10 +62,11 @@
     "qrcode": "^1.5.4",
     "reflect-metadata": "^0.2.2",
     "swagger-ui-express": "^5.0.0",
-    "tsyringe": "^4.8.0",
+    "tsyringe": "^4.10.0",
     "uuid": "^13.0.0",
     "zod": "^3.23.8"
   },
+
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/compression": "^1.7.5",
@@ -67,10 +80,12 @@
     "@types/nodemailer": "^6.4.14",
     "@types/qrcode": "^1.5.6",
     "@types/uuid": "^11.0.0",
+
     "@vitest/coverage-v8": "^1.5.0",
     "pino-pretty": "^11.3.0",
     "prisma": "^6.4.1",
     "rimraf": "^5.0.5",
+    "tsconfig-paths": "^4.2.0",
     "tsx": "^4.21.0",
     "typescript": "^5.4.5",
     "vitest": "^1.5.0"

@@ -1,5 +1,5 @@
 // src/features/contracts/api/contract.api.ts
-import { http } from "@/lib/http";
+import { http } from "@/lib/http.js";
 import { mapApiToContract, mapContractToApi } from "../mappers/contract.mapper";
 import type { 
   Contract, 

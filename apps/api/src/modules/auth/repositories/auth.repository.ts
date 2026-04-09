@@ -1,6 +1,6 @@
 // src/modules/auth/auth.repository.ts
-import { prisma } from "../../../config/database.config.js";
-import { Prisma } from "@prisma/client";
+import { prisma } from "@config/database.config.js";
+import { Prisma } from "@prisma/client.js";
 
 /**
  * 🔍 Buscar usuário por email com senha (login)

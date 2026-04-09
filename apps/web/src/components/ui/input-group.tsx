@@ -1,6 +1,6 @@
 "use client"
 
-import { Group, InputElement } from "@chakra-ui/react"
+import { Group, InputElement } from "@chakra-ui/react.js"
 import * as React from "react"
 
 export interface InputGroupProps extends React.ComponentProps<typeof Group> {

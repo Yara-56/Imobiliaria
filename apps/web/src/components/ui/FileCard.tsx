@@ -1,4 +1,4 @@
-import { Flex, Text, Box } from "@chakra-ui/react";
+import { Flex, Text, Box } from "@chakra-ui/react.js";
 import { FiFile } from "react-icons/fi";
 
 export default function FileCard({ file }: { file: File }) {

@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 // 💡 Se o erro TS2305 persistir, certifique-se que o enum existe no schema.prisma
-import { PaymentStatus } from "@prisma/client";
+import { PaymentStatus } from "@prisma/client.js";
 
-import { AppError } from "../../../../shared/errors/AppError.js";
-import { HttpStatus } from "../../../../shared/errors/http-status.js";
-import { ErrorCodes } from "../../../../shared/errors/error-codes.js";
+import { AppError } from "@shared/errors/AppError.js";
+import { HttpStatus } from "@shared/errors/http-status.js";
+import { ErrorCodes } from "@shared/errors/error-codes.js";
 
 import { PrismaPaymentRepository } from "../../infrastructure/repositories/prismapayment.repository.js";
 

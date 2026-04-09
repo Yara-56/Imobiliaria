@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { defineConfig } from '@prisma/config';
+import { defineConfig } from "@prisma/config.js";
 
 /**
  * 🔗 Configuração do Prisma 7

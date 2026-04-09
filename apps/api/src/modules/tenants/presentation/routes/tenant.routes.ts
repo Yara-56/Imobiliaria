@@ -4,8 +4,8 @@ import path from "path";
 import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import PDFDocument from "pdfkit";
-import { prisma } from "../../../../shared/infra/database/prisma.client.js";
-import { PaymentStatus, PaymentMethod } from "@prisma/client";
+import { prisma } from "@shared/infra/database/prisma.client.js";
+import { PaymentStatus, PaymentMethod } from "@prisma/client.js";
 
 const router = Router();
 

@@ -10,7 +10,7 @@ import {
   Icon,
   SimpleGrid,
   Center,
-} from "@chakra-ui/react";
+} from "@chakra-ui/react.js";
 
 import { useParams, useNavigate } from "react-router-dom";
 
