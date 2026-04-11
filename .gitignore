@@ -28,11 +28,10 @@ node_modules/
 .pnp
 .pnp.js
 
-# Como você usa Yarn (baseado nos seus prints), mantemos o lock do npm ignorado
-# se você não pretende alternar entre gerenciadores.
+# Lockfiles de npm/yarn acidentais — o projeto usa pnpm (pnpm-lock.yaml deve ser commitado).
 package-lock.json
 npm-shrinkwrap.json
-pnpm-lock.yaml
+yarn.lock
 
 # =============================================================================
 # BUILD / OUTPUT
