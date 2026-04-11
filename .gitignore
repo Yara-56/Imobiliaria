@@ -116,8 +116,6 @@ desktop.ini
 uploads/
 temp/
 tmp/
-# Só na raiz do repo — não uses "storage/" a sós: isso ignorava src/shared/storage/ (código fonte).
-/storage/
 
 # Prisma / Bancos Locais
 /generated/

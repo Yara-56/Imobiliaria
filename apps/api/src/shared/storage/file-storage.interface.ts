@@ -5,3 +5,4 @@ export interface IFileStorage {
   upload(file: Buffer | string, key: string): Promise<string>;
 }
 
+
