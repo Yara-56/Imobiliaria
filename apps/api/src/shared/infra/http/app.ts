@@ -22,11 +22,19 @@ import "@shared/container/index.js";
 const app: Application = express();
 
 const httpDir = path.dirname(fileURLToPath(import.meta.url));
+/** Raiz `src` ou `dist` (três níveis acima de shared/infra/http) */
 const srcDir = path.join(httpDir, "../../..");
 const toPosixGlob = (p: string) => p.replace(/\\/g, "/");
 
 /**
- * 📖 CONFIGURAÇÃO DO SWAGGER — globs relativos ao diretório fonte (funciona em qualquer cwd)
+ * Em dev (tsx) os ficheiros são `.ts`; em prod (`node dist/...`) são `.js`.
+ * Globs só com `.ts` não encontram nada em dist → Swagger vazio ("No operations defined").
+ */
+const isCompiledBundle = /[/\\]dist[/\\]/.test(httpDir);
+const routeGlobExt = isCompiledBundle ? "js" : "ts";
+
+/**
+ * 📖 CONFIGURAÇÃO DO SWAGGER — globs relativos a este ficheiro (independente do cwd)
  */
 const swaggerOptions: swaggerJsdoc.Options = {
   definition: {
@@ -54,8 +62,9 @@ const swaggerOptions: swaggerJsdoc.Options = {
     },
   },
   apis: [
-    toPosixGlob(path.join(srcDir, "modules/**/*.routes.ts")),
-    toPosixGlob(path.join(httpDir, "*.ts")),
+    toPosixGlob(path.join(srcDir, `modules/**/*.routes.${routeGlobExt}`)),
+    toPosixGlob(path.join(httpDir, `routes.${routeGlobExt}`)),
+    toPosixGlob(path.join(httpDir, `app.${routeGlobExt}`)),
   ],
 };
 
