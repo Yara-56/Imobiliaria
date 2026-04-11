@@ -8,7 +8,8 @@
     "rootDir": "./src",
     "outDir": "./dist",
 
-    /* ❌ REMOVIDO baseUrl */
+    /* paths exige baseUrl; sem isto o tsc no CI pode falhar a resolver @shared/* */
+    "baseUrl": ".",
 
     /* --- Path Mapping (SaaS PRO) --- */
     "paths": {
