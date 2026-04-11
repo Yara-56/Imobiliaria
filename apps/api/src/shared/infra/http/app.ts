@@ -16,8 +16,8 @@ import { apiRouter } from "./routes.js";
 import { errorMiddleware } from "../../middlewares/error.middleware.js"; 
 import { requestIdMiddleware } from "../../middlewares/request-id.middleware.js";
 
-// Inicializa o Container de Injeção de Dependência
-import "@shared/container";
+// Inicializa o Container de Injeção de Dependência (ESM: import de pasta não é válido em Node)
+import "@shared/container/index.js";
 
 const app: Application = express();
 
