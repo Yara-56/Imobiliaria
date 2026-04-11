@@ -1,13 +1,18 @@
 # Blueprint Render: https://render.com/docs/blueprint-spec
-# Monorepo pnpm — raiz do repo (não uses yarn nem pasta "backend"; API em apps/api).
-# Serviço já criado no Render: Settings → Root Directory "." → Build/Start como abaixo.
+#
+# OBRIGATÓRIO no serviço Web (se não usares só este ficheiro):
+# - Root Directory: .  (raiz do monorepo)
+# - Build: NÃO uses só "tsc --noEmit" — o dist precisa de `tsc` + `tsc-alias` (ver apps/api "build").
+# - Start: NÃO uses "node -r tsconfig-paths/register ..." — produção: "node dist/server.js" (já no package.json da API).
+#
+# Se o Start no dashboard estiver sobrescrito, apaga-o para usar o script do package.json.
 
 services:
   - type: web
     name: homeflux-api
     runtime: node
     region: frankfurt
-    buildCommand: corepack enable && corepack prepare pnpm@10.32.1 --activate && pnpm install --frozen-lockfile && pnpm exec turbo run build --filter=@homeflux/api
+    buildCommand: corepack enable && corepack prepare pnpm@10.32.1 --activate && pnpm install --frozen-lockfile && pnpm run render:build
     startCommand: pnpm --filter @homeflux/api start
     envVars:
       - key: NODE_VERSION
