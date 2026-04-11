@@ -71,7 +71,7 @@ export function QuickAddTenantModal({
           transition="all 0.2s"
         >
           <Icon as={LuUserPlus} boxSize={6} />
-          CADASTRAR LOCATÁRIO
+          CADASTRAR INQUILINO
         </Button>
       </DialogTrigger>
 

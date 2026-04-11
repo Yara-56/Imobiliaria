@@ -17,7 +17,7 @@ import DashboardPage from "../features/dashboard/pages/DashboardPage";
 import PaymentPage from "../features/payments/pages/PaymentPage";
 
 // --- TENANTS (Locatários) ---
-import TenantsPage from "../features/tenants/pages/TenantsPage";
+import TenantsPage from "../features/tenants/pages/TenantDashboardPage";
 import NewTenantPage from "../features/tenants/pages/NewTenantPage";
 import EditTenantPage from "../features/tenants/pages/EditTenantPage";
 
