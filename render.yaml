@@ -1,0 +1,16 @@
+# Blueprint Render: https://render.com/docs/blueprint-spec
+# Monorepo pnpm — raiz do repo (não uses yarn nem pasta "backend"; API em apps/api).
+# Serviço já criado no Render: Settings → Root Directory "." → Build/Start como abaixo.
+
+services:
+  - type: web
+    name: homeflux-api
+    runtime: node
+    region: frankfurt
+    buildCommand: corepack enable && corepack prepare pnpm@10.32.1 --activate && pnpm install --frozen-lockfile && pnpm exec turbo run build --filter=@homeflux/api
+    startCommand: pnpm --filter @homeflux/api start
+    envVars:
+      - key: NODE_VERSION
+        value: "20.18.1"
+      - key: NODE_ENV
+        value: production
