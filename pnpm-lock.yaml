@@ -178,6 +178,9 @@ importers:
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.25
+      '@types/express-serve-static-core':
+        specifier: ^4.19.6
+        version: 4.19.8
       '@types/jsonwebtoken':
         specifier: ^9.0.6
         version: 9.0.10
@@ -7296,7 +7299,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.8':
     dependencies:
-      '@types/node': 22.19.17
+      '@types/node': 25.5.2
       '@types/qs': 6.15.0
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
@@ -7378,7 +7381,7 @@ snapshots:
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 22.19.17
+      '@types/node': 25.5.2
 
   '@types/serve-static@1.15.10':
     dependencies:
