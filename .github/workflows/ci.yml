@@ -30,11 +30,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Com pnpm, --if-present vai ANTES do nome do script; senão o Turbo recebe-o como argumento.
       - name: Run lint
-        run: pnpm run lint --if-present
+        run: pnpm run --if-present lint
 
       - name: Run tests
-        run: pnpm test --if-present
+        run: pnpm run --if-present test
 
       - name: Build project
         run: pnpm run build
