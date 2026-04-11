@@ -17,19 +17,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # O monorepo usa pnpm (packageManager em package.json). O Turbo precisa do binário do gestor declarado.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install --frozen-lockfile
 
       - name: Run lint
-        run: npm run lint --if-present
+        run: pnpm run lint --if-present
 
       - name: Run tests
-        run: npm test --if-present
+        run: pnpm test --if-present
 
       - name: Build project
-        run: npm run build
+        run: pnpm run build
