@@ -19,7 +19,8 @@
     "db:studio": "turbo run db:studio",
     "clean": "turbo run clean && rimraf node_modules .turbo",
     "reinstall": "pnpm clean && pnpm install",
-    "fix:imports": "node scripts/fix-imports.js"
+    "fix:imports": "node scripts/fix-imports.js",
+    "postinstall": "pnpm exec turbo run db:generate --filter=@homeflux/api"
   },
   "devDependencies": {
     "@eslint/css": "^0.14.1",
