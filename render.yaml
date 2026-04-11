@@ -1,19 +1,13 @@
-# Blueprint Render: https://render.com/docs/blueprint-spec
-#
-# OBRIGATÓRIO no serviço Web (se não usares só este ficheiro):
-# - Root Directory: .  (raiz do monorepo)
-# - Build: NÃO uses só "tsc --noEmit" — o dist precisa de `tsc` + `tsc-alias` (ver apps/api "build").
-# - Start: NÃO uses "node -r tsconfig-paths/register ..." — produção: "node dist/server.js" (já no package.json da API).
-#
-# Se o Start no dashboard estiver sobrescrito, apaga-o para usar o script do package.json.
-
 services:
   - type: web
     name: homeflux-api
     runtime: node
     region: frankfurt
-    buildCommand: corepack enable && corepack prepare pnpm@10.32.1 --activate && pnpm install --frozen-lockfile && pnpm run render:build
-    startCommand: pnpm --filter @homeflux/api start
+
+    buildCommand: npm install -g pnpm@10.32.1 --force && pnpm install --no-frozen-lockfile && pnpm --filter @homeflux/api run build
+
+    startCommand: node apps/api/dist/server.js
+
     envVars:
       - key: NODE_VERSION
         value: "20.18.1"
