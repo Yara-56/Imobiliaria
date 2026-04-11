@@ -13,8 +13,8 @@
   "scripts": {
     "dev": "tsx watch -r tsconfig-paths/register src/server.ts | pino-pretty -c",
     "db:generate": "prisma generate",
-    "build": "rimraf dist && tsc",
-    "start": "node -r tsconfig-paths/register dist/server.js",
+    "build": "rimraf dist && tsc && tsc-alias -p tsconfig.json",
+    "start": "node dist/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
@@ -81,6 +81,7 @@
     "pino-pretty": "^11.3.0",
     "prisma": "^6.4.1",
     "rimraf": "^5.0.5",
+    "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.21.0",
     "typescript": "^5.4.5",

@@ -1,5 +1,5 @@
 import "reflect-metadata"; // 1. Sempre o primeiro
-import "../../api/src/shared/container/index.ts"; // 2. Registra os serviços ANTES de carregar o app
+import "./shared/container/index.js"; // 2. Registra os serviços ANTES de carregar o app (emit → dist/shared/container/index.js)
 import "./bootstrap.js"; // 3. Carrega variáveis de ambiente
 
 import { Server } from "node:http";
