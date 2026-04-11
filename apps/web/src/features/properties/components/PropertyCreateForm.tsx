@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Box, Stack, Input, Text, Button, Image } from "@chakra-ui/react.js";
+import { Box, Stack, Input, Text, Button, Image } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod.js";

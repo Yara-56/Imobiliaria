@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Center, Spinner, VStack, Text } from "@chakra-ui/react.js";
+import { Center, Spinner, VStack, Text } from "@chakra-ui/react";
 
 const ProtectedRoute = () => {
   const { isAuthenticated, loading } = useAuth();

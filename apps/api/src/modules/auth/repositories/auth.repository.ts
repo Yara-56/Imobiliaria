@@ -1,6 +1,6 @@
 // src/modules/auth/auth.repository.ts
 import { prisma } from "@config/database.config.js";
-import { Prisma } from "@prisma/client.js";
+import type { Prisma } from "@prisma/client";
 
 /**
  * 🔍 Buscar usuário por email com senha (login)
@@ -15,7 +15,6 @@ export const findByEmailWithPassword = async (email: string) => {
       password: true,
       role: true,
       tenantId: true,
-      isActive: true,
     },
   });
 };
@@ -52,11 +51,8 @@ export const existsByEmail = async (email: string) => {
 /**
  * 🕒 Atualiza último login
  */
-export const updateLastLogin = async (userId: string) => {
-  await prisma.user.update({
-    where: { id: userId },
-    data: { updatedAt: new Date() },
-  });
+export const updateLastLogin = async (_userId: string): Promise<void> => {
+  /* Schema User atual não possui updatedAt; reservado para futura auditoria */
 };
 
 /**

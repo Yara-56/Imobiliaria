@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Flex, Text, Container, Button } from "@chakra-ui/react.js";
+import { Box, Flex, Text, Container, Button } from "@chakra-ui/react";
 import { Outlet, Link as RouterLink } from "react-router-dom";
 import { ColorModeButton } from "../components/ui/color-mode";
 import { FluidBackground } from "../components/global/FluidBackground";

@@ -39,7 +39,10 @@ export class CreateContractFlowService {
     if (!tenant) throw new AppError({ message: "Locatário não encontrado.", statusCode: HttpStatus.NOT_FOUND });
 
     // 2. Validar Imóvel
-    const property = await this.propertyService.findById(data.propertyId, data.tenantId);
+    const property = await this.propertyService.getById(
+      data.propertyId,
+      data.tenantId
+    );
     if (!property) throw new AppError({ message: "Imóvel não encontrado.", statusCode: HttpStatus.NOT_FOUND });
 
     const finalRentAmount = data.rentAmount ?? (property as any).price ?? 0;

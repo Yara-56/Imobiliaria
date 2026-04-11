@@ -1,15 +1,13 @@
 import { container } from "tsyringe";
 import { TENANT_TOKENS } from "../tokens/tenant.tokens.js";
-
 import { TenantService } from "../application/services/tenant.service.js";
-import { TenantRepository } from "../domain/repositories/tenant.repository.interface.js";
+import type { ITenantRepository } from "../domain/repositories/ITenantRepository.js";
+import { PrismaTenantRepository } from "../infrastructure/prisma/repositories/PrismaTenantRepository.js";
 
-// Repository
-container.register(TENANT_TOKENS.Repository, {
-  useClass: TenantRepository,
+container.register<ITenantRepository>(TENANT_TOKENS.Repository, {
+  useClass: PrismaTenantRepository,
 });
 
-// Service
 container.register(TENANT_TOKENS.Service, {
   useClass: TenantService,
 });

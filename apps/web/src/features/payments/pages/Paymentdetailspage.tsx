@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { 
   Box, Container, Heading, Text, VStack, HStack, Button, Icon, 
   Grid, GridItem, Center, Spinner, Badge, Flex, Separator
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 import { 
   LuDollarSign, LuArrowLeft, LuPencil, LuTrash2, LuDownload, 
   LuCalendar, LuUser, LuHouse, LuFileText, LuCircleCheck, 

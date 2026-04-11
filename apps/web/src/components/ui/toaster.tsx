@@ -6,7 +6,7 @@ import {
   Stack,
   createToaster,
   Toast,
-} from "@chakra-ui/react.js"
+} from "@chakra-ui/react"
 
 // ✅ 1. Criação da instância do toaster com configurações de Cybersecurity UX
 export const toaster = createToaster({

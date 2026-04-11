@@ -1,7 +1,7 @@
 import { inject, injectable } from "tsyringe";
 import {
-  ICompanyRepository,
   COMPANY_REPOSITORY_TOKEN,
+  type ICompanyRepository,
 } from "../../domain/repositories/company.repository.js";
 
 @injectable()

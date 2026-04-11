@@ -1,6 +1,6 @@
 "use client"
 
-import { Stack, Heading, Text, Button, Box, Icon, Flex, VStack, HStack, Badge } from "@chakra-ui/react.js"
+import { Stack, Heading, Text, Button, Box, Icon, Flex, VStack, HStack, Badge } from "@chakra-ui/react"
 import { useNavigate } from "react-router-dom"
 import { LuArrowRight, LuTrendingUp, LuUsers, LuActivity, LuClock } from "react-icons/lu"
 import { useState, useEffect } from "react"

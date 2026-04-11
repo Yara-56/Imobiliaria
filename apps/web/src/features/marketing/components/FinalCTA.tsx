@@ -6,7 +6,7 @@ import {
   VStack,
   Text,
   Button,
-} from "@chakra-ui/react.js"
+} from "@chakra-ui/react"
 
 interface FinalCTAProps {
   onLeadCapture?: () => void

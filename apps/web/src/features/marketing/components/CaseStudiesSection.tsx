@@ -9,7 +9,7 @@ import {
   Flex,
   Button,
   Icon,
-} from "@chakra-ui/react.js"
+} from "@chakra-ui/react"
 
 import { LuQuote, LuArrowRight } from "react-icons/lu"
 

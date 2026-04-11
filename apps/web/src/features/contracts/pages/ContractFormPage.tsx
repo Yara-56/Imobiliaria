@@ -4,10 +4,10 @@ import React from "react";
 import { 
   Stack, SimpleGrid, Input, Button, Text, 
   VStack, HStack, Box, Separator 
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { LuSignature, LuUser, LuWallet } from "react-icons/lu";
-import { NativeSelectRoot, NativeSelectField } from "@chakra-ui/react.js";
+import { NativeSelectRoot, NativeSelectField } from "@chakra-ui/react";
 import { Field } from "@/components/ui/field.js";
 
 // ✅ Importação de tipos (Só funciona em .tsx)

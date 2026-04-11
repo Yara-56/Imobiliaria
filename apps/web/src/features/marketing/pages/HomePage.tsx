@@ -8,7 +8,7 @@ import {
   Image,
   Text,
   useDisclosure,
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 
 import { motion } from "framer-motion";
 import { useCallback, useRef, useState } from "react";

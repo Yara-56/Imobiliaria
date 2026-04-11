@@ -1,6 +1,6 @@
 "use client"
 
-import { Field as ChakraField, Text } from "@chakra-ui/react.js"
+import { Field as ChakraField, Text } from "@chakra-ui/react"
 import * as React from "react"
 
 export interface FieldProps extends Omit<ChakraField.RootProps, "label"> {

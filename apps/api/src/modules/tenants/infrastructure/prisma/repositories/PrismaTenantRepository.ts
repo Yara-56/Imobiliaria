@@ -1,11 +1,11 @@
 import { prisma as prismaClient } from "@shared/infra/database/prisma.client.js";
-import { 
-  ITenantRepository, 
-  PaginationQuery, 
-  PaginatedResult 
+import type {
+  ITenantRepository,
+  PaginationQuery,
+  PaginatedResult,
 } from "../../../domain/repositories/ITenantRepository.js";
 import { Tenant, TenantDocument } from "../../../domain/entities/tenant.entity.js";
-import { Renter as PrismaRenter, Prisma } from "@prisma/client.js";
+import { Renter as PrismaRenter, Prisma } from "@prisma/client";
 
 export class PrismaTenantRepository implements ITenantRepository {
   
@@ -13,32 +13,33 @@ export class PrismaTenantRepository implements ITenantRepository {
    * 🔄 Mapeador de Domínio
    * Converte o dado do Prisma para a nossa Entidade rica.
    */
-  private mapToDomain(raw: any): Tenant {
-    const documents = raw.documents?.map((doc: any) => TenantDocument.create({
-      id: doc.id,
-      renterId: raw.id,
-      tenantId: raw.tenantId,
-      type: doc.type,
-      fileUrl: doc.fileUrl,
-      fileName: doc.fileName,
-      mimeType: doc.mimeType,
-      createdAt: doc.createdAt
-    })) || [];
+  private mapToDomain(raw: PrismaRenter & { documents?: unknown[] }): Tenant {
+    const documents =
+      (raw.documents as Record<string, unknown>[] | undefined)?.map((doc) =>
+        TenantDocument.create({
+          id: doc.id as string,
+          renterId: raw.id,
+          tenantId: raw.tenantId,
+          type: "OTHER",
+          fileUrl: (doc.url as string) ?? "",
+          fileName: (doc.name as string) ?? "document",
+          mimeType: (doc.mimeType as string) ?? "application/octet-stream",
+          createdAt: doc.createdAt as Date | undefined,
+        })
+      ) ?? [];
 
-    // ✅ Usamos o restore para reconstruir o objeto de domínio
     return Tenant.restore({
       id: raw.id,
       fullName: raw.fullName,
       email: raw.email,
       phone: raw.phone,
       cpf: raw.cpf,
-      notes: raw.notes ?? null, // ✅ Resolve o erro ts(2339) se o campo for nulo
-      avatarUrl: raw.avatarUrl,
+      notes: null,
       tenantId: raw.tenantId,
-      userId: raw.userId,
-      documents: documents,
+      userId: "",
+      documents,
       createdAt: raw.createdAt,
-      updatedAt: raw.updatedAt
+      updatedAt: raw.updatedAt,
     });
   }
 
@@ -69,8 +70,6 @@ export class PrismaTenantRepository implements ITenantRepository {
         phone: data.phone,
         cpf: data.cpf,
         tenantId: data.tenantId,
-        userId: data.userId,
-        notes: data.notes,
       },
     });
     return this.mapToDomain(created);
@@ -128,9 +127,7 @@ export class PrismaTenantRepository implements ITenantRepository {
         email: data.email,
         phone: data.phone,
         cpf: data.cpf,
-        notes: data.notes,
-        updatedAt: new Date()
-      }
+      },
     });
     return this.mapToDomain(updated);
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query.js";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { tenantApi } from "../api/tenant.api";
 import type { CreateTenantDTO, UpdateTenantDTO, Tenant } from "../types/tenant.types";
 import { toaster } from "@/components/ui/toaster.js";

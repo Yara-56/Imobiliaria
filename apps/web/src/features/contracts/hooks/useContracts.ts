@@ -1,6 +1,6 @@
 // frontend/src/features/contracts/hooks/useContracts.ts
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query.js";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { contractApi } from "../api/contract.api";
 import { toaster } from "@/components/ui/toaster.js";
 import type { CreateContractDTO, ContractStatus } from "../types/contract.types";

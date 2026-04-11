@@ -4,7 +4,7 @@ import {
   useQuery,
   useMutation,
   useQueryClient,
-} from "@tanstack/react-query.js";
+} from "@tanstack/react-query";
 
 import { tenantApi } from "../api/tenant.api";
 import { tenantKeys } from "../keys/tenant.keys";

@@ -1,10 +1,10 @@
 import { inject, injectable } from "tsyringe";
 import {
-  ICompanyRepository,
   COMPANY_REPOSITORY_TOKEN,
+  type ICompanyRepository,
 } from "../../domain/repositories/company.repository.js";
 
-type Request = {
+type CreateCompanyRequest = {
   name: string;
   cnpj: string;
 };
@@ -16,7 +16,7 @@ export class CreateCompanyService {
     private companyRepository: ICompanyRepository
   ) {}
 
-  async execute({ name, cnpj }: Request) {
+  async execute({ name, cnpj }: CreateCompanyRequest) {
     const exists = await this.companyRepository.findByCNPJ(cnpj);
 
     if (exists) {

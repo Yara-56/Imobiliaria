@@ -8,7 +8,7 @@ import {
   SimpleGrid,
   Flex,
   Button,
-} from "@chakra-ui/react.js"
+} from "@chakra-ui/react"
 
 interface PricingSectionProps {
   onLeadCapture?: () => void

@@ -1,9 +1,9 @@
 import { inject, injectable } from "tsyringe";
-import { 
-  ITenantRepository, 
-  CreateTenantData, 
-  PaginationQuery, 
-  PaginatedResult 
+import type {
+  ITenantRepository,
+  CreateTenantData,
+  PaginationQuery,
+  PaginatedResult,
 } from "../../domain/repositories/ITenantRepository.js";
 import { Tenant } from "../../domain/entities/tenant.entity.js";
 import { AppError } from "@shared/errors/AppError.js";

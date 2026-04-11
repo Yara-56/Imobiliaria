@@ -38,3 +38,10 @@ export const connectDatabase = async (): Promise<void> => {
 export const disconnectDatabase = async (): Promise<void> => {
   await prisma.$disconnect();
 };
+
+/** Hub usado por `config/index.ts` */
+export const databaseConfig = {
+  prisma,
+  connect: connectDatabase,
+  disconnect: disconnectDatabase,
+} as const;

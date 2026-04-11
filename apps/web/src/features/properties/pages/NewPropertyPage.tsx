@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Flex, Heading, Text, Button } from "@chakra-ui/react.js";
+import { Box, Flex, Heading, Text, Button } from "@chakra-ui/react";
 import { LuArrowLeft } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 

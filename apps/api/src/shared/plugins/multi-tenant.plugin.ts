@@ -37,32 +37,30 @@ export const multiTenantPlugin = (schema: Schema) => {
     "countDocuments",
   ] as const;
 
+  const s = schema as Schema & { pre: (...args: unknown[]) => void };
+
   operations.forEach((operation) => {
-    schema.pre(operation, function (this: MultiTenantQuery, next: (err?: CallbackError) => void) {
-      // Permite ignorar o filtro se bypassTenant for true (uso administrativo)
+    s.pre(operation, function (this: MultiTenantQuery, next: (err?: CallbackError) => void) {
       if (this.options.bypassTenant) return next();
 
       const tenantId = this.options.tenantId;
 
       if (!tenantId) {
-        // Lançamento de erro usando o padrão de objeto da sua classe AppError
         return next(
           new AppError({
             message: "Tenant ID não fornecido para a operação.",
             statusCode: HttpStatus.FORBIDDEN,
-            errorCode: ErrorCodes.FORBIDDEN 
+            errorCode: ErrorCodes.FORBIDDEN,
           })
         );
       }
 
-      // Aplica o filtro de segurança na query
       this.where({ tenantId });
       next();
     });
   });
 
-  // Middleware de validação para novos documentos
-  schema.pre("validate", function (this: any, next: (err?: CallbackError) => void) {
+  s.pre("validate", function (this: mongoose.Document & { tenantId?: unknown }, next: (err?: CallbackError) => void) {
     if (this.isNew && !this.tenantId) {
       return next(
         new AppError({

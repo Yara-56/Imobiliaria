@@ -1,7 +1,7 @@
 "use client";
 
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { Center, Spinner, Text, VStack } from "@chakra-ui/react.js";
+import { Center, Spinner, Text, VStack } from "@chakra-ui/react";
 
 // ✅ Usando o Alias configurado no TS 7.0 (Sem erro de localização)
 import { useAuth } from "../../context/AuthContext"; 

@@ -14,7 +14,7 @@ import {
   // ✅ Usando o Field do Chakra diretamente para evitar erro de import local
   Field as ChakraField,
   NativeSelect
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { 
   LuDollarSign, 

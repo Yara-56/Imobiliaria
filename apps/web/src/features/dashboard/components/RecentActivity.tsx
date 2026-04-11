@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, HStack, VStack, Text, Icon, Avatar } from "@chakra-ui/react.js";
+import { Box, HStack, VStack, Text, Icon, Avatar } from "@chakra-ui/react";
 import {
   UserPlus,
   FileText,

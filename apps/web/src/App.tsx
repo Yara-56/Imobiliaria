@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { Center, Spinner } from "@chakra-ui/react.js";
+import { Center, Spinner } from "@chakra-ui/react";
 import { Toaster } from "react-hot-toast"; // ✅ Importe o Toaster aqui
 import { AppProvider } from "./core/providers/AppProvider";
 import AppRoutes from "./routes/AppRoutes";

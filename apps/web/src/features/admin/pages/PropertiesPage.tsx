@@ -3,7 +3,7 @@
 import { 
   Box, Flex, Heading, Text, Button, Table, Badge, 
   HStack, Input, Center, Spinner, VStack, Icon 
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 import { 
   LuPlus, LuSearch, LuHouse, LuMapPin, LuFilter, 
   LuChevronRight, LuCircleAlert 

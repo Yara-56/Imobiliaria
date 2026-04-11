@@ -1,5 +1,5 @@
 // src/components/BrandIcon.tsx
-import { chakra, HTMLChakraProps } from "@chakra-ui/react.js";
+import { chakra, HTMLChakraProps } from "@chakra-ui/react";
 
 /**
  * Ícone oficial HomeFlux em PNG (32x32)

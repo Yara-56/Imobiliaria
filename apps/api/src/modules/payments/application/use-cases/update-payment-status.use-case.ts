@@ -1,5 +1,5 @@
 import { inject, injectable } from "tsyringe"; // 🔥 Adicionado para DI
-import { IPaymentRepository } from "../../domain/repositories/payment.repository.interface.js";
+import type { IPaymentRepository } from "../../domain/repositories/payment.repository.interface.js";
 import {
   Payment,
   PaymentStatus,

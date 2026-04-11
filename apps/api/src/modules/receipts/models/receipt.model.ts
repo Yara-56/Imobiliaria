@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
-import { multiTenantPlugin } from "@/shared/plugins/multiTenant.plugin.js"; // ✅ Usando Alias profissional
+import { multiTenantPlugin } from "@shared/plugins/multi-tenant.plugin.js";
 
 /**
  * 1️⃣ Interface de Dados Pura (POJO)

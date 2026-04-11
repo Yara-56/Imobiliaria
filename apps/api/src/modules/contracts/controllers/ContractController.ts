@@ -34,9 +34,13 @@ export class ContractController {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const {
-        propertyId, renterId, rentAmount, dueDay,
-        startDate, endDate, depositValue, paymentMethod,
-        contractNumber, notes,
+        propertyId,
+        renterId,
+        rentAmount,
+        dueDay,
+        startDate,
+        endDate,
+        contractNumber,
       } = req.body;
 
       // ✅ CORREÇÃO: Passando como objeto { message, statusCode }
@@ -53,16 +57,14 @@ export class ContractController {
           dueDay: Number(dueDay),
           startDate: new Date(startDate),
           endDate: endDate ? new Date(endDate) : null,
-          depositValue: depositValue ? Number(depositValue) : null,
-          paymentMethod,
-          notes,
-          contractNumber: contractNumber ?? `CNT-${new Date().getFullYear()}-${Date.now()}`,
-          propertyId,
-          renterId,
-          userId: req.user.id,
-          tenantId: req.user.tenantId,
+          contractNumber:
+            contractNumber ?? `CNT-${new Date().getFullYear()}-${Date.now()}`,
+          property: { connect: { id: propertyId } },
+          renter: { connect: { id: renterId } },
+          user: { connect: { id: req.user.id } },
+          tenant: { connect: { id: req.user.tenantId } },
           status: "ACTIVE",
-        }
+        },
       });
 
       const pdfInfo = await this.generatePDFService.execute(newContract.id);

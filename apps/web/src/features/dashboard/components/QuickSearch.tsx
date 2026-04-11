@@ -1,4 +1,4 @@
-import { Box, Flex, Input, Icon, Kbd } from "@chakra-ui/react.js";
+import { Box, Flex, Input, Icon, Kbd } from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
 
 export const QuickSearch = () => (

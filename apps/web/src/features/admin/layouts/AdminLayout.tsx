@@ -7,13 +7,13 @@ import {
   Container,
   Heading,
   Center,
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { LuHouse, LuLogOut } from "react-icons/lu";
 
-import Sidebar from "../../../../../src/components/shared/Sidebar"; // ✅ corrigido
-import { AdminSections } from "../../../../../src/core/config/admin.sections";
+import Sidebar from "../../../components/shared/Sidebar"; // ✅ corrigido
+import { AdminSections } from "../../../core/config/admin.sections";
 
 export const AdminLayout = () => {
   const location = useLocation();

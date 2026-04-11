@@ -1,6 +1,6 @@
 "use client"
 
-import { Box, Container, SimpleGrid, Stack, Text, Heading } from "@chakra-ui/react.js"
+import { Box, Container, SimpleGrid, Stack, Text, Heading } from "@chakra-ui/react"
 
 const stats = [
   { label: "Imóveis Gerenciados", value: "10k+" },

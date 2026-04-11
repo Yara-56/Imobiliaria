@@ -3,7 +3,7 @@
 import { 
   Box, Container, Heading, Text, SimpleGrid, VStack, HStack, 
   Icon, Button, Badge, Flex, Center, Spinner, Separator
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 import { 
   LuSignature, 
   LuUsers, 

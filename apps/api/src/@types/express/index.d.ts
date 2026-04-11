@@ -5,7 +5,7 @@ import {
   User,
   Contract,
   Payment
-} from "@prisma/client.js";
+} from "@prisma/client";
 
 declare global {
   namespace Express {

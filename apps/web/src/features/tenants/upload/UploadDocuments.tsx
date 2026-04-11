@@ -7,7 +7,7 @@ import {
     Center,
     Flex,
     Icon,
-  } from "@chakra-ui/react.js";
+  } from "@chakra-ui/react";
   import { useState } from "react";
   import { FiUploadCloud } from "react-icons/fi";
   import FileCard from "../../../components/ui/FileCard";

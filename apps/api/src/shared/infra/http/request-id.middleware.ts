@@ -16,3 +16,6 @@ export const requestIdMiddleware = (
   res.setHeader("X-Request-Id", req.requestId);
   next();
 };
+
+export const getRequestId = (req: Request): string =>
+  req.requestId ?? "unknown";

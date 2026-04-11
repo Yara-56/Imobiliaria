@@ -1,4 +1,7 @@
-import { Contract as PrismaContract } from "@prisma/client.js";
+import {
+  Contract as PrismaContract,
+  PaymentMethod,
+} from "@prisma/client";
 import { ContractEntity } from "../../../domain/entities/contract.entity.js";
 
 /**
@@ -7,31 +10,30 @@ import { ContractEntity } from "../../../domain/entities/contract.entity.js";
  * e a camada de Domínio (Entidade).
  */
 export class ContractMapper {
-  
   /**
    * 🏦 De Prisma para Domínio (Busca no Banco)
    */
   static toDomain(raw: PrismaContract): ContractEntity {
     return ContractEntity.restore({
       id: raw.id,
-      contractNumber: raw.contractNumber ?? "", 
+      contractNumber: raw.contractNumber ?? "",
       tenantId: raw.tenantId,
       propertyId: raw.propertyId,
       renterId: raw.renterId,
       userId: raw.userId,
-      templateId: raw.templateId,
-      rentAmount: Number(raw.rentAmount), // Converte Decimal do banco para Number
+      templateId: null,
+      rentAmount: Number(raw.rentAmount),
       dueDay: raw.dueDay,
       startDate: raw.startDate,
       endDate: raw.endDate,
-      depositValue: raw.depositValue ? Number(raw.depositValue) : null,
-      paymentMethod: raw.paymentMethod,
+      depositValue: null,
+      paymentMethod: PaymentMethod.PIX,
       status: raw.status,
-      notes: raw.notes,
-      generatedContent: raw.generatedContent,
-      documentUrl: raw.documentUrl,
-      signedUrl: raw.signedUrl,
-      signedAt: raw.signedAt,
+      notes: null,
+      generatedContent: null,
+      documentUrl: null,
+      signedUrl: null,
+      signedAt: null,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
     });
@@ -42,9 +44,7 @@ export class ContractMapper {
    */
   static toPersistence(contract: ContractEntity) {
     const data = contract.toJSON();
-    
-    // ✅ Agora 'data' possui templateId, depositValue e paymentMethod
-    // O TypeScript não vai mais reclamar (ts2339)
+
     return {
       id: data.id,
       contractNumber: data.contractNumber,
@@ -52,21 +52,11 @@ export class ContractMapper {
       dueDay: data.dueDay,
       startDate: data.startDate,
       endDate: data.endDate,
-      depositValue: data.depositValue,
-      paymentMethod: data.paymentMethod,
       status: data.status,
-      notes: data.notes,
-      generatedContent: data.generatedContent,
-      documentUrl: data.documentUrl,
-      signedUrl: data.signedUrl,
-      signedAt: data.signedAt,
-      
-      // Chaves estrangeiras e isolamento Multi-tenant
       tenantId: data.tenantId,
       propertyId: data.propertyId,
       renterId: data.renterId,
       userId: data.userId,
-      templateId: data.templateId,
     };
   }
 }

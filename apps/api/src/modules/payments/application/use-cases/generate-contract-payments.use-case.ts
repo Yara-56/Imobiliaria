@@ -1,5 +1,5 @@
 import { prisma } from "@shared/infra/database/prisma.client.js";
-import { PaymentMethod, PaymentStatus } from "@prisma/client.js";
+import { PaymentMethod, PaymentStatus } from "@prisma/client";
 import { AppError } from "@shared/errors/AppError.js";
 import { HttpStatus } from "@shared/errors/http-status.js";
 
@@ -39,14 +39,13 @@ export class GenerateContractPaymentsUseCase {
       payments.push({
         amount: contract.rentAmount,
         referenceMonth: monthName.toUpperCase(),
-        dueDate: dueDate,
-        method: contract.paymentMethod as PaymentMethod,
-        status: "PENDENTE" as PaymentStatus,
+        dueDate,
+        method: PaymentMethod.PIX,
+        status: "PENDING" as PaymentStatus,
         contractId: contract.id,
         renterId: contract.renterId,
-        tenantId: tenantId,
-        userId: userId,
-        notes: `Parcela gerada automaticamente para o contrato ${contract.contractNumber || contract.id}`
+        tenantId,
+        userId,
       });
 
       // Avança para o próximo mês

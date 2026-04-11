@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query.js";
+import { useQuery } from "@tanstack/react-query";
 import { tenantApi } from "../api/tenant.api";
 import { useTenantStore } from "../store/useTenantStore";
 

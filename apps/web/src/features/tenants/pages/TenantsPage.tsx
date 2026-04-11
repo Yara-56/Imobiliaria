@@ -3,7 +3,7 @@
 import { 
   Box, Heading, Text, VStack, HStack, Icon, Container, Button, Center, Spinner, Flex, SimpleGrid,
   Badge // ✅ Adicionado ao import para resolver ts(2304)
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 import { LuUsers, LuUserPlus, LuShieldCheck, LuSearch, LuMail, LuFingerprint } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import { useTenants } from "../hooks/useTenants";

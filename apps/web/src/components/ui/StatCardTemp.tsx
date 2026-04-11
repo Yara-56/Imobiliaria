@@ -1,6 +1,6 @@
 "use client"
 
-import { Box, Flex, Text } from "@chakra-ui/react.js";
+import { Box, Flex, Text } from "@chakra-ui/react";
 import { ReactElement } from "react";
 
 interface StatCardProps {

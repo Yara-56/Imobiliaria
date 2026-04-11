@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
+import { DocumentType } from "@prisma/client";
 import { prisma } from "@shared/infra/database/prisma.client.js";
 import { AppError } from "@shared/errors/AppError.js";
 import { HttpStatus } from "@shared/errors/http-status.js";
@@ -53,7 +54,7 @@ export class GenerateContractPDFService {
     // Cláusula 1: Partes
     doc.fontSize(12).font("Helvetica-Bold").text("1. DAS PARTES");
     doc.font("Helvetica").fontSize(10).text(
-      `LOCADOR: ${contract.tenant.name}, inscrito no CNPJ sob nº ${contract.tenant.cnpj || "N/A"}, com sede em ${contract.tenant.phone || "N/A"}.`,
+      `LOCADOR: ${contract.tenant.name}, inscrito no CNPJ sob nº ${contract.tenant.cnpj ?? "N/A"}.`,
       { align: "justify" }
     );
     doc.moveDown(0.5);
@@ -66,7 +67,7 @@ export class GenerateContractPDFService {
     // Cláusula 2: O Imóvel
     doc.font("Helvetica-Bold").text("2. DO OBJETO");
     doc.font("Helvetica").text(
-      `O objeto deste contrato é a locação do imóvel situado em: ${contract.property.address}, ${contract.property.city || ""} - ${contract.property.state || ""}.`,
+      `O objeto deste contrato é a locação do imóvel situado em: ${contract.property.address}.`,
       { align: "justify" }
     );
     doc.moveDown();
@@ -74,7 +75,7 @@ export class GenerateContractPDFService {
     // Cláusula 3: Valores
     doc.font("Helvetica-Bold").text("3. DO VALOR E PAGAMENTO");
     doc.font("Helvetica").text(
-      `O valor mensal do aluguel é de R$ ${contract.rentAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}, a ser pago via ${contract.paymentMethod}, com vencimento todo dia ${contract.dueDay} de cada mês.`,
+      `O valor mensal do aluguel é de R$ ${contract.rentAmount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}, a ser pago via PIX, com vencimento todo dia ${contract.dueDay} de cada mês.`,
       { align: "justify" }
     );
     doc.moveDown();
@@ -100,19 +101,20 @@ export class GenerateContractPDFService {
     doc.end();
 
     // 3. Salva a referência do documento no MongoDB
+    const relUrl = `/uploads/documents/${contract.tenantId}/${fileName}`;
     await prisma.document.create({
       data: {
         name: fileName,
-        type: "CONTRATO",
-        url: `/uploads/documents/${contract.tenantId}/${fileName}`,
-        fileSize: 0, 
+        type: DocumentType.LEASE_CONTRACT,
+        url: relUrl,
+        fileKey: relUrl,
+        fileSize: 0,
         mimeType: "application/pdf",
-        uploadedBy: contract.user.name,
         contractId: contract.id,
         renterId: contract.renterId,
         propertyId: contract.propertyId,
-        tenantId: contract.tenantId
-      }
+        tenantId: contract.tenantId,
+      },
     });
 
     return { 

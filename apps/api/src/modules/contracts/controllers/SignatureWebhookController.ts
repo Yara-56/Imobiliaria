@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import { prisma } from "@shared/infra/database/prisma.client.js"; // ✅ 3 níveis apenas
-import { logger } from "@shared/utils/logger.js"; // ✅ Ajustado para 3 níveis
+import { DocumentType } from "@prisma/client";
+import { prisma } from "@shared/infra/database/prisma.client.js";
+import { logger } from "@shared/utils/logger.js";
 
 export class SignatureWebhookController {
   async handle(req: Request, res: Response) {
@@ -25,16 +26,17 @@ export class SignatureWebhookController {
           // 2. Atualizamos o status para ACTIVE e salvamos a URL do arquivo assinado
           await prisma.contract.update({
             where: { id: contract.id },
-            data: { 
+            data: {
               status: "ACTIVE",
-              notes: contract.notes + `\n[Assinado digitalmente em ${new Date().toLocaleString()}]`
-            }
+            },
           });
 
-          // 3. Atualizamos o registro do documento com a URL final assinada
           await prisma.document.updateMany({
-            where: { contractId: contract.id, type: "CONTRATO" },
-            data: { url: signed_file_url }
+            where: {
+              contractId: contract.id,
+              type: DocumentType.LEASE_CONTRACT,
+            },
+            data: { url: signed_file_url },
           });
 
           logger.info({ msg: "Contrato ativado via Webhook", contractId: contract.id });

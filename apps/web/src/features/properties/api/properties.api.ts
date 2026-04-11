@@ -1,4 +1,4 @@
-import api from "../../../../../src/core/api/httpClient";
+import api from "@/core/api/httpClient";
 
 import {
   mapApiToProperty as mapToUI,

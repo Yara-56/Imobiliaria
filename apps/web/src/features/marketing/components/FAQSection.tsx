@@ -8,7 +8,7 @@ import {
   Flex,
   Text,
   Button,
-} from "@chakra-ui/react.js"
+} from "@chakra-ui/react"
 import { LuChevronDown } from "react-icons/lu"
 
 interface FAQSectionProps {

@@ -14,7 +14,7 @@ import {
   Badge, 
   SimpleGrid,
   Flex // ✅ Corrigido: Flex adicionado aos imports
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { 
   LuArrowLeft, 

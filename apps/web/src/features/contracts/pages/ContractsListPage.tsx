@@ -4,8 +4,8 @@ import React from "react";
 import { 
   Box, Heading, Text, VStack, Button, Table, Badge, 
   Center, Spinner, HStack, Icon, Flex, Container 
-} from "@chakra-ui/react.js";
-import { useQuery } from "@tanstack/react-query.js";
+} from "@chakra-ui/react";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import api from "../../../../../src/core/api/apiResponse";
 import { 

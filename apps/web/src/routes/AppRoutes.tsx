@@ -2,7 +2,7 @@
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ReactNode, useEffect } from "react";
-import { Center, Spinner, Text, VStack } from "@chakra-ui/react.js";
+import { Center, Spinner, Text, VStack } from "@chakra-ui/react";
 import { useAuth } from "../context/AuthContext";
 
 // --- LAYOUTS ---

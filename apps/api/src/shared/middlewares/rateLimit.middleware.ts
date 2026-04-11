@@ -1,5 +1,6 @@
 import rateLimit from "express-rate-limit";
 import { AppError } from "../errors/AppError.js";
+import { HttpStatus } from "../errors/http-status.js";
 
 /**
  * Configuração de Limite de Requisições
@@ -13,10 +14,12 @@ export const limiter = rateLimit({
   
   // Resposta customizada usando seu padrão de alto padrão
   handler: (req, res, next, options) => {
-    next(new AppError(
-      "Muitas requisições vindas deste IP. Por favor, tente novamente após 15 minutos.", 
-      429
-    ));
+    next(
+      new AppError(
+        "Muitas requisições vindas deste IP. Por favor, tente novamente após 15 minutos.",
+        HttpStatus.TOO_MANY_REQUESTS
+      )
+    );
   },
 });
 

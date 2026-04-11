@@ -5,9 +5,9 @@ import {
   Input as ChakraInput,
   Box,
   Spinner,
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 
-import type { InputProps } from "@chakra-ui/react.js";
+import type { InputProps } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 
 // ===============================

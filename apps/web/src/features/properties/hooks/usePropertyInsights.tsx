@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query.js";
+import { useQuery } from "@tanstack/react-query";
 
 // No arquivo usePropertyInsights.tsx
 import { propertyInsightsApi } from "../api/property-insights.api"; // ✅ IMPORTAÇÃO CORRETA

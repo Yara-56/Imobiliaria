@@ -11,7 +11,7 @@ import {
   Center,
   SimpleGrid,
   Spinner,
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 
 import {
   LuTrendingUp,

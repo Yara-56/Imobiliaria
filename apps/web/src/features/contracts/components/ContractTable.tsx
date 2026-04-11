@@ -12,7 +12,7 @@ import {
   IconButton, 
   Center, 
   Spinner 
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 import { 
   LuFileText, 
   LuEye, 

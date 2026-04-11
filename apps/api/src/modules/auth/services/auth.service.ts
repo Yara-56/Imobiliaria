@@ -58,50 +58,6 @@ const validatePassword = async (plain: string, hash: string): Promise<void> => {
 };
 
 /* ==========================================================
-   AUTO-CREATE USER IF TENANT EXISTS
-   - Email do Zoho OU email real da imobiliária
-   - Cria automaticamente o primeiro ADMIN da empresa
-========================================================== */
-
-const autoCreateUserIfTenantExists = async (
-  email: string,
-  password: string
-): Promise<AuthUserResponse> => {
-  // Buscar tenant pelo e-mail (email é @unique no Prisma)
-  const tenant = await prisma.tenant.findUnique({
-    where: { email },
-  });
-
-  if (!tenant) {
-    throw new AppError({
-      message: "Tenant não encontrado. Cadastre a empresa primeiro.",
-      statusCode: HttpStatus.NOT_FOUND,
-    });
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 12);
-
-  const newUser = await prisma.user.create({
-    data: {
-      name: `${tenant.name} (Admin)`, // <--- CORRETO (seu schema não tem fullName)
-      email,
-      password: hashedPassword,
-      role: "ADMIN",
-      tenantId: tenant.id,
-      isActive: true,
-    },
-  });
-
-  return {
-    id: newUser.id,
-    name: newUser.name,
-    email: newUser.email,
-    role: newUser.role,
-    tenantId: newUser.tenantId,
-  };
-};
-
-/* ==========================================================
    AUTHENTICATE USER (LOGIN PRINCIPAL)
 ========================================================== */
 
@@ -111,33 +67,17 @@ export const authenticateUser = async (
 ): Promise<AuthResponse> => {
   const normalizedEmail = email.trim().toLowerCase();
 
-  // Buscar usuário no banco
-  let user = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { email: normalizedEmail },
   });
 
-  // Usuário não existe → tentar criar automaticamente
   if (!user) {
-    const created = await autoCreateUserIfTenantExists(normalizedEmail, password);
-
-    const token = generateAccessToken({
-      sub: created.id,
-      role: created.role,
-      tenantId: created.tenantId,
-    });
-
-    return { token, user: created };
-  }
-
-  // Verificar se usuário está ativo
-  if (!user.isActive) {
     throw new AppError({
-      message: "Conta desativada",
+      message: "Credenciais inválidas",
       statusCode: HttpStatus.UNAUTHORIZED,
     });
   }
 
-  // Validar senha
   await validatePassword(password, user.password);
 
   const authUser: AuthUserResponse = {
@@ -183,9 +123,11 @@ export const registerUser = async (data: {
 
   const user = await prisma.user.create({
     data: {
-      ...data,
+      name: data.name,
+      email: data.email,
       password: hashedPassword,
-      isActive: true,
+      role: data.role,
+      tenantId: data.tenantId,
     },
   });
 

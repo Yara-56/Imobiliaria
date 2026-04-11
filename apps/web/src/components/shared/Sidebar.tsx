@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Flex, Text, Icon } from "@chakra-ui/react.js";
+import { Box, Flex, Text, Icon } from "@chakra-ui/react";
 import { Link, useLocation } from "react-router-dom";
 import { IconType } from "react-icons";
 

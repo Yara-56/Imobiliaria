@@ -1,8 +1,8 @@
 "use client";
 
 import { ReactNode, useMemo } from "react";
-import { ChakraProvider } from "@chakra-ui/react.js";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query.js";
+import { ChakraProvider } from "@chakra-ui/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { system } from "../theme";
 import { AuthProvider } from "../../context/AuthContext";

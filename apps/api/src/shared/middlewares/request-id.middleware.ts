@@ -9,3 +9,6 @@ export function requestIdMiddleware(
   req.requestId = randomUUID();
   next();
 }
+
+export const getRequestId = (req: Request): string =>
+  req.requestId ?? "unknown";

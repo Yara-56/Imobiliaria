@@ -10,7 +10,7 @@ import {
   Badge, 
   Center,
   SimpleGrid
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 import { 
   LuTrendingUp, 
   LuCircleAlert, 

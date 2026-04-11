@@ -1,7 +1,7 @@
 "use client";
 
 import { forwardRef } from "react";
-import type { InputProps } from "@chakra-ui/react.js";
+import type { InputProps } from "@chakra-ui/react";
 import type { FieldValues, Path, UseFormSetValue } from "react-hook-form";
 
 import { AppInput } from "./app-input";

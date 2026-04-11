@@ -12,7 +12,7 @@ import {
   DialogCloseTrigger,
   DialogBackdrop, // Adicionado para um UX profissional (escurece o fundo)
   Icon,
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 import { LuUserPlus } from "react-icons/lu";
 
 // ✅ Importando o formulário (Caminho absoluto ou relativo correto)

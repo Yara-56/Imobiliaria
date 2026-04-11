@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Flex, Icon, Image, Text, IconButton, Stack } from "@chakra-ui/react.js";
+import { Box, Flex, Icon, Image, Text, IconButton, Stack } from "@chakra-ui/react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { LuImage, LuX } from "react-icons/lu";
@@ -125,4 +125,4 @@ export default function ImageUploader({ onFilesChange, maxFiles = 5 }: ImageUplo
 }
 
 // Pequeno helper caso não tenha o Center importado
-import { Center } from "@chakra-ui/react.js";
+import { Center } from "@chakra-ui/react";

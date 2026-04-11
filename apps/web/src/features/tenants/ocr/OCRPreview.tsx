@@ -1,4 +1,4 @@
-import { Box, Text, VStack, Center } from "@chakra-ui/react.js";
+import { Box, Text, VStack, Center } from "@chakra-ui/react";
 
 export default function OCRPreview() {
   // Mock visual — depois integramos com o backend

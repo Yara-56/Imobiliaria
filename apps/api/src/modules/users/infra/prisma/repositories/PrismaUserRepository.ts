@@ -4,7 +4,7 @@ import {
   IUserRepository,
   PaginationQuery,
   PaginatedResult,
-} from "../../../../users/domain/repositories/IUserRepository.js";
+} from "../../../domain/repositories/IUserRepository.js";
 
 const prisma = new PrismaClient();
 

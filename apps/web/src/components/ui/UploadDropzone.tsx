@@ -1,4 +1,4 @@
-import { Box, Text, VStack } from "@chakra-ui/react.js";
+import { Box, Text, VStack } from "@chakra-ui/react";
 import { FiUploadCloud } from "react-icons/fi";
 
 export default function UploadDropzone() {

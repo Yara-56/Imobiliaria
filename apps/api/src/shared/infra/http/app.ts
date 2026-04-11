@@ -1,4 +1,6 @@
 import 'reflect-metadata'; // Necessário para o tsyringe (Injeção de Dependência)
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -10,17 +12,21 @@ import swaggerJsdoc from "swagger-jsdoc";
 // Importações usando a nova estrutura de pastas
 import { env } from "@config/env.js";
 import { corsOptions } from "@config/cors.config.js";
-import { apiRouter } from "./routes";
-import { errorMiddleware } from "../../middlewares/error.middleware"; 
-import { requestIdMiddleware } from "../../middlewares/request-id.middleware";
+import { apiRouter } from "./routes.js";
+import { errorMiddleware } from "../../middlewares/error.middleware.js"; 
+import { requestIdMiddleware } from "../../middlewares/request-id.middleware.js";
 
 // Inicializa o Container de Injeção de Dependência
 import "@shared/container";
 
 const app: Application = express();
 
+const httpDir = path.dirname(fileURLToPath(import.meta.url));
+const srcDir = path.join(httpDir, "../../..");
+const toPosixGlob = (p: string) => p.replace(/\\/g, "/");
+
 /**
- * 📖 CONFIGURAÇÃO DO SWAGGER (Documentação Automática)
+ * 📖 CONFIGURAÇÃO DO SWAGGER — globs relativos ao diretório fonte (funciona em qualquer cwd)
  */
 const swaggerOptions: swaggerJsdoc.Options = {
   definition: {
@@ -31,10 +37,26 @@ const swaggerOptions: swaggerJsdoc.Options = {
       description: "Documentação oficial das rotas para gestão imobiliária Multi-tenant.",
       contact: { name: "Yara Enterprise Support" }
     },
-    servers: [{ url: `http://localhost:${env.PORT}${env.API_PREFIX}/${env.API_VERSION}` }],
+    servers: [
+      {
+        url: `http://localhost:${env.PORT}`,
+        description: "API HomeFlux (paths absolutos desde a raiz)",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
   },
-  // O Swagger agora busca em todos os módulos de forma inteligente
-  apis: ["./src/modules/**/infra/http/routes/*.ts", "./src/shared/infra/http/*.ts"], 
+  apis: [
+    toPosixGlob(path.join(srcDir, "modules/**/*.routes.ts")),
+    toPosixGlob(path.join(httpDir, "*.ts")),
+  ],
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
@@ -64,7 +86,25 @@ app.use(cors(corsOptions));
  */
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-// Health Check - Para monitoramento de uptime
+/**
+ * @openapi
+ * /health:
+ *   get:
+ *     tags: [Sistema]
+ *     summary: Health check (raiz)
+ *     description: Uptime do processo, sem prefixo /api.
+ *     responses:
+ *       200:
+ *         description: Servidor online
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string, example: online }
+ *                 timestamp: { type: string, format: date-time }
+ *                 environment: { type: string }
+ */
 app.get("/health", (_req: Request, res: Response) => {
   res.status(200).json({ 
     status: "online", 

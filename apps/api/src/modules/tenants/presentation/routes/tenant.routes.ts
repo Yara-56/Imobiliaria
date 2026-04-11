@@ -5,7 +5,11 @@ import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import PDFDocument from "pdfkit";
 import { prisma } from "@shared/infra/database/prisma.client.js";
-import { PaymentStatus, PaymentMethod } from "@prisma/client.js";
+import {
+  PaymentStatus,
+  PaymentMethod,
+  DocumentType,
+} from "@prisma/client";
 
 const router = Router();
 
@@ -66,7 +70,37 @@ const validateRenterExists = async (req: Request, res: Response, next: NextFunct
 // ============================================
 
 /**
- * GET /tenants - Listar inquilinos da imobiliária (tenant)
+ * @openapi
+ * /api/v1/tenants:
+ *   get:
+ *     tags: [Inquilinos]
+ *     summary: Listar inquilinos (renters)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista paginada
+ *   post:
+ *     tags: [Inquilinos]
+ *     summary: Criar inquilino (multipart opcional)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fullName: { type: string }
+ *               email: { type: string }
+ *               phone: { type: string }
+ *               cpf: { type: string }
+ *               profilePhoto:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: Criado
  */
 router.get("/", async (req: Request, res: Response) => {
   try {
@@ -95,12 +129,9 @@ router.get("/", async (req: Request, res: Response) => {
   }
 });
 
-/**
- * POST /tenants - Criar novo inquilino
- */
 router.post("/", upload.single("profilePhoto"), async (req: Request, res: Response) => {
   try {
-    const { fullName, email, phone, cpf, plan, rentValue } = req.body;
+    const { fullName, email, phone, cpf } = req.body;
 
     if (!fullName || !email) {
       return res.status(400).json({ message: "Nome e email são obrigatórios" });
@@ -115,12 +146,8 @@ router.post("/", upload.single("profilePhoto"), async (req: Request, res: Respon
         email,
         phone: phone || null,
         cpf: cpf || null,
-        documentUrl: req.file ? `/uploads/tenants/${req.file.filename}` : null,
-        status: "ATIVO",
         tenantId: req.user.tenantId,
-        userId: req.user.id,
-        notes: `Plano: ${plan || "Padrão"}, Valor: R$ ${rentValue || 0}`,
-      }
+      },
     });
 
     res.status(201).json({ status: "success", data: { renter } });
@@ -133,6 +160,23 @@ router.post("/", upload.single("profilePhoto"), async (req: Request, res: Respon
 // GERAÇÃO DE RECIBO (VINCULADO AO MODEL PAYMENT)
 // ============================================
 
+/**
+ * @openapi
+ * /api/v1/tenants/{id}/receipts:
+ *   post:
+ *     tags: [Inquilinos]
+ *     summary: Gerar recibo / pagamento vinculado
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       201:
+ *         description: Recibo gerado
+ */
 router.post("/:id/receipts", validateRenterExists, async (req: Request, res: Response) => {
   try {
     const { amount, dueDate, description, contractId, method } = req.body;
@@ -147,17 +191,16 @@ router.post("/:id/receipts", validateRenterExists, async (req: Request, res: Res
     const payment = await prisma.payment.create({
       data: {
         amount: parseFloat(amount),
-        referenceMonth: new Date().toLocaleString('pt-BR', { month: 'long' }),
+        referenceMonth: new Date().toLocaleString("pt-BR", { month: "long" }),
         dueDate: new Date(dueDate),
         paymentDate: new Date(),
         method: (method as PaymentMethod) || "PIX",
-        status: "PAGO" as PaymentStatus,
+        status: "PAID" as PaymentStatus,
         contractId,
         renterId: renter.id,
         tenantId: req.user.tenantId,
         userId: req.user.id,
-        notes: description
-      }
+      },
     });
 
     // 2. Gerar PDF
@@ -185,21 +228,15 @@ router.post("/:id/receipts", validateRenterExists, async (req: Request, res: Res
       await prisma.document.create({
         data: {
           name: fileName,
-          type: "OUTRO",
+          type: DocumentType.OTHER,
           url: pdfUrl,
+          fileKey: pdfUrl,
           fileSize: fs.statSync(filePath).size,
           mimeType: "application/pdf",
-          uploadedBy: req.user.id,
           paymentId: payment.id,
           renterId: renter.id,
-          tenantId: req.user.tenantId
-        }
-      });
-
-      // 4. Atualizar o Payment com o link do recibo
-      await prisma.payment.update({
-        where: { id: payment.id },
-        data: { receiptUrl: pdfUrl }
+          tenantId: req.user.tenantId,
+        },
       });
 
       res.status(201).json({ status: "success", pdfUrl });
@@ -210,7 +247,21 @@ router.post("/:id/receipts", validateRenterExists, async (req: Request, res: Res
 });
 
 /**
- * DELETE /tenants/:id - Deletar inquilino e arquivos
+ * @openapi
+ * /api/v1/tenants/{id}:
+ *   delete:
+ *     tags: [Inquilinos]
+ *     summary: Remover inquilino
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Removido
  */
 router.delete("/:id", validateRenterExists, async (req: Request, res: Response) => {
   try {

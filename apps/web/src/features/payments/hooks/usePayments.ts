@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query.js";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { paymentApi } from "../api/payment.api";
 import { CreatePaymentDTO, Payment, Tenant, Contract, PaymentStatus } from "../types/payment.types";
 import { toast } from "react-hot-toast";

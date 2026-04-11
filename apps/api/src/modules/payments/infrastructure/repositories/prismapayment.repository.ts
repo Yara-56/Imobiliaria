@@ -1,6 +1,5 @@
-// backend/src/modules/payments/infrastructure/repositories/prismapayment.repository.ts
-
-import { prisma } from "@config/database.config.js"; 
+import type { PaymentMethod as PrismaPaymentMethod } from "@prisma/client";
+import { prisma } from "@config/database.config.js";
 
 import {
   IPaymentRepository,
@@ -9,39 +8,43 @@ import {
   PaginationQuery,
 } from "../../domain/repositories/payment.repository.interface.js";
 
-import {
-  Payment,
-  PaymentStatus,
-  PAYMENT_STATUS,
-} from "../../domain/entities/payment.entity.js";
+import type { Payment, PaymentStatus } from "../../domain/entities/payment.entity.js";
+
+function mapDomainMethodToPrisma(
+  method: CreatePaymentData["method"]
+): PrismaPaymentMethod {
+  if (method === "RECURRING_CARD") return "CREDIT_CARD";
+  return method as PrismaPaymentMethod;
+}
 
 export class PrismaPaymentRepository implements IPaymentRepository {
-  /**
-   * ✅ CREATE - Criar novo pagamento
-   */
   async create(data: CreatePaymentData): Promise<Payment> {
+    const contract = await prisma.contract.findFirst({
+      where: { id: data.contractId, tenantId: data.tenantId },
+    });
+
+    if (!contract) {
+      throw new Error("Contrato não encontrado para o pagamento.");
+    }
+
     const result = await prisma.payment.create({
       data: {
         amount: data.amount,
         referenceMonth: data.referenceMonth,
         dueDate: data.dueDate,
-        method: data.method,
+        method: mapDomainMethodToPrisma(data.method),
         contractId: data.contractId,
+        renterId: contract.renterId,
         tenantId: data.tenantId,
         userId: data.userId,
-        paymentDate: data.paymentDate,
-        status: data.status ?? PAYMENT_STATUS.PENDENTE,
-        receiptUrl: data.receiptUrl,
-        notes: data.notes,
+        paymentDate: data.paymentDate ?? null,
+        status: (data.status as import("@prisma/client").PaymentStatus) ?? "PENDING",
       },
     });
 
-    return result as Payment;
+    return result as unknown as Payment;
   }
 
-  /**
-   * ✅ LIST - Listar pagamentos com relações
-   */
   async findAll(tenantId: string, query?: PaginationQuery): Promise<Payment[]> {
     const page = Number(query?.page ?? 1);
     const limit = Number(query?.limit ?? 10);
@@ -52,17 +55,17 @@ export class PrismaPaymentRepository implements IPaymentRepository {
       include: {
         contract: {
           include: {
-            property: { 
-              select: { 
-                address: true 
-              } 
+            property: {
+              select: {
+                address: true,
+              },
             },
-            renter: { 
-              select: { 
-                fullName: true,  // ✅ CORRIGIDO: name → fullName
+            renter: {
+              select: {
+                fullName: true,
                 email: true,
                 phone: true,
-              } 
+              },
             },
           },
         },
@@ -72,78 +75,67 @@ export class PrismaPaymentRepository implements IPaymentRepository {
       take: limit,
     });
 
-    return results as Payment[];
+    return results as unknown as Payment[];
   }
 
-  /**
-   * ✅ GET BY ID - Buscar pagamento por ID
-   */
   async findById(id: string, tenantId: string): Promise<Payment | null> {
     const result = await prisma.payment.findFirst({
-      where: { 
-        id, 
-        tenantId 
+      where: {
+        id,
+        tenantId,
       },
       include: {
         contract: {
           include: {
-            property: { 
-              select: { 
+            property: {
+              select: {
                 address: true,
                 title: true,
-              } 
+              },
             },
-            renter: { 
-              select: { 
-                fullName: true,  // ✅ CORRIGIDO
+            renter: {
+              select: {
+                fullName: true,
                 email: true,
                 phone: true,
-              } 
+              },
             },
           },
         },
       },
     });
 
-    return result as Payment | null;
+    return result as unknown as Payment | null;
   }
 
-  /**
-   * ✅ UPDATE STATUS - Atualizar status do pagamento (SaaS Safe)
-   */
   async updateStatus(
-    id: string, 
-    tenantId: string, 
+    id: string,
+    tenantId: string,
     status: PaymentStatus
   ): Promise<Payment> {
-    const updated = await prisma.payment.update({
-      where: { 
-        id,
-        tenantId, // ✅ Segurança: impede que um tenant altere dados de outro
-      },
-      data: { status },
+    await prisma.payment.updateMany({
+      where: { id, tenantId },
+      data: { status: status as import("@prisma/client").PaymentStatus },
     });
 
-    return updated as Payment;
+    const updated = await prisma.payment.findFirst({
+      where: { id, tenantId },
+    });
+
+    if (!updated) {
+      throw new Error("Pagamento não encontrado após atualização.");
+    }
+
+    return updated as unknown as Payment;
   }
 
-  /**
-   * ✅ DELETE - Deletar pagamento (SaaS Safe)
-   */
   async delete(id: string, tenantId: string): Promise<void> {
-    await prisma.payment.delete({
-      where: { 
-        id,
-        tenantId,
-      },
+    await prisma.payment.deleteMany({
+      where: { id, tenantId },
     });
   }
 
-  /**
-   * ✅ HISTÓRICO - Criar registro de histórico
-   */
   async createHistory(data: CreatePaymentHistoryData): Promise<void> {
-    // TODO: Implementar tabela de histórico no Prisma
     console.log("🧾 Registro de Histórico:", data);
   }
 }

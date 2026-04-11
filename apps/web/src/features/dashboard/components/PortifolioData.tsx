@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, HStack, VStack, Text, Icon, Progress } from "@chakra-ui/react.js";
+import { Box, HStack, VStack, Text, Icon, Progress } from "@chakra-ui/react";
 import {
   LuTrendingUp,
   LuTrendingDown,

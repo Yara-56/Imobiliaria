@@ -9,7 +9,7 @@ import {
   Stack,
   Flex,
   Image
-} from "@chakra-ui/react.js"
+} from "@chakra-ui/react"
 
 const testimonials = [
   {

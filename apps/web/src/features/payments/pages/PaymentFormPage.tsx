@@ -5,7 +5,7 @@ import {
   Box, Container, Heading, Text, VStack, HStack, Button, Icon, 
   Input, Grid, GridItem, Center, Spinner, Badge, Flex,
   createListCollection
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 import { 
   LuDollarSign, LuArrowLeft, LuSave, LuUser, 
   LuFileText, LuClock, LuCircleCheck, LuCircleX

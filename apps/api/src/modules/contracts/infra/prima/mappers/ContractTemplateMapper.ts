@@ -1,13 +1,24 @@
-import { ContractTemplate as PrismaTemplate } from "@prisma/client.js";
 import { ContractTemplateEntity } from "../../../domain/entities/contract-template.entity.js";
 
+/** Registro persistível (sem model `ContractTemplate` no Prisma atual). */
+export type ContractTemplateRecord = {
+  id: string;
+  name: string;
+  content: string;
+  variables: unknown;
+  tenantId: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export class ContractTemplateMapper {
-  static toDomain(raw: PrismaTemplate): ContractTemplateEntity {
+  static toDomain(raw: ContractTemplateRecord): ContractTemplateEntity {
     return ContractTemplateEntity.restore({
       id: raw.id,
       name: raw.name,
       content: raw.content,
-      variables: raw.variables as string[], // Cast para garantir array de strings
+      variables: raw.variables as string[],
       tenantId: raw.tenantId,
       isActive: raw.isActive,
       createdAt: raw.createdAt,
@@ -16,7 +27,6 @@ export class ContractTemplateMapper {
   }
 
   static toPersistence(template: ContractTemplateEntity) {
-    // Usamos os getters da entidade que criamos anteriormente
     return {
       id: template.id,
       name: template.name,

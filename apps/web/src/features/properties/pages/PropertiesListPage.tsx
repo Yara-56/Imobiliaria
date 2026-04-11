@@ -14,7 +14,7 @@ import {
   Center,
   Input,
   Dialog,
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 import { LuPlus, LuRefreshCcw, LuHouse, LuPencil, LuTrash2 } from "react-icons/lu";
 import { useProperties } from "../hooks/useProperties";
 import { useNavigate } from "react-router-dom";

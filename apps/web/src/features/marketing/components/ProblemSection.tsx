@@ -1,6 +1,6 @@
 "use client"
 
-import { Box, Container, VStack, Text, SimpleGrid, Icon, chakra } from "@chakra-ui/react.js"
+import { Box, Container, VStack, Text, SimpleGrid, Icon, chakra } from "@chakra-ui/react"
 import { 
   LuTriangle,      // ÍCONE DISPONÍVEL E FUNCIONAL
   LuFrown,

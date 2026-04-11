@@ -1,13 +1,11 @@
-import { Request, Response, NextFunction } from "express";
-import { prisma } from "@/infrastructure/database/prisma.client.js";
-import { RenterStatus } from "@prisma/client.js";
+import type { Request, Response } from "express";
+import { prisma } from "@shared/infra/database/prisma.client.js";
 import { v4 as uuidv4 } from "uuid";
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
 
 export class RenterController {
-  // LISTAR
   async index(req: Request, res: Response) {
     const tenants = await prisma.renter.findMany({
       where: { tenantId: req.user.tenantId },
@@ -17,34 +15,31 @@ export class RenterController {
     return res.json({ status: "success", data: { tenants } });
   }
 
-  // CRIAR
   async create(req: Request, res: Response) {
-    const { fullName, email, phone, cpf, plan, rentValue } = req.body;
+    const { fullName, email, phone, cpf } = req.body;
     const renter = await prisma.renter.create({
       data: {
-        fullName, email, phone, cpf,
-        documentUrl: req.file ? `/uploads/properties/${req.file.filename}` : null,
-        status: RenterStatus.ATIVO,
+        fullName,
+        email,
+        phone: phone || null,
+        cpf: cpf || null,
         tenantId: req.user.tenantId,
-        notes: `Plano: ${plan}, Valor: R$ ${rentValue}`,
       },
     });
     return res.status(201).json({ status: "success", data: { renter } });
   }
 
-  // RECIBO (Exemplo de como simplificar)
-  async generateReceipt(req: Request, res: Response) {
-    const { rentAmount, dueDate } = req.body;
-    const receiptId = uuidv4().substring(0, 8).toUpperCase();
-    
-    // ... lógica do PDF que estava na rota vem para cá ...
-    
-    return res.json({ status: "success", message: "Recibo gerado" });
-  }
-
-  // DELETAR
-  async delete(req: Request, res: Response) {
-    await prisma.renter.delete({ where: { id: req.params.id } });
-    return res.status(204).send();
+  async receipt(req: Request, res: Response) {
+    const doc = new PDFDocument({ size: "A4", margin: 50 });
+    const fileName = `recibo-${uuidv4()}.pdf`;
+    const filePath = path.join(process.cwd(), "uploads", "receipts", fileName);
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    const stream = fs.createWriteStream(filePath);
+    doc.pipe(stream);
+    doc.fontSize(18).text("Recibo", { align: "center" });
+    doc.end();
+    stream.on("finish", () => {
+      res.json({ status: "success", url: `/uploads/receipts/${fileName}` });
+    });
   }
 }

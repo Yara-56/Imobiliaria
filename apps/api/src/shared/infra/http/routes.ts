@@ -10,6 +10,26 @@ export const apiRouter = Router();
 
 const v1 = Router();
 
+/**
+ * @openapi
+ * /api/v1/health:
+ *   get:
+ *     tags: [Sistema]
+ *     summary: Health check API v1
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string, example: ok }
+ *                 service: { type: string }
+ *                 version: { type: string }
+ *                 uptime: { type: string }
+ *                 timestamp: { type: string, format: date-time }
+ */
 v1.get("/health", (_req: Request, res: Response) => {
   res.status(200).json({
     status: "ok",

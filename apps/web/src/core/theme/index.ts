@@ -1,5 +1,5 @@
 // src/theme/index.ts
-import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react.js"
+import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react"
 
 const customConfig = defineConfig({
   theme: {

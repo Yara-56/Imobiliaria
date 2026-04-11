@@ -13,26 +13,17 @@ export class PrismaContractRepository implements IContractRepository {
     
     const created = await prisma.contract.create({
       data: {
-        id: raw.id,
         contractNumber: raw.contractNumber,
         rentAmount: raw.rentAmount,
         dueDay: raw.dueDay,
         startDate: raw.startDate,
         endDate: raw.endDate,
-        depositValue: raw.depositValue,
-        paymentMethod: raw.paymentMethod,
         status: raw.status,
-        notes: raw.notes,
-        generatedContent: raw.generatedContent,
-        documentUrl: raw.documentUrl,
-        signedUrl: raw.signedUrl,
-        signedAt: raw.signedAt,
         tenant: { connect: { id: raw.tenantId } },
         property: { connect: { id: raw.propertyId } },
         renter: { connect: { id: raw.renterId } },
         user: { connect: { id: raw.userId } },
-        ...(raw.templateId && { template: { connect: { id: raw.templateId } } })
-      }
+      },
     });
 
     return ContractMapper.toDomain(created);
@@ -47,15 +38,17 @@ export class PrismaContractRepository implements IContractRepository {
     
     // Usamos o id e o tenantId vindos da própria entidade para segurança
     await prisma.contract.update({
-      where: { 
-        id: contract.id 
+      where: {
+        id: contract.id,
       },
       data: {
-        ...data,
-        id: undefined, // Proteção: nunca alteramos a PK
-        tenantId: undefined, // Proteção SaaS: o tenant de um contrato nunca muda
-        propertyId: undefined // O imóvel de um contrato é imutável após a criação
-      }
+        contractNumber: data.contractNumber,
+        rentAmount: data.rentAmount,
+        dueDay: data.dueDay,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        status: data.status,
+      },
     });
   }
 
@@ -91,9 +84,8 @@ export class PrismaContractRepository implements IContractRepository {
     return await prisma.contract.findFirst({
       where: { id, tenantId },
       include: {
-        renter: { select: { name: true, email: true, document: true } },
+        renter: { select: { fullName: true, email: true, cpf: true } },
         property: { select: { title: true, address: true } },
-        template: { select: { name: true } }
       }
     });
   }

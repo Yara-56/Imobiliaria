@@ -1,4 +1,4 @@
-import { User, Prisma } from "@prisma/client.js";
+import { User, Prisma } from "@prisma/client";
 
 /**
  * 🔎 Query de busca e paginação (Padrão SaaS)

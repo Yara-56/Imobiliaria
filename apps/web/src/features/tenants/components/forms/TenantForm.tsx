@@ -3,7 +3,7 @@
 import {
   Stack, Button, SimpleGrid, Text, VStack, HStack, Separator, Center, Input,
   NativeSelectRoot, NativeSelectField, Box
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { 
   LuBadgeCheck, LuUser, LuWallet, LuMail, 
@@ -12,8 +12,8 @@ import {
 
 import { Field } from "@/components/ui/field.js";
 import { useMaskedInput } from "../../../../hooks/useMaskedInput";
-import { parseCurrencyToNumber } from "../../../../../../src/core/utils/masks";
 import type { CreateTenantDTO } from "../../types/tenant.types";
+import { parseCurrencyToNumber } from "@/core/utils/masks";
 
 type FormData = {
   fullName: string;

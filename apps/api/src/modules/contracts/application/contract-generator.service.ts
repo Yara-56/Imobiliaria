@@ -2,7 +2,7 @@ import { injectable } from "tsyringe";
 import { prisma } from "@config/database.config.js";
 import { AppError } from "@shared/errors/AppError.js";
 import { HttpStatus } from "@shared/errors/http-status.js";
-import { ContractStatus } from "@prisma/client.js";
+import { ContractStatus } from "@prisma/client";
 
 interface ICreateContractDTO {
   propertyId: string;

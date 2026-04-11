@@ -37,8 +37,9 @@ export const protect = async (
 
       req.user = {
         id: fakeId,
+        email: "dev@homeflux.local",
         role: "admin",
-        tenantId: fakeId, 
+        tenantId: fakeId,
       };
 
       return next();
@@ -65,6 +66,7 @@ export const protect = async (
 
     req.user = {
       id: decoded.id,
+      email: (decoded as { email?: string }).email ?? "",
       role: decoded.role,
       tenantId: decoded.tenantId,
     };

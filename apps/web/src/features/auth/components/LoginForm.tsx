@@ -11,7 +11,7 @@ import {
   SimpleGrid,
   HStack,
   Icon,
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 import {
   LuMail,
   LuLock,

@@ -14,6 +14,7 @@ export const HttpStatus = {
   UNAUTHORIZED: 401,
   FORBIDDEN: 403,
   NOT_FOUND: 404,
+  TOO_MANY_REQUESTS: 429,
   CONFLICT: 409,
   PAYLOAD_TOO_LARGE: 413, // Essencial para uploads
   UNPROCESSABLE_ENTITY: 422,

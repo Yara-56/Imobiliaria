@@ -1,12 +1,10 @@
-import { Tenant } from "../entities/tenant.entity.ts";
-/** * ✅ PADRÃO SAAS REAL: 
- * Importamos os tipos globais do Core. Se mudarmos a paginação no Shared, 
- * toda a API (Imóveis, Inquilinos, Pagamentos) se atualiza sozinha.
- */
-import { 
-  PaginationQuery, 
-  PaginatedResult 
-} from "@shared/core/IBaseRepository.ts.js";
+import { Tenant } from "../entities/tenant.entity.js";
+import type {
+  PaginationQuery,
+  PaginatedResult,
+} from "@shared/core/IBaseRepository.js";
+
+export type { PaginationQuery, PaginatedResult };
 
 /**
  * 📥 CreateTenantData

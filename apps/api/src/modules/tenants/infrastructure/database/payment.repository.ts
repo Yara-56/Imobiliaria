@@ -1,5 +1,5 @@
-import { prisma } from "../../../../../prisma/client.js";
-import { Payment, PaymentStatus, Prisma } from "@prisma/client.js";
+import { prisma } from "@shared/infra/database/prisma.client.js";
+import type { Payment, PaymentStatus, PaymentMethod } from "@prisma/client";
 
 /**
  * Tipagem para criação de pagamento (compatível com seu schema)
@@ -8,9 +8,8 @@ export interface CreatePaymentDTO {
   amount: number;
   referenceMonth: string;
   dueDate: Date;
-  method: Prisma.PaymentMethod;
+  method: PaymentMethod;
   status?: PaymentStatus;
-  notes?: string;
 
   contractId: string;
   renterId: string;
@@ -29,8 +28,15 @@ export class PaymentRepository {
   async create(data: CreatePaymentDTO): Promise<Payment> {
     return prisma.payment.create({
       data: {
-        ...data,
-        status: data.status ?? "PENDENTE",
+        amount: data.amount,
+        referenceMonth: data.referenceMonth,
+        dueDate: data.dueDate,
+        method: data.method,
+        status: data.status ?? "PENDING",
+        contractId: data.contractId,
+        renterId: data.renterId,
+        tenantId: data.tenantId,
+        userId: data.userId,
       },
     });
   }

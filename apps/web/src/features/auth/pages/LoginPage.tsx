@@ -11,11 +11,11 @@ import {
   Box,
   SimpleGrid,
   Container,
-} from "@chakra-ui/react.js";
+} from "@chakra-ui/react";
 import { useState } from "react";
 import { LuArrowRight, LuMail, LuLock, LuShieldCheck, LuZap } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../../../src/context/AuthContext";
+import { useAuth } from "../../../context/AuthContext";
 import { toaster } from "@/components/ui/toaster.js";
 
 export default function LoginPage() {

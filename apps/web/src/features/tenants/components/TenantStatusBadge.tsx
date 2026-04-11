@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Icon, Span } from "@chakra-ui/react.js";
+import { Badge, Icon, Span } from "@chakra-ui/react";
 import { 
   LuCircleCheck, 
   LuCircleX, 

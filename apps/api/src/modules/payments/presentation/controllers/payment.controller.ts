@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 // 💡 Se o erro TS2305 persistir, certifique-se que o enum existe no schema.prisma
-import { PaymentStatus } from "@prisma/client.js";
+import { PaymentStatus } from "@prisma/client";
 
 import { AppError } from "@shared/errors/AppError.js";
 import { HttpStatus } from "@shared/errors/http-status.js";
@@ -14,6 +14,7 @@ import { GetPaymentByIdUseCase } from "../../application/use-cases/get-payment-b
 import { UpdatePaymentStatusUseCase } from "../../application/use-cases/update-payment-status.use-case.js";
 import { DeletePaymentUseCase } from "../../application/use-cases/delete-payment.use-case.js";
 import { GenerateContractPaymentsUseCase } from "../../application/use-cases/generate-contract-payments.use-case.js";
+import { PaymentReceiptService } from "../../services/PaymentReceiptService.js";
 
 const repo = new PrismaPaymentRepository();
 
@@ -84,7 +85,10 @@ export class PaymentController {
       const { id } = req.params;
       const { status, paymentDate } = req.body;
 
-      const useCase = new UpdatePaymentStatusUseCase(repo);
+      const useCase = new UpdatePaymentStatusUseCase(
+        repo,
+        new PaymentReceiptService()
+      );
       
       const updatedPayment = await useCase.execute(id, req.user.tenantId, {
         status: status as PaymentStatus, 
