@@ -1,23 +1,24 @@
 "use client";
 
+import React from "react";
+
 import {
   Box, 
   Flex, 
   Heading, 
-  IconButton, 
-  Portal
+  IconButton
 } from "@chakra-ui/react";
 import { LuX } from "react-icons/lu";
 import { motion, AnimatePresence } from "framer-motion";
 
 // ✅ Importando o formulário (Caminho absoluto ou relativo correto)
 import TenantForm from "./forms/TenantForm";
-import type { CreateTenantDTO } from "../types/tenant.types";
+import type { TenantFormData } from "../schemas/tenant.schema";
 
 interface QuickAddTenantModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: CreateTenantDTO) => void;
+  onSubmit: (data: TenantFormData) => void;
   isLoading: boolean;
 }
 
@@ -38,13 +39,11 @@ export function QuickAddTenantModal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <Portal>
-          {/* Overlay escuro e blur */}
           <MotionFlex
             position="fixed"
             inset={0}
             zIndex={9999}
-            bg="blackAlpha.600"
+            bg="rgba(0, 0, 0, 0.6)"
             backdropFilter="blur(6px)"
             align="center"
             justify="center"
@@ -65,7 +64,7 @@ export function QuickAddTenantModal({
               display="flex"
               flexDirection="column"
               overflow="hidden"
-              onClick={(e) => e.stopPropagation()} // Impede que o clique dentro feche o modal
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
               initial={{ opacity: 0, y: 40, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -93,7 +92,6 @@ export function QuickAddTenantModal({
               </Box>
             </MotionBox>
           </MotionFlex>
-        </Portal>
       )}
     </AnimatePresence>
   );

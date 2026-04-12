@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import {
   Box,
   Button,
@@ -21,13 +21,17 @@ import { motion } from "framer-motion"
 
 // IMPORTANTE: Descomente os imports abaixo quando for integrar com seus componentes reais
 import { QuickAddTenantModal } from "../components/QuickAddTenantModal"
+import { ConfirmDeleteModal } from "../components/ConfirmDeleteModal"
+import TenantCard from "../components/TenantCard"
 import { useTenants } from "../hooks/useTenants"
-// import TenantList from "../components/TenantList" // Descomente quando a lista estiver pronta
+import type { TenantFormData } from "../schemas/tenant.schema"
+import { toaster } from "@/components/ui/toaster.js"
 
 const MotionBox = motion.create(Box)
 
 export default function TenantsDashboardPage() {
   const [isNewTenantModalOpen, setIsNewTenantModalOpen] = useState(false)
+  const [tenantToDelete, setTenantToDelete] = useState<{ id: string; name: string } | null>(null)
   const [greeting, setGreeting] = useState({ text: "Olá", icon: LuSun, color: "orange.400" })
 
   // Efeito para definir a saudação e deixar o sistema mais humano
@@ -40,14 +44,37 @@ export default function TenantsDashboardPage() {
 
   // ✅ BUSCANDO DADOS REAIS DA API
   // O fallback {} evita que o modal quebre se mutations for undefined na montagem
-  const { tenants, isLoading, actions, mutations } = useTenants() || {}
+  const { tenants, isLoading, actions, mutations } = (useTenants() as any) || {}
 
-  const handleCreateTenant = async (data: any) => {
+  const handleCreateTenant = async (data: TenantFormData) => {
     try {
-      if (actions?.create) await actions.create(data)
+      if (actions?.create) await actions.create(data as any)
       setIsNewTenantModalOpen(false) // Fecha após o sucesso
+      
+      // Notificação de sucesso
+      toaster.create({
+        title: "Inquilino cadastrado!",
+        description: `${data.fullName} já está disponível na sua lista.`,
+        type: "success",
+      });
     } catch (error) {
       console.error(error)
+      // Notificação de erro
+      toaster.create({
+        title: "Falha ao salvar",
+        description: "Ocorreu um erro de comunicação com o servidor.",
+        type: "error",
+      });
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!tenantToDelete) return
+    try {
+      if (actions?.remove) await actions.remove(tenantToDelete.id)
+      setTenantToDelete(null) // Fecha o modal após o sucesso
+    } catch (error) {
+      console.error("Erro ao excluir inquilino:", error)
     }
   }
 
@@ -134,8 +161,8 @@ export default function TenantsDashboardPage() {
         animate={{ opacity: 1, y: 0 }}
         bg="white" 
         p={8} 
-        rounded="3xl" 
-        shadow="0 4px 20px rgba(0,0,0,0.03)" 
+        borderRadius="3xl" 
+        boxShadow="0 4px 20px rgba(0,0,0,0.03)" 
         border="1px solid" 
         borderColor="gray.100"
       >
@@ -146,15 +173,27 @@ export default function TenantsDashboardPage() {
           </Button>
         </Flex>
         
-        {/* Substitua este Box pelo seu componente <TenantList /> */}
-        <Center py={16} flexDirection="column" gap={4} bg="gray.50" rounded="2xl" border="1px dashed" borderColor="gray.200">
-          <Center bg="white" p={4} rounded="full" shadow="sm">
-            <Icon as={LuSparkles} boxSize={8} color="blue.400" />
+        {/* Lista de Inquilinos com suporte a Exclusão */}
+        {tenants && tenants.length > 0 ? (
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
+            {tenants.map((tenant: any) => (
+              <TenantCard 
+                key={tenant._id || tenant.id} 
+                tenant={tenant} 
+                onDelete={(id) => setTenantToDelete({ id, name: tenant.fullName })} 
+              />
+            ))}
+          </SimpleGrid>
+        ) : (
+          <Center py={16} flexDirection="column" gap={4} bg="gray.50" borderRadius="2xl" border="1px dashed" borderColor="gray.200">
+            <Center bg="white" p={4} borderRadius="full" boxShadow="sm">
+              <Icon as={LuSparkles} boxSize={8} color="blue.400" />
+            </Center>
+            <Text color="gray.500" fontWeight="medium">
+              Nenhum inquilino cadastrado no momento.
+            </Text>
           </Center>
-          <Text color="gray.500" fontWeight="medium">
-            Sua lista de inquilinos aparecerá aqui.
-          </Text>
-        </Center>
+        )}
       </MotionBox>
 
       {/* Modal seguro contra crash */}
@@ -163,6 +202,15 @@ export default function TenantsDashboardPage() {
         onClose={() => setIsNewTenantModalOpen(false)}
         onSubmit={handleCreateTenant}
         isLoading={mutations?.isCreating || false}
+      />
+
+      {/* Modal de confirmação de exclusão */}
+      <ConfirmDeleteModal
+        isOpen={!!tenantToDelete}
+        onClose={() => setTenantToDelete(null)}
+        onConfirm={handleDelete}
+        isLoading={mutations?.isDeleting || false}
+        tenantName={tenantToDelete?.name || ""}
       />
     </Box>
   )
@@ -183,8 +231,8 @@ function KpiCard({ icon, title, value, trend, color }: {
       whileHover={{ y: -4 }}
       p={6} 
       bg="white" 
-      rounded="3xl" 
-      shadow="0 4px 20px rgba(0,0,0,0.02)" 
+      borderRadius="3xl" 
+      boxShadow="0 4px 20px rgba(0,0,0,0.02)" 
       border="1px solid" 
       borderColor="gray.50"
     >

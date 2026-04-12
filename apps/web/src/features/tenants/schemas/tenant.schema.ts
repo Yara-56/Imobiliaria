@@ -89,7 +89,11 @@ export const paymentMethodEnum = z.enum(["PIX", "BOLETO", "DINHEIRO"]);
 // ─────────────────────────────────────────────────────────────
 // Schema principal
 // ─────────────────────────────────────────────────────────────
+export const tenantTypeEnum = z.enum(["RESIDENTIAL", "COMMERCIAL"]);
+
 export const tenantFormSchema = z.object({
+  type: tenantTypeEnum.default("RESIDENTIAL"),
+
   fullName: z
     .string()
     .min(1, "Nome é obrigatório")
@@ -121,19 +125,22 @@ export const tenantFormSchema = z.object({
       message: "Documento inválido",
     }),
 
+  // ✅ Campo do Imóvel associado
+  propertyId: z.string().optional(),
+
   // ✅ CORRIGIDO AQUI
   rentValue: z.preprocess(
-    (v) => (v === "" ? undefined : Number(v)),
-    z.number().min(0, "Valor não pode ser negativo")
+    (v) => (v === "" || v === undefined ? undefined : Number(v)),
+    z.number().min(0, "Valor não pode ser negativo").optional()
   ),
 
   // ✅ CORRIGIDO AQUI
   billingDay: z.preprocess(
-    (v) => (v === "" ? undefined : Number(v)),
-    z.number().min(1, "Mínimo 1").max(31, "Máximo 31")
+    (v) => (v === "" || v === undefined ? undefined : Number(v)),
+    z.number().min(1, "Mínimo 1").max(31, "Máximo 31").optional()
   ),
 
-  preferredPaymentMethod: paymentMethodEnum,
+  preferredPaymentMethod: paymentMethodEnum.optional(),
 });
 
 // ─────────────────────────────────────────────────────────────
@@ -146,11 +153,13 @@ export type TenantFormInput = z.input<typeof tenantFormSchema>;
 // Defaults
 // ─────────────────────────────────────────────────────────────
 export const DEFAULT_TENANT_VALUES: TenantFormInput = {
+  type: "RESIDENTIAL",
   fullName: "",
   email: "",
   phone: "",
   document: "",
-  rentValue: 0,
-  billingDay: 1,
-  preferredPaymentMethod: "PIX",
+  propertyId: undefined,
+  rentValue: undefined,
+  billingDay: undefined,
+  preferredPaymentMethod: undefined,
 };

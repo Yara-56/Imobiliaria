@@ -6,7 +6,7 @@ import {
   updateTemplate,
 } from "./template.controller.js";
 // CORREÇÃO: Importando a função com o nome correto
-import { verifyToken } from "../src/middlewares/auth.middleware.js";
+import { verifyToken } from "../../../middlewares/auth.middleware.js";
 
 const router = express.Router();
 

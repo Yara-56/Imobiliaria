@@ -18,7 +18,7 @@ export class PropertiesController {
     try {
       // Garantindo que req.user existe (vindo do middleware de auth)
       if (!req.user) {
-        throw new AppError({ message: "Não autenticado", statusCode: HttpStatus.UNAUTHORIZED });
+        throw new AppError("Não autenticado", HttpStatus.UNAUTHORIZED);
       }
 
       const { tenantId, id: userId } = req.user;
@@ -43,7 +43,7 @@ export class PropertiesController {
       const tenantId = req.user?.tenantId;
 
       if (!tenantId) {
-        throw new AppError({ message: "Não autorizado", statusCode: HttpStatus.UNAUTHORIZED });
+        throw new AppError("Não autorizado", HttpStatus.UNAUTHORIZED);
       }
 
       const property = await this.propertyService.getById(id, tenantId);
@@ -62,7 +62,7 @@ export class PropertiesController {
       const tenantId = req.user?.tenantId;
 
       if (!tenantId) {
-        throw new AppError({ message: "Não autorizado", statusCode: HttpStatus.UNAUTHORIZED });
+        throw new AppError("Não autorizado", HttpStatus.UNAUTHORIZED);
       }
 
       const properties = await this.propertyService.listAll(tenantId, req.query);
@@ -83,7 +83,7 @@ export class PropertiesController {
       const tenantId = req.user?.tenantId;
 
       if (!tenantId) {
-        throw new AppError({ message: "Não autorizado", statusCode: HttpStatus.UNAUTHORIZED });
+        throw new AppError("Não autorizado", HttpStatus.UNAUTHORIZED);
       }
 
       const updated = await this.propertyService.update(
@@ -109,7 +109,7 @@ export class PropertiesController {
       const tenantId = req.user?.tenantId;
 
       if (!tenantId) {
-        throw new AppError({ message: "Não autorizado", statusCode: HttpStatus.UNAUTHORIZED });
+        throw new AppError("Não autorizado", HttpStatus.UNAUTHORIZED);
       }
 
       await this.propertyService.delete(id, tenantId);

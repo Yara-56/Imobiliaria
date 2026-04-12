@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Box,
   Flex,
   VStack,
   Text,
-  Select,
   Badge,
   Skeleton,
   Input,
+  Button,
 } from "@chakra-ui/react";
 
-import { Home, CreditCard, Search } from "lucide-react";
+import { LuHouse, LuCreditCard, LuSearch } from "react-icons/lu";
+import api from "@/core/api/apiResponse";
 
 interface Property {
   id: string;
@@ -41,26 +42,34 @@ export function SmartTenantHousingStep({
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
+  // Controla se a barra de busca deve ser exibida ou se o usuário optou pelo pré-cadastro
+  const [showSearch, setShowSearch] = useState(!!value.propertyId);
+  useEffect(() => {
+    if (value.propertyId) setShowSearch(true);
+  }, [value.propertyId]);
+
   // Carregar imóveis (com busca)
-  async function loadProperties(searchTerm: string) {
+  const loadProperties = useCallback(async (searchTerm: string) => {
     setLoading(true);
-
     try {
+      // O Axios já cuida da base URL (geralmente /api), então ajustamos a rota
       const endpoint = searchTerm
-        ? `/api/properties?status=AVAILABLE&search=${encodeURIComponent(
-            searchTerm
-          )}`
-        : "/api/properties?status=AVAILABLE";
+        ? `/properties?status=AVAILABLE&search=${encodeURIComponent(searchTerm)}`
+        : "/properties?status=AVAILABLE";
 
-      const res = await fetch(endpoint);
-      const json = await res.json();
-      setProperties(json);
+      // Usa a instância autenticada para garantir que o JWT Token seja enviado
+      const res = await api.get(endpoint);
+      const responseData = res.data;
+      
+      // Proteção robusta contra múltiplos formatos de API
+      setProperties(Array.isArray(responseData) ? responseData : responseData?.data || []);
     } catch (err) {
-      console.error("Erro ao carregar imóveis", err);
+      console.error("[SmartHousingStep] Erro ao carregar imóveis:", err);
+      setProperties([]);
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
   // Debounce da busca
   useEffect(() => {
@@ -69,42 +78,103 @@ export function SmartTenantHousingStep({
     }, 400);
 
     return () => clearTimeout(timeout);
-  }, [search]);
-
-  // Carregar inicial
-  useEffect(() => {
-    loadProperties("");
-  }, []);
+  }, [search, loadProperties]);
 
   return (
-    <VStack align="stretch" spacing={8}>
-      <Text fontSize="lg" fontWeight="700">
-        Escolha o imóvel que este inquilino irá alugar
-      </Text>
+    <VStack align="stretch" gap={6}>
+      {!showSearch ? (
+        <Box
+          p={8}
+          bg="gray.50"
+          borderRadius="2xl"
+          border="2px dashed"
+          borderColor="gray.200"
+          textAlign="center"
+          transition="all 0.2s"
+          _hover={{ borderColor: "blue.300", bg: "blue.50" }}
+        >
+          <VStack gap={4}>
+            <Flex w={14} h={14} bg="white" borderRadius="full" align="center" justify="center" color="gray.400" boxShadow="sm">
+              <LuHouse size={24} />
+            </Flex>
+            <Box>
+              <Text fontWeight="800" color="gray.700" fontSize="lg" mb={2}>
+                Pré-cadastro sem Imóvel
+              </Text>
+              <Text fontSize="sm" color="gray.500" maxW="450px" mx="auto" lineHeight="1.6">
+                Você pode salvar este inquilino agora e escolher o imóvel depois. <b>O contrato de locação só será gerado quando um imóvel for associado.</b> Não é obrigatório para o pré-cadastro.
+              </Text>
+            </Box>
+            <Button
+              mt={2}
+              bg="white"
+              color="blue.600"
+              border="1px solid"
+              borderColor="blue.200"
+              _hover={{ bg: "blue.50" }}
+              borderRadius="xl"
+              fontWeight="bold"
+              onClick={() => setShowSearch(true)}
+            >
+              <LuSearch style={{ marginRight: "8px" }} /> Quero associar um imóvel agora
+            </Button>
+          </VStack>
+        </Box>
+      ) : (
+        <Box animation="fade-in 0.4s ease-out">
+          <Flex justify="space-between" align="center" mb={5} direction={{ base: "column", sm: "row" }} gap={3}>
+            <Text fontSize="sm" fontWeight="bold" color="gray.500" textTransform="uppercase" letterSpacing="widest">
+              Buscar Imóvel Disponível
+            </Text>
+            <Button
+              size="sm"
+              variant="ghost"
+              color="red.500"
+              _hover={{ bg: "red.50" }}
+              onClick={() => {
+                setShowSearch(false);
+                onChange({ propertyId: undefined, rentAmount: undefined, dueDay: undefined, paymentMethod: undefined });
+              }}
+            >
+              Cancelar e não vincular imóvel
+            </Button>
+          </Flex>
 
-      {/* CAMPO DE BUSCA */}
-      <Flex
-        bg="gray.50"
-        p={3}
-        borderRadius="12px"
+          {/* CAMPO DE BUSCA */}
+          <Flex
+            bg="white"
+            p={2}
+            px={4}
+        borderRadius="xl"
         align="center"
         gap={3}
         border="1px solid"
         borderColor="gray.200"
+        _focusWithin={{ borderColor: "blue.400", boxShadow: "0 0 0 1px #60a5fa" }}
+        transition="all 0.2s"
       >
-        <Search size={18} color="#666" />
+        <LuSearch size={18} color="#9ca3af" />
         <Input
           placeholder="Pesquisar por rua, número, bairro..."
-          variant="unstyled"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => {
+            // Previne que apertar "Enter" na busca tente salvar o inquilino
+            if (e.key === "Enter") e.preventDefault();
+          }}
+          color="gray.800"
+          bg="transparent"
+          border="none"
+          _focus={{ outline: "none", boxShadow: "none" }}
+          _placeholder={{ color: "gray.400" }}
+          w="full"
           fontSize="md"
           fontWeight="500"
         />
       </Flex>
 
       {/* LISTA DE IMÓVEIS */}
-      <VStack spacing={6} align="stretch">
+      <VStack gap={6} align="stretch">
         {loading &&
           [...Array(4)].map((_, i) => (
             <Skeleton key={i} height="160px" borderRadius="20px" />
@@ -133,18 +203,18 @@ export function SmartTenantHousingStep({
             >
               <Flex justify="space-between" align="center">
                 <Flex align="center" gap={2}>
-                  <Home size={20} />
+                  <LuHouse size={20} />
                   <Text fontWeight="700">{p.title}</Text>
                 </Flex>
 
                 {value.propertyId === p.id && (
-                  <Badge colorScheme="blue">Selecionado</Badge>
+                  <Badge colorPalette="blue">Selecionado</Badge>
                 )}
               </Flex>
 
-              <VStack align="stretch" spacing={1} mt={3}>
+              <VStack align="stretch" gap={1} mt={3}>
                 <Text fontSize="sm">{p.address}</Text>
-                <Badge colorScheme="green">Disponível</Badge>
+                <Badge colorPalette="green" w="max-content">Disponível</Badge>
               </VStack>
 
               <Text fontWeight="900" fontSize="xl" color="blue.600" mt={3}>
@@ -169,11 +239,25 @@ export function SmartTenantHousingStep({
           border="1px solid"
           borderColor="gray.200"
         >
-          <Text fontWeight="700" mb={4}>
-            Dados do contrato gerado automaticamente
+          <Flex justify="space-between" align="center" mb={4}>
+            <Text fontWeight="700" color="blue.700">
+              📄 Pré-configuração do Contrato
+            </Text>
+            <Button 
+              type="button" // Essencial para evitar o submit acidental
+              size="sm" 
+              variant="ghost" 
+              colorPalette="red" 
+              onClick={() => onChange({ propertyId: undefined, rentAmount: undefined, dueDay: undefined, paymentMethod: undefined })}
+            >
+              Remover Imóvel
+            </Button>
+          </Flex>
+          <Text fontSize="sm" color="gray.500" mb={4}>
+            Ao salvar o inquilino, um contrato será pré-gerado com estes dados para assinatura futura.
           </Text>
 
-          <VStack align="stretch" spacing={3}>
+      <VStack align="stretch" gap={3}>
             <Text fontSize="sm">
               Valor do aluguel:{" "}
               <b>R$ {value.rentAmount?.toLocaleString("pt-BR")}</b>
@@ -184,28 +268,35 @@ export function SmartTenantHousingStep({
             </Text>
 
             <Flex align="center" gap={2} mt={2}>
-              <CreditCard size={18} />
+              <LuCreditCard size={18} />
               <Text fontWeight="600">Método de pagamento</Text>
             </Flex>
 
-            <Select
-              size="lg"
+            <Box
+              as="select"
+              w="full"
+              h="48px"
+              px={4}
+              bg="white"
+              border="1px solid"
+              borderColor="gray.200"
               borderRadius="lg"
-              value={value.paymentMethod}
-              onChange={(e) =>
+              value={value.paymentMethod || "PIX"}
+              onChange={(e: any) =>
                 onChange({
                   ...value,
                   paymentMethod: e.target.value,
                 })
               }
+              _focus={{ borderColor: "blue.500", outline: "none", boxShadow: "0 0 0 1px #3182ce" }}
             >
               <option value="PIX">PIX</option>
               <option value="BOLETO">Boleto</option>
               <option value="DINHEIRO">Dinheiro</option>
-              <option value="CARTAO">Cartão</option>
-              <option value="TRANSFERENCIA">Transferência</option>
-            </Select>
+            </Box>
           </VStack>
+        </Box>
+      )}
         </Box>
       )}
     </VStack>

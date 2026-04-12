@@ -1,14 +1,19 @@
 "use client";
 
 import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { 
   Box, Container, Heading, Text, VStack, 
   Spinner, Center, Flex, IconButton, Button, Badge, Stack 
 } from "@chakra-ui/react";
-import { LuArrowLeft, LuShieldCheck, LuCircleAlert } from "react-icons/lu";
+import { LuArrowLeft, LuShieldCheck, LuCircleAlert, LuTrash2, LuSignature } from "react-icons/lu";
 
 import { useTenants } from "../hooks/useTenants";
 import TenantForm from "../components/forms/TenantForm";
+import type { TenantFormData } from "../schemas/tenant.schema";
+import { ConfirmDeleteModal } from "../components/ConfirmDeleteModal";
+import { toaster } from "@/components/ui/toaster.js";
+import api from "@/core/api/apiResponse";
 
 export default function EditTenantPage() {
   const { id } = useParams<{ id: string }>();
@@ -20,15 +25,52 @@ export default function EditTenantPage() {
     isLoading, // listQuery.isLoading
     actions, 
     mutations 
-  } = useTenants(id);
+  } = (useTenants(id) as any) || {};
 
-  const handleUpdate = async (formData: any) => {
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSendingContract, setIsSendingContract] = useState(false);
+
+  const handleUpdate = async (formData: TenantFormData) => {
     if (!id) return;
     try {
-      await actions.update({ id, data: formData });
+      if (actions?.update) await actions.update({ id, data: formData });
       navigate("/admin/tenants");
     } catch (error) {
       // O Toaster já é chamado dentro do hook (onError)
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    try {
+      if (actions?.remove) await actions.remove(id);
+      navigate("/admin/tenants");
+    } catch (error) {
+      // O erro já é tratado no Toaster dentro do hook useTenants
+    }
+  };
+
+  const handleSendContract = async () => {
+    if (!id) return;
+    try {
+      setIsSendingContract(true);
+      
+      // Faz a requisição para a nossa rota do Express
+      await api.post("/contracts/send", { 
+        tenantId: id,
+        // Simulando a URL do PDF (No futuro você passaria o PDF real gerado)
+        documentUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" 
+      });
+
+      toaster.create({
+        title: "Contrato Enviado!",
+        description: "O inquilino recebeu o link da ZapSign no e-mail.",
+        type: "success"
+      });
+    } catch (error) {
+      toaster.create({ title: "Erro ao enviar", type: "error" });
+    } finally {
+      setIsSendingContract(false);
     }
   };
 
@@ -48,7 +90,7 @@ export default function EditTenantPage() {
   if (!tenant && !isLoading) return (
     <Center h="100vh" bg="#F8FAFC">
       <Container maxW="md">
-        <VStack gap={6} p={10} bg="white" borderRadius="3xl" shadow="2xl" textAlign="center">
+        <VStack gap={6} p={10} bg="white" borderRadius="3xl" boxShadow="2xl" textAlign="center">
           <Box color="red.500" bg="red.50" p={4} borderRadius="full">
             <LuCircleAlert size={40} />
           </Box>
@@ -80,25 +122,59 @@ export default function EditTenantPage() {
             </Heading>
           </Stack>
           
-          <IconButton
-            aria-label="Voltar"
-            variant="outline"
-            bg="white"
-            borderRadius="xl"
-            onClick={() => navigate("/admin/tenants")}
-          >
-            <LuArrowLeft />
-          </IconButton>
+          <Flex gap={3}>
+            <Button
+              bg="blue.600"
+              color="white"
+              borderRadius="xl"
+              fontWeight="bold"
+              onClick={handleSendContract}
+              loading={isSendingContract}
+              _hover={{ bg: "blue.700", transform: "translateY(-2px)" }}
+            >
+              <LuSignature /> Assinar Contrato
+            </Button>
+            <IconButton
+              aria-label="Excluir inquilino"
+              variant="outline"
+              bg="white"
+              color="red.500"
+              borderColor="red.200"
+              borderRadius="xl"
+              _hover={{ bg: "red.50", borderColor: "red.300", transform: "translateY(-2px)" }}
+              transition="all 0.2s"
+              onClick={() => setIsDeleteModalOpen(true)}
+            >
+              <LuTrash2 size={18} />
+            </IconButton>
+            <IconButton
+              aria-label="Voltar"
+              variant="outline"
+              bg="white"
+              borderRadius="xl"
+              onClick={() => navigate("/admin/tenants")}
+            >
+              <LuArrowLeft size={18} />
+            </IconButton>
+          </Flex>
         </Flex>
 
-        <Box bg="white" p={10} borderRadius="4xl" shadow="sm" border="1px solid" borderColor="gray.100">
-          <TenantForm 
-            // @ts-ignore - Depende da prop no seu form
-            initialData={tenant} 
+        <Box bg="white" p={10} borderRadius="4xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
+          <TenantForm
+            initialData={tenant as Partial<TenantFormData>}
             onSubmit={handleUpdate}
-            isLoading={mutations.isUpdating} // ✅ BUSCANDO DO LUGAR CERTO
+            isLoading={mutations?.isUpdating || false}
           />
         </Box>
+
+        {/* Renderiza o modal seguro no final da página */}
+        <ConfirmDeleteModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={handleDelete}
+          isLoading={mutations?.isDeleting || false}
+          tenantName={tenant?.fullName || "este inquilino"}
+        />
       </Container>
     </Box>
   );

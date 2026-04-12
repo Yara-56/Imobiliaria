@@ -1,190 +1,282 @@
-"use client";
+"use client"
 
+import React, { ReactNode } from "react"
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import {
-  Stack, Button, SimpleGrid, Text, VStack, HStack, Separator, Center, Input,
-  NativeSelectRoot, NativeSelectField, Box
-} from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
+  Box,
+  Button,
+  Flex,
+  Input,
+  Stack,
+  Text,
+  SimpleGrid,
+  Icon,
+} from "@chakra-ui/react"
+import { LuUser, LuBuilding2, LuCheck } from "react-icons/lu"
+
+// Importações do seu Schema e Tipagens
 import { 
-  LuBadgeCheck, LuUser, LuWallet, LuMail, 
-  LuPhone, LuFileDigit, LuCalendar 
-} from "react-icons/lu";
+  tenantFormSchema, 
+  DEFAULT_TENANT_VALUES, 
+  type TenantFormData 
+} from "../../schemas/tenant.schema"
 
-import { Field } from "@/components/ui/field.js";
-import { useMaskedInput } from "../../../../hooks/useMaskedInput";
-import type { CreateTenantDTO } from "../../types/tenant.types";
-import { parseCurrencyToNumber } from "@/core/utils/masks";
+// Importação do seu componente Inteligente de Busca de Imóveis
+import { SmartTenantHousingStep } from "../SmartTenantHousingStep"
 
-type FormData = {
-  fullName: string;
-  email: string;
-  phone: string;
-  document: string;
-  rentValue: string; 
-  billingDay: number;
-  preferredPaymentMethod: string;
-  plan: string;
+
+// ✅ Máscaras blindadas contra undefined/null
+const formatDocument = (value?: any) => {
+  if (!value || typeof value !== "string") return "";
+  const v = value.replace(/\D/g, "");
+  if (v.length <= 11) return v.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  return v.replace(/(\d{2})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1/$2").replace(/(\d{4})(\d{1,2})$/, "$1-$2");
+};
+
+const formatPhone = (value?: any) => {
+  if (!value || typeof value !== "string") return "";
+  const v = value.replace(/\D/g, "");
+  return v.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d{4})$/, "$1-$2");
 };
 
 interface TenantFormProps {
-  onSubmit: (data: CreateTenantDTO) => void;
-  isLoading: boolean;
-  initialData?: any;
+  initialData?: Partial<TenantFormData>
+  onSubmit: (data: TenantFormData) => void
+  isLoading?: boolean
 }
 
-export default function TenantForm({ onSubmit, isLoading, initialData }: TenantFormProps) {
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>({
-    defaultValues: initialData || {
-      fullName: "", email: "", phone: "", document: "",
-      rentValue: "", billingDay: 1, preferredPaymentMethod: "PIX", plan: "BASIC",
+export default function TenantForm({ initialData, onSubmit, isLoading }: TenantFormProps) {
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<TenantFormData>({
+    resolver: zodResolver(tenantFormSchema),
+    // ✅ Filtra valores nulos para não quebrar os inputs controlados
+    defaultValues: { 
+      ...DEFAULT_TENANT_VALUES, 
+      ...(initialData ? Object.fromEntries(Object.entries(initialData).filter(([_, v]) => v != null)) : {}) 
     },
-  });
+  })
 
-  const { handleMask } = useMaskedInput<FormData>({ setValue });
-
-  const onSubmitForm = (data: FormData) => {
-    onSubmit({
-      ...data,
-      rentValue: parseCurrencyToNumber(data.rentValue),
-      billingDay: Number(data.billingDay),
-      preferredPaymentMethod: data.preferredPaymentMethod as any,
-      plan: data.plan as any,
-    });
-  };
-
-  const Label = ({ icon: Icon, text }: { icon: any, text: string }) => (
-    <HStack gap={2} mb={1} color="gray.500">
-      <Icon size={14} />
-      <Text fontSize="xs" fontWeight="bold" letterSpacing="widest">{text.toUpperCase()}</Text>
-    </HStack>
-  );
-
-  // Estilo comum para inputs e selects para manter a consistência
-  const fieldStyle = {
-    bg: "gray.50",
-    borderWidth: "1px",
-    borderColor: "gray.100",
-    borderRadius: "xl",
-    h: "55px",
-    fontSize: "md",
-    color: "gray.700",
-    _focus: {
-      bg: "white",
-      borderColor: "blue.500",
-      boxShadow: "0 0 0 1px var(--chakra-colors-blue-500)"
-    },
-    _hover: {
-      borderColor: "gray.300"
-    }
-  };
+  // Observando os campos para UI condicional
+  const selectedType = watch("type") || "RESIDENTIAL"
+  const propertyId = watch("propertyId")
+  const rentValue = watch("rentValue")
+  const billingDay = watch("billingDay")
+  const preferredPaymentMethod = watch("preferredPaymentMethod")
 
   return (
-    <form onSubmit={handleSubmit(onSubmitForm)}>
+    <Box as="form" onSubmit={handleSubmit(onSubmit)} w="full">
       <Stack gap={10}>
         
-        {/* SEÇÃO: IDENTIFICAÇÃO */}
-        <VStack align="start" gap={6}>
-          <HStack gap={3} w="full">
-            <Center bg="blue.50" color="blue.600" p={3} borderRadius="xl">
-              <LuUser size={20} />
-            </Center>
-            <Box>
-              <Text fontWeight="900" fontSize="md" color="gray.800">Identificação do Locatário</Text>
-              <Text fontSize="xs" color="gray.400">Dados fundamentais para o contrato</Text>
-            </Box>
-          </HStack>
-
-          <SimpleGrid columns={{ base: 1, md: 2 }} gap={6} w="full">
-            <Field label={<Label icon={LuUser} text="Nome Completo" />} invalid={!!errors.fullName} errorText="Campo obrigatório">
-              <Input {...fieldStyle} placeholder="Ex: João Silva" {...register("fullName", { required: true })} />
-            </Field>
-
-            <Field label={<Label icon={LuFileDigit} text="CPF / CNPJ" />} invalid={!!errors.document} errorText="Documento inválido">
-              <Input {...fieldStyle} placeholder="000.000.000-00" {...register("document", { required: true })} onChange={handleMask("document", "document")} />
-            </Field>
-
-            <Field label={<Label icon={LuMail} text="E-mail" />} invalid={!!errors.email} errorText="E-mail inválido">
-              <Input {...fieldStyle} type="email" placeholder="email@exemplo.com" {...register("email", { required: true })} />
-            </Field>
-
-            <Field label={<Label icon={LuPhone} text="Telefone" />}>
-              <Input {...fieldStyle} placeholder="(00) 00000-0000" {...register("phone")} onChange={handleMask("phone", "phone")} />
-            </Field>
+        {/* 1. TIPO DE INQUILINO */}
+        <Box animation="fade-in 0.4s ease-out">
+          <Text fontSize="xs" fontWeight="bold" color="gray.400" mb={4} textTransform="uppercase" letterSpacing="widest">
+            1. Perfil do Inquilino
+          </Text>
+          <SimpleGrid columns={2} gap={4}>
+            <TypeToggle
+              isActive={selectedType === "RESIDENTIAL"}
+              icon={LuUser}
+              label="Pessoa Física"
+              onClick={() => setValue("type", "RESIDENTIAL", { shouldValidate: true })}
+            />
+            <TypeToggle
+              isActive={selectedType === "COMMERCIAL"}
+              icon={LuBuilding2}
+              label="Pessoa Jurídica"
+              onClick={() => setValue("type", "COMMERCIAL", { shouldValidate: true })}
+            />
           </SimpleGrid>
-        </VStack>
+        </Box>
 
-        <Separator opacity={0.5} />
+        {/* 2. DADOS PRINCIPAIS */}
+        <Box animation="fade-in 0.5s ease-out">
+          <Text fontSize="xs" fontWeight="bold" color="gray.400" mb={4} textTransform="uppercase" letterSpacing="widest">
+            2. Informações de Contato
+          </Text>
+          <Stack gap={5} p={6} bg="gray.50" borderRadius="3xl" border="1px solid" borderColor="gray.100">
+            <Controller
+              name="fullName"
+              control={control}
+              render={({ field }) => (
+                <Field label={selectedType === "COMMERCIAL" ? "Razão Social" : "Nome Completo"} error={errors.fullName?.message}>
+                  <Input 
+                    {...field} 
+                    value={field.value || ""} // Safe fallback
+                    placeholder={selectedType === "COMMERCIAL" ? "Ex: Tech Imóveis LTDA" : "Ex: João da Silva"} 
+                    bg="white" 
+                    size="lg" 
+                    borderRadius="xl" 
+                    border="none" 
+                    boxShadow="sm" 
+                  />
+                </Field>
+              )}
+            />
+            
+            <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
+              <Controller
+                name="document"
+                control={control}
+                render={({ field }) => (
+                  <Field label={selectedType === "COMMERCIAL" ? "CNPJ" : "CPF"} error={errors.document?.message}>
+                    <Input 
+                      {...field} 
+                      value={field.value || ""}
+                      onChange={(e) => field.onChange(formatDocument(e.target.value))}
+                      placeholder={selectedType === "COMMERCIAL" ? "00.000.000/0001-00" : "000.000.000-00"} 
+                      bg="white" size="lg" 
+                      borderRadius="xl" 
+                      border="none" 
+                      boxShadow="sm" 
+                    />
+                  </Field>
+                )}
+              />
+              <Controller
+                name="phone"
+                control={control}
+                render={({ field }) => (
+                  <Field label="WhatsApp / Telefone" error={errors.phone?.message}>
+                    <Input 
+                      {...field} 
+                      value={field.value || ""}
+                      onChange={(e) => field.onChange(formatPhone(e.target.value))}
+                      placeholder="(00) 00000-0000" 
+                      bg="white" 
+                      size="lg" 
+                      borderRadius="xl" 
+                      border="none" 
+                      boxShadow="sm" 
+                    />
+                  </Field>
+                )}
+              />
+            </SimpleGrid>
 
-        {/* SEÇÃO: FINANCEIRO */}
-        <VStack align="start" gap={6}>
-          <HStack gap={3} w="full">
-            <Center bg="green.50" color="green.600" p={3} borderRadius="xl">
-              <LuWallet size={20} />
-            </Center>
-            <Box>
-              <Text fontWeight="900" fontSize="md" color="gray.800">Parâmetros de Cobrança</Text>
-              <Text fontSize="xs" color="gray.400">Configuração financeira do imóvel</Text>
-            </Box>
-          </HStack>
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <Field label="E-mail" error={errors.email?.message}>
+                  <Input 
+                    {...field} 
+                    value={field.value || ""}
+                    placeholder="email@exemplo.com" 
+                    bg="white" 
+                    size="lg" 
+                    borderRadius="xl" 
+                    border="none" 
+                    boxShadow="sm" 
+                  />
+                </Field>
+              )}
+            />
+          </Stack>
+        </Box>
 
-          <SimpleGrid columns={{ base: 1, md: 2 }} gap={6} w="full">
-            <Field label={<Label icon={LuWallet} text="Aluguel Mensal" />} invalid={!!errors.rentValue} errorText="Valor obrigatório">
-              <Input {...fieldStyle} fontWeight="bold" color="green.700" placeholder="R$ 0,00" {...register("rentValue", { required: true })} onChange={handleMask("rentValue", "currency")} />
-            </Field>
+        {/* 3. IMÓVEL E ALUGUEL (Integração com o Smart Step) */}
+        <Box animation="fade-in 0.6s ease-out">
+          <Text fontSize="xs" fontWeight="bold" color="gray.400" mb={4} textTransform="uppercase" letterSpacing="widest">
+            3. Imóvel e Contrato <Text as="span" color="blue.400">(Opcional)</Text>
+          </Text>
+          <Box p={6} bg="blue.50" borderRadius="3xl" border="1px dashed" borderColor="blue.200">
+            <SmartTenantHousingStep
+              value={{
+                propertyId,
+                rentAmount: rentValue,
+                dueDay: billingDay,
+                paymentMethod: preferredPaymentMethod,
+              }}
+              onChange={(housingData) => {
+                setValue("propertyId", housingData.propertyId, { shouldValidate: true });
+                setValue("rentValue", housingData.rentAmount, { shouldValidate: true });
+                setValue("billingDay", housingData.dueDay, { shouldValidate: true });
+                setValue("preferredPaymentMethod", housingData.paymentMethod as "PIX" | "BOLETO" | "DINHEIRO" | undefined, { shouldValidate: true });
+              }}
+            />
+          </Box>
+        </Box>
 
-            {/* ✅ CORREÇÃO DO SELECT PRETO: Agora forçamos o BG gray.50 e removemos o visual padrão */}
-            <Field label={<Label icon={LuBadgeCheck} text="Método Principal" />}>
-              <NativeSelectRoot size="lg" borderRadius="xl">
-                <NativeSelectField 
-                  {...fieldStyle}
-                  {...register("preferredPaymentMethod")}
-                  cursor="pointer"
-                >
-                  <option style={{ backgroundColor: "white" }} value="PIX">PIX</option>
-                  <option style={{ backgroundColor: "white" }} value="BOLETO">Boleto Bancário</option>
-                  <option value="CARTAO">Cartão Recorrente</option>
-                </NativeSelectField>
-              </NativeSelectRoot>
-            </Field>
+        {/* AÇÕES */}
+        <Flex justify="flex-end" pt={4} animation="fade-in 0.7s ease-out">
+          <Button
+            type="submit"
+            color="white"
+            bg="blue.600"
+            size="lg"
+            h="56px"
+            px={10}
+            borderRadius="2xl"
+            fontWeight="bold"
+            loading={isLoading}
+            _hover={{ bg: "blue.700", transform: "translateY(-2px)", boxShadow: "lg" }}
+            transition="all 0.2s"
+          >
+            Salvar Inquilino
+          </Button>
+        </Flex>
 
-            <Field label={<Label icon={LuCalendar} text="Dia do Vencimento" />}>
-               <Input {...fieldStyle} type="number" min={1} max={31} {...register("billingDay")} />
-            </Field>
-
-            <Field label={<Label icon={LuBadgeCheck} text="Plano de Gestão" />}>
-              <NativeSelectRoot size="lg" borderRadius="xl">
-                <NativeSelectField 
-                  {...fieldStyle}
-                  {...register("plan")}
-                  cursor="pointer"
-                >
-                  <option style={{ backgroundColor: "white" }} value="BASIC">Básico (Aura v3)</option>
-                  <option style={{ backgroundColor: "white" }} value="PRO">Profissional</option>
-                  <option value="ENTERPRISE">Enterprise Cloud</option>
-                </NativeSelectField>
-              </NativeSelectRoot>
-            </Field>
-          </SimpleGrid>
-        </VStack>
-
-        <Button 
-          type="submit" 
-          loading={isLoading} 
-          bg="blue.600" 
-          color="white" 
-          h="70px" 
-          borderRadius="2xl" 
-          fontSize="md" 
-          fontWeight="900" 
-          boxShadow="0 15px 30px -10px rgba(49, 130, 206, 0.4)"
-          _hover={{ bg: "blue.700", transform: "translateY(-2px)" }}
-          transition="all 0.2s"
-          w="full"
-        >
-          <LuBadgeCheck size={24} style={{ marginRight: 12 }} />
-          CONSOLIDAR CADASTRO
-        </Button>
       </Stack>
-    </form>
-  );
+      
+      <style>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </Box>
+  )
 }
+
+/* COMPONENTES AUXILIARES PARA UX */
+interface FieldProps {
+  label: string
+  error?: string
+  children: ReactNode
+}
+
+const Field = ({ label, error, children }: FieldProps) => (
+  <Stack gap={1.5} flex={1}>
+    <Text fontSize="sm" fontWeight="semibold" color="gray.700" pl={1}>{label}</Text>
+    {children}
+    {error && <Text fontSize="xs" color="red.500" fontWeight="medium" pl={1}>{error}</Text>}
+  </Stack>
+)
+
+interface TypeToggleProps {
+  isActive: boolean
+  icon: React.ElementType
+  label: string
+  onClick: () => void
+}
+
+const TypeToggle = ({ isActive, icon, label, onClick }: TypeToggleProps) => (
+  <Box 
+    w="full"
+    textAlign="left"
+    onClick={onClick} 
+    cursor="pointer" 
+    p={5} 
+    borderRadius="2xl" 
+    border="2px solid" 
+    borderColor={isActive ? "blue.500" : "transparent"} 
+    bg={isActive ? "white" : "gray.50"} 
+    boxShadow={isActive ? "sm" : "none"} 
+    position="relative" 
+    transition="all 0.2s"
+    _hover={{ transform: "scale(1.02)" }}
+    _active={{ transform: "scale(0.98)" }}
+  >
+    {isActive && <Flex position="absolute" top={3} right={3} w={5} h={5} bg="blue.500" borderRadius="full" align="center" justify="center"><Icon as={LuCheck} color="white" boxSize={3} /></Flex>}
+    <Flex direction="column" align="center" gap={3}>
+      <Flex w={12} h={12} borderRadius="full" bg={isActive ? "blue.50" : "white"} color={isActive ? "blue.600" : "gray.400"} align="center" justify="center" boxShadow={isActive ? "none" : "sm"}><Icon as={icon} boxSize={6} /></Flex>
+      <Text fontWeight="bold" color={isActive ? "blue.700" : "gray.500"} fontSize="sm">{label}</Text>
+    </Flex>
+  </Box>
+)

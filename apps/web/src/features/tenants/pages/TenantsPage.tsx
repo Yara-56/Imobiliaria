@@ -13,7 +13,7 @@ export default function TenantsPage() {
   
   // ✅ Removido 'isError' não utilizado para resolver ts(6133)
   // ✅ Ajustado para pegar apenas o que o hook realmente retorna
-  const { tenants, isLoading } = useTenants();
+  const { tenants, isLoading } = (useTenants() as any) || {};
 
   if (isLoading) return (
     <Center h="100vh" bg="#F8FAFC">

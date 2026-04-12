@@ -26,9 +26,9 @@ import NewPropertyPage from "../features/properties/pages/NewPropertyPage";
 import EditPropertyPage from "../features/properties/pages/EditPropertyPage";
 
 // --- CONTRACTS (Módulo Interligado) ---
-import ContractDashboardPage from "../features/contracts/pages/ContractDashboardPage"; 
-import ContractsListPage from "../features/contracts/pages/ContractsListPage"; // ✅ Importado corretamente
-import CreateContractTemplate from "../features/contracts/templates/CreateContractTemplate";
+// import ContractDashboardPage from "../features/contracts/pages/ContractDashboardPage"; 
+// import ContractsListPage from "../features/contracts/pages/ContractsListPage"; 
+// import CreateContractTemplate from "../features/contracts/templates/CreateContractTemplate";
 
 /**
  * 🛡️ ProtectedRoute: Cybersecurity Layer.
@@ -38,16 +38,16 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated, login, loading } = useAuth();
 
   useEffect(() => {
-    // 🛠️ DEV BYPASS: Agiliza o desenvolvimento no seu ambiente local
-    if (!isAuthenticated && !loading) {
-      const devAdmin: any = {
-        id: "dev-01",
-        name: "Iara Oliveira",
-        email: "admin@auraimobi.com",
-        role: "admin",
-      };
-      login(devAdmin, "dev-token-session");
-    }
+    // 🛠️ DEV BYPASS DESATIVADO: Para testar a API real, você precisa logar de verdade!
+    // if (!isAuthenticated && !loading) {
+    //   const devAdmin: any = {
+    //     id: "dev-01",
+    //     name: "Iara Oliveira",
+    //     email: "admin@auraimobi.com",
+    //     role: "admin",
+    //   };
+    //   login(devAdmin, "dev-token-session");
+    // }
   }, [isAuthenticated, loading, login]);
 
   if (loading) {
@@ -106,14 +106,14 @@ export default function AppRoutes() {
 
         {/* 📄 MÓDULO DE CONTRATOS (FLUXO COMPLETO) */}
         <Route path="contracts">
-          {/* /admin/contracts -> Página de Modelos CPF/CNPJ */}
-          <Route index element={<ContractDashboardPage />} />
+          {/* 🚧 ROTA COMENTADA TEMPORARIAMENTE: Evita quebra caso a página não exista */}
+          {/* <Route index element={<ContractDashboardPage />} /> */}
           
-          {/* /admin/contracts/list -> Tabela de contratos ativos */}
-          <Route path="list" element={<ContractsListPage />} />
+          {/* 🚧 ROTA COMENTADA TEMPORARIAMENTE: Evita quebra caso a página não exista */}
+          {/* <Route path="list" element={<ContractsListPage />} /> */}
           
-          {/* /admin/contracts/new -> Formulário de criação */}
-          <Route path="new" element={<CreateContractTemplate />} />
+          {/* 🚧 ROTA COMENTADA TEMPORARIAMENTE: Evita quebra caso a página não exista */}
+          {/* <Route path="new" element={<CreateContractTemplate />} /> */}
         </Route>
 
         {/* 💰 FINANCEIRO E PAGAMENTOS */}

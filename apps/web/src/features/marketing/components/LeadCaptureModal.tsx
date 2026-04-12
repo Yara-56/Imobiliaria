@@ -15,6 +15,7 @@ interface LeadFormState {
   email: string
   company: string
   phone: string
+  profileType?: "PF" | "PJ"
 }
 
 interface LeadCaptureModalProps {
@@ -47,12 +48,14 @@ export default function LeadCaptureModal({
       backdropFilter="blur(6px)"
     >
       <Box
-        bg="rgba(20,20,20,0.95)"
-        border="1px solid rgba(255,255,255,0.08)"
+        bg="white"
+        border="1px solid"
+        borderColor="gray.100"
         rounded="2xl"
         p={{ base: 6, md: 10 }}
         maxW="520px"
         w="100%"
+        boxShadow="0 25px 50px -12px rgba(0, 0, 0, 0.25)"
         animation="showModal 0.35s ease forwards"
       >
         <VStack gap={2} textAlign="center" mb={6}>
@@ -65,68 +68,104 @@ export default function LeadCaptureModal({
             Comece agora - sem compromisso
           </Text>
 
-          <Text fontSize="sm" color="gray.300">
-            Preencha seus dados e nossa equipe retornará em minutos.
+          <Text fontSize="sm" color="gray.500">
+            Como você deseja configurar seus contratos na plataforma?
           </Text>
         </VStack>
 
         <VStack gap={4}>
+          {/* TIPO DE PERFIL */}
+          <Flex gap={3} w="full" mb={2}>
+            <Button
+              flex={1}
+              bg={leadForm.profileType === "PF" ? "blue.50" : "white"}
+              color={leadForm.profileType === "PF" ? "blue.600" : "gray.500"}
+              border="1px solid"
+              borderColor={leadForm.profileType === "PF" ? "blue.200" : "gray.200"}
+              onClick={() => setLeadForm({ ...leadForm, profileType: "PF" })}
+              _hover={{ bg: "blue.50" }}
+            >
+              Para Mim (CPF)
+            </Button>
+            <Button
+              flex={1}
+              bg={leadForm.profileType === "PJ" ? "blue.50" : "white"}
+              color={leadForm.profileType === "PJ" ? "blue.600" : "gray.500"}
+              border="1px solid"
+              borderColor={leadForm.profileType === "PJ" ? "blue.200" : "gray.200"}
+              onClick={() => setLeadForm({ ...leadForm, profileType: "PJ" })}
+              _hover={{ bg: "blue.50" }}
+            >
+              Para Empresa (CNPJ)
+            </Button>
+          </Flex>
+
           <Input
-            placeholder="Seu nome"
+            placeholder="Nome completo"
             value={leadForm.name}
             onChange={(e) =>
               setLeadForm({ ...leadForm, name: e.target.value })
             }
             h="52px"
-            bg="rgba(255,255,255,0.05)"
-            border="1px solid rgba(255,255,255,0.08)"
+            bg="gray.50"
+            border="1px solid"
+            borderColor="gray.200"
             rounded="xl"
-            color="white"
+            color="gray.800"
+            _focus={{ borderColor: "blue.400", bg: "white" }}
           />
 
           <Input
-            placeholder="Seu e-mail"
+            placeholder="Melhor e-mail de contato"
             value={leadForm.email}
             onChange={(e) =>
               setLeadForm({ ...leadForm, email: e.target.value })
             }
             h="52px"
-            bg="rgba(255,255,255,0.05)"
-            border="1px solid rgba(255,255,255,0.08)"
+            bg="gray.50"
+            border="1px solid"
+            borderColor="gray.200"
             rounded="xl"
-            color="white"
+            color="gray.800"
+            _focus={{ borderColor: "blue.400", bg: "white" }}
           />
 
-          <Input
-            placeholder="Nome da imobiliária"
-            value={leadForm.company}
-            onChange={(e) =>
-              setLeadForm({ ...leadForm, company: e.target.value })
-            }
-            h="52px"
-            bg="rgba(255,255,255,0.05)"
-            border="1px solid rgba(255,255,255,0.08)"
-            rounded="xl"
-            color="white"
-          />
+          {leadForm.profileType === "PJ" && (
+            <Input
+              placeholder="Nome da empresa / imobiliária"
+              value={leadForm.company}
+              onChange={(e) =>
+                setLeadForm({ ...leadForm, company: e.target.value })
+              }
+              h="52px"
+              bg="gray.50"
+              border="1px solid"
+              borderColor="gray.200"
+              rounded="xl"
+              color="gray.800"
+              _focus={{ borderColor: "blue.400", bg: "white" }}
+            />
+          )}
 
           <Input
-            placeholder="Telefone (opcional)"
+            placeholder="WhatsApp / Telefone (Opcional)"
             value={leadForm.phone}
             onChange={(e) =>
               setLeadForm({ ...leadForm, phone: e.target.value })
             }
             h="52px"
-            bg="rgba(255,255,255,0.05)"
-            border="1px solid rgba(255,255,255,0.08)"
+            bg="gray.50"
+            border="1px solid"
+            borderColor="gray.200"
             rounded="xl"
-            color="white"
+            color="gray.800"
+            _focus={{ borderColor: "blue.400", bg: "white" }}
           />
         </VStack>
 
-        <Flex mt={8} gap={4}>
+        <Flex mt={8} direction="column" gap={3}>
           <Button
-            flex={1}
+            w="full"
             h="52px"
             rounded="xl"
             bg="linear-gradient(135deg,#06b6d4,#0ea5e9)"
@@ -139,21 +178,23 @@ export default function LeadCaptureModal({
             }}
             transition="all 0.25s ease"
           >
-            Enviar
+            Confirmar e Iniciar
           </Button>
 
           <Button
-            flex={1}
+            w="full"
             h="52px"
             rounded="xl"
-            bg="rgba(255,255,255,0.08)"
-            color="gray.300"
+            variant="ghost"
+            color="gray.500"
+            fontWeight="bold"
             onClick={onClose}
             _hover={{
-              bg: "rgba(255,255,255,0.12)",
+              bg: "gray.50",
+              color: "gray.700"
             }}
           >
-            Cancelar
+            Pular por enquanto
           </Button>
         </Flex>
       </Box>

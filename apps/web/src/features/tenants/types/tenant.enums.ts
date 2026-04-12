@@ -13,6 +13,13 @@ export type TenantPlan =
 
 /**
  * ======================================================
+ * 🏢 Tipo de Inquilino (Pessoa Física / Jurídica)
+ * ======================================================
+ */
+export type TenantType = "RESIDENTIAL" | "COMMERCIAL";
+
+/**
+ * ======================================================
  * 📊 Status do Tenant
  * Controla acesso e comportamento no sistema
  * ======================================================
@@ -56,6 +63,9 @@ export interface Tenant {
    * (ex: tenant_89d7123)
    */
   tenantId: string;
+
+  /** Natureza do inquilino (Residencial/Física ou Comercial/Jurídica) */
+  type: TenantType;
 
   /** Nome completo do locatário */
   fullName: string;
@@ -121,6 +131,7 @@ export interface Tenant {
  * ======================================================
  */
 export interface CreateTenantDTO {
+  type: TenantType;
   fullName: string;
   email: string;
   phone?: string;

@@ -10,7 +10,8 @@ import { motion } from "framer-motion";
 
 import { useTenants } from "../hooks/useTenants";
 import TenantForm from "../components/forms/TenantForm";
-import type { CreateTenantDTO } from "../types/tenant.types";
+import type { TenantFormData } from "../schemas/tenant.schema";
+import { toaster } from "@/components/ui/toaster.js";
 
 const MotionBox = motion.create(Box);
 
@@ -18,32 +19,47 @@ export default function NewTenantPage() {
   const navigate = useNavigate();
   
   // Pegamos as ações e o estado de criação do objeto mutations
-  const { actions, mutations } = useTenants();
+  const { actions, mutations } = (useTenants() as any) || {};
 
   /**
    * 💾 SUBMIT HANDLER
    * Aqui removemos as propriedades que o seu hook ainda não "conhece"
    */
-  const handleCreateTenant = async (data: CreateTenantDTO) => {
+  const handleCreateTenant = async (data: TenantFormData) => {
     try {
       // ✅ CORREÇÃO DEFINITIVA: 
       // Enviamos apenas as propriedades que o TS disse que são aceitas no actions.create
-      await actions.create({
+      await actions?.create({
+        type: data.type,
         fullName: data.fullName,
         email: data.email,
         phone: data.phone ?? "", 
         document: data.document,
         
         // 🏠 Associação direta com o Imóvel (Aluguel)
-        propertyId: data.propertyId,
-        rentValue: data.rentAmount ?? data.rentValue ?? 0,
-        billingDay: data.dueDay ?? data.billingDay ?? 1,
-        paymentMethod: data.paymentMethod,
-      });
+        propertyId: data.propertyId || undefined,
+        rentValue: data.rentValue || undefined,
+        billingDay: data.billingDay || undefined,
+        // ✅ Garante que o Enum da API não receba undefined e quebre com erro 400
+        preferredPaymentMethod: data.preferredPaymentMethod || "PIX",
+      } as any);
       
+      // Notificação visual de sucesso
+      toaster.create({
+        title: "Inquilino cadastrado!",
+        description: `${data.fullName} foi adicionado com sucesso.`,
+        type: "success",
+      });
+
       navigate("/admin/tenants");
     } catch (error) {
       console.error("Erro na criação:", error);
+      // Notificação visual de erro
+      toaster.create({
+        title: "Erro ao cadastrar",
+        description: "Verifique os dados e tente novamente.",
+        type: "error",
+      });
     }
   };
 
@@ -93,7 +109,7 @@ export default function NewTenantPage() {
           >
             <TenantForm 
               onSubmit={handleCreateTenant} 
-              isLoading={mutations.isCreating} 
+              isLoading={mutations?.isCreating || false} 
             />
           </Box>
 

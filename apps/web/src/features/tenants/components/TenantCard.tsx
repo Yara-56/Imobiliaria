@@ -24,6 +24,7 @@ import {
 } from "react-icons/lu";
 import { Tenant } from "../types/tenant.enums";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 interface TenantCardProps {
   tenant: Tenant;
@@ -34,6 +35,8 @@ interface TenantCardProps {
 const MotionBox = motion.create(Box);
 
 export default function TenantCard({ tenant, onDelete }: TenantCardProps) {
+  const navigate = useNavigate();
+
   // ✅ Cores profissionais: Adeus preto, olá Cinza Grafite e Azul Suave
   const titleColor = "gray.700"; 
   const infoColor = "gray.500";
@@ -131,6 +134,7 @@ export default function TenantCard({ tenant, onDelete }: TenantCardProps) {
             borderRadius="xl"
             fontWeight="bold"
             _hover={{ bg: "blue.600", color: "white" }}
+            onClick={() => navigate(`/admin/tenants/edit/${tenantId}`)}
           >
             <LuExternalLink size={14} style={{ marginRight: '6px' }} />
             Detalhes
@@ -144,6 +148,7 @@ export default function TenantCard({ tenant, onDelete }: TenantCardProps) {
             borderColor="gray.100"
             color="gray.400"
             _hover={{ color: "blue.500", borderColor: "blue.100", bg: "gray.50" }}
+            onClick={() => navigate(`/admin/tenants/edit/${tenantId}`)}
           >
             <LuPencil size={14} />
           </IconButton>

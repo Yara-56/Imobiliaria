@@ -16,12 +16,6 @@ import { useParams, useNavigate } from "react-router-dom";
 
 // ✔ ÍCONES CORRETOS — somente os que realmente EXISTEM no react-icons/lu (V5)
 import {
-  LuUsers,
-  LuUserPlus,
-  LuShieldCheck,
-  LuSearch,
-  LuMail,
-  LuFingerprint,
   LuSignature,
   LuUpload,
   LuCircleCheck,
