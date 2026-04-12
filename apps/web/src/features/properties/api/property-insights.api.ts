@@ -1,4 +1,4 @@
-import { http as api } from "../../../lib/http";
+import api from "@/core/api/httpClient";
 import { PropertyInsights } from "../types/property-insights.types";
 
 /**
@@ -12,7 +12,7 @@ export const propertyInsightsApi = {
   get: async (): Promise<PropertyInsights> => {
     try {
       // Faz a requisição para a rota que criamos no backend
-      const response = await api.get("/v1/properties/insights");
+      const response = await api.get("/properties/insights");
 
       // No seu backend, o padrão de resposta costuma ser { status: "success", data: { ... } }
       // Se o seu axios já retorna o 'data', usamos response.data.data
@@ -28,7 +28,7 @@ export const propertyInsightsApi = {
    * Exemplo: Busca evolução histórica (se necessário no futuro)
    */
   getHistory: async (months = 6): Promise<any> => {
-    const response = await api.get(`/v1/properties/insights/history?months=${months}`);
+    const response = await api.get(`/properties/insights/history?months=${months}`);
     return response.data.data;
   }
 };
