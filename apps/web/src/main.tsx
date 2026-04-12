@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
@@ -26,13 +24,15 @@ function GlobalErrorFallback() {
 
 const rootElement = document.getElementById("root");
 
-if (!rootElement) throw new Error("Root element não encontrado");
+if (!rootElement) {
+  throw new Error("Root element não encontrado");
+}
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <BrowserRouter>
       <ErrorBoundary FallbackComponent={GlobalErrorFallback}>
-        <App />  {/* ✅ ChakraProvider já está dentro do AppProvider */}
+        <App />
       </ErrorBoundary>
     </BrowserRouter>
   </React.StrictMode>

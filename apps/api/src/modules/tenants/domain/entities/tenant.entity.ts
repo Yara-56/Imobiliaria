@@ -46,6 +46,11 @@ export interface ITenantProps {
   tenantId: string;
   userId: string;
   documents?: TenantDocument[]; // 📂 Coleção de documentos anexados
+  
+  // 🏠 Dados da Locação / Associação com Imóvel
+  propertyId?: string | null;
+  rentValue?: number | null;
+  billingDay?: number | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -120,6 +125,14 @@ export class Tenant {
   public updatePhone(phone: string | null): void { this.props.phone = phone; this.touch(); }
   public updateNotes(notes: string | null): void { this.props.notes = notes; this.touch(); }
 
+  // ✅ Associa o inquilino a um imóvel específico e define regras de cobrança
+  public assignProperty(propertyId: string, rentValue: number, billingDay: number): void {
+    this.props.propertyId = propertyId;
+    this.props.rentValue = rentValue;
+    this.props.billingDay = billingDay;
+    this.touch();
+  }
+
   private touch(): void { this.props.updatedAt = new Date(); }
 
   private validate(): void {
@@ -141,6 +154,9 @@ export class Tenant {
   get tenantId() { return this.props.tenantId; }
   get userId() { return this.props.userId; }
   get documents() { return this._documents; }
+  get propertyId() { return this.props.propertyId; }
+  get rentValue() { return this.props.rentValue; }
+  get billingDay() { return this.props.billingDay; }
   get createdAt() { return this.props.createdAt; }
   get updatedAt() { return this.props.updatedAt; }
 

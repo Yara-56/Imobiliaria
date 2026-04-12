@@ -10,17 +10,19 @@ import {
   Flex,
 } from "@chakra-ui/react"
 
+interface LeadFormState {
+  name: string
+  email: string
+  company: string
+  phone: string
+}
+
 interface LeadCaptureModalProps {
   isOpen: boolean
   onClose: () => void
   onSubmit: () => void
-  leadForm: {
-    name: string
-    email: string
-    company: string
-    phone: string
-  }
-  setLeadForm: (value: any) => void
+  leadForm: LeadFormState
+  setLeadForm: (value: LeadFormState) => void
 }
 
 export default function LeadCaptureModal({

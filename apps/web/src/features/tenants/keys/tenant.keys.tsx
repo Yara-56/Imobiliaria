@@ -14,7 +14,7 @@ export const tenantKeys = {
     lists: () => [...tenantKeys.all, "list"] as const,
   
     // Chave específica para uma listagem com filtros
-    list: (filters: Record<string, any> = {}) => 
+    list: (filters: Record<string, unknown> = {}) => 
       [...tenantKeys.lists(), { ...filters }] as const,
   
     // Chave base para detalhes de um inquilino único

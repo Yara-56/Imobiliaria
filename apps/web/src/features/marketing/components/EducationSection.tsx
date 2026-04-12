@@ -1,5 +1,6 @@
 "use client"
 
+import { ElementType } from "react"
 import {
   Box,
   Container,
@@ -23,7 +24,7 @@ interface EducationSectionProps {
 }
 
 interface EducationCardProps {
-  icon: any
+  icon: ElementType
   title: string
   text: string
 }

@@ -8,8 +8,7 @@ import {
 import { LuArrowLeft, LuShieldCheck, LuCircleAlert } from "react-icons/lu";
 
 import { useTenants } from "../hooks/useTenants";
-// ✅ Importação nomeada conforme corrigimos anteriormente
-import { QuickAddTenantModal as TenantForm } from "../components/QuickAddTenantModal";
+import TenantForm from "../components/forms/TenantForm";
 
 export default function EditTenantPage() {
   const { id } = useParams<{ id: string }>();

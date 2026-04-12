@@ -89,7 +89,7 @@ const ProblemCard = ({
   title,
   text,
 }: {
-  icon: any
+  icon: React.ElementType
   title: string
   text: string
 }) => (

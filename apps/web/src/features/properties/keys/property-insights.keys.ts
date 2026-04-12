@@ -12,7 +12,7 @@ export const propertyInsightsKeys = {
     list: () => [...propertyInsightsKeys.all, 'list'] as const,
     
     // Chave para insights filtrados (ex: por período ou categoria)
-    filter: (filters: Record<string, any>) => [...propertyInsightsKeys.all, 'list', { filters }] as const,
+    filter: (filters: Record<string, unknown>) => [...propertyInsightsKeys.all, 'list', { filters }] as const,
     
     // Chave para detalhe de um insight específico (se houver)
     detail: (id: string) => [...propertyInsightsKeys.all, 'detail', id] as const,

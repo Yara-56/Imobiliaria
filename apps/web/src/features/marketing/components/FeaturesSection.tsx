@@ -81,7 +81,7 @@ function FeatureCard({
     metric: string
   }
 }) {
-  const colorMap: any = {
+  const colorMap: Record<string, { bg: string; icon: string; border: string }> = {
     blue: { bg: "rgba(59, 130, 246, 0.1)", icon: "blue.400", border: "blue.200" },
     yellow: { bg: "rgba(251, 191, 36, 0.1)", icon: "yellow.400", border: "yellow.200" },
     green: { bg: "rgba(34, 197, 94, 0.1)", icon: "green.400", border: "green.200" },

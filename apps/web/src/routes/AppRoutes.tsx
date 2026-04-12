@@ -17,8 +17,7 @@ import DashboardPage from "../features/dashboard/pages/DashboardPage";
 import PaymentPage from "../features/payments/pages/PaymentPage";
 
 // --- TENANTS (Locatários) ---
-import TenantsPage from "../features/tenants/pages/TenantsPage";
-import NewTenantPage from "../features/tenants/pages/NewTenantPage";
+import TenantsDashboardPage from "../features/tenants/pages/TenantsDashboardPage";
 import EditTenantPage from "../features/tenants/pages/EditTenantPage";
 
 // --- PROPERTIES (Imóveis) ---
@@ -94,8 +93,7 @@ export default function AppRoutes() {
 
         {/* 🏢 MÓDULO DE LOCATÁRIOS (TENANTS) */}
         <Route path="tenants">
-          <Route index element={<TenantsPage />} />
-          <Route path="new" element={<NewTenantPage />} />
+          <Route index element={<TenantsDashboardPage />} />
           <Route path="edit/:id" element={<EditTenantPage />} />
         </Route>
 

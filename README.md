@@ -44,7 +44,7 @@ O sistema foi desenhado seguindo princípios de **Clean Architecture** e **Featu
 
 Cada imobiliária cadastrada gera um `slug` único. O sistema garante o isolamento lógico:
 
-* **Separação de Dados:** Cada locatário visualiza apenas suas propriedades, contratos e leads
+* **Separação de Dados:** Cada cliente (imobiliária) visualiza apenas suas propriedades, contratos e leads
 * **Modo Enterprise:** Suporte a provisionamento automatizado via infraestrutura AWS
 * **Segurança:** Row-Level Security (RLS) no PostgreSQL para isolamento total
 
@@ -82,7 +82,7 @@ Devido à evolução para o **Chakra UI v3**, criamos wrappers de estabilidade:
 
 ### 👥 Sistema de Inquilinos (NOVO!)
 
-**Revolucione a captação e gestão de locatários com 3 níveis de cadastro:**
+**Revolucione a captação e gestão de inquilinos com 3 níveis de cadastro:**
 
 #### ⚡ Cadastro Rápido (Quick Add)
 ```
@@ -306,7 +306,7 @@ imobiliaria/
 ## 📈 Roadmap de Funcionalidades
 
 ### ✅ Concluído (MVP)
-* [x] CRUD Completo de Locatários (Tenants)
+- [x] CRUD Completo de Inquilinos (Tenants)
 * [x] Sistema de Inquilinos com 3 níveis de cadastro
 * [x] Dashboard de métricas financeiras
 * [x] Sistema de Autenticação com JWT

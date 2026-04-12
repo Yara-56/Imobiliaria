@@ -163,7 +163,7 @@ interface InputBoxProps {
   label: string
   placeholder: string
   value: string
-  onChange: (e: any) => void
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 const InputBox = ({ label, placeholder, value, onChange }: InputBoxProps) => (

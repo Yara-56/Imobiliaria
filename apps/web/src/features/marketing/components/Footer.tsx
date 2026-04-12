@@ -57,7 +57,7 @@ export const Footer = () => {
                 bgGradient="linear(to-r, #06b6d4, #0ea5e9)"
                 bgClip="text"
               >
-                ImobiSys
+                HomeFlux
               </Text>
 
               <Badge
@@ -111,7 +111,7 @@ export const Footer = () => {
           </FooterSection>
 
           <FooterSection title="Contato">
-            <ContactItem icon={LuMail} text="contato@imobisys.com" href="mailto:contato@imobisys.com" />
+            <ContactItem icon={LuMail} text="contato@homeflux.com" href="mailto:contato@homeflux.com" />
             <ContactItem icon={LuPhone} text="(11) 3000-0000" href="tel:+551130000000" />
             <ContactItem icon={LuMapPin} text="São Paulo, Brasil" href="#" />
           </FooterSection>
@@ -128,7 +128,7 @@ export const Footer = () => {
         >
           <VStack align={{ base: "center", md: "start" }} gap={1}>
             <Text fontSize="xs" color="gray.500">
-              © {currentYear} ImobiSys. Todos os direitos reservados.
+              © {currentYear} HomeFlux. Todos os direitos reservados.
             </Text>
             <Text fontSize="xs" color="gray.500">
               Excelência em tecnologia imobiliária.
@@ -189,7 +189,7 @@ const FooterItem = ({ to, children }: { to: string; children: React.ReactNode })
   </ChakraLink>
 )
 
-const SocialIcon = ({ icon, href }: { icon: any; href: string }) => (
+const SocialIcon = ({ icon, href }: { icon: React.ElementType; href: string }) => (
   <ChakraLink
     href={href}
     target="_blank"
@@ -202,7 +202,7 @@ const SocialIcon = ({ icon, href }: { icon: any; href: string }) => (
   </ChakraLink>
 )
 
-const ContactItem = ({ icon, text, href }: { icon: any; text: string; href: string }) => (
+const ContactItem = ({ icon, text, href }: { icon: React.ElementType; text: string; href: string }) => (
   <ChakraLink
     href={href}
     display="flex"

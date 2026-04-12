@@ -1,104 +1,100 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Button,
-  DialogRoot,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogBody,
-  DialogCloseTrigger,
-  DialogBackdrop, // Adicionado para um UX profissional (escurece o fundo)
-  Icon,
+  Box, 
+  Flex, 
+  Heading, 
+  IconButton, 
+  Portal
 } from "@chakra-ui/react";
-import { LuUserPlus } from "react-icons/lu";
+import { LuX } from "react-icons/lu";
+import { motion, AnimatePresence } from "framer-motion";
 
 // ✅ Importando o formulário (Caminho absoluto ou relativo correto)
 import TenantForm from "./forms/TenantForm";
 import type { CreateTenantDTO } from "../types/tenant.types";
+
 interface QuickAddTenantModalProps {
+  isOpen: boolean;
+  onClose: () => void;
   onSubmit: (data: CreateTenantDTO) => void;
   isLoading: boolean;
 }
 
+const MotionBox = motion.create(Box);
+const MotionFlex = motion.create(Flex);
+
 /**
  * COMPONENTE: QuickAddTenantModal
- * Objetivo: Botão de ação rápida que abre o Drawer/Modal de cadastro.
+ * Objetivo: Modal flutuante de cadastro rápido (À prova de falhas com Framer Motion).
  */
 export function QuickAddTenantModal({
+  isOpen,
+  onClose,
   onSubmit,
   isLoading,
 }: QuickAddTenantModalProps) {
-  const [open, setOpen] = useState(false);
-
-  // Fecha o modal apenas se o envio for bem sucedido
-  const handleFormSubmit = async (data: CreateTenantDTO) => {
-    try {
-      await onSubmit(data);
-      setOpen(false); 
-    } catch (error) {
-      console.error("Erro ao processar cadastro:", error);
-    }
-  };
 
   return (
-    <DialogRoot
-      open={open}
-      onOpenChange={(e) => setOpen(e.open)}
-      size="lg"
-      placement="center"
-      motionPreset="slide-in-bottom"
-    >
-      <DialogBackdrop />
+    <AnimatePresence>
+      {isOpen && (
+        <Portal>
+          {/* Overlay escuro e blur */}
+          <MotionFlex
+            position="fixed"
+            inset={0}
+            zIndex={9999}
+            bg="blackAlpha.600"
+            backdropFilter="blur(6px)"
+            align="center"
+            justify="center"
+            p={{ base: 4, md: 6 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+          >
+            {/* A Janela do Modal */}
+            <MotionBox
+              bg="white"
+              w="full"
+              maxW="3xl" // Um pouco mais largo para os campos respirarem
+              maxH="90vh" // Garante que a rolagem aconteça DENTRO do modal e não bugue a tela
+              borderRadius="3xl"
+              boxShadow="0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+              display="flex"
+              flexDirection="column"
+              overflow="hidden"
+              onClick={(e) => e.stopPropagation()} // Impede que o clique dentro feche o modal
+              initial={{ opacity: 0, y: 40, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              {/* Header Fixo (Não rola junto com o form) */}
+              <Flex p={6} justify="space-between" align="center" borderBottom="1px solid" borderColor="gray.100">
+                <Heading size="md" fontWeight="900" color="gray.800">
+                  Novo Inquilino
+                </Heading>
+                <IconButton
+                  aria-label="Fechar"
+                  variant="ghost"
+                  size="sm"
+                  borderRadius="full"
+                  onClick={onClose}
+                >
+                  <LuX size={20} />
+                </IconButton>
+              </Flex>
 
-      {/* 🎯 O BOTÃO NO DASHBOARD */}
-      <DialogTrigger asChild>
-        <Button
-          bg="blue.600"
-          color="white"
-          height="70px" // Ajustado para 70px para um look mais "Enterprise"
-          px={10}
-          borderRadius="2xl"
-          fontWeight="900"
-          fontSize="md"
-          letterSpacing="tight"
-          boxShadow="0 15px 30px -10px rgba(49, 130, 206, 0.4)"
-          gap={3}
-          _hover={{ bg: "blue.700", transform: "translateY(-2px)" }}
-          _active={{ transform: "translateY(0)" }}
-          transition="all 0.2s"
-        >
-          <Icon as={LuUserPlus} boxSize={6} />
-          CADASTRAR LOCATÁRIO
-        </Button>
-      </DialogTrigger>
-
-      {/* 🖼️ A JANELA FLUTUANTE */}
-      <DialogContent
-        borderRadius="4xl" // Bordas bem arredondadas para UX Premium
-        p={6}
-        bg="white"
-        boxShadow="0 30px 60px -12px rgba(0, 0, 0, 0.15)"
-        border="1px solid"
-        borderColor="gray.100"
-      >
-        <DialogHeader mb={4}>
-          <DialogTitle fontSize="2xl" fontWeight="900" color="gray.800">
-            Novo Cadastro Rápido
-          </DialogTitle>
-          <DialogCloseTrigger top={8} right={8} />
-        </DialogHeader>
-
-        <DialogBody pb={8}>
-          {/* ✅ O FORMULÁRIO DE ALTO NÍVEL */}
-          <TenantForm 
-            onSubmit={handleFormSubmit} 
-            isLoading={isLoading} 
-          />
-        </DialogBody>
-      </DialogContent>
-    </DialogRoot>
+              {/* Corpo Rolável (Aqui fica o formulário) */}
+              <Box p={{ base: 4, md: 8 }} overflowY="auto" flex={1}>
+                <TenantForm onSubmit={onSubmit} isLoading={isLoading} />
+              </Box>
+            </MotionBox>
+          </MotionFlex>
+        </Portal>
+      )}
+    </AnimatePresence>
   );
 }

@@ -18,7 +18,7 @@ import {
 } from "react-icons/lu"
 
 interface SolutionFeatureProps {
-  icon: any
+  icon: React.ElementType
   title: string
   text: string
 }

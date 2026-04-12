@@ -35,7 +35,7 @@ export default function TenantsPage() {
           <VStack align="start" gap={1}>
             <HStack color="blue.600" mb={1}>
               <Icon as={LuShieldCheck} />
-              <Text fontSize="xs" fontWeight="black" letterSpacing="widest">IMOBISYS SECURE V3</Text>
+              <Text fontSize="xs" fontWeight="black" letterSpacing="widest">HOMEFLUX SECURE V3</Text>
             </HStack>
             <Heading size="2xl" fontWeight="900" color="gray.800" letterSpacing="-2px">
               Locatários
