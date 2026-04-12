@@ -14,6 +14,7 @@ import {
   Icon,
 } from "@chakra-ui/react"
 import { LuUser, LuBuilding2, LuCheck } from "react-icons/lu"
+import { toaster } from "@/components/ui/toaster.js"
 
 // Importações do seu Schema e Tipagens
 import { 
@@ -69,8 +70,17 @@ export default function TenantForm({ initialData, onSubmit, isLoading }: TenantF
   const billingDay = watch("billingDay")
   const preferredPaymentMethod = watch("preferredPaymentMethod")
 
+  // Feedback visual caso o usuário tente salvar com campos faltando/inválidos
+  const onInvalid = () => {
+    toaster.create({
+      title: "Dados inválidos ou incompletos",
+      description: "Verifique os campos destacados em vermelho antes de salvar.",
+      type: "error",
+    });
+  };
+
   return (
-    <Box as="form" onSubmit={handleSubmit(onSubmit)} w="full">
+    <Box as="form" onSubmit={handleSubmit(onSubmit, onInvalid)} w="full">
       <Stack gap={10}>
         
         {/* 1. TIPO DE INQUILINO */}

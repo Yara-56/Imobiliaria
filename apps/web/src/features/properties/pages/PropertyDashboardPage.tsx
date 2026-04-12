@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import {
   Box,
   Container,
@@ -18,13 +19,11 @@ import {
 
 import {
   LuHouse,
-  LuBuilding2,
   LuShieldCheck,
   LuListOrdered,
   LuPlus,
   LuMapPin,
   LuLayers,
-  LuClock,
   LuWrench,
   LuUsers,
   LuCircleDollarSign,
@@ -34,19 +33,15 @@ import { useNavigate } from "react-router-dom";
 
 // HOOKS OFICIAIS
 import { useProperties } from "../hooks/useProperties";
-import { useContracts } from "../../contracts/hooks/useContracts";
-
-// ENUM DO BACKEND (PRISMA)
-import { PropertyStatus } from "../types/property";
-
-// COMPONENTES REUTILIZADOS
-import { KPICard } from "../../dashboard/components/KPICard";
-import { SmartInsightsProperties } from "../components/SmartInsightsProperties";
 
 export default function PropertyDashboardPage() {
   const navigate = useNavigate();
-  const { properties, isLoading } = useProperties();
-  const { contracts } = useContracts();
+  
+  const { properties: rawProperties, isLoading } = (useProperties() as any) || {};
+  const properties = Array.isArray(rawProperties) ? rawProperties : rawProperties?.data?.properties || rawProperties?.data || [];
+
+  // Mock temporário enquanto o módulo de contratos não for construído
+  const contracts: any[] = [];
 
   if (isLoading) {
     return (
@@ -69,20 +64,17 @@ export default function PropertyDashboardPage() {
   // 🔥 KPIs com enum REAL
   const total = properties.length;
   const available = properties.filter(
-    (p) => p.status === PropertyStatus.AVAILABLE
+    (p: any) => p.status === "AVAILABLE"
   ).length;
   const rented = properties.filter(
-    (p) => p.status === PropertyStatus.RENTED
+    (p: any) => p.status === "RENTED"
   ).length;
   const maintenance = properties.filter(
-    (p) => p.status === PropertyStatus.MAINTENANCE
+    (p: any) => p.status === "MAINTENANCE"
   ).length;
   const inactive = properties.filter(
-    (p) => p.status === PropertyStatus.INACTIVE
+    (p: any) => p.status === "INACTIVE"
   ).length;
-
-  // 🔥 Contratos que vencem — integração real
-  const contractsDue = contracts?.filter((c) => c.status === "ACTIVE") || [];
 
   // 🔥 Lógica de ocupação real
   const occupancyRate =
@@ -90,8 +82,8 @@ export default function PropertyDashboardPage() {
 
   // 🔥 Total de renda mensal somada dos imóveis alugados
   const totalRentValue = contracts
-    ?.filter((c) => c.status === "ACTIVE")
-    ?.reduce((sum, c) => sum + (c.rentAmount || 0), 0)
+    ?.filter((c: any) => c.status === "ACTIVE")
+    ?.reduce((sum: number, c: any) => sum + (c.rentAmount || 0), 0)
     ?.toFixed(2);
 
   return (
@@ -141,7 +133,7 @@ export default function PropertyDashboardPage() {
               px={8}
               borderRadius="2xl"
               fontWeight="900"
-              _hover={{ bg: "white", shadow: "md" }}
+              _hover={{ bg: "white", boxShadow: "md" }}
             >
               <Icon as={LuListOrdered} mr={2} /> VER TODOS
             </Button>
@@ -154,7 +146,7 @@ export default function PropertyDashboardPage() {
               px={10}
               borderRadius="2xl"
               fontWeight="900"
-              shadow="xl"
+              boxShadow="xl"
               _hover={{ bg: "blue.700", transform: "translateY(-2px)" }}
             >
               <Icon as={LuPlus} mr={2} /> NOVO IMÓVEL
@@ -162,8 +154,8 @@ export default function PropertyDashboardPage() {
           </HStack>
         </Flex>
 
-        {/* SMART INSIGHTS (IA IMOBILIÁRIA) */}
-        <SmartInsightsProperties
+        {/* SMART INSIGHTS (IA IMOBILIÁRIA) - Oculto até a criação do componente */}
+        {/* <SmartInsightsProperties
           data={{
             total,
             available,
@@ -172,7 +164,7 @@ export default function PropertyDashboardPage() {
             occupancyRate,
             totalRentValue,
           }}
-        />
+        /> */}
 
         {/* GRID DE KPIs — estilo do Dashboard principal */}
         <SimpleGrid
@@ -180,38 +172,38 @@ export default function PropertyDashboardPage() {
           gap={8}
           mt={12}
         >
-          <KPICard
-            label="TOTAL DE IMÓVEIS"
+          <KpiCard
+            title="TOTAL DE IMÓVEIS"
             value={total}
             icon={LuLayers}
-            colorPalette="blue"
+            color="blue"
           />
 
-          <KPICard
-            label="DISPONÍVEIS"
+          <KpiCard
+            title="DISPONÍVEIS"
             value={available}
             icon={LuHouse}
-            colorPalette="green"
+            color="green"
           />
 
-          <KPICard
-            label="ALUGADOS"
+          <KpiCard
+            title="ALUGADOS"
             value={rented}
             icon={LuUsers}
-            colorPalette="purple"
+            color="purple"
           />
 
-          <KPICard
-            label="MANUTENÇÃO"
+          <KpiCard
+            title="MANUTENÇÃO"
             value={maintenance}
             icon={LuWrench}
-            colorPalette="orange"
+            color="orange"
           />
         </SimpleGrid>
 
         {/* BLOCOS: Ocupação e Faturamento */}
         <Grid
-          templateColumns={{ base: "1fr", xl: "2fr 1fr" }}
+          gridTemplateColumns={{ base: "1fr", xl: "2fr 1fr" }}
           gap={10}
           mt={12}
         >
@@ -261,7 +253,7 @@ export default function PropertyDashboardPage() {
               borderRadius="3xl"
               color="white"
               textAlign="center"
-              shadow="xl"
+              boxShadow="xl"
             >
               <Text
                 fontWeight="800"
@@ -293,7 +285,7 @@ export default function PropertyDashboardPage() {
               borderRadius="3xl"
               border="1px solid"
               borderColor="gray.100"
-              shadow="sm"
+              boxShadow="sm"
             >
               <Text fontWeight="900" color="gray.800" mb={6}>
                 Faturamento Mensal dos Imóveis
@@ -329,7 +321,7 @@ export default function PropertyDashboardPage() {
           </Heading>
 
           <SimpleGrid columns={{ base: 1, lg: 2 }} gap={4} w="full">
-            {properties.slice(0, 6).map((p) => (
+          {properties.slice(0, 6).map((p: any) => (
               <ActivePropertyCard key={p.id} property={p} />
             ))}
           </SimpleGrid>
@@ -337,6 +329,23 @@ export default function PropertyDashboardPage() {
       </Container>
     </Box>
   );
+}
+
+/* COMPONENTES AUXILIARES */
+function KpiCard({ icon, title, value, color }: any) {
+  return (
+    <Box p={6} bg="white" borderRadius="3xl" boxShadow="0 4px 20px rgba(0,0,0,0.02)" border="1px solid" borderColor="gray.50">
+      <Flex justify="space-between" align="start" mb={4}>
+        <Flex w={12} h={12} borderRadius="2xl" bg={`${color}.50`} align="center" justify="center" color={`${color}.500`}>
+          <Icon as={icon} boxSize={6} />
+        </Flex>
+      </Flex>
+      <Box>
+        <Heading size="2xl" color="gray.800" fontWeight="900" letterSpacing="tight">{value}</Heading>
+        <Text color="gray.500" fontSize="sm" mt={2} fontWeight="medium">{title}</Text>
+      </Box>
+    </Box>
+  )
 }
 
 /* COMPONENTES */
@@ -349,8 +358,8 @@ function ActivePropertyCard({ property }: any) {
       borderRadius="2xl"
       border="1px solid"
       borderColor="gray.50"
-      shadow="sm"
-      _hover={{ shadow: "md", borderColor: "blue.100" }}
+      boxShadow="sm"
+      _hover={{ boxShadow: "md", borderColor: "blue.100" }}
     >
       <Flex justify="space-between" align="center">
         <HStack gap={4}>

@@ -36,14 +36,27 @@ export const useTenants = (
   const singleQuery = useQuery({
     queryKey: id ? tenantKeys.detail(id) : [],
     queryFn: () => tenantApi.getById(id!),
-    enabled: !!id,
+    // ✅ Bloqueia o React Query de tentar buscar IDs temporários da UI Otimista na API
+    enabled: !!id && !String(id).startsWith("temp-"),
   });
 
   // ── CREATE (Optimistic UI) ────────────────────────────────────
   const createMutation = useMutation({
     mutationFn: async (data: TenantFormData) => {
-      const payload = tenantMappers.toPayload(data);
-      return tenantApi.create(payload);
+      // Garante que o mapper antigo não jogue fora os nossos campos novos!
+      const basePayload = tenantMappers.toPayload(data);
+      const fullPayload = {
+        ...basePayload,
+        type: data.type,
+        propertyId: data.propertyId,
+        rentValue: data.rentValue,
+        billingDay: data.billingDay,
+        preferredPaymentMethod: data.preferredPaymentMethod || "PIX",
+      };
+      
+      const res = await tenantApi.create(fullPayload as any);
+      // ✅ Desempacota a resposta da API para o frontend pegar o ID real e não o 'temp-'
+      return res?.data?.tenant || res?.data || res;
     },
 
     onMutate: async (newTenantData: TenantFormData) => {
@@ -96,7 +109,7 @@ export const useTenants = (
     onSuccess: (created) => {
       queryClient.setQueryData<Tenant[]>(
         tenantKeys.list(filters),
-        (old = []) => old.map((t) => (t._id.startsWith("temp-") ? created : t))
+        (old = []) => old.map((t) => (String(t._id || (t as any).id).startsWith("temp-") ? created : t))
       );
     },
 
@@ -107,14 +120,16 @@ export const useTenants = (
 
   // ── UPDATE ────────────────────────────────────────────────────
   const updateMutation = useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       id,
       data,
     }: {
       id: string;
       data: UpdateTenantDTO; // ✅ Mudou aqui: usar UpdateTenantDTO ao invés de TenantFormData
     }) => {
-      return tenantApi.update(id, data);
+      const res = await tenantApi.update(id, data);
+      // ✅ Desempacota a resposta da API também na atualização
+      return res?.data?.tenant || res?.data || res;
     },
 
     onMutate: async ({ id, data }) => {

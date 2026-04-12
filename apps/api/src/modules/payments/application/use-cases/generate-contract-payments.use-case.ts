@@ -15,14 +15,11 @@ export class GenerateContractPaymentsUseCase {
     });
 
     if (!contract) {
-      throw new AppError({ message: "Contrato não encontrado.", statusCode: HttpStatus.NOT_FOUND });
+      throw new AppError("Contrato não encontrado.", HttpStatus.NOT_FOUND);
     }
 
     if (!contract.endDate) {
-      throw new AppError({ 
-        message: "Para gerar parcelas automáticas, o contrato precisa de uma data de término.", 
-        statusCode: HttpStatus.BAD_REQUEST 
-      });
+      throw new AppError("Para gerar parcelas automáticas, o contrato precisa de uma data de término.", HttpStatus.BAD_REQUEST);
     }
 
     const payments = [];

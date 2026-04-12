@@ -10,8 +10,8 @@ import { toaster } from "@/components/ui/toaster.js";
 const API_URL =
   import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-const API_VERSION =
-  import.meta.env.VITE_API_VERSION || "/api/v1";
+// Evita duplicar a versão da API na URL
+const baseURL = API_URL.includes("/api") ? API_URL : `${API_URL}/api/v1`;
 
 const API_TIMEOUT =
   Number(import.meta.env.VITE_API_TIMEOUT) || 15000;
@@ -22,7 +22,7 @@ const TOKEN_KEY = "imobisys_token";
  * Instância principal do Axios
  */
 const api = axios.create({
-  baseURL: `${API_URL}${API_VERSION}`,
+  baseURL,
   withCredentials: true,
   timeout: API_TIMEOUT,
   headers: {

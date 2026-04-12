@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 
 import { LuHouse, LuCreditCard, LuSearch } from "react-icons/lu";
-import api from "@/core/api/apiResponse";
+import { http } from "@/lib/http";
 
 interface Property {
   id: string;
@@ -58,11 +58,11 @@ export function SmartTenantHousingStep({
         : "/properties?status=AVAILABLE";
 
       // Usa a instância autenticada para garantir que o JWT Token seja enviado
-      const res = await api.get(endpoint);
+      const res = await http.get(endpoint);
       const responseData = res.data;
       
       // Proteção robusta contra múltiplos formatos de API
-      setProperties(Array.isArray(responseData) ? responseData : responseData?.data || []);
+      setProperties(Array.isArray(responseData) ? responseData : responseData?.data?.properties || responseData?.data || []);
     } catch (err) {
       console.error("[SmartHousingStep] Erro ao carregar imóveis:", err);
       setProperties([]);

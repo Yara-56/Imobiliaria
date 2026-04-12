@@ -6,14 +6,15 @@ import {
   Box, Container, Heading, Text, VStack, 
   Spinner, Center, Flex, IconButton, Button, Badge, Stack 
 } from "@chakra-ui/react";
-import { LuArrowLeft, LuShieldCheck, LuCircleAlert, LuTrash2, LuSignature } from "react-icons/lu";
+import { LuArrowLeft, LuShieldCheck, LuCircleAlert, LuTrash2, LuSignature, LuReceipt } from "react-icons/lu";
 
 import { useTenants } from "../hooks/useTenants";
 import TenantForm from "../components/forms/TenantForm";
 import type { TenantFormData } from "../schemas/tenant.schema";
 import { ConfirmDeleteModal } from "../components/ConfirmDeleteModal";
+import { ReceiptGeneratorModal } from "../components/ReceiptGeneratorModal";
 import { toaster } from "@/components/ui/toaster.js";
-import api from "@/core/api/apiResponse";
+import { http } from "@/lib/http";
 
 export default function EditTenantPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +30,7 @@ export default function EditTenantPage() {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSendingContract, setIsSendingContract] = useState(false);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
 
   const handleUpdate = async (formData: TenantFormData) => {
     if (!id) return;
@@ -56,7 +58,7 @@ export default function EditTenantPage() {
       setIsSendingContract(true);
       
       // Faz a requisição para a nossa rota do Express
-      await api.post("/contracts/send", { 
+      await http.post("/contracts/send", { 
         tenantId: id,
         // Simulando a URL do PDF (No futuro você passaria o PDF real gerado)
         documentUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" 
@@ -124,6 +126,16 @@ export default function EditTenantPage() {
           
           <Flex gap={3}>
             <Button
+              bg="green.600"
+              color="white"
+              borderRadius="xl"
+              fontWeight="bold"
+              onClick={() => setIsReceiptModalOpen(true)}
+              _hover={{ bg: "green.700", transform: "translateY(-2px)" }}
+            >
+              <LuReceipt /> Emitir Recibo
+            </Button>
+            <Button
               bg="blue.600"
               color="white"
               borderRadius="xl"
@@ -174,6 +186,13 @@ export default function EditTenantPage() {
           onConfirm={handleDelete}
           isLoading={mutations?.isDeleting || false}
           tenantName={tenant?.fullName || "este inquilino"}
+        />
+
+        {/* Renderiza o gerador de recibo */}
+        <ReceiptGeneratorModal
+          isOpen={isReceiptModalOpen}
+          onClose={() => setIsReceiptModalOpen(false)}
+          tenantData={tenant}
         />
       </Container>
     </Box>

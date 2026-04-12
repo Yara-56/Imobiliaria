@@ -53,7 +53,7 @@ export default function TenantsPage() {
             px={10} 
             borderRadius="2xl" 
             fontWeight="900"
-            shadow="xl"
+            boxShadow="xl"
             _hover={{ bg: "blue.700", transform: "translateY(-2px)" }}
             gap={3}
           >
@@ -100,7 +100,7 @@ export default function TenantsPage() {
                 borderColor="gray.100"
                 transition="all 0.3s ease"
                 _hover={{ 
-                  shadow: "xl", 
+                  boxShadow: "xl", 
                   borderColor: "blue.200", 
                   transform: "translateY(-2px)",
                   cursor: "pointer" 

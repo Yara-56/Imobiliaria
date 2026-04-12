@@ -67,7 +67,7 @@ export default function TenantDetailsPage() {
         </HStack>
 
         <Button
-          colorScheme="blue"
+          colorPalette="blue"
           borderRadius="xl"
           px={8}
           onClick={() => navigate(`/tenants/${id}/edit`)}
@@ -98,7 +98,7 @@ export default function TenantDetailsPage() {
 
           <Button
             w="100%"
-            colorScheme="blue"
+            colorPalette="blue"
             onClick={() => navigate(`/tenants/${id}/documents/upload`)}
           >
             Abrir upload

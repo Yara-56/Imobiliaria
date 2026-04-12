@@ -28,21 +28,13 @@ export default function NewTenantPage() {
   const handleCreateTenant = async (data: TenantFormData) => {
     try {
       // ✅ CORREÇÃO DEFINITIVA: 
-      // Enviamos apenas as propriedades que o TS disse que são aceitas no actions.create
-      await actions?.create({
-        type: data.type,
-        fullName: data.fullName,
-        email: data.email,
-        phone: data.phone ?? "", 
-        document: data.document,
-        
-        // 🏠 Associação direta com o Imóvel (Aluguel)
-        propertyId: data.propertyId || undefined,
-        rentValue: data.rentValue || undefined,
-        billingDay: data.billingDay || undefined,
-        // ✅ Garante que o Enum da API não receba undefined e quebre com erro 400
+      // Garante que dados vitais nunca cheguem como undefined no Backend
+      const payload = {
+        ...data,
         preferredPaymentMethod: data.preferredPaymentMethod || "PIX",
-      } as any);
+        type: data.type || "RESIDENTIAL"
+      };
+      const created = await actions?.create(payload as any);
       
       // Notificação visual de sucesso
       toaster.create({
@@ -51,7 +43,15 @@ export default function NewTenantPage() {
         type: "success",
       });
 
-      navigate("/admin/tenants");
+      // ✅ Delay de 1 segundo para o usuário ter tempo de LER a notificação antes de sair da tela
+      setTimeout(() => {
+        if (created && (created._id || created.id)) {
+          navigate(`/admin/tenants/edit/${created._id || created.id}`);
+        } else {
+          navigate("/admin/tenants");
+        }
+      }, 1200);
+
     } catch (error) {
       console.error("Erro na criação:", error);
       // Notificação visual de erro
@@ -85,7 +85,7 @@ export default function NewTenantPage() {
 
           <VStack align="start" gap={6} mb={10}>
             <HStack gap={5}>
-              <Center bg="blue.50" p={4} borderRadius="2xl" color="blue.600" shadow="sm">
+              <Center bg="blue.50" p={4} borderRadius="2xl" color="blue.600" boxShadow="sm">
                 <LuUserPlus size={28} />
               </Center>
               <VStack align="start" gap={1}>
@@ -103,7 +103,7 @@ export default function NewTenantPage() {
             p={{ base: 6, md: 10 }} 
             bg="white" 
             borderRadius="3xl" 
-            shadow="0 4px 20px rgba(0,0,0,0.03)" 
+            boxShadow="0 4px 20px rgba(0,0,0,0.03)" 
             border="1px solid" 
             borderColor="gray.100"
           >

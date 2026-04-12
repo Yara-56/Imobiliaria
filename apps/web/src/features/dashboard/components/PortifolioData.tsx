@@ -11,6 +11,8 @@ import {
 } from "react-icons/lu";
 import { motion } from "framer-motion";
 
+const MotionBox = motion.create(Box);
+
 // ═══════════════════════════════════════════════════════════════════════
 // MOCK DATA (substitua pelos dados reais do seu hook)
 // ═══════════════════════════════════════════════════════════════════════
@@ -155,7 +157,7 @@ export function PortfolioHealth() {
       {/* Métricas detalhadas */}
       <VStack gap={4} align="stretch">
         {metrics.map((metric, idx) => (
-          <motion.div
+          <MotionBox
             key={metric.label}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
@@ -188,7 +190,7 @@ export function PortfolioHealth() {
 
               {/* Barra de progresso da métrica */}
               <Box h="4px" bg="gray.100" borderRadius="full" overflow="hidden">
-                <motion.div
+                <MotionBox
                   initial={{ width: 0 }}
                   animate={{ width: `${Math.min((metric.value / metric.target) * 100, 100)}%` }}
                   transition={{ duration: 1, ease: "easeOut", delay: idx * 0.15 }}
@@ -203,7 +205,7 @@ export function PortfolioHealth() {
                 />
               </Box>
             </Box>
-          </motion.div>
+          </MotionBox>
         ))}
       </VStack>
 

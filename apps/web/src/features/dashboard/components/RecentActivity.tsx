@@ -3,15 +3,17 @@
 import React from "react";
 import { Box, HStack, VStack, Text, Icon, Avatar } from "@chakra-ui/react";
 import {
-  UserPlus,
-  FileText,
-  DollarSign,
-  Home,
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-} from "lucide-react";
+  LuUserPlus as UserPlus,
+  LuFileText as FileText,
+  LuDollarSign as DollarSign,
+  LuHouse as Home,
+  LuAlertCircle as AlertCircle,
+  LuCircleCheck as CheckCircle2,
+  LuClock as Clock,
+} from "react-icons/lu";
 import { motion } from "framer-motion";
+
+const MotionBox = motion.create(Box);
 
 // ═══════════════════════════════════════════════════════════════════════
 // TYPES
@@ -185,7 +187,7 @@ export function RecentActivity() {
         {/* Badge "Ao vivo" */}
         <HStack gap={2} px={2.5} py={1} bg="green.50" borderRadius="full" border="1px solid" borderColor="green.200">
           <Box w={2} h={2} borderRadius="full" bg="green.500">
-            <motion.div
+            <MotionBox
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
               style={{ width: "100%", height: "100%", borderRadius: "inherit", background: "inherit" }}
@@ -204,7 +206,7 @@ export function RecentActivity() {
           const colors = getActivityColor(activity.type);
 
           return (
-            <motion.div
+            <MotionBox
               key={activity.id}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
@@ -266,7 +268,7 @@ export function RecentActivity() {
                   </Avatar.Root>
                 )}
               </HStack>
-            </motion.div>
+            </MotionBox>
           );
         })}
       </VStack>

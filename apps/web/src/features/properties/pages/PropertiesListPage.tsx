@@ -101,7 +101,7 @@ export default function PropertiesListPage() {
             size="lg"
             borderRadius="xl"
             gap={2}
-            shadow="md"
+            boxShadow="md"
             onClick={() => navigate("new")}
           >
             <LuPlus size={20} /> Novo Imóvel
@@ -131,7 +131,7 @@ export default function PropertiesListPage() {
       <Box
         bg="white"
         borderRadius="24px"
-        shadow="sm"
+        boxShadow="sm"
         borderWidth="1px"
         borderColor="gray.100"
         overflow="hidden"

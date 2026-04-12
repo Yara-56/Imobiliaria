@@ -80,7 +80,7 @@ export class ContractService {
       });
     } catch (error: any) {
       console.error("[ContractService] Erro na integração:", error?.response?.data || error.message);
-      throw new AppError({ message: "Falha ao gerar e enviar o contrato.", statusCode: HttpStatus.INTERNAL_SERVER_ERROR });
+      throw new AppError("Falha ao gerar e enviar o contrato.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

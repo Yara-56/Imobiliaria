@@ -71,7 +71,7 @@ import {
               </Box>
             )}
   
-            <Button w="100%" size="lg" colorScheme="blue" onClick={fakeSend}>
+            <Button w="100%" size="lg" colorPalette="blue" onClick={fakeSend}>
               Enviar Documentos
             </Button>
   

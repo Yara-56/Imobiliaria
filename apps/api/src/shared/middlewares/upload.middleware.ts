@@ -22,10 +22,7 @@ const fileFilter: multer.Options["fileFilter"] = (req, file, cb) => {
   if (allowedMimetypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new AppError({
-      message: "Formato de arquivo inválido. Use JPG, PNG, WEBP ou PDF.",
-      statusCode: HttpStatus.BAD_REQUEST,
-    }));
+    cb(new AppError("Formato de arquivo inválido. Use JPG, PNG, WEBP ou PDF.", HttpStatus.BAD_REQUEST));
   }
 };
 
@@ -63,17 +60,11 @@ export const uploadDocuments: RequestHandler = (req, res, next) => {
         if (err.code === 'LIMIT_FILE_SIZE') message = "Arquivo muito grande. Máximo 10MB.";
         if (err.code === 'LIMIT_UNEXPECTED_FILE') message = "Campo de upload inválido ou excesso de arquivos.";
 
-        return next(new AppError({
-          message,
-          statusCode: HttpStatus.BAD_REQUEST,
-        }));
+        return next(new AppError(message, HttpStatus.BAD_REQUEST));
       }
 
       // Erros genéricos
-      return next(new AppError({
-        message: "Falha inesperada no processamento dos arquivos.",
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      }));
+      return next(new AppError("Falha inesperada no processamento dos arquivos.", HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     return next();

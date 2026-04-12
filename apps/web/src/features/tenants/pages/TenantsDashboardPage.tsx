@@ -18,6 +18,7 @@ import { LuPlus, LuUsers, LuUserCheck, LuUserX } from "react-icons/lu"
 // Ícones extras para dar um tom mais humano e aconchegante
 import { LuSun, LuMoon, LuCoffee, LuSparkles } from "react-icons/lu"
 import { motion } from "framer-motion"
+import { useNavigate } from "react-router-dom"
 
 // IMPORTANTE: Descomente os imports abaixo quando for integrar com seus componentes reais
 import { QuickAddTenantModal } from "../components/QuickAddTenantModal"
@@ -30,6 +31,7 @@ import { toaster } from "@/components/ui/toaster.js"
 const MotionBox = motion.create(Box)
 
 export default function TenantsDashboardPage() {
+  const navigate = useNavigate()
   const [isNewTenantModalOpen, setIsNewTenantModalOpen] = useState(false)
   const [tenantToDelete, setTenantToDelete] = useState<{ id: string; name: string } | null>(null)
   const [greeting, setGreeting] = useState({ text: "Olá", icon: LuSun, color: "orange.400" })
@@ -48,15 +50,24 @@ export default function TenantsDashboardPage() {
 
   const handleCreateTenant = async (data: TenantFormData) => {
     try {
-      if (actions?.create) await actions.create(data as any)
-      setIsNewTenantModalOpen(false) // Fecha após o sucesso
-      
-      // Notificação de sucesso
-      toaster.create({
-        title: "Inquilino cadastrado!",
-        description: `${data.fullName} já está disponível na sua lista.`,
-        type: "success",
-      });
+      if (actions?.create) {
+        const created = await actions.create(data as any)
+        setIsNewTenantModalOpen(false) // Fecha após o sucesso
+        
+        // Notificação de sucesso
+        toaster.create({
+          title: "Inquilino cadastrado!",
+          description: `${data.fullName} já está disponível na sua lista.`,
+          type: "success",
+        });
+
+        // ✅ Delay para dar tempo de ler o toast antes de ir para os detalhes
+        setTimeout(() => {
+          if (created && (created._id || created.id)) {
+            navigate(`/admin/tenants/edit/${created._id || created.id}`);
+          }
+        }, 1200);
+      }
     } catch (error) {
       console.error(error)
       // Notificação de erro

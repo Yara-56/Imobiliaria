@@ -5,6 +5,9 @@ import { ReactNode, useEffect } from "react";
 import { Center, Spinner, Text, VStack } from "@chakra-ui/react";
 import { useAuth } from "../context/AuthContext";
 
+// --- COMPONENTES GLOBAIS ---
+import { Toaster } from "@/components/ui/toaster.js";
+
 // --- LAYOUTS ---
 import { AdminLayout } from "../features/admin/layouts/AdminLayout";
 
@@ -18,10 +21,12 @@ import PaymentPage from "../features/payments/pages/PaymentPage";
 
 // --- TENANTS (Locatários) ---
 import TenantsDashboardPage from "../features/tenants/pages/TenantsDashboardPage";
+import NewTenantPage from "../features/tenants/pages/NewTenantPage";
 import EditTenantPage from "../features/tenants/pages/EditTenantPage";
 
 // --- PROPERTIES (Imóveis) ---
-import PropertiesPage from "../features/properties/pages/PropertiesPage";
+import PropertyDashboardPage from "../features/properties/pages/PropertyDashboardPage";
+import PropertiesListPage from "../features/properties/pages/PropertiesListPage";
 import NewPropertyPage from "../features/properties/pages/NewPropertyPage";
 import EditPropertyPage from "../features/properties/pages/EditPropertyPage";
 
@@ -71,7 +76,9 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
  */
 export default function AppRoutes() {
   return (
-    <Routes>
+    <>
+      <Toaster />
+      <Routes>
       {/* 🌐 ÁREA PÚBLICA */}
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
@@ -94,12 +101,14 @@ export default function AppRoutes() {
         {/* 🏢 MÓDULO DE LOCATÁRIOS (TENANTS) */}
         <Route path="tenants">
           <Route index element={<TenantsDashboardPage />} />
+          <Route path="new" element={<NewTenantPage />} />
           <Route path="edit/:id" element={<EditTenantPage />} />
         </Route>
 
         {/* 🏠 MÓDULO DE IMÓVEIS (PROPERTIES) */}
         <Route path="properties">
-          <Route index element={<PropertiesPage />} />
+          <Route index element={<PropertyDashboardPage />} />
+          <Route path="list" element={<PropertiesListPage />} />
           <Route path="new" element={<NewPropertyPage />} />
           <Route path="edit/:id" element={<EditPropertyPage />} />
         </Route>
@@ -122,6 +131,7 @@ export default function AppRoutes() {
 
       {/* 🛡️ CATCH-ALL: Proteção contra rotas inexistentes */}
       <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
-    </Routes>
+      </Routes>
+    </>
   );
 }

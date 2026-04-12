@@ -14,10 +14,7 @@ export const getStats = async (
   try {
     const tenantId = req.user?.tenantId;
     if (!tenantId) {
-      throw new AppError({
-        message: "Acesso não autorizado.",
-        statusCode: HttpStatus.UNAUTHORIZED,
-      });
+      throw new AppError("Acesso não autorizado.", HttpStatus.UNAUTHORIZED);
     }
 
     const [totalProperties, availableProperties, rentedProperties, activeContracts] =

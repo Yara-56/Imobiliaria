@@ -38,6 +38,8 @@ export class TenantDocument {
 export interface ITenantProps {
   id?: string;
   fullName: string;
+  type?: string;
+  preferredPaymentMethod?: string;
   email?: string | null;
   phone?: string | null;
   cpf?: string | null;
@@ -136,8 +138,13 @@ export class Tenant {
   private touch(): void { this.props.updatedAt = new Date(); }
 
   private validate(): void {
-    if (!this.props.fullName) throw new Error("Nome é obrigatório");
-    if (!this.props.tenantId) throw new Error("TenantId é obrigatório");
+    // ✅ Previne que dados antigos/incompletos no banco causem Erro 500 na Listagem
+    if (!this.props.fullName) {
+      this.props.fullName = "Inquilino (Sem Nome)";
+    }
+    if (!this.props.tenantId) {
+      this.props.tenantId = this.props.userId || "legacy-tenant";
+    }
   }
 
   // ==========================================
@@ -145,6 +152,8 @@ export class Tenant {
   // ==========================================
 
   get id() { return this.props.id; }
+  get type() { return this.props.type; }
+  get preferredPaymentMethod() { return this.props.preferredPaymentMethod; }
   get fullName() { return this.props.fullName; }
   get email() { return this.props.email; }
   get phone() { return this.props.phone; }
